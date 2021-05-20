@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/440918730",
+    "html_url": "https://github.com/jupyter/notebook/issues/3730#issuecomment-440918730",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3730",
+    "id": 440918730,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQ0MDkxODczMA==",
+    "user": {
+      "login": "dave-wilkins",
+      "id": 26951432,
+      "node_id": "MDQ6VXNlcjI2OTUxNDMy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26951432?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/dave-wilkins",
+      "html_url": "https://github.com/dave-wilkins",
+      "followers_url": "https://api.github.com/users/dave-wilkins/followers",
+      "following_url": "https://api.github.com/users/dave-wilkins/following{/other_user}",
+      "gists_url": "https://api.github.com/users/dave-wilkins/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/dave-wilkins/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/dave-wilkins/subscriptions",
+      "organizations_url": "https://api.github.com/users/dave-wilkins/orgs",
+      "repos_url": "https://api.github.com/users/dave-wilkins/repos",
+      "events_url": "https://api.github.com/users/dave-wilkins/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/dave-wilkins/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-11-22T05:39:36Z",
+    "updated_at": "2018-11-22T05:39:36Z",
+    "author_association": "NONE",
+    "body": "A good first place to start - realize that a notebook is a single program, built from multiple cells.\r\nTry the **kernel** menu then choose Restart and Run All. That often fixes this kind of issue.",
+    "performed_via_github_app": null
+  }
+]

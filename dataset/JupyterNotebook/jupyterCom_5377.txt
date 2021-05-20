@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/616174656",
+    "html_url": "https://github.com/jupyter/notebook/issues/5377#issuecomment-616174656",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5377",
+    "id": 616174656,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDYxNjE3NDY1Ng==",
+    "user": {
+      "login": "yochem",
+      "id": 23235841,
+      "node_id": "MDQ6VXNlcjIzMjM1ODQx",
+      "avatar_url": "https://avatars.githubusercontent.com/u/23235841?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/yochem",
+      "html_url": "https://github.com/yochem",
+      "followers_url": "https://api.github.com/users/yochem/followers",
+      "following_url": "https://api.github.com/users/yochem/following{/other_user}",
+      "gists_url": "https://api.github.com/users/yochem/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/yochem/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/yochem/subscriptions",
+      "organizations_url": "https://api.github.com/users/yochem/orgs",
+      "repos_url": "https://api.github.com/users/yochem/repos",
+      "events_url": "https://api.github.com/users/yochem/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/yochem/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-04-19T16:22:11Z",
+    "updated_at": "2020-04-19T16:22:11Z",
+    "author_association": "NONE",
+    "body": "Using `pip install ...` is not recommended. Use `<your python> -m pip install ...`. In this case it would probably be `python3 -m pip install geopandas`.",
+    "performed_via_github_app": null
+  }
+]

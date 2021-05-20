@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/399817001",
+    "html_url": "https://github.com/jupyter/notebook/issues/3583#issuecomment-399817001",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3583",
+    "id": 399817001,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM5OTgxNzAwMQ==",
+    "user": {
+      "login": "rileypeterson",
+      "id": 29719483,
+      "node_id": "MDQ6VXNlcjI5NzE5NDgz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/29719483?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/rileypeterson",
+      "html_url": "https://github.com/rileypeterson",
+      "followers_url": "https://api.github.com/users/rileypeterson/followers",
+      "following_url": "https://api.github.com/users/rileypeterson/following{/other_user}",
+      "gists_url": "https://api.github.com/users/rileypeterson/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/rileypeterson/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/rileypeterson/subscriptions",
+      "organizations_url": "https://api.github.com/users/rileypeterson/orgs",
+      "repos_url": "https://api.github.com/users/rileypeterson/repos",
+      "events_url": "https://api.github.com/users/rileypeterson/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/rileypeterson/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-06-25T02:58:29Z",
+    "updated_at": "2018-06-25T02:58:29Z",
+    "author_association": "NONE",
+    "body": "Duplicate of #3385 ",
+    "performed_via_github_app": null
+  }
+]

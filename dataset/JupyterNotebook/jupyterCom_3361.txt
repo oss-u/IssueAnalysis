@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/368513556",
+    "html_url": "https://github.com/jupyter/notebook/issues/3361#issuecomment-368513556",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3361",
+    "id": 368513556,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM2ODUxMzU1Ng==",
+    "user": {
+      "login": "takluyver",
+      "id": 327925,
+      "node_id": "MDQ6VXNlcjMyNzkyNQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/327925?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/takluyver",
+      "html_url": "https://github.com/takluyver",
+      "followers_url": "https://api.github.com/users/takluyver/followers",
+      "following_url": "https://api.github.com/users/takluyver/following{/other_user}",
+      "gists_url": "https://api.github.com/users/takluyver/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/takluyver/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/takluyver/subscriptions",
+      "organizations_url": "https://api.github.com/users/takluyver/orgs",
+      "repos_url": "https://api.github.com/users/takluyver/repos",
+      "events_url": "https://api.github.com/users/takluyver/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/takluyver/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-02-26T14:04:48Z",
+    "updated_at": "2018-02-26T14:04:48Z",
+    "author_association": "MEMBER",
+    "body": "Thanks Pavel. Jupyter servers might well be an attractive target for hackers.\r\n\r\nWere you using HTTPS on your servers? If not, someone who can listen to your network traffic (e.g. on unencrypted wifi) could have got the token as you were using it. That's not necessarily what happened, but it's one possibility.\r\n\r\nIf you or anyone find any security holes in Jupyter, you can contact us privately at security@ipython.org ([more details](http://jupyter-notebook.readthedocs.io/en/stable/security.html#reporting-security-issues)). There's no problem with this issue being public, though, since it doesn't contain any information that might let someone hack a server.",
+    "performed_via_github_app": null
+  }
+]

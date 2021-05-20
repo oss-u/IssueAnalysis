@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/455876229",
+    "html_url": "https://github.com/jupyter/notebook/issues/4342#issuecomment-455876229",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4342",
+    "id": 455876229,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQ1NTg3NjIyOQ==",
+    "user": {
+      "login": "toddsundsted",
+      "id": 58405,
+      "node_id": "MDQ6VXNlcjU4NDA1",
+      "avatar_url": "https://avatars.githubusercontent.com/u/58405?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/toddsundsted",
+      "html_url": "https://github.com/toddsundsted",
+      "followers_url": "https://api.github.com/users/toddsundsted/followers",
+      "following_url": "https://api.github.com/users/toddsundsted/following{/other_user}",
+      "gists_url": "https://api.github.com/users/toddsundsted/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/toddsundsted/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/toddsundsted/subscriptions",
+      "organizations_url": "https://api.github.com/users/toddsundsted/orgs",
+      "repos_url": "https://api.github.com/users/toddsundsted/repos",
+      "events_url": "https://api.github.com/users/toddsundsted/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/toddsundsted/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-01-20T15:35:08Z",
+    "updated_at": "2019-01-20T15:35:08Z",
+    "author_association": "NONE",
+    "body": "@resperic this isn't a chrome problem. you need to tell docker to forward port 8888 from the container to the host. you want to run something like: `sudo docker run -p 8888:8888 jupyter/tensorflow-notebook`.",
+    "performed_via_github_app": null
+  }
+]

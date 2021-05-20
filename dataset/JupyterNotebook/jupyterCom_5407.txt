@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/620122530",
+    "html_url": "https://github.com/jupyter/notebook/issues/5407#issuecomment-620122530",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5407",
+    "id": 620122530,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDYyMDEyMjUzMA==",
+    "user": {
+      "login": "donblax25",
+      "id": 63373389,
+      "node_id": "MDQ6VXNlcjYzMzczMzg5",
+      "avatar_url": "https://avatars.githubusercontent.com/u/63373389?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/donblax25",
+      "html_url": "https://github.com/donblax25",
+      "followers_url": "https://api.github.com/users/donblax25/followers",
+      "following_url": "https://api.github.com/users/donblax25/following{/other_user}",
+      "gists_url": "https://api.github.com/users/donblax25/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/donblax25/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/donblax25/subscriptions",
+      "organizations_url": "https://api.github.com/users/donblax25/orgs",
+      "repos_url": "https://api.github.com/users/donblax25/repos",
+      "events_url": "https://api.github.com/users/donblax25/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/donblax25/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-04-27T17:23:03Z",
+    "updated_at": "2020-04-27T17:23:03Z",
+    "author_association": "NONE",
+    "body": "#i think this does the job by adding it to your preamble.\r\nimport os\r\nos.environ['PROJ_LIB'] = '<path to anaconda>/anaconda3/share/proj'",
+    "performed_via_github_app": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/489332541",
+    "html_url": "https://github.com/jupyter/notebook/issues/3606#issuecomment-489332541",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3606",
+    "id": 489332541,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQ4OTMzMjU0MQ==",
+    "user": {
+      "login": "nshampur",
+      "id": 4503683,
+      "node_id": "MDQ6VXNlcjQ1MDM2ODM=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4503683?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/nshampur",
+      "html_url": "https://github.com/nshampur",
+      "followers_url": "https://api.github.com/users/nshampur/followers",
+      "following_url": "https://api.github.com/users/nshampur/following{/other_user}",
+      "gists_url": "https://api.github.com/users/nshampur/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/nshampur/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/nshampur/subscriptions",
+      "organizations_url": "https://api.github.com/users/nshampur/orgs",
+      "repos_url": "https://api.github.com/users/nshampur/repos",
+      "events_url": "https://api.github.com/users/nshampur/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/nshampur/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-05-04T14:36:52Z",
+    "updated_at": "2019-05-04T14:36:52Z",
+    "author_association": "NONE",
+    "body": "Aloha\r\n\r\nI encountered the same issue while writing some unit tests today.\r\n\r\nI'm certain you already figured it out, but creating the notebook (using the contents API - /api/contents\r\n/<path>/<file>) and then invoking the sessions API is the solution \r\n\r\nCheers",
+    "performed_via_github_app": null
+  }
+]

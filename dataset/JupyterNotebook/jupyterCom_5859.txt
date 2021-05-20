@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/725524978",
+    "html_url": "https://github.com/jupyter/notebook/issues/5859#issuecomment-725524978",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5859",
+    "id": 725524978,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDcyNTUyNDk3OA==",
+    "user": {
+      "login": "kevin-bates",
+      "id": 22599560,
+      "node_id": "MDQ6VXNlcjIyNTk5NTYw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22599560?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/kevin-bates",
+      "html_url": "https://github.com/kevin-bates",
+      "followers_url": "https://api.github.com/users/kevin-bates/followers",
+      "following_url": "https://api.github.com/users/kevin-bates/following{/other_user}",
+      "gists_url": "https://api.github.com/users/kevin-bates/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/kevin-bates/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/kevin-bates/subscriptions",
+      "organizations_url": "https://api.github.com/users/kevin-bates/orgs",
+      "repos_url": "https://api.github.com/users/kevin-bates/repos",
+      "events_url": "https://api.github.com/users/kevin-bates/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/kevin-bates/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-11-11T16:33:09Z",
+    "updated_at": "2020-11-11T16:33:09Z",
+    "author_association": "MEMBER",
+    "body": "Hi @m-shahada.  The `--generate-config` option is used to generate a configuration file with pre-filled defaults, all of which are commented out.  The idea being that you would then uncomment the appropriate option, set the appropriate value, and restart notebook.  The generated configuration file is displayed as output to `jupyter notebook --generate-config`.\r\n\r\nFor example, the file's entry corresponding to `max_buffer_size` appears as follows:\r\n```\r\n## Gets or sets the maximum amount of memory, in bytes, that is allocated for use\r\n#  by the buffer manager.\r\n#c.NotebookApp.max_buffer_size = 536870912\r\n```\r\nYou probably don't need to adjust `max_buffer_size`, but you certainly wouldn't want to adjust to 4 bytes.\r\n\r\n> i noticed that my Juypter notebook gets too slow after some cells \r\n\r\nYour slow down could very likely be related to the kinds of operations you're performing in each of your cells.  Are large amounts of data being transferred?\r\n\r\nWhen encountering these kinds of situations, I would also check if the same behavior is exhibited in another medium.  For example, does the same slow down occur in a straight python program or via the IPython REPL directly.  (The latter of which is very close to the notebook operation since the python kernel is built on IPython in the first place.)\r\n\r\nOnce you've analyzed where the slow down may be happening and it still appears directly related to notebook, please provide more information so we can try to narrow things down. \r\n\r\nThanks.",
+    "performed_via_github_app": null
+  }
+]

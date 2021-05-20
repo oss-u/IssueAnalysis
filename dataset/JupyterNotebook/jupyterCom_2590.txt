@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/317586084",
+    "html_url": "https://github.com/jupyter/notebook/issues/2590#issuecomment-317586084",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/2590",
+    "id": 317586084,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDMxNzU4NjA4NA==",
+    "user": {
+      "login": "gnestor",
+      "id": 512354,
+      "node_id": "MDQ6VXNlcjUxMjM1NA==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/512354?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/gnestor",
+      "html_url": "https://github.com/gnestor",
+      "followers_url": "https://api.github.com/users/gnestor/followers",
+      "following_url": "https://api.github.com/users/gnestor/following{/other_user}",
+      "gists_url": "https://api.github.com/users/gnestor/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/gnestor/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/gnestor/subscriptions",
+      "organizations_url": "https://api.github.com/users/gnestor/orgs",
+      "repos_url": "https://api.github.com/users/gnestor/repos",
+      "events_url": "https://api.github.com/users/gnestor/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/gnestor/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2017-07-24T23:40:06Z",
+    "updated_at": "2017-07-24T23:40:06Z",
+    "author_association": "CONTRIBUTOR",
+    "body": "It looks like this was introduced by https://github.com/jupyter/notebook/pull/2501.\r\n\r\nIt looks like `this.collapsed` is returning `false` and therefore `this.prompt_overlay.show()` is not being called: https://github.com/jupyter/notebook/blob/master/notebook/static/notebook/js/outputarea.js#L155\r\n\r\nFixed by https://github.com/jupyter/notebook/issues/2681 👍 ",
+    "performed_via_github_app": null
+  }
+]

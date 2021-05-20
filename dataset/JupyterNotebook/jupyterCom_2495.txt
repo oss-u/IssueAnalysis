@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/303106745",
+    "html_url": "https://github.com/jupyter/notebook/issues/2495#issuecomment-303106745",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/2495",
+    "id": 303106745,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDMwMzEwNjc0NQ==",
+    "user": {
+      "login": "rolweber",
+      "id": 12234414,
+      "node_id": "MDQ6VXNlcjEyMjM0NDE0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12234414?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/rolweber",
+      "html_url": "https://github.com/rolweber",
+      "followers_url": "https://api.github.com/users/rolweber/followers",
+      "following_url": "https://api.github.com/users/rolweber/following{/other_user}",
+      "gists_url": "https://api.github.com/users/rolweber/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/rolweber/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/rolweber/subscriptions",
+      "organizations_url": "https://api.github.com/users/rolweber/orgs",
+      "repos_url": "https://api.github.com/users/rolweber/repos",
+      "events_url": "https://api.github.com/users/rolweber/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/rolweber/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2017-05-22T13:54:17Z",
+    "updated_at": "2017-05-22T13:56:25Z",
+    "author_association": "CONTRIBUTOR",
+    "body": "What path would you expect? Having `/bin` in there twice isn't pretty, but still far from what I would call \"messed up\".\r\n\r\nCould be a `.bashrc` or other shell init script of the 'jovyan' user in the Docker image.  \r\nHave you tried `su - jovyan` after `docker exec`?",
+    "performed_via_github_app": null
+  }
+]

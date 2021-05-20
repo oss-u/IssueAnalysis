@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/523740498",
+    "html_url": "https://github.com/jupyter/notebook/issues/4790#issuecomment-523740498",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4790",
+    "id": 523740498,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDUyMzc0MDQ5OA==",
+    "user": {
+      "login": "lresende",
+      "id": 382917,
+      "node_id": "MDQ6VXNlcjM4MjkxNw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/382917?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/lresende",
+      "html_url": "https://github.com/lresende",
+      "followers_url": "https://api.github.com/users/lresende/followers",
+      "following_url": "https://api.github.com/users/lresende/following{/other_user}",
+      "gists_url": "https://api.github.com/users/lresende/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/lresende/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/lresende/subscriptions",
+      "organizations_url": "https://api.github.com/users/lresende/orgs",
+      "repos_url": "https://api.github.com/users/lresende/repos",
+      "events_url": "https://api.github.com/users/lresende/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/lresende/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-08-22T04:17:31Z",
+    "updated_at": "2019-08-22T04:17:31Z",
+    "author_association": "MEMBER",
+    "body": "Release is now available",
+    "performed_via_github_app": null
+  }
+]

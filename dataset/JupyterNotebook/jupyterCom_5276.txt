@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/606262457",
+    "html_url": "https://github.com/jupyter/notebook/pull/5276#issuecomment-606262457",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5276",
+    "id": 606262457,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDYwNjI2MjQ1Nw==",
+    "user": {
+      "login": "mikebeijen",
+      "id": 23527247,
+      "node_id": "MDQ6VXNlcjIzNTI3MjQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/23527247?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/mikebeijen",
+      "html_url": "https://github.com/mikebeijen",
+      "followers_url": "https://api.github.com/users/mikebeijen/followers",
+      "following_url": "https://api.github.com/users/mikebeijen/following{/other_user}",
+      "gists_url": "https://api.github.com/users/mikebeijen/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/mikebeijen/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/mikebeijen/subscriptions",
+      "organizations_url": "https://api.github.com/users/mikebeijen/orgs",
+      "repos_url": "https://api.github.com/users/mikebeijen/repos",
+      "events_url": "https://api.github.com/users/mikebeijen/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/mikebeijen/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-03-30T21:31:06Z",
+    "updated_at": "2020-03-30T21:31:06Z",
+    "author_association": "NONE",
+    "body": "Closed and reopened pull request to trigger CI rebuild",
+    "performed_via_github_app": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/615471671",
+    "html_url": "https://github.com/jupyter/notebook/issues/3255#issuecomment-615471671",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3255",
+    "id": 615471671,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDYxNTQ3MTY3MQ==",
+    "user": {
+      "login": "onnodb",
+      "id": 1549747,
+      "node_id": "MDQ6VXNlcjE1NDk3NDc=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1549747?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/onnodb",
+      "html_url": "https://github.com/onnodb",
+      "followers_url": "https://api.github.com/users/onnodb/followers",
+      "following_url": "https://api.github.com/users/onnodb/following{/other_user}",
+      "gists_url": "https://api.github.com/users/onnodb/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/onnodb/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/onnodb/subscriptions",
+      "organizations_url": "https://api.github.com/users/onnodb/orgs",
+      "repos_url": "https://api.github.com/users/onnodb/repos",
+      "events_url": "https://api.github.com/users/onnodb/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/onnodb/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-04-17T21:27:37Z",
+    "updated_at": "2020-04-17T21:27:37Z",
+    "author_association": "CONTRIBUTOR",
+    "body": "I also observed this issue today, both in version 6.0.3 and in the current master. As far as I can see, the issue is with the underlying JavaScript code. I've submitted a PR that addresses the issue, see jupyter/notebook#5385.",
+    "performed_via_github_app": null
+  }
+]

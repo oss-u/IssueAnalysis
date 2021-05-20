@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/124222085",
+    "html_url": "https://github.com/jupyter/notebook/issues/226#issuecomment-124222085",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/226",
+    "id": 124222085,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDEyNDIyMjA4NQ==",
+    "user": {
+      "login": "takluyver",
+      "id": 327925,
+      "node_id": "MDQ6VXNlcjMyNzkyNQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/327925?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/takluyver",
+      "html_url": "https://github.com/takluyver",
+      "followers_url": "https://api.github.com/users/takluyver/followers",
+      "following_url": "https://api.github.com/users/takluyver/following{/other_user}",
+      "gists_url": "https://api.github.com/users/takluyver/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/takluyver/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/takluyver/subscriptions",
+      "organizations_url": "https://api.github.com/users/takluyver/orgs",
+      "repos_url": "https://api.github.com/users/takluyver/repos",
+      "events_url": "https://api.github.com/users/takluyver/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/takluyver/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2015-07-23T19:48:21Z",
+    "updated_at": "2015-07-23T19:48:21Z",
+    "author_association": "MEMBER",
+    "body": "We're still getting Jupyter released - if you're feeling lost with the development version, please install the stable version of IPython, which includes the notebook, using:\n\n```\npip install ipython[notebook]\n```\n\nIt looks like we no longer put `load_extensions()` in the interactive namespace, so now you'll need to do something like:\n\n``` javascript\nrequire(['base/js/utils'],\nfunction(utils) {\n    utils.load_extensions('...');\n});\n```\n",
+    "performed_via_github_app": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/341671512",
+    "html_url": "https://github.com/jupyter/notebook/issues/3011#issuecomment-341671512",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3011",
+    "id": 341671512,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM0MTY3MTUxMg==",
+    "user": {
+      "login": "vidartf",
+      "id": 510760,
+      "node_id": "MDQ6VXNlcjUxMDc2MA==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/510760?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/vidartf",
+      "html_url": "https://github.com/vidartf",
+      "followers_url": "https://api.github.com/users/vidartf/followers",
+      "following_url": "https://api.github.com/users/vidartf/following{/other_user}",
+      "gists_url": "https://api.github.com/users/vidartf/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/vidartf/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/vidartf/subscriptions",
+      "organizations_url": "https://api.github.com/users/vidartf/orgs",
+      "repos_url": "https://api.github.com/users/vidartf/repos",
+      "events_url": "https://api.github.com/users/vidartf/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/vidartf/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2017-11-03T10:49:28Z",
+    "updated_at": "2017-11-03T10:49:28Z",
+    "author_association": "CONTRIBUTOR",
+    "body": "Currently used workaround (for getting contents of a notebook checkpoint):\r\n```python\r\nfrom notebook.services.contents.checkpoints import GenericCheckpointsMixin\r\nfrom notebook.services.contents.filecheckpoints import FileCheckpoints\r\n\r\ncm = <contents manager>\r\ncheckpoints = cm.list_checkpoints(path)  # omitting check for entries for brevity\r\nif isinstance(cm.checkpoints, GenericCheckpointsMixin):\r\n    checkpoint_model = cm.checkpoints.get_notebook_checkpoint(checkpoints[0], path)\r\n    checkpoint_nb = checkpoint_model['content']\r\nelif isinstance(cm.checkpoints, FileCheckpoints):\r\n    checkpoint_path = cm.checkpoints.checkpoint_path(checkpoints[0]['id'], path)\r\n    checkpoint_nb = nbformat.read(checkpoint_path, as_version=4)\r\n```",
+    "performed_via_github_app": null
+  }
+]

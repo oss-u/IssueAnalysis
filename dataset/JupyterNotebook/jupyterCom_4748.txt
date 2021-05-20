@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/511151879",
+    "html_url": "https://github.com/jupyter/notebook/issues/4748#issuecomment-511151879",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4748",
+    "id": 511151879,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDUxMTE1MTg3OQ==",
+    "user": {
+      "login": "jyu78749",
+      "id": 26172668,
+      "node_id": "MDQ6VXNlcjI2MTcyNjY4",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26172668?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/jyu78749",
+      "html_url": "https://github.com/jyu78749",
+      "followers_url": "https://api.github.com/users/jyu78749/followers",
+      "following_url": "https://api.github.com/users/jyu78749/following{/other_user}",
+      "gists_url": "https://api.github.com/users/jyu78749/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/jyu78749/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/jyu78749/subscriptions",
+      "organizations_url": "https://api.github.com/users/jyu78749/orgs",
+      "repos_url": "https://api.github.com/users/jyu78749/repos",
+      "events_url": "https://api.github.com/users/jyu78749/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/jyu78749/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-07-13T20:35:46Z",
+    "updated_at": "2019-07-13T20:35:46Z",
+    "author_association": "NONE",
+    "body": "It appears the confirmation is intended if you press Ctrl-C only once. To skip, you have to press it twice in succession:\r\n`[I 15:34:49.242 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).`",
+    "performed_via_github_app": null
+  }
+]

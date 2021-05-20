@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/622597974",
+    "html_url": "https://github.com/jupyter/notebook/issues/5402#issuecomment-622597974",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5402",
+    "id": 622597974,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDYyMjU5Nzk3NA==",
+    "user": {
+      "login": "Zsailer",
+      "id": 2791223,
+      "node_id": "MDQ6VXNlcjI3OTEyMjM=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2791223?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Zsailer",
+      "html_url": "https://github.com/Zsailer",
+      "followers_url": "https://api.github.com/users/Zsailer/followers",
+      "following_url": "https://api.github.com/users/Zsailer/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Zsailer/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Zsailer/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Zsailer/subscriptions",
+      "organizations_url": "https://api.github.com/users/Zsailer/orgs",
+      "repos_url": "https://api.github.com/users/Zsailer/repos",
+      "events_url": "https://api.github.com/users/Zsailer/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Zsailer/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-05-01T22:44:04Z",
+    "updated_at": "2020-05-01T22:44:04Z",
+    "author_association": "MEMBER",
+    "body": "Unfortunately, this is an issue with Github's Notebook renderer. We don't have control over this (it's not open source), so we're unable to fix it. We recommend using NBViewer—which it looks like you're doing :+1:. \r\n\r\nClosing this for now.",
+    "performed_via_github_app": null
+  }
+]

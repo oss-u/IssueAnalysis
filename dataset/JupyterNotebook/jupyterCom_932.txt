@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/169946397",
+    "html_url": "https://github.com/jupyter/notebook/issues/932#issuecomment-169946397",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/932",
+    "id": 169946397,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDE2OTk0NjM5Nw==",
+    "user": {
+      "login": "Carreau",
+      "id": 335567,
+      "node_id": "MDQ6VXNlcjMzNTU2Nw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/335567?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Carreau",
+      "html_url": "https://github.com/Carreau",
+      "followers_url": "https://api.github.com/users/Carreau/followers",
+      "following_url": "https://api.github.com/users/Carreau/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Carreau/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Carreau/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Carreau/subscriptions",
+      "organizations_url": "https://api.github.com/users/Carreau/orgs",
+      "repos_url": "https://api.github.com/users/Carreau/repos",
+      "events_url": "https://api.github.com/users/Carreau/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Carreau/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2016-01-08T09:33:43Z",
+    "updated_at": "2016-01-08T09:33:43Z",
+    "author_association": "MEMBER",
+    "body": "> why does the notebook lack this functionality\n\nPartly because unlimited undoing is a much more complex subject when the document is executable.\nWhich is the case with the notebook.\n\nExample : if i do `a=1`, execute, `a=2`, execute, and undo what am I suppose to undo ? The execution ? \n\nThen you enter question like : Can the execution be undone ? Can it be undone reliably across languages ? What if other code is currently being ran ?.... etc, and I just scratch the surface. \n\nOther part : we assessed the benefit/cost ratio, and decided that with the current manpower/usage/cost/number-of-features-needed/current-architecture it was not worth implementing, at least yet.\n\nThis can of course change if there is a change in any of the above mentioned factor, especially if we get more help for code maintenance.\n\nI'm closing as the multiple undo has already a few issues where it is discussed, but feel free to continue adding comments to this issues if you like. \n\nThanks.\n",
+    "performed_via_github_app": null
+  }
+]

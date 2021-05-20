@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/599733873",
+    "html_url": "https://github.com/jupyter/notebook/issues/5286#issuecomment-599733873",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5286",
+    "id": 599733873,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDU5OTczMzg3Mw==",
+    "user": {
+      "login": "OlafEichstaedt",
+      "id": 24755597,
+      "node_id": "MDQ6VXNlcjI0NzU1NTk3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24755597?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/OlafEichstaedt",
+      "html_url": "https://github.com/OlafEichstaedt",
+      "followers_url": "https://api.github.com/users/OlafEichstaedt/followers",
+      "following_url": "https://api.github.com/users/OlafEichstaedt/following{/other_user}",
+      "gists_url": "https://api.github.com/users/OlafEichstaedt/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/OlafEichstaedt/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/OlafEichstaedt/subscriptions",
+      "organizations_url": "https://api.github.com/users/OlafEichstaedt/orgs",
+      "repos_url": "https://api.github.com/users/OlafEichstaedt/repos",
+      "events_url": "https://api.github.com/users/OlafEichstaedt/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/OlafEichstaedt/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-03-16T20:02:24Z",
+    "updated_at": "2020-03-16T20:02:24Z",
+    "author_association": "NONE",
+    "body": "After endless trials and trying a different image (`continuumio/anaconda3`) I stumbled upon a way to reproduce and overcome the problem.\r\n\r\nMapping internal port 8888 to external port 8888 does not work ... I get the authentification/login page all the time. \r\n\r\nMapping internal 8888 to some other port => works like charm. That means \r\n```` \r\nversion: '2.3'\r\nservices:\r\n  python: \r\n    build:\r\n      context: .\r\n      dockerfile: Dockerfile\r\n    image:  python_image\r\n    volumes: \r\n      - ./notebooks:/home/jovyan/notebooks\r\n    ports:\r\n      - \"8888:8888\" \r\n```` \r\n\r\ndoes not let me past the login/authorization page.\r\n\r\n```` \r\nversion: '2.3'\r\nservices:\r\n  python: \r\n    build:\r\n      context: .\r\n      dockerfile: Dockerfile\r\n    image:  python_image\r\n    volumes: \r\n      - ./notebooks:/home/jovyan/notebooks\r\n    ports:\r\n      - \"9999:8888\" \r\n```` \r\ndoes.\r\n\r\nThe container's log will say:\r\n```\r\npython_1 | [I 19:49:09.356 LabApp] The Jupyter Notebook is running at:\r\npython_1 | [I 19:49:09.356 LabApp] http://127.0.0.1:8888/?token=[...]\r\n```\r\nand I will ask the browser to access:\r\n```\r\nhttp://127.0.0.1:9999/?token=[...]\r\n```\r\nand Jupyter Lab will start as expected. ",
+    "performed_via_github_app": null
+  }
+]

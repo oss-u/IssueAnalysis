@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/721824264",
+    "html_url": "https://github.com/jupyter/notebook/issues/5846#issuecomment-721824264",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5846",
+    "id": 721824264,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDcyMTgyNDI2NA==",
+    "user": {
+      "login": "kevin-bates",
+      "id": 22599560,
+      "node_id": "MDQ6VXNlcjIyNTk5NTYw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22599560?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/kevin-bates",
+      "html_url": "https://github.com/kevin-bates",
+      "followers_url": "https://api.github.com/users/kevin-bates/followers",
+      "following_url": "https://api.github.com/users/kevin-bates/following{/other_user}",
+      "gists_url": "https://api.github.com/users/kevin-bates/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/kevin-bates/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/kevin-bates/subscriptions",
+      "organizations_url": "https://api.github.com/users/kevin-bates/orgs",
+      "repos_url": "https://api.github.com/users/kevin-bates/repos",
+      "events_url": "https://api.github.com/users/kevin-bates/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/kevin-bates/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-11-04T16:10:15Z",
+    "updated_at": "2020-11-04T16:10:15Z",
+    "author_association": "MEMBER",
+    "body": "This message is stating that the kernel cannot find the `master_list` variable in its set of definitions.  If the kernel was just restarted and the initialization of `master_list` occurs in a previous cell, you would get this error as if `master_list` is not defined.  Be sure to execute a cell that initializes `master_list` prior to executing the `print(master_list)` cell within the same lifecycle of the kernel.\r\n\r\nSince this is not an issue with this repository, I'm closing for now.  Feel free to report your status as a comment on this issue as that might help others as well.",
+    "performed_via_github_app": null
+  }
+]

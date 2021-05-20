@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/539716238",
+    "html_url": "https://github.com/jupyter/notebook/pull/4670#issuecomment-539716238",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4670",
+    "id": 539716238,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDUzOTcxNjIzOA==",
+    "user": {
+      "login": "takluyver",
+      "id": 327925,
+      "node_id": "MDQ6VXNlcjMyNzkyNQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/327925?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/takluyver",
+      "html_url": "https://github.com/takluyver",
+      "followers_url": "https://api.github.com/users/takluyver/followers",
+      "following_url": "https://api.github.com/users/takluyver/following{/other_user}",
+      "gists_url": "https://api.github.com/users/takluyver/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/takluyver/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/takluyver/subscriptions",
+      "organizations_url": "https://api.github.com/users/takluyver/orgs",
+      "repos_url": "https://api.github.com/users/takluyver/repos",
+      "events_url": "https://api.github.com/users/takluyver/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/takluyver/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-10-08T21:41:19Z",
+    "updated_at": "2019-10-08T21:41:19Z",
+    "author_association": "MEMBER",
+    "body": "I've got the tests passing.\r\n\r\nI was informed of a related issue someone at EuXFEL encountered, where there was a permissions error stat-ing a symlink. So I've broadened this to catch all OSError, logging the exception details for anything besides the recursive symlink case.",
+    "performed_via_github_app": null
+  }
+]

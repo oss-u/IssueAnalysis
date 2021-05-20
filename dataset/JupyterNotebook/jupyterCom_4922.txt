@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/539706457",
+    "html_url": "https://github.com/jupyter/notebook/issues/4922#issuecomment-539706457",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4922",
+    "id": 539706457,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDUzOTcwNjQ1Nw==",
+    "user": {
+      "login": "takluyver",
+      "id": 327925,
+      "node_id": "MDQ6VXNlcjMyNzkyNQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/327925?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/takluyver",
+      "html_url": "https://github.com/takluyver",
+      "followers_url": "https://api.github.com/users/takluyver/followers",
+      "following_url": "https://api.github.com/users/takluyver/following{/other_user}",
+      "gists_url": "https://api.github.com/users/takluyver/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/takluyver/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/takluyver/subscriptions",
+      "organizations_url": "https://api.github.com/users/takluyver/orgs",
+      "repos_url": "https://api.github.com/users/takluyver/repos",
+      "events_url": "https://api.github.com/users/takluyver/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/takluyver/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-10-08T21:12:08Z",
+    "updated_at": "2019-10-08T21:12:08Z",
+    "author_association": "MEMBER",
+    "body": "Fixed by #4936 (as far as I know - please feel free to open further PRs if there's more compatibility code that can be removed)",
+    "performed_via_github_app": null
+  }
+]

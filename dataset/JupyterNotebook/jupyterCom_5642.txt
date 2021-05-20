@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/667338839",
+    "html_url": "https://github.com/jupyter/notebook/issues/5642#issuecomment-667338839",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5642",
+    "id": 667338839,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDY2NzMzODgzOQ==",
+    "user": {
+      "login": "kevin-bates",
+      "id": 22599560,
+      "node_id": "MDQ6VXNlcjIyNTk5NTYw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22599560?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/kevin-bates",
+      "html_url": "https://github.com/kevin-bates",
+      "followers_url": "https://api.github.com/users/kevin-bates/followers",
+      "following_url": "https://api.github.com/users/kevin-bates/following{/other_user}",
+      "gists_url": "https://api.github.com/users/kevin-bates/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/kevin-bates/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/kevin-bates/subscriptions",
+      "organizations_url": "https://api.github.com/users/kevin-bates/orgs",
+      "repos_url": "https://api.github.com/users/kevin-bates/repos",
+      "events_url": "https://api.github.com/users/kevin-bates/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/kevin-bates/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-07-31T20:17:14Z",
+    "updated_at": "2020-07-31T20:17:14Z",
+    "author_association": "MEMBER",
+    "body": "It's tough to determine the context of this question, but I'm assuming you'd like to display an image within a notebook.\r\n\r\nIn looking into this, there are a couple of things to consider.  \r\n1. the path to the image is relative to the running notebook, so unless your notebook directory is '`/`' (root), you'll likely need to adjust the path.\r\n2. There are a few options (again, path may require adjustment):\r\n\r\nFrom a markdown cell, either of the following should work:\r\n`<img src=\"/img/profile.jpg\"/>`\r\nor\r\n`![image](/img/profile.jpg)`\r\n\r\nFrom a python code cell, this should work:\r\n```python\r\nfrom IPython.display import Image \r\n\r\nImage(\"/img/profile.jpg\")\r\n```\r\n\r\nIf your kernel is not ipykernel, you'll likely need to consult the kernel's documentation if you want this produced from a code cell.\r\n\r\nI'm going to close this issue since it's not an issue for this repository.",
+    "performed_via_github_app": null
+  }
+]

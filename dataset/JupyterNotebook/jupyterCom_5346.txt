@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/610717958",
+    "html_url": "https://github.com/jupyter/notebook/issues/5346#issuecomment-610717958",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5346",
+    "id": 610717958,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDYxMDcxNzk1OA==",
+    "user": {
+      "login": "rodlpho",
+      "id": 13140199,
+      "node_id": "MDQ6VXNlcjEzMTQwMTk5",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13140199?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/rodlpho",
+      "html_url": "https://github.com/rodlpho",
+      "followers_url": "https://api.github.com/users/rodlpho/followers",
+      "following_url": "https://api.github.com/users/rodlpho/following{/other_user}",
+      "gists_url": "https://api.github.com/users/rodlpho/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/rodlpho/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/rodlpho/subscriptions",
+      "organizations_url": "https://api.github.com/users/rodlpho/orgs",
+      "repos_url": "https://api.github.com/users/rodlpho/repos",
+      "events_url": "https://api.github.com/users/rodlpho/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/rodlpho/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-04-08T02:33:18Z",
+    "updated_at": "2020-04-08T02:33:18Z",
+    "author_association": "NONE",
+    "body": "I think the issue is with my environment.\r\n\r\nI'm using with Django and Django extensions together with alias \"manage\", and I will check better this case, maybe I need to reinnstall to get  cElement.\r\nThanks\r\n\r\n",
+    "performed_via_github_app": null
+  }
+]

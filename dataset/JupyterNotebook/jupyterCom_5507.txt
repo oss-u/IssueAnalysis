@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/639118861",
+    "html_url": "https://github.com/jupyter/notebook/issues/5507#issuecomment-639118861",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5507",
+    "id": 639118861,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDYzOTExODg2MQ==",
+    "user": {
+      "login": "Zsailer",
+      "id": 2791223,
+      "node_id": "MDQ6VXNlcjI3OTEyMjM=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2791223?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Zsailer",
+      "html_url": "https://github.com/Zsailer",
+      "followers_url": "https://api.github.com/users/Zsailer/followers",
+      "following_url": "https://api.github.com/users/Zsailer/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Zsailer/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Zsailer/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Zsailer/subscriptions",
+      "organizations_url": "https://api.github.com/users/Zsailer/orgs",
+      "repos_url": "https://api.github.com/users/Zsailer/repos",
+      "events_url": "https://api.github.com/users/Zsailer/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Zsailer/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-06-04T21:12:07Z",
+    "updated_at": "2020-06-04T21:12:07Z",
+    "author_association": "MEMBER",
+    "body": "You cannot decouple the base_url and static_prefix using jupyter's config system, unfortunately. \r\n\r\nYou can, however, create a server extension that appends this endpoint to Notebook's web application and serves static files using Tornado's [`StaticFileHandler`](https://www.tornadoweb.org/en/stable/web.html#tornado.web.StaticFileHandler). ",
+    "performed_via_github_app": null
+  }
+]

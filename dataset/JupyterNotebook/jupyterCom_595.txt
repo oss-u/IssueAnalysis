@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/147387900",
+    "html_url": "https://github.com/jupyter/notebook/issues/595#issuecomment-147387900",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/595",
+    "id": 147387900,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDE0NzM4NzkwMA==",
+    "user": {
+      "login": "minrk",
+      "id": 151929,
+      "node_id": "MDQ6VXNlcjE1MTkyOQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/151929?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/minrk",
+      "html_url": "https://github.com/minrk",
+      "followers_url": "https://api.github.com/users/minrk/followers",
+      "following_url": "https://api.github.com/users/minrk/following{/other_user}",
+      "gists_url": "https://api.github.com/users/minrk/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/minrk/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/minrk/subscriptions",
+      "organizations_url": "https://api.github.com/users/minrk/orgs",
+      "repos_url": "https://api.github.com/users/minrk/repos",
+      "events_url": "https://api.github.com/users/minrk/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/minrk/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2015-10-12T12:48:10Z",
+    "updated_at": "2015-10-12T12:48:10Z",
+    "author_association": "MEMBER",
+    "body": "@kylekyle should be fixed by #596\n",
+    "performed_via_github_app": null
+  }
+]

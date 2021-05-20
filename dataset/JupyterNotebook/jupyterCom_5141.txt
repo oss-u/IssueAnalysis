@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/571617996",
+    "html_url": "https://github.com/jupyter/notebook/issues/5141#issuecomment-571617996",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5141",
+    "id": 571617996,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDU3MTYxNzk5Ng==",
+    "user": {
+      "login": "kevin-bates",
+      "id": 22599560,
+      "node_id": "MDQ6VXNlcjIyNTk5NTYw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22599560?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/kevin-bates",
+      "html_url": "https://github.com/kevin-bates",
+      "followers_url": "https://api.github.com/users/kevin-bates/followers",
+      "following_url": "https://api.github.com/users/kevin-bates/following{/other_user}",
+      "gists_url": "https://api.github.com/users/kevin-bates/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/kevin-bates/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/kevin-bates/subscriptions",
+      "organizations_url": "https://api.github.com/users/kevin-bates/orgs",
+      "repos_url": "https://api.github.com/users/kevin-bates/repos",
+      "events_url": "https://api.github.com/users/kevin-bates/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/kevin-bates/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-01-07T14:48:49Z",
+    "updated_at": "2020-01-07T14:48:49Z",
+    "author_association": "MEMBER",
+    "body": "This is a duplicate of #5124 - please see [this comment](https://github.com/jupyter/notebook/issues/5124#issuecomment-570244042).",
+    "performed_via_github_app": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/526177473",
+    "html_url": "https://github.com/jupyter/notebook/issues/4774#issuecomment-526177473",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4774",
+    "id": 526177473,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDUyNjE3NzQ3Mw==",
+    "user": {
+      "login": "zinzyuk",
+      "id": 856677,
+      "node_id": "MDQ6VXNlcjg1NjY3Nw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/856677?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/zinzyuk",
+      "html_url": "https://github.com/zinzyuk",
+      "followers_url": "https://api.github.com/users/zinzyuk/followers",
+      "following_url": "https://api.github.com/users/zinzyuk/following{/other_user}",
+      "gists_url": "https://api.github.com/users/zinzyuk/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/zinzyuk/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/zinzyuk/subscriptions",
+      "organizations_url": "https://api.github.com/users/zinzyuk/orgs",
+      "repos_url": "https://api.github.com/users/zinzyuk/repos",
+      "events_url": "https://api.github.com/users/zinzyuk/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/zinzyuk/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-08-29T13:09:25Z",
+    "updated_at": "2019-08-29T13:09:25Z",
+    "author_association": "NONE",
+    "body": "Related to https://github.com/matplotlib/matplotlib/issues/14552\r\nupdating to matplotlib==3.1.1 fixed the same issue for me",
+    "performed_via_github_app": null
+  }
+]

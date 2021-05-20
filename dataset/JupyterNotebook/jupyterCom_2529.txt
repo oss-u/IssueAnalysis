@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/304680528",
+    "html_url": "https://github.com/jupyter/notebook/issues/2529#issuecomment-304680528",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/2529",
+    "id": 304680528,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDMwNDY4MDUyOA==",
+    "user": {
+      "login": "abi-aryan",
+      "id": 7281944,
+      "node_id": "MDQ6VXNlcjcyODE5NDQ=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7281944?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/abi-aryan",
+      "html_url": "https://github.com/abi-aryan",
+      "followers_url": "https://api.github.com/users/abi-aryan/followers",
+      "following_url": "https://api.github.com/users/abi-aryan/following{/other_user}",
+      "gists_url": "https://api.github.com/users/abi-aryan/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/abi-aryan/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/abi-aryan/subscriptions",
+      "organizations_url": "https://api.github.com/users/abi-aryan/orgs",
+      "repos_url": "https://api.github.com/users/abi-aryan/repos",
+      "events_url": "https://api.github.com/users/abi-aryan/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/abi-aryan/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2017-05-29T14:53:54Z",
+    "updated_at": "2017-05-29T14:57:04Z",
+    "author_association": "NONE",
+    "body": "Solved for now. It is because of [this recent ](https://github.com/jupyter/notebook/issues/2438)Mac OS issue i.e. recent update by Apple on Mac OS. \r\n\r\n`XX-Macbook-Pro: ~username$ jupyter notebook --browser=Safari` works. \r\n\r\nMore on this here : [Browsers in Jupyter](https://jupyter.readthedocs.io/en/latest/running.html#running)\r\n\r\nWhile it is not a permanent solution to manually direct the jupyter notebook to the browser but we might have to wait until the next set of updates by Apple to see if it gets resolved for good. ",
+    "performed_via_github_app": null
+  }
+]

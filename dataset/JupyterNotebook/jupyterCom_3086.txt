@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/347122084",
+    "html_url": "https://github.com/jupyter/notebook/issues/3086#issuecomment-347122084",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3086",
+    "id": 347122084,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM0NzEyMjA4NA==",
+    "user": {
+      "login": "huangbiubiu",
+      "id": 9823705,
+      "node_id": "MDQ6VXNlcjk4MjM3MDU=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9823705?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/huangbiubiu",
+      "html_url": "https://github.com/huangbiubiu",
+      "followers_url": "https://api.github.com/users/huangbiubiu/followers",
+      "following_url": "https://api.github.com/users/huangbiubiu/following{/other_user}",
+      "gists_url": "https://api.github.com/users/huangbiubiu/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/huangbiubiu/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/huangbiubiu/subscriptions",
+      "organizations_url": "https://api.github.com/users/huangbiubiu/orgs",
+      "repos_url": "https://api.github.com/users/huangbiubiu/repos",
+      "events_url": "https://api.github.com/users/huangbiubiu/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/huangbiubiu/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2017-11-27T09:18:06Z",
+    "updated_at": "2017-11-27T10:41:53Z",
+    "author_association": "NONE",
+    "body": "Solution found. See https://stackoverflow.com/questions/29725915/ipython-iptest-importerror-no-module-named-ipython/47507335#47507335. The problem is I use `--system-site-packages` when create the virtualenv.",
+    "performed_via_github_app": null
+  }
+]

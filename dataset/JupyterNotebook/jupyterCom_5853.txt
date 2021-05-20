@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/723439898",
+    "html_url": "https://github.com/jupyter/notebook/issues/5853#issuecomment-723439898",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5853",
+    "id": 723439898,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDcyMzQzOTg5OA==",
+    "user": {
+      "login": "thomas-saigre",
+      "id": 60920471,
+      "node_id": "MDQ6VXNlcjYwOTIwNDcx",
+      "avatar_url": "https://avatars.githubusercontent.com/u/60920471?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/thomas-saigre",
+      "html_url": "https://github.com/thomas-saigre",
+      "followers_url": "https://api.github.com/users/thomas-saigre/followers",
+      "following_url": "https://api.github.com/users/thomas-saigre/following{/other_user}",
+      "gists_url": "https://api.github.com/users/thomas-saigre/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/thomas-saigre/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/thomas-saigre/subscriptions",
+      "organizations_url": "https://api.github.com/users/thomas-saigre/orgs",
+      "repos_url": "https://api.github.com/users/thomas-saigre/repos",
+      "events_url": "https://api.github.com/users/thomas-saigre/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/thomas-saigre/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-11-07T12:25:29Z",
+    "updated_at": "2020-11-07T12:25:29Z",
+    "author_association": "NONE",
+    "body": "oh ! after some tries, I managed to make if work, I changed the function `p` like this :+1: \r\n```python\r\ndef p(n):\r\n    print()\r\n    for i in range(n):\r\n        print(\"=\"*i, flush=False, end='\\r')\r\n        sleep(1)\r\n    print(end=\"\\n\")\r\n```\r\n(I just print an empty line at the begenning, and with that it works well !",
+    "performed_via_github_app": null
+  }
+]

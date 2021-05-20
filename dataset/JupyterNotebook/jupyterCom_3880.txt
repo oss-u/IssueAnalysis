@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/435881469",
+    "html_url": "https://github.com/jupyter/notebook/issues/3880#issuecomment-435881469",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3880",
+    "id": 435881469,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQzNTg4MTQ2OQ==",
+    "user": {
+      "login": "DancingQuanta",
+      "id": 8419157,
+      "node_id": "MDQ6VXNlcjg0MTkxNTc=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8419157?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/DancingQuanta",
+      "html_url": "https://github.com/DancingQuanta",
+      "followers_url": "https://api.github.com/users/DancingQuanta/followers",
+      "following_url": "https://api.github.com/users/DancingQuanta/following{/other_user}",
+      "gists_url": "https://api.github.com/users/DancingQuanta/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/DancingQuanta/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/DancingQuanta/subscriptions",
+      "organizations_url": "https://api.github.com/users/DancingQuanta/orgs",
+      "repos_url": "https://api.github.com/users/DancingQuanta/repos",
+      "events_url": "https://api.github.com/users/DancingQuanta/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/DancingQuanta/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-11-05T13:53:05Z",
+    "updated_at": "2018-11-05T13:53:05Z",
+    "author_association": "NONE",
+    "body": "Do you still have this issue?\r\n\r\nYou should type \r\n````\r\njupyter kernelspec list\r\n````\r\nin a command prompt.\r\n\r\nHow did you launch your notebook?",
+    "performed_via_github_app": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/499905918",
+    "html_url": "https://github.com/jupyter/notebook/issues/4554#issuecomment-499905918",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4554",
+    "id": 499905918,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQ5OTkwNTkxOA==",
+    "user": {
+      "login": "bryango",
+      "id": 26322692,
+      "node_id": "MDQ6VXNlcjI2MzIyNjky",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26322692?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/bryango",
+      "html_url": "https://github.com/bryango",
+      "followers_url": "https://api.github.com/users/bryango/followers",
+      "following_url": "https://api.github.com/users/bryango/following{/other_user}",
+      "gists_url": "https://api.github.com/users/bryango/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/bryango/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/bryango/subscriptions",
+      "organizations_url": "https://api.github.com/users/bryango/orgs",
+      "repos_url": "https://api.github.com/users/bryango/repos",
+      "events_url": "https://api.github.com/users/bryango/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/bryango/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-06-07T14:26:38Z",
+    "updated_at": "2019-06-07T14:26:38Z",
+    "author_association": "NONE",
+    "body": "See jupyter/notebook#3652. I'm also frustrated about this but it seems that there is nothing we can do.",
+    "performed_via_github_app": null
+  }
+]

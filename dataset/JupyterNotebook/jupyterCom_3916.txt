@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/422205359",
+    "html_url": "https://github.com/jupyter/notebook/issues/3916#issuecomment-422205359",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3916",
+    "id": 422205359,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQyMjIwNTM1OQ==",
+    "user": {
+      "login": "gustavoefeiche",
+      "id": 11490046,
+      "node_id": "MDQ6VXNlcjExNDkwMDQ2",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11490046?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/gustavoefeiche",
+      "html_url": "https://github.com/gustavoefeiche",
+      "followers_url": "https://api.github.com/users/gustavoefeiche/followers",
+      "following_url": "https://api.github.com/users/gustavoefeiche/following{/other_user}",
+      "gists_url": "https://api.github.com/users/gustavoefeiche/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/gustavoefeiche/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/gustavoefeiche/subscriptions",
+      "organizations_url": "https://api.github.com/users/gustavoefeiche/orgs",
+      "repos_url": "https://api.github.com/users/gustavoefeiche/repos",
+      "events_url": "https://api.github.com/users/gustavoefeiche/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/gustavoefeiche/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-09-17T23:36:41Z",
+    "updated_at": "2018-09-18T01:19:44Z",
+    "author_association": "CONTRIBUTOR",
+    "body": "@Ark-kun I was able to reproduce the issue and now I am working on it. Should have a PR for it soon.\r\n\r\n**Edit** Actually I don't think this is an issue, it makes sense... If there is a cell below the one being executed, you probably want to execute it too, as code already exists there. If there isn't, you enter edit mode to add new lines.",
+    "performed_via_github_app": null
+  }
+]

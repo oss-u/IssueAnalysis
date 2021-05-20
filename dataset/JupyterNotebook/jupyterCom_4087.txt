@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/449127163",
+    "html_url": "https://github.com/jupyter/notebook/pull/4087#issuecomment-449127163",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4087",
+    "id": 449127163,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQ0OTEyNzE2Mw==",
+    "user": {
+      "login": "stmax82",
+      "id": 6381927,
+      "node_id": "MDQ6VXNlcjYzODE5Mjc=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6381927?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/stmax82",
+      "html_url": "https://github.com/stmax82",
+      "followers_url": "https://api.github.com/users/stmax82/followers",
+      "following_url": "https://api.github.com/users/stmax82/following{/other_user}",
+      "gists_url": "https://api.github.com/users/stmax82/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/stmax82/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/stmax82/subscriptions",
+      "organizations_url": "https://api.github.com/users/stmax82/orgs",
+      "repos_url": "https://api.github.com/users/stmax82/repos",
+      "events_url": "https://api.github.com/users/stmax82/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/stmax82/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-12-20T20:34:19Z",
+    "updated_at": "2018-12-20T20:34:19Z",
+    "author_association": "NONE",
+    "body": "seems to have been fixed already...",
+    "performed_via_github_app": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/643283847",
+    "html_url": "https://github.com/jupyter/notebook/issues/5528#issuecomment-643283847",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5528",
+    "id": 643283847,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDY0MzI4Mzg0Nw==",
+    "user": {
+      "login": "kevin-bates",
+      "id": 22599560,
+      "node_id": "MDQ6VXNlcjIyNTk5NTYw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22599560?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/kevin-bates",
+      "html_url": "https://github.com/kevin-bates",
+      "followers_url": "https://api.github.com/users/kevin-bates/followers",
+      "following_url": "https://api.github.com/users/kevin-bates/following{/other_user}",
+      "gists_url": "https://api.github.com/users/kevin-bates/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/kevin-bates/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/kevin-bates/subscriptions",
+      "organizations_url": "https://api.github.com/users/kevin-bates/orgs",
+      "repos_url": "https://api.github.com/users/kevin-bates/repos",
+      "events_url": "https://api.github.com/users/kevin-bates/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/kevin-bates/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-06-12T13:56:38Z",
+    "updated_at": "2020-06-12T13:56:38Z",
+    "author_association": "MEMBER",
+    "body": "Hi @CT-Suimz.  The Notebook-related docker image files are built and maintained via the https://github.com/jupyter/docker-stacks repository.  These are periodically (or triggered via GH events) built from released packages.  \r\n\r\nI'm not entirely sure what you mean by \"notebook file\".  Are you saying you've made a code change to the Notebook package and want to incorporate that change in a docker image?\r\n\r\nOr are you saying you've modified an actual notebook (ipynb file) and would like to build a docker image from within a running notebook?\r\n\r\nI suspect the former.  So, if you'd like to test out a change within a docker image, I would use the docker-stacks repository as a reference and just extend an existing notebook image of your choice to try your changes out. \r\n\r\nI hope that helps, otherwise, could you please clarify your question?  Thanks.",
+    "performed_via_github_app": null
+  }
+]

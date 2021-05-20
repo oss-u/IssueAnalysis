@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/493172854",
+    "html_url": "https://github.com/jupyter/notebook/issues/4562#issuecomment-493172854",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4562",
+    "id": 493172854,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQ5MzE3Mjg1NA==",
+    "user": {
+      "login": "mtd91429",
+      "id": 3360192,
+      "node_id": "MDQ6VXNlcjMzNjAxOTI=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3360192?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/mtd91429",
+      "html_url": "https://github.com/mtd91429",
+      "followers_url": "https://api.github.com/users/mtd91429/followers",
+      "following_url": "https://api.github.com/users/mtd91429/following{/other_user}",
+      "gists_url": "https://api.github.com/users/mtd91429/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/mtd91429/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/mtd91429/subscriptions",
+      "organizations_url": "https://api.github.com/users/mtd91429/orgs",
+      "repos_url": "https://api.github.com/users/mtd91429/repos",
+      "events_url": "https://api.github.com/users/mtd91429/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/mtd91429/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-05-16T18:04:56Z",
+    "updated_at": "2019-05-16T18:04:56Z",
+    "author_association": "CONTRIBUTOR",
+    "body": "See https://github.com/ipython/ipython/issues/11530 for a solution\r\n\r\nThis isn't a Jupyter Notebook bug - it is a problem related to ipython, as the notebook is only displaying what ipython provides. ",
+    "performed_via_github_app": null
+  }
+]

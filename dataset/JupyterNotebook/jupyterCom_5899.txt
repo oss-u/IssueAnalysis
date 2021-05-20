@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/740408257",
+    "html_url": "https://github.com/jupyter/notebook/issues/5899#issuecomment-740408257",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5899",
+    "id": 740408257,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDc0MDQwODI1Nw==",
+    "user": {
+      "login": "Darkerhack",
+      "id": 37077709,
+      "node_id": "MDQ6VXNlcjM3MDc3NzA5",
+      "avatar_url": "https://avatars.githubusercontent.com/u/37077709?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Darkerhack",
+      "html_url": "https://github.com/Darkerhack",
+      "followers_url": "https://api.github.com/users/Darkerhack/followers",
+      "following_url": "https://api.github.com/users/Darkerhack/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Darkerhack/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Darkerhack/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Darkerhack/subscriptions",
+      "organizations_url": "https://api.github.com/users/Darkerhack/orgs",
+      "repos_url": "https://api.github.com/users/Darkerhack/repos",
+      "events_url": "https://api.github.com/users/Darkerhack/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Darkerhack/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-12-08T06:25:00Z",
+    "updated_at": "2020-12-08T06:25:00Z",
+    "author_association": "NONE",
+    "body": "That kernel error resolved by installing  `ipykernel` again and it worked.\r\n\r\n>[https://ipython.readthedocs.io/en/stable/install/kernel_install.html]()\r\n\r\n",
+    "performed_via_github_app": null
+  }
+]

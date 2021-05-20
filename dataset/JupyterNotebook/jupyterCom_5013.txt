@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/547445419",
+    "html_url": "https://github.com/jupyter/notebook/issues/5013#issuecomment-547445419",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5013",
+    "id": 547445419,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDU0NzQ0NTQxOQ==",
+    "user": {
+      "login": "jasongrout",
+      "id": 192614,
+      "node_id": "MDQ6VXNlcjE5MjYxNA==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/192614?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/jasongrout",
+      "html_url": "https://github.com/jasongrout",
+      "followers_url": "https://api.github.com/users/jasongrout/followers",
+      "following_url": "https://api.github.com/users/jasongrout/following{/other_user}",
+      "gists_url": "https://api.github.com/users/jasongrout/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/jasongrout/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/jasongrout/subscriptions",
+      "organizations_url": "https://api.github.com/users/jasongrout/orgs",
+      "repos_url": "https://api.github.com/users/jasongrout/repos",
+      "events_url": "https://api.github.com/users/jasongrout/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/jasongrout/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-10-29T14:23:56Z",
+    "updated_at": "2019-10-29T14:23:56Z",
+    "author_association": "MEMBER",
+    "body": "Can you query the [rest api](https://github.com/jupyter/jupyter/wiki/Jupyter-Notebook-Server-API)? That's how clients are able to list the current kernels.\r\n\r\nMost clients will launch sessions (not just raw kernels). To see sessions, do something like the equivalent of\r\n```sh\r\ncurl -sSLG localhost:8888/api/sessions --data-urlencode 'token=c9d0073a720e7062a6a702f8cf52075be0383c8d95211984'\r\n```\r\n(or use python requests, etc.)",
+    "performed_via_github_app": null
+  }
+]

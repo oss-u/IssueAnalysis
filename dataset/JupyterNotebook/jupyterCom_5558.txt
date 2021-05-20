@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/727235162",
+    "html_url": "https://github.com/jupyter/notebook/issues/5558#issuecomment-727235162",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5558",
+    "id": 727235162,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDcyNzIzNTE2Mg==",
+    "user": {
+      "login": "rclement",
+      "id": 1238873,
+      "node_id": "MDQ6VXNlcjEyMzg4NzM=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1238873?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/rclement",
+      "html_url": "https://github.com/rclement",
+      "followers_url": "https://api.github.com/users/rclement/followers",
+      "following_url": "https://api.github.com/users/rclement/following{/other_user}",
+      "gists_url": "https://api.github.com/users/rclement/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/rclement/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/rclement/subscriptions",
+      "organizations_url": "https://api.github.com/users/rclement/orgs",
+      "repos_url": "https://api.github.com/users/rclement/repos",
+      "events_url": "https://api.github.com/users/rclement/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/rclement/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-11-14T16:58:31Z",
+    "updated_at": "2020-11-14T16:58:31Z",
+    "author_association": "NONE",
+    "body": "How did you declare your `CMD` and/or `ENTRYPOINT` instructions?\r\n\r\nBe careful to use commas between all terms, such as:\r\n\r\n```dockerfile\r\nCMD [\"jupyter\", \"notebook\", \"--config\", \"jupyter_notebook_config.py\"]\r\n```",
+    "performed_via_github_app": null
+  }
+]

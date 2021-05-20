@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/412999936",
+    "html_url": "https://github.com/jupyter/notebook/issues/3853#issuecomment-412999936",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3853",
+    "id": 412999936,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQxMjk5OTkzNg==",
+    "user": {
+      "login": "dede95",
+      "id": 29232994,
+      "node_id": "MDQ6VXNlcjI5MjMyOTk0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/29232994?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/dede95",
+      "html_url": "https://github.com/dede95",
+      "followers_url": "https://api.github.com/users/dede95/followers",
+      "following_url": "https://api.github.com/users/dede95/following{/other_user}",
+      "gists_url": "https://api.github.com/users/dede95/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/dede95/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/dede95/subscriptions",
+      "organizations_url": "https://api.github.com/users/dede95/orgs",
+      "repos_url": "https://api.github.com/users/dede95/repos",
+      "events_url": "https://api.github.com/users/dede95/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/dede95/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-08-14T20:11:20Z",
+    "updated_at": "2018-08-14T20:11:41Z",
+    "author_association": "NONE",
+    "body": "I have also tried on the Google Colaboratory GPU, and it even kills their kernel! I don't know where I'm going wrong. ",
+    "performed_via_github_app": null
+  }
+]

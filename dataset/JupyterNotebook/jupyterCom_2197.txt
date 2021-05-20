@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/280164564",
+    "html_url": "https://github.com/jupyter/notebook/issues/2197#issuecomment-280164564",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/2197",
+    "id": 280164564,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDI4MDE2NDU2NA==",
+    "user": {
+      "login": "Carreau",
+      "id": 335567,
+      "node_id": "MDQ6VXNlcjMzNTU2Nw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/335567?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Carreau",
+      "html_url": "https://github.com/Carreau",
+      "followers_url": "https://api.github.com/users/Carreau/followers",
+      "following_url": "https://api.github.com/users/Carreau/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Carreau/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Carreau/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Carreau/subscriptions",
+      "organizations_url": "https://api.github.com/users/Carreau/orgs",
+      "repos_url": "https://api.github.com/users/Carreau/repos",
+      "events_url": "https://api.github.com/users/Carreau/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Carreau/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2017-02-15T22:42:50Z",
+    "updated_at": "2017-02-15T22:42:50Z",
+    "author_association": "MEMBER",
+    "body": "It seem like something is wrong on your system. \r\n\r\nThe Notebook 4.x branch does not use traitlets' `default` and master/5.x already requires traitlets `>4.2.1`. So it is likely another package that raised. \r\n\r\nFor me a fresh install in 3.4 with pip pull traitlets 4.3 and AFAICT all packages using traitlets express the correct dependencies.\r\n\r\nCan you provide the error message ?",
+    "performed_via_github_app": null
+  }
+]

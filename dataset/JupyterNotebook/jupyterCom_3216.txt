@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/358016477",
+    "html_url": "https://github.com/jupyter/notebook/issues/3216#issuecomment-358016477",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3216",
+    "id": 358016477,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM1ODAxNjQ3Nw==",
+    "user": {
+      "login": "takluyver",
+      "id": 327925,
+      "node_id": "MDQ6VXNlcjMyNzkyNQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/327925?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/takluyver",
+      "html_url": "https://github.com/takluyver",
+      "followers_url": "https://api.github.com/users/takluyver/followers",
+      "following_url": "https://api.github.com/users/takluyver/following{/other_user}",
+      "gists_url": "https://api.github.com/users/takluyver/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/takluyver/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/takluyver/subscriptions",
+      "organizations_url": "https://api.github.com/users/takluyver/orgs",
+      "repos_url": "https://api.github.com/users/takluyver/repos",
+      "events_url": "https://api.github.com/users/takluyver/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/takluyver/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-01-16T16:18:37Z",
+    "updated_at": "2018-01-16T16:18:37Z",
+    "author_association": "MEMBER",
+    "body": "If you have a recent version of IPython, it should return no more than 500 completions: https://github.com/ipython/ipython/pull/10743",
+    "performed_via_github_app": null
+  }
+]

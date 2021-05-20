@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/479505045",
+    "html_url": "https://github.com/jupyter/notebook/issues/4542#issuecomment-479505045",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4542",
+    "id": 479505045,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQ3OTUwNTA0NQ==",
+    "user": {
+      "login": "esevan",
+      "id": 8223765,
+      "node_id": "MDQ6VXNlcjgyMjM3NjU=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8223765?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/esevan",
+      "html_url": "https://github.com/esevan",
+      "followers_url": "https://api.github.com/users/esevan/followers",
+      "following_url": "https://api.github.com/users/esevan/following{/other_user}",
+      "gists_url": "https://api.github.com/users/esevan/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/esevan/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/esevan/subscriptions",
+      "organizations_url": "https://api.github.com/users/esevan/orgs",
+      "repos_url": "https://api.github.com/users/esevan/repos",
+      "events_url": "https://api.github.com/users/esevan/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/esevan/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-04-03T14:07:51Z",
+    "updated_at": "2019-04-03T14:07:51Z",
+    "author_association": "CONTRIBUTOR",
+    "body": "Sorry It's already implemented. I didn't catch this since I used server extension overriding default kernel handler.",
+    "performed_via_github_app": null
+  }
+]

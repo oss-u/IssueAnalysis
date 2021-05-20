@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/812655359",
+    "html_url": "https://github.com/jupyter/notebook/issues/6029#issuecomment-812655359",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/6029",
+    "id": 812655359,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDgxMjY1NTM1OQ==",
+    "user": {
+      "login": "kevin-bates",
+      "id": 22599560,
+      "node_id": "MDQ6VXNlcjIyNTk5NTYw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22599560?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/kevin-bates",
+      "html_url": "https://github.com/kevin-bates",
+      "followers_url": "https://api.github.com/users/kevin-bates/followers",
+      "following_url": "https://api.github.com/users/kevin-bates/following{/other_user}",
+      "gists_url": "https://api.github.com/users/kevin-bates/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/kevin-bates/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/kevin-bates/subscriptions",
+      "organizations_url": "https://api.github.com/users/kevin-bates/orgs",
+      "repos_url": "https://api.github.com/users/kevin-bates/repos",
+      "events_url": "https://api.github.com/users/kevin-bates/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/kevin-bates/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2021-04-02T18:30:02Z",
+    "updated_at": "2021-04-02T18:30:02Z",
+    "author_association": "MEMBER",
+    "body": "Hi @stevehaertel,\r\n\r\nThis issue makes sense because kernels culled on the EG server are not detected as culled until their consumer goes to perform another operation.  I'd be curious if you see this behavior using lab because lab tends to monitor kernels more closely/frequently than the notebook front-end.\r\n\r\nRather than just check the length of the kernel manager (which is really the MappingKernelManager), I suspect if that was changed to call `self.kernel_manager.list_kernels()`, then check _that_ result against zero, this may resolve the issue since, when gateway is configured, this will hit the EG server to refresh the list.",
+    "performed_via_github_app": null
+  }
+]

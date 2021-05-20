@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/396779189",
+    "html_url": "https://github.com/jupyter/notebook/issues/3679#issuecomment-396779189",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3679",
+    "id": 396779189,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM5Njc3OTE4OQ==",
+    "user": {
+      "login": "forouzanfarahani",
+      "id": 28025863,
+      "node_id": "MDQ6VXNlcjI4MDI1ODYz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/28025863?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/forouzanfarahani",
+      "html_url": "https://github.com/forouzanfarahani",
+      "followers_url": "https://api.github.com/users/forouzanfarahani/followers",
+      "following_url": "https://api.github.com/users/forouzanfarahani/following{/other_user}",
+      "gists_url": "https://api.github.com/users/forouzanfarahani/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/forouzanfarahani/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/forouzanfarahani/subscriptions",
+      "organizations_url": "https://api.github.com/users/forouzanfarahani/orgs",
+      "repos_url": "https://api.github.com/users/forouzanfarahani/repos",
+      "events_url": "https://api.github.com/users/forouzanfarahani/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/forouzanfarahani/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-06-13T00:51:47Z",
+    "updated_at": "2018-06-13T00:51:56Z",
+    "author_association": "NONE",
+    "body": "and I have this issue when I try to open it in terminal:\r\n\r\nnobody:~ forouzanfarahani$ jupyter notebook\r\nTraceback (most recent call last):\r\n  File \"/Users/Shared/anaconda3/bin/jupyter\", line 7, in <module>\r\n    from jupyter_core.command import main\r\n  File \"/Users/forouzanfarahani/anaconda3/lib/python3.6/site-packages/jupyter_core/command.py\", line 16, in <module>\r\n    from subprocess import Popen\r\n  File \"/Users/forouzanfarahani/anaconda3/lib/python3.6/subprocess.py\", line 136, in <module>\r\n    import _posixsubprocess\r\nImportError: dlopen(/Users/forouzanfarahani/anaconda3/lib/python3.6/lib-dynload/_posixsubprocess.cpython-36m-darwin.so, 2): Symbol not found: __Py_set_inheritable_async_safe\r\n  Referenced from: /Users/forouzanfarahani/anaconda3/lib/python3.6/lib-dynload/_posixsubprocess.cpython-36m-darwin.so\r\n  Expected in: flat namespace\r\n in /Users/forouzanfarahani/anaconda3/lib/python3.6/lib-dynload/_posixsubprocess.cpython-36m-darwin.so\r\n",
+    "performed_via_github_app": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/490544746",
+    "html_url": "https://github.com/jupyter/notebook/pull/4612#issuecomment-490544746",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4612",
+    "id": 490544746,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQ5MDU0NDc0Ng==",
+    "user": {
+      "login": "LuisARodr",
+      "id": 42625933,
+      "node_id": "MDQ6VXNlcjQyNjI1OTMz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/42625933?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/LuisARodr",
+      "html_url": "https://github.com/LuisARodr",
+      "followers_url": "https://api.github.com/users/LuisARodr/followers",
+      "following_url": "https://api.github.com/users/LuisARodr/following{/other_user}",
+      "gists_url": "https://api.github.com/users/LuisARodr/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/LuisARodr/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/LuisARodr/subscriptions",
+      "organizations_url": "https://api.github.com/users/LuisARodr/orgs",
+      "repos_url": "https://api.github.com/users/LuisARodr/repos",
+      "events_url": "https://api.github.com/users/LuisARodr/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/LuisARodr/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-05-08T15:57:11Z",
+    "updated_at": "2019-05-08T15:57:11Z",
+    "author_association": "CONTRIBUTOR",
+    "body": "Closed because I'm working on the test `dualmode_execute` and changed some more code of `utils.py` so `dualmode_clipboard` had to change to use the `utils.py` changes. But this test is going into the `dualmode_execute` PR.",
+    "performed_via_github_app": null
+  }
+]

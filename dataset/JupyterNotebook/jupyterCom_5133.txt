@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/571619396",
+    "html_url": "https://github.com/jupyter/notebook/issues/5133#issuecomment-571619396",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5133",
+    "id": 571619396,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDU3MTYxOTM5Ng==",
+    "user": {
+      "login": "swiperthefox",
+      "id": 3034804,
+      "node_id": "MDQ6VXNlcjMwMzQ4MDQ=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3034804?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/swiperthefox",
+      "html_url": "https://github.com/swiperthefox",
+      "followers_url": "https://api.github.com/users/swiperthefox/followers",
+      "following_url": "https://api.github.com/users/swiperthefox/following{/other_user}",
+      "gists_url": "https://api.github.com/users/swiperthefox/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/swiperthefox/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/swiperthefox/subscriptions",
+      "organizations_url": "https://api.github.com/users/swiperthefox/orgs",
+      "repos_url": "https://api.github.com/users/swiperthefox/repos",
+      "events_url": "https://api.github.com/users/swiperthefox/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/swiperthefox/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-01-07T14:52:03Z",
+    "updated_at": "2020-01-07T15:36:25Z",
+    "author_association": "NONE",
+    "body": "An ad-hoc version of it is like this:\r\n```javascript\r\n%%javascript\r\n\r\nJupyter.actions.register({\r\n    help : 'toggle scratch cell',\r\n    help_index : 'zz',\r\n    handler : function toggle_scratch_type(event) {\r\n        // insert a comment line \"scratch cell\" to first line of the cell if the cell does not have\r\n        // it already\r\n        var flag_line = 'scratch cell'\r\n        var currentCell = Jupyter.notebook.get_selected_cell();\r\n        var first_line = currentCell.code_mirror.getLine(0);\r\n        if (! currentCell.isScratch) {\r\n            // change the type of cell to code\r\n            Jupyter.notebook.to_code();\r\n            // insert flag line\r\n            currentCell.code_mirror.replaceRange(flag_line + '\\n\\n', {line:0, ch:0}, {line:0, ch:0});\r\n            currentCell.code_mirror.lineComment({line:0, ch:0}, {line:0, ch:0})\r\n            currentCell.isScratch = true\r\n        } else {\r\n            currentCell.code_mirror.replaceRange('', {line:0, ch:0}, {line:1, ch:0})\r\n            currentCell.isScratch = false\r\n        }\r\n        return true;\r\n    }\r\n}, \"toggle-scratch-cell\", \"scratch-cell-ext\")\r\n\r\nJupyter.keyboard_manager.command_shortcuts.add_shortcut('t', \"scratch-cell-ext:toggle-scratch-cell\");\r\n\r\nJupyter.actions.register({\r\n    help : 'remove all scratch cell',\r\n    help_index : 'zz',\r\n    handler : function remove_scratch_cells (event) {\r\n        var cells = Jupyter.notebook.get_cells();\r\n        for (let i = cells.length-1; i >= 0; i--) {\r\n            if (cells[i].isScratch) {\r\n                Jupyter.notebook.delete_cell(i)\r\n            }\r\n        }\r\n        return true;\r\n    }\r\n}, \"remove-all-scratch-cells\", \"scratch-cell-ext\")\r\n\r\n// Jupyter.keyboard_manager.command_shortcuts.add_shortcut('\\\\', \"scratch-cell-ext:remove-all-scratch-cells\");\r\n```",
+    "performed_via_github_app": null
+  }
+]

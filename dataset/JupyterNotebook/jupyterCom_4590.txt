@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/487923226",
+    "html_url": "https://github.com/jupyter/notebook/issues/4590#issuecomment-487923226",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4590",
+    "id": 487923226,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQ4NzkyMzIyNg==",
+    "user": {
+      "login": "TetyaseDaWina",
+      "id": 14349424,
+      "node_id": "MDQ6VXNlcjE0MzQ5NDI0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/14349424?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/TetyaseDaWina",
+      "html_url": "https://github.com/TetyaseDaWina",
+      "followers_url": "https://api.github.com/users/TetyaseDaWina/followers",
+      "following_url": "https://api.github.com/users/TetyaseDaWina/following{/other_user}",
+      "gists_url": "https://api.github.com/users/TetyaseDaWina/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/TetyaseDaWina/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/TetyaseDaWina/subscriptions",
+      "organizations_url": "https://api.github.com/users/TetyaseDaWina/orgs",
+      "repos_url": "https://api.github.com/users/TetyaseDaWina/repos",
+      "events_url": "https://api.github.com/users/TetyaseDaWina/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/TetyaseDaWina/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-04-30T11:55:14Z",
+    "updated_at": "2019-04-30T11:55:14Z",
+    "author_association": "NONE",
+    "body": "I find how to see again what my notebook contains by open web console (https://developer.mozilla.org/fr/docs/Outils/Console_Web). Navigate through the html page representing my notebook and look after which tag to manipulate. After destroy the bad key pressed tag. My notebook is now like at the beginning, nice and useful",
+    "performed_via_github_app": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/257305338",
+    "html_url": "https://github.com/jupyter/notebook/issues/1843#issuecomment-257305338",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/1843",
+    "id": 257305338,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDI1NzMwNTMzOA==",
+    "user": {
+      "login": "Jagmills",
+      "id": 13662854,
+      "node_id": "MDQ6VXNlcjEzNjYyODU0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13662854?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Jagmills",
+      "html_url": "https://github.com/Jagmills",
+      "followers_url": "https://api.github.com/users/Jagmills/followers",
+      "following_url": "https://api.github.com/users/Jagmills/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Jagmills/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Jagmills/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Jagmills/subscriptions",
+      "organizations_url": "https://api.github.com/users/Jagmills/orgs",
+      "repos_url": "https://api.github.com/users/Jagmills/repos",
+      "events_url": "https://api.github.com/users/Jagmills/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Jagmills/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2016-10-31T14:17:37Z",
+    "updated_at": "2016-10-31T14:17:37Z",
+    "author_association": "NONE",
+    "body": "Not sure if this is any help for you, but try (on the host machine):\ndocker ps\n\nAnd inspect the \"ports\" column. It should say \"0.0.0.0:8888->8888/tcp\". If not, Docker is not forwarding the ports correctly, likely due to the way that you started the container. Using -p 8888:8888 as a parameter when running the container could fix it.\n",
+    "performed_via_github_app": null
+  }
+]

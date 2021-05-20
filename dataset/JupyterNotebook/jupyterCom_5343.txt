@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/704261432",
+    "html_url": "https://github.com/jupyter/notebook/issues/5343#issuecomment-704261432",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5343",
+    "id": 704261432,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDcwNDI2MTQzMg==",
+    "user": {
+      "login": "buergi",
+      "id": 1948339,
+      "node_id": "MDQ6VXNlcjE5NDgzMzk=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1948339?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/buergi",
+      "html_url": "https://github.com/buergi",
+      "followers_url": "https://api.github.com/users/buergi/followers",
+      "following_url": "https://api.github.com/users/buergi/following{/other_user}",
+      "gists_url": "https://api.github.com/users/buergi/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/buergi/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/buergi/subscriptions",
+      "organizations_url": "https://api.github.com/users/buergi/orgs",
+      "repos_url": "https://api.github.com/users/buergi/repos",
+      "events_url": "https://api.github.com/users/buergi/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/buergi/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-10-06T13:16:15Z",
+    "updated_at": "2020-10-06T13:16:15Z",
+    "author_association": "NONE",
+    "body": "I have a similar problem since notebook 6.1.4, it was still working 6.0.3.\r\n\r\n```\r\nfrom IPython.display import display, HTML\r\ndisplay(HTML('<tr><th>$A_e$ = 1</th></tr>'))\r\n```\r\n\r\nrenders `A_e` in one line and =1 in the second line. It 6.0.3 it still rendered everything in one line.\r\nThis is a problem when rendering tables which are stretched to full page width which looks very ugly.",
+    "performed_via_github_app": null
+  }
+]

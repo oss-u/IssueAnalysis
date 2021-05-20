@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/436741771",
+    "html_url": "https://github.com/jupyter/notebook/issues/3932#issuecomment-436741771",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3932",
+    "id": 436741771,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQzNjc0MTc3MQ==",
+    "user": {
+      "login": "takluyver",
+      "id": 327925,
+      "node_id": "MDQ6VXNlcjMyNzkyNQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/327925?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/takluyver",
+      "html_url": "https://github.com/takluyver",
+      "followers_url": "https://api.github.com/users/takluyver/followers",
+      "following_url": "https://api.github.com/users/takluyver/following{/other_user}",
+      "gists_url": "https://api.github.com/users/takluyver/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/takluyver/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/takluyver/subscriptions",
+      "organizations_url": "https://api.github.com/users/takluyver/orgs",
+      "repos_url": "https://api.github.com/users/takluyver/repos",
+      "events_url": "https://api.github.com/users/takluyver/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/takluyver/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-11-07T19:09:40Z",
+    "updated_at": "2018-11-07T19:09:40Z",
+    "author_association": "MEMBER",
+    "body": "You've basically understood it. Anything that the kernel sends on the 'iopub' channel will count as activity. That generally means printing something, but kernel status messages also go on iopub.\r\n\r\nHowever, when the kernel starts executing something, it should send a status=busy message, followed by a status=idle message when it finishes. The server shouldn't cull busy kernels unless you've set the `cull_busy` option as well (added in 5.1 by PR #2498). If you're using a recent version of the notebook server and not setting that option, you've found a bug.",
+    "performed_via_github_app": null
+  }
+]

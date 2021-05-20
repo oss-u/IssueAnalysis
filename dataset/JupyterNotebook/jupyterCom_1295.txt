@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/354862610",
+    "html_url": "https://github.com/jupyter/notebook/issues/1295#issuecomment-354862610",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/1295",
+    "id": 354862610,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM1NDg2MjYxMA==",
+    "user": {
+      "login": "gnestor",
+      "id": 512354,
+      "node_id": "MDQ6VXNlcjUxMjM1NA==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/512354?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/gnestor",
+      "html_url": "https://github.com/gnestor",
+      "followers_url": "https://api.github.com/users/gnestor/followers",
+      "following_url": "https://api.github.com/users/gnestor/following{/other_user}",
+      "gists_url": "https://api.github.com/users/gnestor/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/gnestor/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/gnestor/subscriptions",
+      "organizations_url": "https://api.github.com/users/gnestor/orgs",
+      "repos_url": "https://api.github.com/users/gnestor/repos",
+      "events_url": "https://api.github.com/users/gnestor/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/gnestor/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-01-02T20:05:36Z",
+    "updated_at": "2018-01-02T20:05:36Z",
+    "author_association": "CONTRIBUTOR",
+    "body": "This is already implemented in JupyterLab and it's unlikely that it will be reimplemented in the classic notebook because most dev resources are devoted to JupyterLab now. Try out JupyterLab, it's almost in beta!\r\n\r\n![image](https://user-images.githubusercontent.com/512354/34498139-1f663764-efb5-11e7-9d34-12896bd1215a.png)\r\n",
+    "performed_via_github_app": null
+  }
+]

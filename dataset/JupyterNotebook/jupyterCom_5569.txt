@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/653180180",
+    "html_url": "https://github.com/jupyter/notebook/issues/5569#issuecomment-653180180",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5569",
+    "id": 653180180,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDY1MzE4MDE4MA==",
+    "user": {
+      "login": "kevin-bates",
+      "id": 22599560,
+      "node_id": "MDQ6VXNlcjIyNTk5NTYw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22599560?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/kevin-bates",
+      "html_url": "https://github.com/kevin-bates",
+      "followers_url": "https://api.github.com/users/kevin-bates/followers",
+      "following_url": "https://api.github.com/users/kevin-bates/following{/other_user}",
+      "gists_url": "https://api.github.com/users/kevin-bates/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/kevin-bates/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/kevin-bates/subscriptions",
+      "organizations_url": "https://api.github.com/users/kevin-bates/orgs",
+      "repos_url": "https://api.github.com/users/kevin-bates/repos",
+      "events_url": "https://api.github.com/users/kevin-bates/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/kevin-bates/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-07-02T19:19:33Z",
+    "updated_at": "2020-07-02T19:19:33Z",
+    "author_association": "MEMBER",
+    "body": "Hi @yemq3 - thank you for opening this issue.  You're probably best off renaming your 'checkpoints' directory if that's possible.\r\n\r\n**tl;dr:**  This is an issue and is caused by an ambiguity in the REST API path to handler mappings in the contents service and, likely, can only be addressed via changes to the `checkpoints` and `trust` endpoints (or documenting these directory names are \"reserved\" within the notebook directories).\r\n\r\n(I got a little involved looking into this, sorry for the long response.)\r\n\r\nThis is an issue and is caused by an ambiguity in the REST API path to handler mappings in the contents service:\r\nhttps://github.com/jupyter/notebook/blob/7866742422d6e93fad4eab800f3a10c3250767e6/notebook/services/contents/handlers.py#L320-L327\r\n\r\nAs you can see, a path of `/api/contents/checkpoints` conflicts with both the `CheckpointsHandler ` and `ContentsHandler`.  Since the `CheckpointsHandler` support `GET` requests, it is called to satisfy the request - which is supposed to return the checkpoints associated with the endpoint's prefix (which is typically a notebook file).  Since the \"notebook file\" is a directory, in this case, there is no corresponding checkpoint file, so an empty list is returned.\r\n\r\nI also see the path from the notebook-dir updated in the Notebook UI as if the user is in the `checkpoints` directory (probably due to the successful return although from the unexpected endpoint), yet the filesystem display shows them remaining at the checkpoints' parent directory and confusion reigns.\r\n\r\nYou'll also notice a similar ambiguity with the `trust` endpoint.  However, because `TrustNotebooksHandler` handler doesn't support `GET` requests (only `POST`), it's behavior is slightly different.  Attempting to navigate to a `trust` directory results in the (Notebook) UI displaying as if its actually in the `trust` directory, yet any files in the actual directory are not display - probably due to the exception that the server throws indicating that the `GET` method is not supported:\r\n![Screen Shot 2020-07-02 at 11 15 33 AM](https://user-images.githubusercontent.com/22599560/86396593-0d53e500-bc57-11ea-9474-627f7e8a392d.png)\r\n\r\nI'm not finding other issues mentioning this but it strikes me as an issue that should be fixed or handled in a better manner - or perhaps we just document that sub-directories named 'checkpoints' and 'trust' are _reserved_ within the notebook-dir hierarchy and shouldn't be used.  The trick to fixing this would be to address it in a way so as to not require changes to the endpoints and I don't think that could be done in a reliable manner.  As a result, updating the endpoints for the `CheckpointsHandler` and `TrustNotebooksHandler` is probably the best option.\r\n\r\nNot sure what other applications hit the checkpoint and trust endpoints, but they would be impacted by an endpoint change as well - so these kinds of changes are dicey - and a doc update is probably the safest approach.\r\n\r\nAny takers?",
+    "performed_via_github_app": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/560497345",
+    "html_url": "https://github.com/jupyter/notebook/issues/5089#issuecomment-560497345",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5089",
+    "id": 560497345,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDU2MDQ5NzM0NQ==",
+    "user": {
+      "login": "pylang",
+      "id": 10778668,
+      "node_id": "MDQ6VXNlcjEwNzc4NjY4",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10778668?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/pylang",
+      "html_url": "https://github.com/pylang",
+      "followers_url": "https://api.github.com/users/pylang/followers",
+      "following_url": "https://api.github.com/users/pylang/following{/other_user}",
+      "gists_url": "https://api.github.com/users/pylang/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/pylang/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/pylang/subscriptions",
+      "organizations_url": "https://api.github.com/users/pylang/orgs",
+      "repos_url": "https://api.github.com/users/pylang/repos",
+      "events_url": "https://api.github.com/users/pylang/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/pylang/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-12-02T17:31:21Z",
+    "updated_at": "2019-12-02T17:31:21Z",
+    "author_association": "NONE",
+    "body": "@Carreau, from a [related issue][5]:\r\n\r\n>  We could switch to 3.8 (non dev), 3.9-dev and nightly but I'm not sure it is worth it yet.\r\n\r\nI understand your caution.   I'm usually reserved on updates as well, and it's good practice.   \r\n\r\nFYI: Two cycles that may influence future jupyter-related tests on Python:\r\n\r\n1. [release][3] of the next conda distribution: appears to be 3-mo cycle, last one Oct-2019\r\n1. compressed annual release cycle ([PEP 602][0]): 1-year cycle\r\n\r\n(1) I suspect the next conda release will include 3.8.  I'm not sure, but I suppose jupyter would be aligned with that release.  (2) A shorter Python release adds impetus to test on latest Python sooner across all jupyter starting 3.9.  In response, here are related issues to the other Jupyter components.  \r\n\r\n- [ipykernel on 3.8][2]\r\n- [ipython on 3.8][5]\r\n\r\nI trust the team's discretion.  Many thanks on all you guys do.\r\n\r\n\r\n  [0]: https://discuss.python.org/t/pep-602-annual-release-cycle-for-python/2296\r\n  [1]: https://github.com/jupyter/notebook/issues/5089\r\n  [2]: https://github.com/ipython/ipykernel/issues/454\r\n  [3]: https://docs.anaconda.com/anaconda/reference/release-notes/\r\n  [5]: https://github.com/ipython/ipython/issues/11974\r\n\r\n",
+    "performed_via_github_app": null
+  }
+]

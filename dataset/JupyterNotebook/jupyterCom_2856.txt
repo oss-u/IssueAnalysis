@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/331506784",
+    "html_url": "https://github.com/jupyter/notebook/issues/2856#issuecomment-331506784",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/2856",
+    "id": 331506784,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDMzMTUwNjc4NA==",
+    "user": {
+      "login": "takluyver",
+      "id": 327925,
+      "node_id": "MDQ6VXNlcjMyNzkyNQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/327925?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/takluyver",
+      "html_url": "https://github.com/takluyver",
+      "followers_url": "https://api.github.com/users/takluyver/followers",
+      "following_url": "https://api.github.com/users/takluyver/following{/other_user}",
+      "gists_url": "https://api.github.com/users/takluyver/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/takluyver/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/takluyver/subscriptions",
+      "organizations_url": "https://api.github.com/users/takluyver/orgs",
+      "repos_url": "https://api.github.com/users/takluyver/repos",
+      "events_url": "https://api.github.com/users/takluyver/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/takluyver/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2017-09-22T17:15:32Z",
+    "updated_at": "2017-09-22T17:15:32Z",
+    "author_association": "MEMBER",
+    "body": "What version of the notebook package are you running? I think something\nlike this got fixed in 5.1.\n\nOn 22 Sep 2017 5:57 a.m., \"Alex Rothberg\" <notifications@github.com> wrote:\n\n> If I change the sort order on the \"tree\" page (/tree?#notebooks):\n> [image: image]\n> <https://user-images.githubusercontent.com/51059/30727004-671023b6-9f1c-11e7-9ef9-e0eff447fc39.png>\n> and then one of the files last modified dates changes, the sort order is\n> (unexpectedly) reverted to default / \"random\":\n> [image: image]\n> <https://user-images.githubusercontent.com/51059/30729901-efb09cd2-9f30-11e7-90a2-421cdd371085.png>\n>\n> —\n> You are receiving this because you are subscribed to this thread.\n> Reply to this email directly, view it on GitHub\n> <https://github.com/jupyter/notebook/issues/2856>, or mute the thread\n> <https://github.com/notifications/unsubscribe-auth/AAUA9ZArp4rqu8jvbU5hecMI_bdR80s2ks5skz4pgaJpZM4PgOVV>\n> .\n>\n",
+    "performed_via_github_app": null
+  }
+]

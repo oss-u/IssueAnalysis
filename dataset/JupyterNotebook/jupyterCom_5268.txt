@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/595619177",
+    "html_url": "https://github.com/jupyter/notebook/issues/5268#issuecomment-595619177",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5268",
+    "id": 595619177,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDU5NTYxOTE3Nw==",
+    "user": {
+      "login": "ChangyuYan",
+      "id": 27938057,
+      "node_id": "MDQ6VXNlcjI3OTM4MDU3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/27938057?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ChangyuYan",
+      "html_url": "https://github.com/ChangyuYan",
+      "followers_url": "https://api.github.com/users/ChangyuYan/followers",
+      "following_url": "https://api.github.com/users/ChangyuYan/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ChangyuYan/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ChangyuYan/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ChangyuYan/subscriptions",
+      "organizations_url": "https://api.github.com/users/ChangyuYan/orgs",
+      "repos_url": "https://api.github.com/users/ChangyuYan/repos",
+      "events_url": "https://api.github.com/users/ChangyuYan/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ChangyuYan/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-03-06T06:20:30Z",
+    "updated_at": "2020-03-06T06:23:41Z",
+    "author_association": "NONE",
+    "body": "I tried changing the default browser to Chrome (instead of safari) following directions in [this link](https://medium.com/@tyagi.sudarshini/change-default-browser-in-jupyter-notebook-mac-667b56a3274e), and now Courier is back. \r\n\r\n![Screen Shot 2020-03-05 at 10 23 35 PM](https://user-images.githubusercontent.com/27938057/76057983-f662e780-5f2f-11ea-84ce-602b317a4e05.png)\r\n\r\n\r\nStill, would like to know if there's a configuration file somewhere that allows me to change the font explicitly? \r\n\r\nOr, is there a setting in Safari that allows font-changing? ",
+    "performed_via_github_app": null
+  }
+]

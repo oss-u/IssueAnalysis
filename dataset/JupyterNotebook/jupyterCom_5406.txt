@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/623709809",
+    "html_url": "https://github.com/jupyter/notebook/pull/5406#issuecomment-623709809",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5406",
+    "id": 623709809,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDYyMzcwOTgwOQ==",
+    "user": {
+      "login": "jpcastil",
+      "id": 40906436,
+      "node_id": "MDQ6VXNlcjQwOTA2NDM2",
+      "avatar_url": "https://avatars.githubusercontent.com/u/40906436?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/jpcastil",
+      "html_url": "https://github.com/jpcastil",
+      "followers_url": "https://api.github.com/users/jpcastil/followers",
+      "following_url": "https://api.github.com/users/jpcastil/following{/other_user}",
+      "gists_url": "https://api.github.com/users/jpcastil/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/jpcastil/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/jpcastil/subscriptions",
+      "organizations_url": "https://api.github.com/users/jpcastil/orgs",
+      "repos_url": "https://api.github.com/users/jpcastil/repos",
+      "events_url": "https://api.github.com/users/jpcastil/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/jpcastil/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-05-04T21:15:08Z",
+    "updated_at": "2020-05-04T21:15:08Z",
+    "author_association": "CONTRIBUTOR",
+    "body": "Hey @kevin-bates! Were you able to merge it? Thanks!",
+    "performed_via_github_app": null
+  }
+]

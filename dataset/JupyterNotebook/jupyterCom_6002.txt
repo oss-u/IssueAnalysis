@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/792894889",
+    "html_url": "https://github.com/jupyter/notebook/issues/6002#issuecomment-792894889",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/6002",
+    "id": 792894889,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDc5Mjg5NDg4OQ==",
+    "user": {
+      "login": "Zsailer",
+      "id": 2791223,
+      "node_id": "MDQ6VXNlcjI3OTEyMjM=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2791223?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Zsailer",
+      "html_url": "https://github.com/Zsailer",
+      "followers_url": "https://api.github.com/users/Zsailer/followers",
+      "following_url": "https://api.github.com/users/Zsailer/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Zsailer/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Zsailer/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Zsailer/subscriptions",
+      "organizations_url": "https://api.github.com/users/Zsailer/orgs",
+      "repos_url": "https://api.github.com/users/Zsailer/repos",
+      "events_url": "https://api.github.com/users/Zsailer/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Zsailer/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2021-03-08T16:50:59Z",
+    "updated_at": "2021-03-08T16:50:59Z",
+    "author_association": "MEMBER",
+    "body": "Hi @looking-for-better, thanks for opening your issue here. \r\n\r\nThis, unfortunately, isn't the best place to receive the help you'll need—this issue tracker is targeted at specific issues for the Jupyter Notebook application. Our apologies that this isn't more clear. \r\n\r\nThis is likely an issue with Anaconda's distribution, not the Jupyter Notebook application itself.\r\n\r\nHere are two options where you might get more directed help for your issue:\r\n1) Repost your issue on the [Anaconda Issues](https://github.com/continuumio/anaconda-issues/issues) page. They can usually help you debug installation issues.\r\n2) Post your question on the [Jupyter Discourse](https://discourse.jupyter.org/c/notebook/31) page. This is a community of Jupyter users. You might find someone who had the same issue and can help you debug it further.",
+    "performed_via_github_app": null
+  }
+]

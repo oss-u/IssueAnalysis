@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/322172451",
+    "html_url": "https://github.com/jupyter/notebook/issues/2755#issuecomment-322172451",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/2755",
+    "id": 322172451,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDMyMjE3MjQ1MQ==",
+    "user": {
+      "login": "lucainnocenti",
+      "id": 10957113,
+      "node_id": "MDQ6VXNlcjEwOTU3MTEz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10957113?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/lucainnocenti",
+      "html_url": "https://github.com/lucainnocenti",
+      "followers_url": "https://api.github.com/users/lucainnocenti/followers",
+      "following_url": "https://api.github.com/users/lucainnocenti/following{/other_user}",
+      "gists_url": "https://api.github.com/users/lucainnocenti/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/lucainnocenti/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/lucainnocenti/subscriptions",
+      "organizations_url": "https://api.github.com/users/lucainnocenti/orgs",
+      "repos_url": "https://api.github.com/users/lucainnocenti/repos",
+      "events_url": "https://api.github.com/users/lucainnocenti/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/lucainnocenti/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2017-08-14T12:03:21Z",
+    "updated_at": "2017-08-14T12:13:20Z",
+    "author_association": "NONE",
+    "body": "I can't reproduce the problem, but I also see incorrect behaviour on Chrome\r\nFor reference, here are `\\phi` and `\\varphi` as rendered by latex:\r\n![screenshot 2017-08-14 13 12 32](https://user-images.githubusercontent.com/10957113/29271214-540314b0-80f2-11e7-880e-8ce84d2d12a0.png)\r\n\r\n\r\n\r\nWith Chrome on Mac Os both are rendered as \\phi, though in a sligthly different way:\r\n\r\n![screenshot 2017-08-14 12 57 48](https://user-images.githubusercontent.com/10957113/29270815-6272600c-80f0-11e7-916d-0b3a4556eee1.png)\r\nWith Firefox on Mac Os I instead see the correct behaviour (the same given by latex, as shown for example [here](https://latex.codecogs.com/gif.latex?\\dpi{300}&space;\\huge&space;\\phi&space;\\varphi)):\r\n![screenshot 2017-08-14 13 02 13](https://user-images.githubusercontent.com/10957113/29270919-d6bf6e82-80f0-11e7-8e69-1c49343ae224.png)\r\nWith Safari on Mac Os \\phi and \\varphi are also rendered correctly:\r\n![screenshot 2017-08-14 13 10 41](https://user-images.githubusercontent.com/10957113/29271143-fc67087e-80f1-11e7-9f95-f6a2e34de346.png)\r\n",
+    "performed_via_github_app": null
+  }
+]

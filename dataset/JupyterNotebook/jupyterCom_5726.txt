@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/685902749",
+    "html_url": "https://github.com/jupyter/notebook/issues/5726#issuecomment-685902749",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5726",
+    "id": 685902749,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDY4NTkwMjc0OQ==",
+    "user": {
+      "login": "kevin-bates",
+      "id": 22599560,
+      "node_id": "MDQ6VXNlcjIyNTk5NTYw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22599560?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/kevin-bates",
+      "html_url": "https://github.com/kevin-bates",
+      "followers_url": "https://api.github.com/users/kevin-bates/followers",
+      "following_url": "https://api.github.com/users/kevin-bates/following{/other_user}",
+      "gists_url": "https://api.github.com/users/kevin-bates/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/kevin-bates/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/kevin-bates/subscriptions",
+      "organizations_url": "https://api.github.com/users/kevin-bates/orgs",
+      "repos_url": "https://api.github.com/users/kevin-bates/repos",
+      "events_url": "https://api.github.com/users/kevin-bates/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/kevin-bates/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-09-02T18:00:58Z",
+    "updated_at": "2020-09-02T18:00:58Z",
+    "author_association": "MEMBER",
+    "body": "Hi @CBrauer.  It sounds like you're running the python kernel and it doesn't support the %%csharp magic.  \r\n\r\n> I then ran \"%lsmagic\" in the next cell and I got a list of \"Available line magics\". \"csharp\" was not in this list.\r\n\r\nWhat magics are supported is purely a function of the active kernel. If you wanted the python kernel to support a magic of `%%csharp`, you'll need to open an issue in the [ipykernel](https://github.com/ipython/ipykernel) repo, although I suspect that would be unlikely.\r\n\r\n> Can we have this kernel as a default.\r\n\r\nIf you were using the (presumably) .NET Csharp kernel, you could make it the default kernel by setting the configuration option `c.MappingKernelManager.default_kernel_name = <name of your csharp kernel>`.\r\n\r\nSince there's really nothing to address via this repository, I'm going to close this issue.",
+    "performed_via_github_app": null
+  }
+]

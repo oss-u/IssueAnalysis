@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/633696835",
+    "html_url": "https://github.com/jupyter/notebook/issues/5467#issuecomment-633696835",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5467",
+    "id": 633696835,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDYzMzY5NjgzNQ==",
+    "user": {
+      "login": "User-zwj",
+      "id": 37557214,
+      "node_id": "MDQ6VXNlcjM3NTU3MjE0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/37557214?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/User-zwj",
+      "html_url": "https://github.com/User-zwj",
+      "followers_url": "https://api.github.com/users/User-zwj/followers",
+      "following_url": "https://api.github.com/users/User-zwj/following{/other_user}",
+      "gists_url": "https://api.github.com/users/User-zwj/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/User-zwj/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/User-zwj/subscriptions",
+      "organizations_url": "https://api.github.com/users/User-zwj/orgs",
+      "repos_url": "https://api.github.com/users/User-zwj/repos",
+      "events_url": "https://api.github.com/users/User-zwj/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/User-zwj/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-05-25T19:44:24Z",
+    "updated_at": "2020-05-25T19:44:24Z",
+    "author_association": "NONE",
+    "body": "I figured this out by myself. I have a mac, here is what I did:\r\n\r\nopen the ~/.bash_profile (you might have it in the ~/.bashrc) in the terminal, then change the path for python in this file\r\n\r\nPATH=\"/Users/zwj/anaconda3/bin:${PATH}.\"\r\nexport PATH\r\n\r\nIf you had two different versions, you can use 'which' command to find the corresponding path, eg\r\nwhich python2\r\nwhich python\r\nwhich python3\r\n\r\nMy python 3.6.7 is in /Users/zwj/anaconda3/bin/python, python 3.7.5 is in /Library/Frameworks/Python.framework/Versions/3.7/bin/python3.7. The original path in my .bash_profile is the path for 3.7.5, after I changed the path in this file, my current notebook is using python3.6.\r\n\r\nHope it is helpful to people who had the same issue.",
+    "performed_via_github_app": null
+  }
+]

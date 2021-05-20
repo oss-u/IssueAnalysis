@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/714589722",
+    "html_url": "https://github.com/jupyter/notebook/issues/4238#issuecomment-714589722",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4238",
+    "id": 714589722,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDcxNDU4OTcyMg==",
+    "user": {
+      "login": "dickmao",
+      "id": 7578770,
+      "node_id": "MDQ6VXNlcjc1Nzg3NzA=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7578770?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/dickmao",
+      "html_url": "https://github.com/dickmao",
+      "followers_url": "https://api.github.com/users/dickmao/followers",
+      "following_url": "https://api.github.com/users/dickmao/following{/other_user}",
+      "gists_url": "https://api.github.com/users/dickmao/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/dickmao/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/dickmao/subscriptions",
+      "organizations_url": "https://api.github.com/users/dickmao/orgs",
+      "repos_url": "https://api.github.com/users/dickmao/repos",
+      "events_url": "https://api.github.com/users/dickmao/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/dickmao/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-10-22T15:54:27Z",
+    "updated_at": "2020-10-22T15:54:27Z",
+    "author_association": "NONE",
+    "body": "#4386 ",
+    "performed_via_github_app": null
+  }
+]

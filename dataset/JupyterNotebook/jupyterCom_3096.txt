@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/379473990",
+    "html_url": "https://github.com/jupyter/notebook/issues/3096#issuecomment-379473990",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3096",
+    "id": 379473990,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM3OTQ3Mzk5MA==",
+    "user": {
+      "login": "nicolefinnie",
+      "id": 15970573,
+      "node_id": "MDQ6VXNlcjE1OTcwNTcz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15970573?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/nicolefinnie",
+      "html_url": "https://github.com/nicolefinnie",
+      "followers_url": "https://api.github.com/users/nicolefinnie/followers",
+      "following_url": "https://api.github.com/users/nicolefinnie/following{/other_user}",
+      "gists_url": "https://api.github.com/users/nicolefinnie/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/nicolefinnie/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/nicolefinnie/subscriptions",
+      "organizations_url": "https://api.github.com/users/nicolefinnie/orgs",
+      "repos_url": "https://api.github.com/users/nicolefinnie/repos",
+      "events_url": "https://api.github.com/users/nicolefinnie/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/nicolefinnie/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-04-07T14:37:37Z",
+    "updated_at": "2018-04-07T14:37:37Z",
+    "author_association": "NONE",
+    "body": "@AndreyGFranca  Thanks for your post, yes, it did fix my problem too, my original `pyzmq` was `16.0.2` after having uninstalled and cleaned up, the latest version of `pyzmq `17.0.0` works with jupyter.",
+    "performed_via_github_app": null
+  }
+]

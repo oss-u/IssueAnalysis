@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/164692663",
+    "html_url": "https://github.com/jupyter/notebook/issues/870#issuecomment-164692663",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/870",
+    "id": 164692663,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDE2NDY5MjY2Mw==",
+    "user": {
+      "login": "Carreau",
+      "id": 335567,
+      "node_id": "MDQ6VXNlcjMzNTU2Nw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/335567?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Carreau",
+      "html_url": "https://github.com/Carreau",
+      "followers_url": "https://api.github.com/users/Carreau/followers",
+      "following_url": "https://api.github.com/users/Carreau/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Carreau/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Carreau/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Carreau/subscriptions",
+      "organizations_url": "https://api.github.com/users/Carreau/orgs",
+      "repos_url": "https://api.github.com/users/Carreau/repos",
+      "events_url": "https://api.github.com/users/Carreau/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Carreau/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2015-12-15T09:05:28Z",
+    "updated_at": "2015-12-15T09:05:28Z",
+    "author_association": "MEMBER",
+    "body": "This was started a long time ago: https://github.com/ipython/ipython/issues/6718 though it requires a sustained effort and nobody agreed to take care of that. \n\nWe could try to include that as part of the rewriting. @ellisonbg  might want to discuss that as with the Phosphor team. \n\n(closing the IPython side issue as it is more relevant here) \n",
+    "performed_via_github_app": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/167723561",
+    "html_url": "https://github.com/jupyter/notebook/issues/904#issuecomment-167723561",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/904",
+    "id": 167723561,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDE2NzcyMzU2MQ==",
+    "user": {
+      "login": "willingc",
+      "id": 2680980,
+      "node_id": "MDQ6VXNlcjI2ODA5ODA=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2680980?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/willingc",
+      "html_url": "https://github.com/willingc",
+      "followers_url": "https://api.github.com/users/willingc/followers",
+      "following_url": "https://api.github.com/users/willingc/following{/other_user}",
+      "gists_url": "https://api.github.com/users/willingc/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/willingc/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/willingc/subscriptions",
+      "organizations_url": "https://api.github.com/users/willingc/orgs",
+      "repos_url": "https://api.github.com/users/willingc/repos",
+      "events_url": "https://api.github.com/users/willingc/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/willingc/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2015-12-29T05:55:33Z",
+    "updated_at": "2015-12-29T05:55:33Z",
+    "author_association": "MEMBER",
+    "body": "@goretkin Thanks for the issue report.\n\n@carreau I've replicated the issue on FF with current release candidate. It looks like the conversion of the traceback text is not properly closing tags when the source of the cell includes a comment with a link.\n\n### Conversion of link in comment of Traceback message is not properly closing the tag\n\n<img width=\"1209\" alt=\"screen shot 2015-12-28 at 9 44 42 pm\" src=\"https://cloud.githubusercontent.com/assets/2680980/12030032/ac4f2020-adac-11e5-9f0c-ee8c653138ec.png\">\n\n### Traceback display works as expected when the source has no link in comment\n\n<img width=\"1210\" alt=\"screen shot 2015-12-28 at 9 46 12 pm\" src=\"https://cloud.githubusercontent.com/assets/2680980/12030033/b069e708-adac-11e5-8dcb-81332db8ae80.png\">\n\n#### Test environment: latest release candidate, Python 3.5, and Firefox\n\n<img width=\"693\" alt=\"screen shot 2015-12-28 at 9 47 18 pm\" src=\"https://cloud.githubusercontent.com/assets/2680980/12030040/d418160c-adac-11e5-8333-6b1dca01330f.png\">\n",
+    "performed_via_github_app": null
+  }
+]

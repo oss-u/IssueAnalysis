@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/629545501",
+    "html_url": "https://github.com/jupyter/notebook/pull/5221#issuecomment-629545501",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5221",
+    "id": 629545501,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDYyOTU0NTUwMQ==",
+    "user": {
+      "login": "kevin-bates",
+      "id": 22599560,
+      "node_id": "MDQ6VXNlcjIyNTk5NTYw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22599560?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/kevin-bates",
+      "html_url": "https://github.com/kevin-bates",
+      "followers_url": "https://api.github.com/users/kevin-bates/followers",
+      "following_url": "https://api.github.com/users/kevin-bates/following{/other_user}",
+      "gists_url": "https://api.github.com/users/kevin-bates/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/kevin-bates/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/kevin-bates/subscriptions",
+      "organizations_url": "https://api.github.com/users/kevin-bates/orgs",
+      "repos_url": "https://api.github.com/users/kevin-bates/repos",
+      "events_url": "https://api.github.com/users/kevin-bates/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/kevin-bates/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-05-15T23:20:13Z",
+    "updated_at": "2020-05-15T23:58:23Z",
+    "author_association": "MEMBER",
+    "body": "Thanks for reviewing this Steve.  Updated with master (and again - sorry, the first contained some remnants from the merge).",
+    "performed_via_github_app": null
+  }
+]

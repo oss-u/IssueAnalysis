@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/221373480",
+    "html_url": "https://github.com/jupyter/notebook/issues/1483#issuecomment-221373480",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/1483",
+    "id": 221373480,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDIyMTM3MzQ4MA==",
+    "user": {
+      "login": "chaffra",
+      "id": 2158653,
+      "node_id": "MDQ6VXNlcjIxNTg2NTM=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2158653?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/chaffra",
+      "html_url": "https://github.com/chaffra",
+      "followers_url": "https://api.github.com/users/chaffra/followers",
+      "following_url": "https://api.github.com/users/chaffra/following{/other_user}",
+      "gists_url": "https://api.github.com/users/chaffra/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/chaffra/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/chaffra/subscriptions",
+      "organizations_url": "https://api.github.com/users/chaffra/orgs",
+      "repos_url": "https://api.github.com/users/chaffra/repos",
+      "events_url": "https://api.github.com/users/chaffra/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/chaffra/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2016-05-24T19:13:14Z",
+    "updated_at": "2016-05-24T19:13:14Z",
+    "author_association": "NONE",
+    "body": "updating sympy solved it.\n",
+    "performed_via_github_app": null
+  }
+]

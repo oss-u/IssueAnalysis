@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/228430450",
+    "html_url": "https://github.com/jupyter/notebook/issues/1435#issuecomment-228430450",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/1435",
+    "id": 228430450,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDIyODQzMDQ1MA==",
+    "user": {
+      "login": "Carreau",
+      "id": 335567,
+      "node_id": "MDQ6VXNlcjMzNTU2Nw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/335567?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Carreau",
+      "html_url": "https://github.com/Carreau",
+      "followers_url": "https://api.github.com/users/Carreau/followers",
+      "following_url": "https://api.github.com/users/Carreau/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Carreau/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Carreau/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Carreau/subscriptions",
+      "organizations_url": "https://api.github.com/users/Carreau/orgs",
+      "repos_url": "https://api.github.com/users/Carreau/repos",
+      "events_url": "https://api.github.com/users/Carreau/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Carreau/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2016-06-24T18:53:02Z",
+    "updated_at": "2016-06-24T18:53:02Z",
+    "author_association": "MEMBER",
+    "body": "> by adding config=True as an argument to the creation of extra_static_paths\n\nI'm confused [extra_static_path](https://github.com/jupyter/notebook/blob/178f9f3edf5c1833b6c55b8d560d47da9556d468/notebook/notebookapp.py#L685-L690) already have config=True since at least 2012.\n\nYou probably mean `static_custom_path`.\n\nSo don't use custom JS, use extensions, you can enable/disable extensions independently and extensions behave identically as customJS. Use the environment variable `$JUPYTER_CONFIG_DIR` if you want multiple configurations\n",
+    "performed_via_github_app": null
+  }
+]

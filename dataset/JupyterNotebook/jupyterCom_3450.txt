@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/375102604",
+    "html_url": "https://github.com/jupyter/notebook/issues/3450#issuecomment-375102604",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3450",
+    "id": 375102604,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM3NTEwMjYwNA==",
+    "user": {
+      "login": "takluyver",
+      "id": 327925,
+      "node_id": "MDQ6VXNlcjMyNzkyNQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/327925?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/takluyver",
+      "html_url": "https://github.com/takluyver",
+      "followers_url": "https://api.github.com/users/takluyver/followers",
+      "following_url": "https://api.github.com/users/takluyver/following{/other_user}",
+      "gists_url": "https://api.github.com/users/takluyver/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/takluyver/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/takluyver/subscriptions",
+      "organizations_url": "https://api.github.com/users/takluyver/orgs",
+      "repos_url": "https://api.github.com/users/takluyver/repos",
+      "events_url": "https://api.github.com/users/takluyver/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/takluyver/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-03-21T21:30:54Z",
+    "updated_at": "2018-03-21T21:30:54Z",
+    "author_association": "MEMBER",
+    "body": "There's no config option, but I don't see a problem with enabling those features in our use case. We sandbox it so that it can't access the notebook server and run code on your computer.\r\n\r\nDoes this also affect pages served with the `Content-Security-Policy: sandbox` header? We have recently added this on master for serving HTML files, and at some point in the future we might rely on that rather than the view iframes.",
+    "performed_via_github_app": null
+  }
+]

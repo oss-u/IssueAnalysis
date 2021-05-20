@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/430771040",
+    "html_url": "https://github.com/jupyter/notebook/issues/4113#issuecomment-430771040",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4113",
+    "id": 430771040,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQzMDc3MTA0MA==",
+    "user": {
+      "login": "Masterxilo",
+      "id": 2378665,
+      "node_id": "MDQ6VXNlcjIzNzg2NjU=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2378665?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Masterxilo",
+      "html_url": "https://github.com/Masterxilo",
+      "followers_url": "https://api.github.com/users/Masterxilo/followers",
+      "following_url": "https://api.github.com/users/Masterxilo/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Masterxilo/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Masterxilo/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Masterxilo/subscriptions",
+      "organizations_url": "https://api.github.com/users/Masterxilo/orgs",
+      "repos_url": "https://api.github.com/users/Masterxilo/repos",
+      "events_url": "https://api.github.com/users/Masterxilo/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Masterxilo/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-10-17T20:11:14Z",
+    "updated_at": "2018-10-17T20:11:14Z",
+    "author_association": "NONE",
+    "body": "It should not be that it matters for performance whether I have 1000 notebooks I open one after the other or one where I scroll to 1000 sections. \r\n\r\nThis is very not true in all implementations of notebooks I have seen so far (they're all in-memory), but good word processors, all movie players and good text editors (vim, more) & most games stream in just the stuff that is needed right now.\r\n\r\nThis is a basic technique that should be used in all places where items can grow \"infinitely\".",
+    "performed_via_github_app": null
+  }
+]

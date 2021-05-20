@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/622229527",
+    "html_url": "https://github.com/jupyter/notebook/issues/4957#issuecomment-622229527",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4957",
+    "id": 622229527,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDYyMjIyOTUyNw==",
+    "user": {
+      "login": "FilBot3",
+      "id": 3039509,
+      "node_id": "MDQ6VXNlcjMwMzk1MDk=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3039509?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/FilBot3",
+      "html_url": "https://github.com/FilBot3",
+      "followers_url": "https://api.github.com/users/FilBot3/followers",
+      "following_url": "https://api.github.com/users/FilBot3/following{/other_user}",
+      "gists_url": "https://api.github.com/users/FilBot3/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/FilBot3/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/FilBot3/subscriptions",
+      "organizations_url": "https://api.github.com/users/FilBot3/orgs",
+      "repos_url": "https://api.github.com/users/FilBot3/repos",
+      "events_url": "https://api.github.com/users/FilBot3/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/FilBot3/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-05-01T03:21:51Z",
+    "updated_at": "2020-05-01T03:22:52Z",
+    "author_association": "NONE",
+    "body": "I am getting an error with this as well. This seems to happen to both `jupyter lab` and `jupyter notebook`.\r\n\r\n```\r\n\r\n500 : Internal Server Error\r\n\r\nThe error was:\r\n\r\nnbconvert failed: PDF creating failed, captured latex output:\r\nFailed to run \"xelatex .\\notebook.tex -quiet\" command:\r\nThis is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex)\r\n restricted \\write18 enabled.\r\nentering extended mode\r\n! Undefined control sequence.\r\n<*> .\\notebook\r\n              .tex -quiet\r\n? \r\n! Emergency stop.\r\n<*> .\\notebook\r\n              .tex -quiet\r\nNo pages of output.\r\nTranscript written on ?.\r\n```\r\n\r\nHowever, I'm running Python 3.8.2 on Windows 10 in a PowerShell window using TexLive LaTeX 2020. I can export to other formats, but going to PDF would be preferable since its better at keeping formatting. \r\n\r\n```\r\nC:\\Users\\preda\\Documents\\JupyterNotebooks\\learningJupyterNotebooks01 [master +4 ~4 -0 !]\r\nλ  python -m pip show jupyter\r\nName: jupyter\r\nVersion: 1.0.0\r\nSummary: Jupyter metapackage. Install all the Jupyter components in one go.\r\nHome-page: http://jupyter.org\r\nAuthor: Jupyter Development Team\r\nAuthor-email: jupyter@googlegroups.org\r\nLicense: BSD\r\nLocation: c:\\users\\preda\\documents\\jupyternotebooks\\learningjupyternotebooks01\\venv\\jupyter\\lib\\site-packages\r\nRequires: ipykernel, jupyter-console, qtconsole, nbconvert, ipywidgets, notebook\r\nRequired-by:\r\n​C:\\Users\\preda\\Documents\\JupyterNotebooks\\learningJupyterNotebooks01 [master +4 ~4 -0 !]\r\nλ  python -m pip show notebook\r\nName: notebook\r\nVersion: 6.0.3\r\nSummary: A web-based notebook environment for interactive computing\r\nHome-page: http://jupyter.org\r\nAuthor: Jupyter Development Team\r\nAuthor-email: jupyter@googlegroups.com\r\nLicense: BSD\r\nLocation: c:\\users\\preda\\documents\\jupyternotebooks\\learningjupyternotebooks01\\venv\\jupyter\\lib\\site-packages\r\nRequires: nbformat, pyzmq, ipython-genutils, terminado, jupyter-core, traitlets, prometheus-client, tornado, jinja2, jupyter-client, Send2Trash, nbconvert, ipykernel\r\nRequired-by: widgetsnbextension, jupyterlab, jupyterlab-server, jupyter\r\n​C:\\Users\\preda\\Documents\\JupyterNotebooks\\learningJupyterNotebooks01 [master +4 ~4 -0 !]\r\nλ  python -m pip show jupyterlab\r\nName: jupyterlab\r\nVersion: 2.1.1\r\nSummary: The JupyterLab notebook server extension.\r\nHome-page: http://jupyter.org\r\nAuthor: Jupyter Development Team\r\nAuthor-email: jupyter@googlegroups.com\r\nLicense: BSD\r\nLocation: c:\\users\\preda\\documents\\jupyternotebooks\\learningjupyternotebooks01\\venv\\jupyter\\lib\\site-packages\r\nRequires: notebook, tornado, jinja2, jupyterlab-server\r\nRequired-by:\r\n​C:\\Users\\preda\\Documents\\JupyterNotebooks\\learningJupyterNotebooks01 [master +4 ~4 -0 !]\r\nλ  python -V\r\nPython 3.8.2\r\n​C:\\Users\\preda\\Documents\\JupyterNotebooks\\learningJupyterNotebooks01 [master +4 ~4 -0 !]\r\nλ  $PSVersionTable\r\n\r\nName                           Value\r\n----                           -----\r\nPSVersion                      7.0.0\r\nPSEdition                      Core\r\nGitCommitId                    7.0.0\r\nOS                             Microsoft Windows 10.0.18363\r\nPlatform                       Win32NT\r\nPSCompatibleVersions           {1.0, 2.0, 3.0, 4.0…}\r\nPSRemotingProtocolVersion      2.3\r\nSerializationVersion           1.1.0.1\r\nWSManStackVersion              3.0\r\nC:\\Users\\preda\\Documents\\JupyterNotebooks\\learningJupyterNotebooks01 [master +4 ~4 -0 !]\r\nλ  pandoc --version\r\npandoc.exe 2.9.2.1\r\nCompiled with pandoc-types 1.20, texmath 0.12.0.1, skylighting 0.8.3.2\r\nDefault user data directory: C:\\Users\\preda\\AppData\\Roaming\\pandoc\r\nCopyright (C) 2006-2020 John MacFarlane\r\nWeb:  https://pandoc.org\r\nThis is free software; see the source for copying conditions.\r\nThere is no warranty, not even for merchantability or fitness\r\nfor a particular purpose.\r\n```",
+    "performed_via_github_app": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/423652222",
+    "html_url": "https://github.com/jupyter/notebook/issues/4019#issuecomment-423652222",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4019",
+    "id": 423652222,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQyMzY1MjIyMg==",
+    "user": {
+      "login": "jasongrout",
+      "id": 192614,
+      "node_id": "MDQ6VXNlcjE5MjYxNA==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/192614?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/jasongrout",
+      "html_url": "https://github.com/jasongrout",
+      "followers_url": "https://api.github.com/users/jasongrout/followers",
+      "following_url": "https://api.github.com/users/jasongrout/following{/other_user}",
+      "gists_url": "https://api.github.com/users/jasongrout/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/jasongrout/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/jasongrout/subscriptions",
+      "organizations_url": "https://api.github.com/users/jasongrout/orgs",
+      "repos_url": "https://api.github.com/users/jasongrout/repos",
+      "events_url": "https://api.github.com/users/jasongrout/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/jasongrout/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-09-21T19:50:32Z",
+    "updated_at": "2018-09-21T19:50:32Z",
+    "author_association": "MEMBER",
+    "body": "FYI, this is possible in JupyterLab via the command palette, and you can assign a keyboard shortcut to the action as well. See the release notes for 0.33: https://jupyterlab.readthedocs.io/en/stable/getting_started/changelog.html#command-palette-items",
+    "performed_via_github_app": null
+  }
+]

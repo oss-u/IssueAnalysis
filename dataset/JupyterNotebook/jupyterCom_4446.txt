@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/470045616",
+    "html_url": "https://github.com/jupyter/notebook/issues/4446#issuecomment-470045616",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4446",
+    "id": 470045616,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQ3MDA0NTYxNg==",
+    "user": {
+      "login": "minrk",
+      "id": 151929,
+      "node_id": "MDQ6VXNlcjE1MTkyOQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/151929?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/minrk",
+      "html_url": "https://github.com/minrk",
+      "followers_url": "https://api.github.com/users/minrk/followers",
+      "following_url": "https://api.github.com/users/minrk/following{/other_user}",
+      "gists_url": "https://api.github.com/users/minrk/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/minrk/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/minrk/subscriptions",
+      "organizations_url": "https://api.github.com/users/minrk/orgs",
+      "repos_url": "https://api.github.com/users/minrk/repos",
+      "events_url": "https://api.github.com/users/minrk/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/minrk/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-03-06T10:01:07Z",
+    "updated_at": "2019-03-06T10:01:07Z",
+    "author_association": "MEMBER",
+    "body": "What's `pip list` and/or `conda list`? This looks to me like notebook and/or pyzmq might be out of date",
+    "performed_via_github_app": null
+  }
+]

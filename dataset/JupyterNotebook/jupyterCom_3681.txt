@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/397193902",
+    "html_url": "https://github.com/jupyter/notebook/issues/3681#issuecomment-397193902",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3681",
+    "id": 397193902,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM5NzE5MzkwMg==",
+    "user": {
+      "login": "mohanr",
+      "id": 367258,
+      "node_id": "MDQ6VXNlcjM2NzI1OA==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/367258?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/mohanr",
+      "html_url": "https://github.com/mohanr",
+      "followers_url": "https://api.github.com/users/mohanr/followers",
+      "following_url": "https://api.github.com/users/mohanr/following{/other_user}",
+      "gists_url": "https://api.github.com/users/mohanr/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/mohanr/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/mohanr/subscriptions",
+      "organizations_url": "https://api.github.com/users/mohanr/orgs",
+      "repos_url": "https://api.github.com/users/mohanr/repos",
+      "events_url": "https://api.github.com/users/mohanr/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/mohanr/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-06-14T07:06:43Z",
+    "updated_at": "2018-06-14T07:06:43Z",
+    "author_association": "NONE",
+    "body": "So just before the messages in the previous report appear this is what happens when the kernel dies. I think it reboots.\r\n\r\n```\r\n              `[I 12:25:51.887 NotebookApp] 302 GET /notebooks/images/center_crop.jpg (::1) 12.\r\n00ms\r\n[I 12:25:51.897 NotebookApp] 302 GET /notebooks/images/flowers.jpg (::1) 9.00ms\r\n[I 12:25:51.923 NotebookApp] 302 GET /notebooks/images/inceptionv3.png (::1) 26.\r\n00ms\r\n[W 12:26:01.947 NotebookApp] Timeout waiting for kernel_info reply from 08e7650b\r\n-2175-4ed6-860d-f3789e463205\r\n[I 12:26:07.793 NotebookApp] Adapting to protocol v5.1 for kernel 08e7650b-2175-\r\n4ed6-860d-f3789e463205\r\n[I 12:27:50.994 NotebookApp] Saving file at /week3_task2_fine_tuning_clean.ipynb\r\n\r\n[I 12:29:51.003 NotebookApp] Saving file at /week3_task2_fine_tuning_clean.ipynb\r\n\r\n[W 12:31:35.661 NotebookApp] WebSocket ping timeout after 93704 ms.\r\n[E 12:31:40.147 NotebookApp] Uncaught exception GET /api/kernels/08e7650b-2175-4\r\ned6-860d-f3789e463205/channels?session_id=1e82766ef7584e2096b53975de65a23a (::1)`\r\n```",
+    "performed_via_github_app": null
+  }
+]

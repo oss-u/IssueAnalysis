@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/276406729",
+    "html_url": "https://github.com/jupyter/notebook/issues/578#issuecomment-276406729",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/578",
+    "id": 276406729,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDI3NjQwNjcyOQ==",
+    "user": {
+      "login": "takluyver",
+      "id": 327925,
+      "node_id": "MDQ6VXNlcjMyNzkyNQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/327925?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/takluyver",
+      "html_url": "https://github.com/takluyver",
+      "followers_url": "https://api.github.com/users/takluyver/followers",
+      "following_url": "https://api.github.com/users/takluyver/following{/other_user}",
+      "gists_url": "https://api.github.com/users/takluyver/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/takluyver/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/takluyver/subscriptions",
+      "organizations_url": "https://api.github.com/users/takluyver/orgs",
+      "repos_url": "https://api.github.com/users/takluyver/repos",
+      "events_url": "https://api.github.com/users/takluyver/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/takluyver/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2017-01-31T16:06:29Z",
+    "updated_at": "2017-01-31T16:06:29Z",
+    "author_association": "MEMBER",
+    "body": "This appears to have been done at some point; the example notebook now starts with the section about the dashboard.",
+    "performed_via_github_app": null
+  }
+]

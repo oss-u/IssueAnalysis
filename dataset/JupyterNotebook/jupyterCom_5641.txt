@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/667288500",
+    "html_url": "https://github.com/jupyter/notebook/issues/5641#issuecomment-667288500",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5641",
+    "id": 667288500,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDY2NzI4ODUwMA==",
+    "user": {
+      "login": "MikHulk",
+      "id": 10364941,
+      "node_id": "MDQ6VXNlcjEwMzY0OTQx",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10364941?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/MikHulk",
+      "html_url": "https://github.com/MikHulk",
+      "followers_url": "https://api.github.com/users/MikHulk/followers",
+      "following_url": "https://api.github.com/users/MikHulk/following{/other_user}",
+      "gists_url": "https://api.github.com/users/MikHulk/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/MikHulk/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/MikHulk/subscriptions",
+      "organizations_url": "https://api.github.com/users/MikHulk/orgs",
+      "repos_url": "https://api.github.com/users/MikHulk/repos",
+      "events_url": "https://api.github.com/users/MikHulk/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/MikHulk/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-07-31T18:29:15Z",
+    "updated_at": "2020-07-31T18:29:15Z",
+    "author_association": "NONE",
+    "body": "Ok I found how to do this with replacing \\begin{math} by \\begin{equation}.\r\nLike this the equation is rendered in PDF and in notebook.",
+    "performed_via_github_app": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/377895787",
+    "html_url": "https://github.com/jupyter/notebook/issues/3415#issuecomment-377895787",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3415",
+    "id": 377895787,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM3Nzg5NTc4Nw==",
+    "user": {
+      "login": "SteliosStefanatos",
+      "id": 18383630,
+      "node_id": "MDQ6VXNlcjE4MzgzNjMw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18383630?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/SteliosStefanatos",
+      "html_url": "https://github.com/SteliosStefanatos",
+      "followers_url": "https://api.github.com/users/SteliosStefanatos/followers",
+      "following_url": "https://api.github.com/users/SteliosStefanatos/following{/other_user}",
+      "gists_url": "https://api.github.com/users/SteliosStefanatos/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/SteliosStefanatos/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/SteliosStefanatos/subscriptions",
+      "organizations_url": "https://api.github.com/users/SteliosStefanatos/orgs",
+      "repos_url": "https://api.github.com/users/SteliosStefanatos/repos",
+      "events_url": "https://api.github.com/users/SteliosStefanatos/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/SteliosStefanatos/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-04-02T09:41:30Z",
+    "updated_at": "2018-04-02T09:41:30Z",
+    "author_association": "NONE",
+    "body": "closing as issue no longer appears with the latest `conda update --all` (which upgrades `tornado` to ver. `5.0.1`",
+    "performed_via_github_app": null
+  }
+]

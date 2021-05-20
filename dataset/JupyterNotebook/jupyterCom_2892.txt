@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/333805129",
+    "html_url": "https://github.com/jupyter/notebook/issues/2892#issuecomment-333805129",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/2892",
+    "id": 333805129,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDMzMzgwNTEyOQ==",
+    "user": {
+      "login": "takluyver",
+      "id": 327925,
+      "node_id": "MDQ6VXNlcjMyNzkyNQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/327925?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/takluyver",
+      "html_url": "https://github.com/takluyver",
+      "followers_url": "https://api.github.com/users/takluyver/followers",
+      "following_url": "https://api.github.com/users/takluyver/following{/other_user}",
+      "gists_url": "https://api.github.com/users/takluyver/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/takluyver/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/takluyver/subscriptions",
+      "organizations_url": "https://api.github.com/users/takluyver/orgs",
+      "repos_url": "https://api.github.com/users/takluyver/repos",
+      "events_url": "https://api.github.com/users/takluyver/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/takluyver/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2017-10-03T10:43:43Z",
+    "updated_at": "2017-10-03T10:43:43Z",
+    "author_association": "MEMBER",
+    "body": "I think there's a couple of different things going on there:\r\n\r\n1. Backspace processing (`fixBackspace()` in `notebook/static/base/js/utils.js`) isn't correctly handling consecutive backspaces when they arrive together. That should be fixable.\r\n2. In the terminal, backspace moves the cursor back, and printing another character overwrites it. We're not emulating a proper terminal, so we don't track a cursor position, but we support a limited subset of terminal-like behaviour by processing some control characters and escape sequences. I think that in this scope, treating backspace as 'delete the last character' is 'good enough'.",
+    "performed_via_github_app": null
+  }
+]

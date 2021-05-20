@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/298216383",
+    "html_url": "https://github.com/jupyter/notebook/issues/2461#issuecomment-298216383",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/2461",
+    "id": 298216383,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDI5ODIxNjM4Mw==",
+    "user": {
+      "login": "minrk",
+      "id": 151929,
+      "node_id": "MDQ6VXNlcjE1MTkyOQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/151929?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/minrk",
+      "html_url": "https://github.com/minrk",
+      "followers_url": "https://api.github.com/users/minrk/followers",
+      "following_url": "https://api.github.com/users/minrk/following{/other_user}",
+      "gists_url": "https://api.github.com/users/minrk/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/minrk/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/minrk/subscriptions",
+      "organizations_url": "https://api.github.com/users/minrk/orgs",
+      "repos_url": "https://api.github.com/users/minrk/repos",
+      "events_url": "https://api.github.com/users/minrk/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/minrk/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2017-04-30T07:21:19Z",
+    "updated_at": "2017-04-30T07:21:19Z",
+    "author_association": "MEMBER",
+    "body": "My guess is that MathJax either doesn't know or doesn't handle the fact that the previous instance of the equation is gone and there there is a latex error assigning a duplicate label the second time. You will see probably related issues if you enable equation numbering, where the numbers are correct on first load, but each *render* of a cell increments equation numbers, rather than taking into account their location in the document.\r\n\r\nThere may be something we can do to tell mathjax explicitly that the equations have been removed, or trigger a more expensive re-process of the entire document on every render (or explicitly).",
+    "performed_via_github_app": null
+  }
+]

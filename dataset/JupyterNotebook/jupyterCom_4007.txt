@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/766367721",
+    "html_url": "https://github.com/jupyter/notebook/issues/4007#issuecomment-766367721",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/4007",
+    "id": 766367721,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDc2NjM2NzcyMQ==",
+    "user": {
+      "login": "krassowski",
+      "id": 5832902,
+      "node_id": "MDQ6VXNlcjU4MzI5MDI=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5832902?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/krassowski",
+      "html_url": "https://github.com/krassowski",
+      "followers_url": "https://api.github.com/users/krassowski/followers",
+      "following_url": "https://api.github.com/users/krassowski/following{/other_user}",
+      "gists_url": "https://api.github.com/users/krassowski/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/krassowski/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/krassowski/subscriptions",
+      "organizations_url": "https://api.github.com/users/krassowski/orgs",
+      "repos_url": "https://api.github.com/users/krassowski/repos",
+      "events_url": "https://api.github.com/users/krassowski/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/krassowski/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2021-01-24T15:27:18Z",
+    "updated_at": "2021-01-24T15:27:18Z",
+    "author_association": "NONE",
+    "body": "FYI, it is now possible using  [jupyterlab-lsp](https://github.com/krassowski/jupyterlab-lsp)  in JupyterLab and in [`jupyterlab-classic`](https://github.com/jtpio/jupyterlab-classic). Here is a demo:\r\n\r\n![rpy2-demo](https://user-images.githubusercontent.com/5832902/105606096-3f619b80-5d8f-11eb-994b-caf801f9765f.gif)\r\n\r\n![Julia-Python-R-opt](https://user-images.githubusercontent.com/5832902/105634969-87002a00-5e58-11eb-9c31-8eb22eb3ec59.gif)\r\n\r\n",
+    "performed_via_github_app": null
+  }
+]

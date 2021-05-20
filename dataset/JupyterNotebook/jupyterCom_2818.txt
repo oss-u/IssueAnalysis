@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/476205418",
+    "html_url": "https://github.com/jupyter/notebook/issues/2818#issuecomment-476205418",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/2818",
+    "id": 476205418,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQ3NjIwNTQxOA==",
+    "user": {
+      "login": "EmericT",
+      "id": 22590355,
+      "node_id": "MDQ6VXNlcjIyNTkwMzU1",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22590355?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/EmericT",
+      "html_url": "https://github.com/EmericT",
+      "followers_url": "https://api.github.com/users/EmericT/followers",
+      "following_url": "https://api.github.com/users/EmericT/following{/other_user}",
+      "gists_url": "https://api.github.com/users/EmericT/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/EmericT/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/EmericT/subscriptions",
+      "organizations_url": "https://api.github.com/users/EmericT/orgs",
+      "repos_url": "https://api.github.com/users/EmericT/repos",
+      "events_url": "https://api.github.com/users/EmericT/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/EmericT/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2019-03-25T13:50:13Z",
+    "updated_at": "2019-03-25T13:50:13Z",
+    "author_association": "NONE",
+    "body": "I'm not an expert at all, but if it helps, the function is in https://codemirror.net/2/lib/util/loadmode.js (which does not appear to be loaded). You can try to paste this content in your javascript console and see if it solves your issue.",
+    "performed_via_github_app": null
+  }
+]

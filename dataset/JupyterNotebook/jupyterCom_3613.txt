@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/389430039",
+    "html_url": "https://github.com/jupyter/notebook/issues/3613#issuecomment-389430039",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3613",
+    "id": 389430039,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM4OTQzMDAzOQ==",
+    "user": {
+      "login": "takluyver",
+      "id": 327925,
+      "node_id": "MDQ6VXNlcjMyNzkyNQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/327925?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/takluyver",
+      "html_url": "https://github.com/takluyver",
+      "followers_url": "https://api.github.com/users/takluyver/followers",
+      "following_url": "https://api.github.com/users/takluyver/following{/other_user}",
+      "gists_url": "https://api.github.com/users/takluyver/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/takluyver/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/takluyver/subscriptions",
+      "organizations_url": "https://api.github.com/users/takluyver/orgs",
+      "repos_url": "https://api.github.com/users/takluyver/repos",
+      "events_url": "https://api.github.com/users/takluyver/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/takluyver/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-05-16T07:58:45Z",
+    "updated_at": "2018-05-16T07:58:45Z",
+    "author_association": "MEMBER",
+    "body": "You would probably run it with HTTP, and run a separate server which accepted HTTPS connections and proxied to the HTTP interface.",
+    "performed_via_github_app": null
+  }
+]

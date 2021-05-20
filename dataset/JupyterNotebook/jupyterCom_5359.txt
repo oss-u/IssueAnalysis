@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/612349297",
+    "html_url": "https://github.com/jupyter/notebook/issues/5359#issuecomment-612349297",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5359",
+    "id": 612349297,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDYxMjM0OTI5Nw==",
+    "user": {
+      "login": "Gateway2745",
+      "id": 41517713,
+      "node_id": "MDQ6VXNlcjQxNTE3NzEz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41517713?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Gateway2745",
+      "html_url": "https://github.com/Gateway2745",
+      "followers_url": "https://api.github.com/users/Gateway2745/followers",
+      "following_url": "https://api.github.com/users/Gateway2745/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Gateway2745/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Gateway2745/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Gateway2745/subscriptions",
+      "organizations_url": "https://api.github.com/users/Gateway2745/orgs",
+      "repos_url": "https://api.github.com/users/Gateway2745/repos",
+      "events_url": "https://api.github.com/users/Gateway2745/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Gateway2745/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-04-11T06:58:05Z",
+    "updated_at": "2020-04-11T06:58:05Z",
+    "author_association": "NONE",
+    "body": "Just needed to add a 'token' field in jupyter-config json file.",
+    "performed_via_github_app": null
+  }
+]

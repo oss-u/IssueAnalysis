@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/702156203",
+    "html_url": "https://github.com/jupyter/notebook/pull/5785#issuecomment-702156203",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5785",
+    "id": 702156203,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDcwMjE1NjIwMw==",
+    "user": {
+      "login": "kevin-bates",
+      "id": 22599560,
+      "node_id": "MDQ6VXNlcjIyNTk5NTYw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22599560?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/kevin-bates",
+      "html_url": "https://github.com/kevin-bates",
+      "followers_url": "https://api.github.com/users/kevin-bates/followers",
+      "following_url": "https://api.github.com/users/kevin-bates/following{/other_user}",
+      "gists_url": "https://api.github.com/users/kevin-bates/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/kevin-bates/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/kevin-bates/subscriptions",
+      "organizations_url": "https://api.github.com/users/kevin-bates/orgs",
+      "repos_url": "https://api.github.com/users/kevin-bates/repos",
+      "events_url": "https://api.github.com/users/kevin-bates/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/kevin-bates/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-10-01T14:00:25Z",
+    "updated_at": "2020-10-01T14:00:25Z",
+    "author_association": "MEMBER",
+    "body": "Hi @sonkelpesh - I'm closing this pull request as it's essentially attempting to revert a portion of the master branch to the 4.0.6 release from 5 years ago.\r\n\r\nIf you feel this was intentional, please describe what you're attempting to accomplish, and perhaps someone can assist you.",
+    "performed_via_github_app": null
+  }
+]

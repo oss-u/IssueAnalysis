@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/357923755",
+    "html_url": "https://github.com/jupyter/notebook/issues/3213#issuecomment-357923755",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3213",
+    "id": 357923755,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM1NzkyMzc1NQ==",
+    "user": {
+      "login": "OrangeBot",
+      "id": 30196026,
+      "node_id": "MDQ6VXNlcjMwMTk2MDI2",
+      "avatar_url": "https://avatars.githubusercontent.com/u/30196026?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/OrangeBot",
+      "html_url": "https://github.com/OrangeBot",
+      "followers_url": "https://api.github.com/users/OrangeBot/followers",
+      "following_url": "https://api.github.com/users/OrangeBot/following{/other_user}",
+      "gists_url": "https://api.github.com/users/OrangeBot/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/OrangeBot/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/OrangeBot/subscriptions",
+      "organizations_url": "https://api.github.com/users/OrangeBot/orgs",
+      "repos_url": "https://api.github.com/users/OrangeBot/repos",
+      "events_url": "https://api.github.com/users/OrangeBot/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/OrangeBot/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-01-16T10:51:42Z",
+    "updated_at": "2018-01-16T10:52:12Z",
+    "author_association": "NONE",
+    "body": "Hi,\r\nOne clue i see here is that you have 'six' module in your traceback. While i'm not completely aware of situation, PyCharm warns me for one of my projects that it includes 'six' package and there might be compatibility issues..\r\n\r\nThe difference between notebook and ipython is, for example, Display variable. And as it also has something to do with matplotlib - that might be the reason.\r\n\r\n```\r\n# works for me\r\nipython\r\nPython 3.5.4 |Anaconda custom (64-bit)| (default, Nov 20 2017, 18:44:38) \r\nType 'copyright', 'credits' or 'license' for more information\r\nIPython 6.2.1 -- An enhanced Interactive Python. Type '?' for help.\r\n\r\nIn [1]: import fbprophet\r\n\r\nIn [2]: \r\n\r\n```",
+    "performed_via_github_app": null
+  }
+]

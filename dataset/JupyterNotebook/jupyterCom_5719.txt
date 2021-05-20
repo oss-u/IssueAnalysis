@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/689300118",
+    "html_url": "https://github.com/jupyter/notebook/issues/5719#issuecomment-689300118",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5719",
+    "id": 689300118,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDY4OTMwMDExOA==",
+    "user": {
+      "login": "adityaskarnik",
+      "id": 11070736,
+      "node_id": "MDQ6VXNlcjExMDcwNzM2",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11070736?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/adityaskarnik",
+      "html_url": "https://github.com/adityaskarnik",
+      "followers_url": "https://api.github.com/users/adityaskarnik/followers",
+      "following_url": "https://api.github.com/users/adityaskarnik/following{/other_user}",
+      "gists_url": "https://api.github.com/users/adityaskarnik/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/adityaskarnik/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/adityaskarnik/subscriptions",
+      "organizations_url": "https://api.github.com/users/adityaskarnik/orgs",
+      "repos_url": "https://api.github.com/users/adityaskarnik/repos",
+      "events_url": "https://api.github.com/users/adityaskarnik/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/adityaskarnik/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-09-09T04:49:41Z",
+    "updated_at": "2020-09-09T04:49:41Z",
+    "author_association": "NONE",
+    "body": "I am still not sure why this does not work, but for now I have found an alternative to use ``execute.CodeCell`` instead of that ``output_append.OutputArea`` which give me the events on output of the cell.",
+    "performed_via_github_app": null
+  }
+]

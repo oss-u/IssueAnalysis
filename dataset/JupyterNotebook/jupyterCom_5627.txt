@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/663031470",
+    "html_url": "https://github.com/jupyter/notebook/issues/5627#issuecomment-663031470",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/5627",
+    "id": 663031470,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDY2MzAzMTQ3MA==",
+    "user": {
+      "login": "kevin-bates",
+      "id": 22599560,
+      "node_id": "MDQ6VXNlcjIyNTk5NTYw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22599560?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/kevin-bates",
+      "html_url": "https://github.com/kevin-bates",
+      "followers_url": "https://api.github.com/users/kevin-bates/followers",
+      "following_url": "https://api.github.com/users/kevin-bates/following{/other_user}",
+      "gists_url": "https://api.github.com/users/kevin-bates/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/kevin-bates/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/kevin-bates/subscriptions",
+      "organizations_url": "https://api.github.com/users/kevin-bates/orgs",
+      "repos_url": "https://api.github.com/users/kevin-bates/repos",
+      "events_url": "https://api.github.com/users/kevin-bates/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/kevin-bates/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2020-07-23T14:13:54Z",
+    "updated_at": "2020-07-23T14:13:54Z",
+    "author_association": "MEMBER",
+    "body": "Hi @thanoscs - this is the right place for some of your issues.\r\n\r\n> After installing tensorflow it imports without problems in python from terminal but when i open jupyter notebook and i try to import it from there it does not recognise tensorflow giving the impression as it was never installed.\r\n\r\nThis is likely a case that the python invoked from your notebook kernel is not the same as the python your notebook server (and terminal) are running.  To confirm and address this, locate your kernel specification file (`kernel.json`) by identifying the directory in which it resides using `jupyter kernelspec list`.  This command produces a mapping of kernel names to directories.  Look at the `kernel.json` file in the appropriate directory for your kernel and ensure the path to the python executable listed in the `argv` stanza matches the python associated with your tensorflow installation.\r\n\r\n> An odd but interesting thing is that when i create a jupyter .ipynb file in the \"/Users/mac\" directory where tensorflow directory lies after source installation it loads tensorflow without problems.Elsewhere when creating a .ipynb in my laptop, tensorflow does not import.\r\n\r\nMy first thought is that this is relative to a path issue of sorts where the current directory comes into play.  So you might check your environment for `PYTHONPATH` (or even `PATH`) entries consisting of '`.`' to see if that might be the case.  Resolving the `kernel.json` issue should address this as well.\r\n\r\n> Finally the \"tf.__ version __ \" won't show me my tensorflow version nowhere not even when i import it througth the terminal.\r\n\r\nIn looking at my tensorflow 2.2.0 distribution I see things like version information are not handled in a straightforward manner - which I'm sure is due to the various platforms and languages being supported.  As best as I can determine (using basic grepping) `__version__` comes from `python/client/pywrap_tf_session.py:__version__ = str(get_version())`, yet I can't find were the `get_version()` method is defined (again, not spending much time).  As a result, I suspect your issue might be related to your custom build and/or how it was ultimately deployed.  This question is probably best left for the tensorflow folks (or the internet).\r\n",
+    "performed_via_github_app": null
+  }
+]

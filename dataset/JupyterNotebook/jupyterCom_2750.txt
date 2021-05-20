@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/321977810",
+    "html_url": "https://github.com/jupyter/notebook/issues/2750#issuecomment-321977810",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/2750",
+    "id": 321977810,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDMyMTk3NzgxMA==",
+    "user": {
+      "login": "stonebig",
+      "id": 4312421,
+      "node_id": "MDQ6VXNlcjQzMTI0MjE=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4312421?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/stonebig",
+      "html_url": "https://github.com/stonebig",
+      "followers_url": "https://api.github.com/users/stonebig/followers",
+      "following_url": "https://api.github.com/users/stonebig/following{/other_user}",
+      "gists_url": "https://api.github.com/users/stonebig/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/stonebig/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/stonebig/subscriptions",
+      "organizations_url": "https://api.github.com/users/stonebig/orgs",
+      "repos_url": "https://api.github.com/users/stonebig/repos",
+      "events_url": "https://api.github.com/users/stonebig/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/stonebig/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2017-08-12T12:22:18Z",
+    "updated_at": "2017-08-12T12:22:18Z",
+    "author_association": "NONE",
+    "body": "ah, it works ok at second try... maybe it's the same sort of (upgrade or downgrade) problem as https://github.com/jupyter/notebook/issues/2747, so closing.",
+    "performed_via_github_app": null
+  }
+]

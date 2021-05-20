@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/121673194",
+    "html_url": "https://github.com/jupyter/notebook/issues/206#issuecomment-121673194",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/206",
+    "id": 121673194,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDEyMTY3MzE5NA==",
+    "user": {
+      "login": "Carreau",
+      "id": 335567,
+      "node_id": "MDQ6VXNlcjMzNTU2Nw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/335567?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Carreau",
+      "html_url": "https://github.com/Carreau",
+      "followers_url": "https://api.github.com/users/Carreau/followers",
+      "following_url": "https://api.github.com/users/Carreau/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Carreau/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Carreau/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Carreau/subscriptions",
+      "organizations_url": "https://api.github.com/users/Carreau/orgs",
+      "repos_url": "https://api.github.com/users/Carreau/repos",
+      "events_url": "https://api.github.com/users/Carreau/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Carreau/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2015-07-15T16:40:44Z",
+    "updated_at": "2015-07-15T16:40:44Z",
+    "author_association": "MEMBER",
+    "body": "I'm trying to write some docs about that here : \n\nhttp://carreau.gitbooks.io/jupyter-book/content/Jsextensions.html\n\nIt is also what of the things we demoed in our tutorial last week: \n\nhttps://github.com/jupyter/scipy-advanced-tutorial/blob/master/Part1/04-notebook-extensions.md \n\nand the video : \n\nhttps://www.youtube.com/watch?v=38R7jiCspkw\n\nFeel free to ask more questions if you can't make it to work (or make PRs if things are not clear and you think you can express them better) \n",
+    "performed_via_github_app": null
+  }
+]

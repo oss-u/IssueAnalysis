@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/412774989",
+    "html_url": "https://github.com/jupyter/notebook/issues/3848#issuecomment-412774989",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3848",
+    "id": 412774989,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQxMjc3NDk4OQ==",
+    "user": {
+      "login": "GVKannan",
+      "id": 39258611,
+      "node_id": "MDQ6VXNlcjM5MjU4NjEx",
+      "avatar_url": "https://avatars.githubusercontent.com/u/39258611?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/GVKannan",
+      "html_url": "https://github.com/GVKannan",
+      "followers_url": "https://api.github.com/users/GVKannan/followers",
+      "following_url": "https://api.github.com/users/GVKannan/following{/other_user}",
+      "gists_url": "https://api.github.com/users/GVKannan/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/GVKannan/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/GVKannan/subscriptions",
+      "organizations_url": "https://api.github.com/users/GVKannan/orgs",
+      "repos_url": "https://api.github.com/users/GVKannan/repos",
+      "events_url": "https://api.github.com/users/GVKannan/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/GVKannan/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-08-14T07:03:38Z",
+    "updated_at": "2018-08-14T07:03:38Z",
+    "author_association": "NONE",
+    "body": "When I opened jupyter notebook from anaconda navigator the issue was solved but had an error when I did the same using Anaconda terminal",
+    "performed_via_github_app": null
+  }
+]

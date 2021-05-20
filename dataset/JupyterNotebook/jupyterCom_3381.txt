@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/369570150",
+    "html_url": "https://github.com/jupyter/notebook/issues/3381#issuecomment-369570150",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3381",
+    "id": 369570150,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM2OTU3MDE1MA==",
+    "user": {
+      "login": "takluyver",
+      "id": 327925,
+      "node_id": "MDQ6VXNlcjMyNzkyNQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/327925?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/takluyver",
+      "html_url": "https://github.com/takluyver",
+      "followers_url": "https://api.github.com/users/takluyver/followers",
+      "following_url": "https://api.github.com/users/takluyver/following{/other_user}",
+      "gists_url": "https://api.github.com/users/takluyver/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/takluyver/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/takluyver/subscriptions",
+      "organizations_url": "https://api.github.com/users/takluyver/orgs",
+      "repos_url": "https://api.github.com/users/takluyver/repos",
+      "events_url": "https://api.github.com/users/takluyver/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/takluyver/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-03-01T11:59:52Z",
+    "updated_at": "2018-03-01T11:59:52Z",
+    "author_association": "MEMBER",
+    "body": "That usually means some code has called `sys.exit()`. That's not unusual for code that is meant to be run as a script, but it's not really meant to be used inside Jupyter. It shouldn't cause a problem other than that error message, though.",
+    "performed_via_github_app": null
+  }
+]

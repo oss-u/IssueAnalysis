@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/394047035",
+    "html_url": "https://github.com/jupyter/notebook/issues/3617#issuecomment-394047035",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3617",
+    "id": 394047035,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDM5NDA0NzAzNQ==",
+    "user": {
+      "login": "lucasoshiro",
+      "id": 12701580,
+      "node_id": "MDQ6VXNlcjEyNzAxNTgw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12701580?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/lucasoshiro",
+      "html_url": "https://github.com/lucasoshiro",
+      "followers_url": "https://api.github.com/users/lucasoshiro/followers",
+      "following_url": "https://api.github.com/users/lucasoshiro/following{/other_user}",
+      "gists_url": "https://api.github.com/users/lucasoshiro/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/lucasoshiro/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/lucasoshiro/subscriptions",
+      "organizations_url": "https://api.github.com/users/lucasoshiro/orgs",
+      "repos_url": "https://api.github.com/users/lucasoshiro/repos",
+      "events_url": "https://api.github.com/users/lucasoshiro/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/lucasoshiro/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-06-02T01:36:24Z",
+    "updated_at": "2018-06-02T01:36:24Z",
+    "author_association": "CONTRIBUTOR",
+    "body": "Hi! I have been working on that feature:\r\n![image](https://user-images.githubusercontent.com/12701580/40868875-4fbdf5f6-65e8-11e8-935c-24949c5380c2.png)\r\nHowever, as you can see, the path is relative to jupyter notebook root, instead of the system root. I didn't find a way to get it, and according to [this](https://github.com/ipython/ipython/issues/10123), I don't think it is possible... ",
+    "performed_via_github_app": null
+  }
+]

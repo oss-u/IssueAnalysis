@@ -1,0 +1,34 @@
+[
+  {
+    "url": "https://api.github.com/repos/jupyter/notebook/issues/comments/415151579",
+    "html_url": "https://github.com/jupyter/notebook/issues/3875#issuecomment-415151579",
+    "issue_url": "https://api.github.com/repos/jupyter/notebook/issues/3875",
+    "id": 415151579,
+    "node_id": "MDEyOklzc3VlQ29tbWVudDQxNTE1MTU3OQ==",
+    "user": {
+      "login": "kennethjmyers",
+      "id": 13514551,
+      "node_id": "MDQ6VXNlcjEzNTE0NTUx",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13514551?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/kennethjmyers",
+      "html_url": "https://github.com/kennethjmyers",
+      "followers_url": "https://api.github.com/users/kennethjmyers/followers",
+      "following_url": "https://api.github.com/users/kennethjmyers/following{/other_user}",
+      "gists_url": "https://api.github.com/users/kennethjmyers/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/kennethjmyers/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/kennethjmyers/subscriptions",
+      "organizations_url": "https://api.github.com/users/kennethjmyers/orgs",
+      "repos_url": "https://api.github.com/users/kennethjmyers/repos",
+      "events_url": "https://api.github.com/users/kennethjmyers/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/kennethjmyers/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "created_at": "2018-08-22T19:29:57Z",
+    "updated_at": "2018-08-22T19:29:57Z",
+    "author_association": "NONE",
+    "body": "I Think I figured it out. Adding the \\_\\_init__.py files at all levels, even if it was empty, seemed to help and I needed to give Jupyter some time to I guess rebuild whatever cache is underneath storing the paths (there was always a delay in when autocomplete would kick in so I'm not sure what is happening but just being patient helps). ",
+    "performed_via_github_app": null
+  }
+]
