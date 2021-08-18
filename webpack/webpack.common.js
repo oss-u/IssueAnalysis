@@ -9,6 +9,7 @@ module.exports = {
     //   options: path.join(srcDir, 'options.tsx'),
     background: path.join(srcDir, "background.js"),
     content_script: path.join(srcDir, "content_script.js"),
+    sub_summary: path.join(srcDir, "sub_summary.tsx"),
   },
   output: {
     path: path.join(__dirname, "../dist/"),
@@ -23,6 +24,14 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.tsx?$/,
+        loader: "esbuild-loader",
+        options: {
+          loader: "tsx",
+          target: "es2020",
+        },
+      },
+      {
         test: /\.(js)$/,
         exclude: /node_modules/,
         use: ["babel-loader"],
@@ -34,7 +43,12 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        loaders: ["style-loader", "css-loader", "sass-loader", "sass?includePaths[]="+ path.resolve(__dirname, 'node_modules')],
+        loaders: [
+          "style-loader",
+          "css-loader",
+          "sass-loader",
+          // "sass?includePaths[]=" + path.resolve(__dirname, "node_modules"),
+        ],
       },
     ],
   },

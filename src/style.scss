@@ -1,0 +1,21 @@
+@import "@primer/css/utilities/index.scss";
+
+.plus-button {
+  font-size: 18px;
+  border-radius: 15px;
+}
+
+.comment_block {
+  border: 1px solid #000;
+  padding: 2px;
+  border-radius: 5px;
+}
+
+.comment_block p {
+  font-size: 10px;
+}
+
+.gen-summary-btn {
+  display: flex;
+  justify-content: flex-end;
+}

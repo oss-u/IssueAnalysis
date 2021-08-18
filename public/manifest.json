@@ -20,6 +20,10 @@
     {
       "matches": ["*://*.github.com/*/issues/*", "*://*.github.com/*/pull/*"],
       "js": ["content_script.js"]
+    },
+    {
+      "matches": ["*://*.github.com/*/issues/*", "*://*.github.com/*/pull/*"],
+      "js": ["sub_summary.js"]
     }
   ],
 
