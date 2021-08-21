@@ -10,6 +10,7 @@ module.exports = {
     background: path.join(srcDir, "background.js"),
     content_script: path.join(srcDir, "content_script.js"),
     sub_summary: path.join(srcDir, "sub_summary.tsx"),
+    topLevelSummaryComponent: path.join(srcDir, "topLevelSummary.tsx"),
   },
   output: {
     path: path.join(__dirname, "../dist/"),
@@ -32,9 +33,12 @@ module.exports = {
         },
       },
       {
-        test: /\.(js)$/,
-        exclude: /node_modules/,
-        use: ["babel-loader"],
+        test: /\.js$/,
+        loader: "esbuild-loader",
+        options: {
+          loader: "jsx", 
+          target: "es2020",
+        },
       },
       {
         test: /\.css$/,
