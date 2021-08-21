@@ -2,6 +2,7 @@ import React from "dom-chef";
 
 import "./style.scss"
 import { comment_parser } from "./utils/comment_parser";
+// import { XIcon } from '@primer/octicons-react';
 
 const discussion_bucket = document.querySelector("#discussion_bucket div");
 
@@ -26,11 +27,11 @@ const handleAddComments = () => {
 
 const summary_sidebar = (
   <div className="col-md-3">
-    <div className="timeline-comment-header summary-sidebar-header">
+    <div className="timeline-comment-header summary-sidebar-header p-2">
       <div className="timeline-comment-actions flex-shrink-0">
         <button className="btn btn-sm btn-primary m-0 ml-2 ml-md-2" onClick={handleAddComments}>Add</button>
       </div>
-      <h3 className="timeline-comment-header-text f5 text-normal"><strong>Summary Sidebar</strong></h3>
+      <h3 className="timeline-comment-header-text f5 text-normal"><strong>Summaries</strong></h3>
     </div>
   </div>
 );
@@ -46,13 +47,13 @@ console.log(comments);
 const curr_selected_comments = [];
 
 const handleSelectComment = comment_id => {
-  console.log(`[handleSelectComment] ${comment_id}`)
+  // console.log(`[handleSelectComment] ${comment_id}`)
   const comment = comments.find(c => c.id === comment_id);
   curr_selected_comments.push(comment);
   
   if (summary_sidebar.querySelector('.comment_block') === null) {
     summary_sidebar.append(
-      <div className='comment_block'>
+      <div className='comment_block p-2'>
         <div className='items'></div>
       </div>
     );
