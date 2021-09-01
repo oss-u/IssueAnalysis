@@ -45,7 +45,7 @@ class InformationTypeSummary extends React.Component<
 > {
   constructor(props) {
     super(props);
-    this.updateTopLevelSummary = this.updateTopLevelSummary.bind(this);
+    // this.updateTopLevelSummary = this.updateTopLevelSummary.bind(this);
     this.state = {
       informationTypeSummaries: [],
     };
@@ -68,7 +68,7 @@ class InformationTypeSummary extends React.Component<
     el.setAttribute("aria-disabled", "false");
   }
 
-  updateTopLevelSummary() {
+  updateTopLevelSummary = () => {
     // API specifications - to get the summary
     // Should return an array. Array contains
     // tuples with summary and the information type ID.

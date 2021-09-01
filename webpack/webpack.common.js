@@ -9,8 +9,9 @@ module.exports = {
     //   options: path.join(srcDir, 'options.tsx'),
     background: path.join(srcDir, "background.js"),
     content_script: path.join(srcDir, "content_script.js"),
-    sub_summary: path.join(srcDir, "sub_summary.tsx"),
-    topLevelSummaryComponent: path.join(srcDir, "topLevelSummary.tsx"),
+    // sub_summary: path.join(srcDir, "sub_summary.tsx"),
+    // topLevelSummaryComponent: path.join(srcDir, "topLevelSummary.tsx"),
+    // newCommentComponent: path.join(srcDir, "newComment.tsx"),
   },
   output: {
     path: path.join(__dirname, "../dist/"),
