@@ -13,7 +13,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 function init() {
   initTopLevelSummaryComponent();
   initSummaryPanelComponent();
-  initNewCommentComponent();
 }
 
 init();
