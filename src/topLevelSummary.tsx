@@ -32,8 +32,9 @@ class InformationType
       <div className="Box-body">
         <div className="tooltipped tooltipped-se" aria-label={this.tooltip}>
           <h4>{this.title}</h4>
-          <p>{this.content}</p>
+          
         </div>
+        <p>{this.content}</p>
       </div>
     );
   }

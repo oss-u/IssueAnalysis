@@ -33,8 +33,9 @@ const newComment = () => {
   summariseButton.innerText = "Summarise";
   summariseButton.onclick = () => {
     console.log(markdownToolbar);
-    markdownToolbar.hidden = true;
-    // tabContainer.className = "js-previewable-comment-form previewable-comment-form write-selected";
+    // markdownToolbar.hidden = true;
+    // tabContainer.className = "js-previewable-comment-form previewable-comment-form preview-selected";
+    markdownToolbar.style.visibility = "hidden";
 
   };
   // tabNav.insertBefore(summariseButton, tabNav.children[1]);
