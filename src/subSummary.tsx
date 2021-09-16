@@ -1,7 +1,7 @@
 import React from "react";
 import "./style.scss";
-import '@github/tab-container-element';
-import '@github/markdown-toolbar-element';
+// import '@github/tab-container-element';
+// import '@github/markdown-toolbar-element';
 // import TabContainerElement from "@github/tab-container-element";
 
 function guidGenerator() {
@@ -97,7 +97,7 @@ class SummaryComponent extends React.Component<{ comments: Array<IssueComment>, 
                 <div className="col-10 float-left pl-2"><h6>commented on {dateFormatting}</h6></div>
               </div>
             </div>
-            <div className="Box-row p-1 markdown-body">{e.bodyText}</div>
+            <div className="Box-row p-1 "><p className='markdown-body'>{e.bodyText.slice(0, 50)}...</p></div>
           </div>
         </div>
       )
