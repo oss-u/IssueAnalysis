@@ -49,7 +49,7 @@ const newComment = () => {
 };
 
 const initNewCommentComponent = () => {
-  newComment();
+  // newComment();
 };
 
 export default initNewCommentComponent;

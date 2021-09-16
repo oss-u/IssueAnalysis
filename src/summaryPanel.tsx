@@ -31,7 +31,7 @@ const createSummaryPanel = () => {
   summaryPanel.appendChild(informationTypeTagger);
 
   ReactDOM.render(<SubSummaryComponent />, subSummaryComponent);
-  ReactDOM.render(<InformationTypeTagger />, informationTypeTagger);
+  // ReactDOM.render(<InformationTypeTagger />, informationTypeTagger);
 };
 
 const initSummaryPanelComponent = () => {
