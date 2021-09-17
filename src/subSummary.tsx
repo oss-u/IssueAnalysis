@@ -1,8 +1,6 @@
 import React from "react";
 import "./style.scss";
-// import '@github/tab-container-element';
-// import '@github/markdown-toolbar-element';
-// import TabContainerElement from "@github/tab-container-element";
+
 
 function guidGenerator() {
   var S4 = function () {
@@ -51,31 +49,49 @@ class Summary {
   }
 }
 
+class SummaryComponent extends React.Component<{ summaries: Array<string> }, {}> {
+  render() {
+    let summaryContent: Array<Element> = [];
+    this.props.summaries.forEach(s => summaryContent.push(
+      <div className='Box flex-column m-1 p-1 color-border-info'>
+        {this.props.summaries}
+      </div>
+    ))
+    return (summaryContent);
+  }
+}
 
-// class SummaryInputComponent extends React.Component<{}, {}> {
-//   render() {
-//     return (
 
-//       <TabContainerElement>
-//         <div className="tabnav-tabs mx-0 mx-md-2 mt-0 mt-md-2 no-wrap d-flex flex-auto d-md-block" role="tablist">
-//           <button type="button"
-//             className="btn-link tabnav-tab write-tab js-write-tab px-3 px-sm-6 px-md-3 flex-1 flex-md-auto" role="tab"
-//             aria-selected="true">
-//             Write
-//           </button>
-//           <button type="button"
-//             className="btn-link tabnav-tab preview-tab js-preview-tab flex-1 flex-md-auto" role="tab"
-//             aria-selected="false">
-//             Preview
-//           </button>
-//         </div>
-//       </TabContainerElement>
-//     );
-//   }
-// }
+class SummaryInputComponent extends React.Component<{ existingSummary: string, backButtonHandler, submitHandler }, {}> {
+  render() {
+    return (
+      <div className='Box flex-column m-1 p-1 color-border-success'>
+        <h5>Edit Summary</h5>
+        <form onSubmit={this.props.submitHandler}>
+          <textarea className="form-control input-block textarea-vertical-resize-only"
+            aria-label="summary-input" name="summary-textarea">{this.props.existingSummary}</textarea>
+          <div className='clearfix flex-row'>
+            <button
+              className="btn btn-sm btn-primary m-1 float-right"
+              type="submit"
+            >
+              Done
+            </button>
+            <button
+              className="btn btn-sm m-1 float-right"
+              type="button" onClick={() => { this.props.backButtonHandler('comments') }}
+            >
+              Back
+            </button>
+          </div>
+        </form>
+      </div>
 
-class SummaryComponent extends React.Component<{ comments: Array<IssueComment>, handler }, {}> {
+    );
+  }
+}
 
+class CommentComponent extends React.Component<{ comments: Array<IssueComment>, handler }, {}> {
   constructor(props) {
     super(props);
     this.state = {
@@ -131,6 +147,7 @@ class SubSummaryComponent extends React.Component<{}, { subsummaries: Array<Summ
       visible: 'summary'
     }
     this.loadCommentComponents = this.loadCommentComponents.bind(this);
+    this.saveSummary == this.saveSummary.bind(this);
   }
 
   commentParser = (comment: Element) => {
@@ -150,37 +167,40 @@ class SubSummaryComponent extends React.Component<{}, { subsummaries: Array<Summ
     return new IssueComment(c_id, c_body, c_bodytext, author);
   };
 
+
+  addCommentsOnClick = (tag: Element) => {
+    tag.classList.add("color-border-success");
+    let newComment = this.commentParser(tag);
+    if (this.state.editing) {
+      let modifiedSummary = this.state.subsummaries.findIndex(e => e.id === this.state.editing);
+      let items = [...this.state.subsummaries];
+      let item = { ...items[modifiedSummary] };
+      this.addedComments.push(newComment.id);
+      item.comments = item.comments.concat(newComment);
+      items[modifiedSummary] = item;
+      this.setState({
+        subsummaries: items,
+        visible: 'comments'
+      });
+    } else {
+      let newSummary = new Summary('', newComment);
+      this.addedComments.push(newComment.id);
+      this.setState({
+        subsummaries: new Array(newSummary),
+        editing: newSummary.id,
+        visible: 'comments'
+      });
+    }
+  }
+
   addCommentsToSummary = () => {
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
     commentTags.forEach(tag => {
-
       if (tag.getAttribute('listener') !== 'true') {
         tag.addEventListener("click", () => {
-
-          tag.classList.add("color-border-success");
-          let newComment = this.commentParser(tag);
-          if (!this.state.subsummaries.length) {
-            let newSummary = new Summary('', newComment);
-            this.addedComments.push(newComment.id);
-            this.setState({
-              subsummaries: new Array(newSummary),
-              editing: newSummary.id,
-              visible: 'comments'
-            });
-          } else {
-            let modifiedSummary = this.state.subsummaries.findIndex(e => e.id === this.state.editing);
-            let items = [...this.state.subsummaries];
-            let item = { ...items[modifiedSummary] };
-            this.addedComments.push(newComment.id);
-            item.comments = item.comments.concat(newComment);
-            items[modifiedSummary] = item;
-            this.setState({
-              subsummaries: items,
-              visible: 'comments'
-            });
-          }
+          this.addCommentsOnClick(tag);
         });
         tag.setAttribute('listener', 'true');
       }
@@ -196,26 +216,64 @@ class SubSummaryComponent extends React.Component<{}, { subsummaries: Array<Summ
   loadCommentComponents = () => {
     let t = [];
     this.state.subsummaries.forEach((value, index) => {
-      t.push(<SummaryComponent key={index} comments={value.comments} handler={this.toggleSummaryBoxComponent} />)
+      t.push(<CommentComponent key={index} comments={value.comments} handler={this.toggleSummaryBoxComponent} />)
     })
     return t;
   }
 
+
+  saveSummary = (summary: HTMLFormElement) => {
+    summary.preventDefault();
+    // make an API call and submit the form
+    // response is summary
+    let storedSummary = 'Sent to backend, summary stored'; // API response
+    let modifiedSummary = this.state.subsummaries.findIndex(e => e.id === this.state.editing);
+    let items = [...this.state.subsummaries];
+    let item = { ...items[modifiedSummary] };
+    item.summary = storedSummary;
+    items[modifiedSummary] = item;
+    this.setState({
+      subsummaries: items,
+      visible: 'summary',
+      editing: ''
+    });
+
+    // const commentTags = document.querySelectorAll(
+    //   "div.timeline-comment.unminimized-comment"
+    // );
+    // commentTags.forEach(tag => {
+    //   if (tag.getAttribute('listener') === 'true') {
+    //     // tag.removeEventListener("click", this.addCommentsOnClick);
+    //     tag.setAttribute('listener', 'false');
+    //   }
+    // });
+  }
+
   loadSummaryInputComponent = () => {
+    let autogeneratedSummary = 'Autogenerated summary from the API';
     return (
-      <div className="blankslate">
-        <h3 className="mb-1">This is a blank slate summary input component</h3>
-        <p>Use it to provide information when no dynamic content exists.</p>
-      </div>);
-    // return (<SummaryInputComponent />);
+      <SummaryInputComponent existingSummary={autogeneratedSummary}
+        backButtonHandler={this.toggleSummaryBoxComponent}
+        submitHandler={this.saveSummary}
+      />
+    );
   }
 
   loadSummaryComponent = () => {
-    return (
+    
+    if (this.state.subsummaries.length) {
+      console.log(this.state.subsummaries.length);
+      let allSummaries = [];
+      this.state.subsummaries.forEach(s => {
+        allSummaries.push(s.summary);
+      });
+      return (<SummaryComponent summaries={allSummaries} />);
+    } else {
       <div className="blankslate">
-        <h3 className="mb-1">This is a blank slate summary component</h3>
+        <h3 className="mb-1">This is a blank slate</h3>
         <p>Use it to provide information when no dynamic content exists.</p>
-      </div>);
+      </div>
+    }
   }
 
   loadViewBasedOnState = () => {
