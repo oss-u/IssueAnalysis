@@ -25,20 +25,20 @@ def api_home():
     'desc': 'API for accessing Issue-Analysis models.'
   }
 
-@app.get("/api/{gh_user}/{repo}/main-summary/", response_model=schemas.MainSummary)
-def get_main_summary(gh_user: str, repo: str, db: Session = Depends(get_db_session)):
-  """
-  Get main summary for the given repository.
-  """
-  return crud.get_main_summary(gh_user, repo, db)
-
-@app.post("/api/{gh_user}/{repo}/main-summary/")
-def post_main_summary(gh_user: str, repo: str, summary: schemas.MainSummary, db: Session = Depends(get_db_session)):
-  """
-  Post main summary for the given repository.
-  Workflow: Generate main summary -> user edits -> post
-  """
-  pass
+# @app.get("/api/{gh_user}/{repo}/main-summary/", response_model=schemas.MainSummary)
+# def get_main_summary(gh_user: str, repo: str, db: Session = Depends(get_db_session)):
+#   """
+#   Get main summary for the given repository.
+#   """
+#   return crud.get_main_summary(gh_user, repo, db)
+#
+# @app.post("/api/{gh_user}/{repo}/main-summary/")
+# def post_main_summary(gh_user: str, repo: str, summary: schemas.MainSummary, db: Session = Depends(get_db_session)):
+#   """
+#   Post main summary for the given repository.
+#   Workflow: Generate main summary -> user edits -> post
+#   """
+#   pass
 
 @app.post("/api/generate-summary/", response_model=schemas.SummaryText)
 def generate_summary(text: str):
@@ -53,26 +53,26 @@ def predict_information_type(comment: str):
   Predict information types in sentences of a comment. Performs sentence splitting as well.
   """
   pass
-
-@app.get("/api/{gh_user}/{repo}/sub-summary/", response_model=List[schemas.SubSummary])
-def get_sub_summaries(gh_user: str, repo: str, db: Session = Depends(get_db_session)):
+@app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=schemas.CompleteCommentSummary)
+def post_comments(gh_user: str, repo: str, issue_number: int, comments: schemas.CompleteCommentSummary,
+                  db: Session = Depends(get_db_session)):
   """
-  Gets a list of sub-summaries for a particular repository.
-  Query each sub-summary for details.
-  """
-  pass
-
-@app.get("/api/{gh_user}/{repo}/sub-summary/{sub_summary_id}", response_model=schemas.SubSummaryDetail)
-def get_sub_summary_details(gh_user: str, repo: str, sub_summary_id: int, db: Session = Depends(get_db_session)):
-  """
-  Gets details of a particular sub summary.
+  Takes comments. If summary field given, then saves it otherwise returns with generated summary.
   """
   pass
 
-@app.post("/api/{gh_user}/{repo}/sub-summary/", response_model=schemas.SubSummaryDetail)
-def post_sub_summary(gh_user: str, repo: str, sub_summary: schemas.SubSummaryDetail,
-                     db: Session = Depends(get_db_session)):
+@app.get("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=List[schemas.Comment])
+def get_comments(gh_user: str, repo: str, issue_number: int, db: Session = Depends(get_db_session)):
   """
-  Posts sub summary for the given repository.
+  Returns a list of comment summaries for the particular issue in the repository.
+  """
+  pass
+
+@app.get("/api/{gh_user}/{repo}/{issue_number}/comment-summary/{comment_id}",
+         response_model=schemas.CompleteCommentSummary)
+def get_comment_detail(gh_user: str, repo: str, issue_number: int, comment_id: int,
+                       db: Session = Depends(get_db_session)):
+  """
+  Get details about a comment summary with particular id.
   """
   pass

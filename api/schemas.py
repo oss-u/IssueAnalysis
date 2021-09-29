@@ -22,16 +22,26 @@ class Author(BaseModel):
   name: str
   link: str
 
-class SubSummary(BaseModel):
-  id: Optional[int]
-  summary: str
-  n_comments: int
-  author: Author
-
 class Comment(BaseModel):
+  id: Optional[int]
   text: str
   author: Author
   commented_on: datetime
 
-class SubSummaryDetail(SubSummary):
+class CompleteCommentSummary(BaseModel):
+  id: Optional[int]
+  summary: Optional[str]
+  n_comments: int
+  author: Author
   comments: List[Comment]
+  commented_on: datetime
+
+# class SubSummary(BaseModel):
+#   id: Optional[int]
+#   summary: str
+#   n_comments: int
+#   author: Author
+#
+#
+# class SubSummaryDetail(SubSummary):
+#   comments: List[Comment]
