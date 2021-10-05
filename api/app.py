@@ -25,21 +25,6 @@ def api_home():
     'desc': 'API for accessing Issue-Analysis models.'
   }
 
-# @app.get("/api/{gh_user}/{repo}/main-summary/", response_model=schemas.MainSummary)
-# def get_main_summary(gh_user: str, repo: str, db: Session = Depends(get_db_session)):
-#   """
-#   Get main summary for the given repository.
-#   """
-#   return crud.get_main_summary(gh_user, repo, db)
-#
-# @app.post("/api/{gh_user}/{repo}/main-summary/")
-# def post_main_summary(gh_user: str, repo: str, summary: schemas.MainSummary, db: Session = Depends(get_db_session)):
-#   """
-#   Post main summary for the given repository.
-#   Workflow: Generate main summary -> user edits -> post
-#   """
-#   pass
-
 @app.post("/api/generate-summary/", response_model=schemas.SummaryText)
 def generate_summary(text: str):
   """
@@ -53,25 +38,26 @@ def predict_information_type(comment: str):
   Predict information types in sentences of a comment. Performs sentence splitting as well.
   """
   pass
-@app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=schemas.CompleteCommentSummary)
-def post_comments(gh_user: str, repo: str, issue_number: int, comments: schemas.CompleteCommentSummary,
-                  db: Session = Depends(get_db_session)):
+
+@app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=schemas.CommentSummaryDetail)
+def post_comments_summary(gh_user: str, repo: str, issue_number: int, comments: schemas.CompleteCommentSummary,
+                          db: Session = Depends(get_db_session)):
   """
   Takes comments. If summary field given, then saves it otherwise returns with generated summary.
   """
   pass
 
-@app.get("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=List[schemas.Comment])
-def get_comments(gh_user: str, repo: str, issue_number: int, db: Session = Depends(get_db_session)):
+@app.get("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=List[schemas.CommentSummary])
+def get_comments_summary(gh_user: str, repo: str, issue_number: int, db: Session = Depends(get_db_session)):
   """
   Returns a list of comment summaries for the particular issue in the repository.
   """
   pass
 
-@app.get("/api/{gh_user}/{repo}/{issue_number}/comment-summary/{comment_id}",
-         response_model=schemas.CompleteCommentSummary)
-def get_comment_detail(gh_user: str, repo: str, issue_number: int, comment_id: int,
-                       db: Session = Depends(get_db_session)):
+@app.get("/api/{gh_user}/{repo}/{issue_number}/comment-summary/{comment_summary_id}/",
+         response_model=schemas.CommentSummaryDetail)
+def get_comment_summary_detail(gh_user: str, repo: str, issue_number: int, comment_id: int,
+                               db: Session = Depends(get_db_session)):
   """
   Get details about a comment summary with particular id.
   """
