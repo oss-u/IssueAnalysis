@@ -68,7 +68,7 @@ class SummaryComponent extends React.Component<
     this.props.summaries.forEach((s) =>
       summaryContent.push(
         <div className="Box flex-column m-1 p-1 color-border-info">
-          {this.props.summaries}
+          {s}
         </div>
       )
     );
@@ -360,6 +360,7 @@ class SubSummaryComponent extends React.Component<
     );
     let items = [...this.state.subsummaries];
     let item = { ...items[modifiedSummary] };
+    
     item.summary = storedSummary;
     items[modifiedSummary] = item;
     this.setState({
