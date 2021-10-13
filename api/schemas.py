@@ -19,11 +19,11 @@ class Sentence(BaseModel):
   type_id: Optional[int]
 
 class Author(BaseModel):
-  name: str
+  user_id: str
   link: str
 
 class Comment(BaseModel):
-  id: Optional[int]
+  id: str
   text: str
   author: Author
   commented_on: datetime
@@ -32,15 +32,14 @@ class Edit(BaseModel):
   author: Author
   commented_on: datetime
 
-class CommentSummary(BaseModel):
+class ShortCommentSummary(BaseModel):
   id: int
-  text: str
+  summary: str
   authors: List[Edit]
 
-class CompleteCommentSummary(BaseModel):
-  id: Optional[int]
-  summary: Optional[str]
-  n_comments: int
+class CommentSummary(BaseModel):
+  id: int   # TODO edit this out
+  summary: str
   author: Author
   comments: List[Comment]
 

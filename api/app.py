@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from api.database import SessionLocal
-from api import schemas, crud
+from api import schemas, crud, utils
 
 app = FastAPI()
 
@@ -30,7 +30,7 @@ def generate_summary(text: str):
   """
   Generates summary from text.
   """
-  pass
+  return schemas.SummaryText(summary=utils.get_summary(text))
 
 @app.post("/api/information-type/", response_model=List[schemas.Sentence])
 def predict_information_type(comment: str):
@@ -40,14 +40,14 @@ def predict_information_type(comment: str):
   pass
 
 @app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=schemas.CommentSummaryDetail)
-def post_comments_summary(gh_user: str, repo: str, issue_number: int, comments: schemas.CompleteCommentSummary,
+def post_comments_summary(gh_user: str, repo: str, issue_number: int, comment_summary: schemas.CommentSummary,
                           db: Session = Depends(get_db_session)):
   """
   Takes comments. If summary field given, then saves it otherwise returns with generated summary.
   """
   pass
 
-@app.get("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=List[schemas.CommentSummary])
+@app.get("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=List[schemas.ShortCommentSummary])
 def get_comments_summary(gh_user: str, repo: str, issue_number: int, db: Session = Depends(get_db_session)):
   """
   Returns a list of comment summaries for the particular issue in the repository.
@@ -56,7 +56,7 @@ def get_comments_summary(gh_user: str, repo: str, issue_number: int, db: Session
 
 @app.get("/api/{gh_user}/{repo}/{issue_number}/comment-summary/{comment_summary_id}/",
          response_model=schemas.CommentSummaryDetail)
-def get_comment_summary_detail(gh_user: str, repo: str, issue_number: int, comment_id: int,
+def get_comment_summary_detail(comment_summary_id: int,
                                db: Session = Depends(get_db_session)):
   """
   Get details about a comment summary with particular id.
