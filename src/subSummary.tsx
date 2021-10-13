@@ -77,7 +77,7 @@ class SummaryComponent extends React.Component<
 }
 
 class SummaryInputComponent extends React.Component<
-  { existingSummary: string; backButtonHandler; submitHandler; },
+  { existingSummary: string; backButtonHandler; submitHandler },
   {}
 > {
   render() {
@@ -230,27 +230,29 @@ class SubSummaryComponent extends React.Component<
   addCommentsOnClick = (tag: Element) => {
     tag.classList.add("color-border-success");
     let newComment = this.commentParser(tag);
-    if (this.state.editing) {
-      let modifiedSummary = this.state.subsummaries.findIndex(
-        (e) => e.id === this.state.editing
-      );
-      let items = [...this.state.subsummaries];
-      let item = { ...items[modifiedSummary] };
-      this.addedComments.push(newComment.id);
-      item.comments = item.comments.concat(newComment);
-      items[modifiedSummary] = item;
-      this.setState({
-        subsummaries: items,
-        visible: "comments",
-      });
-    } else {
-      let newSummary = new Summary("", newComment);
-      this.addedComments.push(newComment.id);
-      this.setState({
-        subsummaries: new Array(newSummary),
-        editing: newSummary.id,
-        visible: "comments",
-      });
+    if (!this.addedComments.includes(newComment.id)) {
+      if (this.state.editing) {
+        let modifiedSummary = this.state.subsummaries.findIndex(
+          (e) => e.id === this.state.editing
+        );
+        let items = [...this.state.subsummaries];
+        let item = { ...items[modifiedSummary] };
+        this.addedComments.push(newComment.id);
+        item.comments = item.comments.concat(newComment);
+        items[modifiedSummary] = item;
+        this.setState({
+          subsummaries: items,
+          visible: "comments",
+        });
+      } else {
+        let newSummary = new Summary("", newComment);
+        this.addedComments.push(newComment.id);
+        this.setState({
+          subsummaries: new Array(newSummary),
+          editing: newSummary.id,
+          visible: "comments",
+        });
+      }
     }
   };
 
