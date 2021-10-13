@@ -227,6 +227,19 @@ class SubSummaryComponent extends React.Component<
     });
   };
 
+  addBorderHighlights = () => {
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    commentTags.forEach((tag) => {
+      if (
+        this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])
+      ) {
+        tag.classList.add("color-border-success");
+      }
+    });
+  };
+
   addCommentsOnClick = (tag: Element) => {
     tag.classList.add("color-border-success");
     let newComment = this.commentParser(tag);
@@ -260,6 +273,7 @@ class SubSummaryComponent extends React.Component<
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
+    this.addBorderHighlights();
     commentTags.forEach((tag) => {
       if (tag.getAttribute("listener") !== "true") {
         tag.addEventListener("click", () => {
