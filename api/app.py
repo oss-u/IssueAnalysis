@@ -1,10 +1,10 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from typing import List
 
 from api.database import SessionLocal
-from api import schemas, crud, utils
+from api import schemas, crud, models, utils
 
 app = FastAPI()
 
@@ -12,6 +12,9 @@ def get_db_session():
   session = SessionLocal()
   try:
     yield session
+  except BaseException:
+    session.rollback()
+    raise
   finally:
     session.close()
 
@@ -39,20 +42,26 @@ def predict_information_type(comment: str):
   """
   pass
 
-@app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=schemas.CommentSummaryDetail)
+@app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=schemas.CommentSummaryWithId)
 def post_comments_summary(gh_user: str, repo: str, issue_number: int, comment_summary: schemas.CommentSummary,
                           db: Session = Depends(get_db_session)):
   """
-  Takes comments. If summary field given, then saves it otherwise returns with generated summary.
+  Post new comment summaries. Datetime taken in ISO-8601 format (including timezone)
   """
-  pass
+  comment_summary_id = crud.post_comment_summary(gh_user, repo, issue_number, comment_summary, db)
+  return schemas.CommentSummaryWithId(id=comment_summary_id, **comment_summary.dict())
 
 @app.get("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=List[schemas.ShortCommentSummary])
 def get_comments_summary(gh_user: str, repo: str, issue_number: int, db: Session = Depends(get_db_session)):
   """
   Returns a list of comment summaries for the particular issue in the repository.
   """
-  pass
+  issue_id = utils.construct_issue_id(gh_user, repo, issue_number)
+  if db.query(models.Issue).filter(models.Issue.id == issue_id).first() is None:
+    raise HTTPException(status_code=404, detail="Issue thread not found.")
+  
+  comment_summaries = crud.get_comments_summary(gh_user, repo, issue_number, db)
+  return comment_summaries
 
 @app.get("/api/{gh_user}/{repo}/{issue_number}/comment-summary/{comment_summary_id}/",
          response_model=schemas.CommentSummaryDetail)
@@ -61,4 +70,8 @@ def get_comment_summary_detail(comment_summary_id: int,
   """
   Get details about a comment summary with particular id.
   """
-  pass
+  if db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).first() is None:
+    raise HTTPException(status_code=404, detail="Comment summary not found.")
+  
+  comment_summary = crud.get_comment_summary_detail(comment_summary_id, db)
+  return comment_summary

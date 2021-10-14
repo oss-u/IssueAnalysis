@@ -1,5 +1,6 @@
-from sqlalchemy.orm import Session
-from api import models, schemas
+from sqlalchemy.orm import Session, joinedload
+
+from api import models, schemas, utils
 
 def get_main_summary(gh_user: str, repo: str, db: Session):
   # hard-coded
@@ -10,3 +11,57 @@ def get_main_summary(gh_user: str, repo: str, db: Session):
       schemas.InfoTypeSummary(type_id=6, content="I don't know if fit_extends is the best solution to the problem.")
     ]
   )
+
+def get_comments_summary(gh_user, repo, issue_number, db: Session):
+  issue_id = utils.construct_issue_id(gh_user, repo, issue_number)
+  
+  comment_summaries = db.query(models.CommentSummary)\
+                        .options(joinedload(models.CommentSummary.authors))\
+                        .filter(models.CommentSummary.issue == issue_id).all()
+  
+  return comment_summaries
+
+def get_comment_summary_detail(comment_summary_id, db: Session):
+  comment_summary = db.query(models.CommentSummary)\
+                      .options(joinedload(models.CommentSummary.authors))\
+                      .options(joinedload(models.CommentSummary.comments))\
+                      .filter(models.CommentSummary.id == comment_summary_id).first()
+  
+  return comment_summary
+
+def post_comment_summary(gh_user, repo, issue_number, comment_summary_obj: schemas.CommentSummary, db: Session):
+  issue_id = utils.construct_issue_id(gh_user, repo, issue_number)
+  
+  if db.query(models.Issue).filter(models.Issue.id == issue_id).first() is None:
+    issue = models.Issue(id=issue_id, repo=f"{gh_user}/{repo}", issue_number=issue_number)
+    db.add(issue)
+    db.flush()
+  
+  author = db.query(models.Author).filter(models.Author.user_id == comment_summary_obj.author.user_id).first()
+  if author is None:
+    author = models.Author(user_id=comment_summary_obj.author.user_id, link=comment_summary_obj.author.link)
+    db.add(author)
+
+  # TODO: Overwrite existing comments
+  comments = [
+    models.Comment(
+      id=comment_obj.id,
+      author=comment_obj.author,
+      commented_on=comment_obj.commented_on,
+      text=comment_obj.text
+    )
+    for comment_obj in comment_summary_obj.comments
+  ]
+  
+  comment_summary = models.CommentSummary(
+    summary=comment_summary_obj.summary,
+    issue=issue_id
+  )
+  comment_summary.authors = [author]
+  comment_summary.comments = comments
+  db.add(comment_summary)
+  db.commit()
+
+  return comment_summary.id
+
+# TODO: Add Update/Delete endpoints with upsert on comments

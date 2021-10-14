@@ -21,12 +21,18 @@ class Sentence(BaseModel):
 class Author(BaseModel):
   user_id: str
   link: str
+  
+  class Config:
+    orm_mode = True
 
 class Comment(BaseModel):
   id: str
   text: str
-  author: Author
+  author: str
   commented_on: datetime
+  
+  class Config:
+    orm_mode = True
 
 class Edit(BaseModel):
   author: Author
@@ -35,16 +41,18 @@ class Edit(BaseModel):
 class ShortCommentSummary(BaseModel):
   id: int
   summary: str
-  authors: List[Edit]
+  authors: List[Author]
+  
+  class Config:
+    orm_mode = True
 
 class CommentSummary(BaseModel):
-  id: int   # TODO edit this out
   summary: str
   author: Author
   comments: List[Comment]
-
-class CommentSummaryDetail(BaseModel):
+  
+class CommentSummaryWithId(CommentSummary):
   id: int
-  summary: str
-  authors: List[Edit]
+
+class CommentSummaryDetail(ShortCommentSummary):
   comments: List[Comment]
