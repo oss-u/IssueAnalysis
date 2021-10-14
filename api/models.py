@@ -51,24 +51,30 @@ class Comment(Base):
   # comment_summaries = relationship('CommentSummary', secondary='CommentSummaryXComment')
 
 
-# class CommentSummaryXAuthor(Base):
-#   __tablename__ = 'CommentSummaryXAuthor'
-#   id = sa.Column(sa.Integer, primary_key=True)
-#   commentSummaryId = sa.Column(sa.Integer, sa.ForeignKey(CommentSummary.id))
-#   authorId = sa.Column(sa.String, sa.ForeignKey(Author.user_id))
-#   edit = sa.Column(sa.DateTime(timezone=True), server_default=sa.sql.func.now())
+class CommentSummaryXAuthor(Base):
+  __tablename__ = 'CommentSummaryXAuthor'
+  id = sa.Column(sa.Integer, primary_key=True)
+  commentSummaryId = sa.Column(sa.Integer, sa.ForeignKey(CommentSummary.id, ondelete="CASCADE"))
+  authorId = sa.Column(sa.String, sa.ForeignKey(Author.user_id))
+  edit = sa.Column(sa.DateTime(timezone=True), server_default=sa.sql.func.now())
 
 
-CommentSummaryXAuthor = sa.Table('CommentSummaryXAuthor', Base.metadata,
-                                 sa.Column('id', sa.Integer, primary_key=True),
-                                 sa.Column('commentSummaryId', sa.Integer, sa.ForeignKey(CommentSummary.id)),
-                                 sa.Column('authorId', sa.String, sa.ForeignKey(Author.user_id)),
-                                 sa.Column('edit', sa.DateTime(timezone=True), server_default=sa.sql.func.now())
-                                 )
+# CommentSummaryXAuthor = sa.Table('CommentSummaryXAuthor', Base.metadata,
+#                                  sa.Column('id', sa.Integer, primary_key=True),
+#                                  sa.Column('commentSummaryId', sa.Integer, sa.ForeignKey(CommentSummary.id)),
+#                                  sa.Column('authorId', sa.String, sa.ForeignKey(Author.user_id)),
+#                                  sa.Column('edit', sa.DateTime(timezone=True), server_default=sa.sql.func.now())
+#                                  )
 
 
-CommentSummaryXComment = sa.Table('CommentSummaryXComment', Base.metadata,
-                                  sa.Column('id', sa.Integer, primary_key=True),
-                                  sa.Column('commentSummaryId', sa.Integer, sa.ForeignKey(CommentSummary.id)),
-                                  sa.Column('commentId', sa.String, sa.ForeignKey(Comment.id))
-                                  )
+class CommentSummaryXComment(Base):
+  __tablename__ = 'CommentSummaryXComment'
+  id = sa.Column(sa.Integer, primary_key=True)
+  commentSummaryId = sa.Column(sa.Integer, sa.ForeignKey(CommentSummary.id, ondelete="CASCADE"))
+  commentId = sa.Column(sa.String, sa.ForeignKey(Comment.id))
+
+# CommentSummaryXComment = sa.Table('CommentSummaryXComment', Base.metadata,
+#                                   sa.Column('id', sa.Integer, primary_key=True),
+#                                   sa.Column('commentSummaryId', sa.Integer, sa.ForeignKey(CommentSummary.id)),
+#                                   sa.Column('commentId', sa.String, sa.ForeignKey(Comment.id))
+#                                   )

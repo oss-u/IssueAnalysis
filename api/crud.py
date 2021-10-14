@@ -69,15 +69,19 @@ def post_comment_summary(gh_user, repo, issue_number, comment_summary_obj: schem
   comment_summary.authors = [author]
   comment_summary.comments = list(comments.values())
   db.add(comment_summary)
+  db.flush()
   
   # inserting updated comments relationships because not directly added through db.add()
-  # TODO
+  comment_summary_comments_updated = [models.CommentSummaryXComment(
+    commentSummaryId=comment_summary.id,
+    commentId=commentId
+  ) for commentId in comment_ids_updated]
+  db.bulk_save_objects(comment_summary_comments_updated)
   
   db.commit()
   
   return comment_summary.id
 
-
 def delete_comment_summary(comment_summary_id, db: Session):
-  models.CommentSummary.filter(models.CommentSummary.id == comment_summary_id).delete()
+  db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).delete()
   db.commit()

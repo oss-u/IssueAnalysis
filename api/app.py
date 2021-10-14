@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -75,12 +75,11 @@ def get_comment_summary_detail(comment_summary_id: int, db: Session = Depends(ge
   comment_summary = crud.get_comment_summary_detail(comment_summary_id, db)
   return comment_summary
 
-@app.delete("/api/{gh_user}/{repo}/{issue_number}/comment-summary/{comment_summary_id}/", status_code=204)
+@app.delete("/api/{gh_user}/{repo}/{issue_number}/comment-summary/{comment_summary_id}/")
 def delete_comment_summary(comment_summary_id: int, db: Session = Depends(get_db_session)):
   """
   Deletes the required comment summary.
   """
-  if db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).first() is None:
-    raise HTTPException(status_code=404, detail="Comment summary not found.")
-  
-  
+  if db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).first() is not None:
+    crud.delete_comment_summary(comment_summary_id, db)
+  return Response(status_code=204)
