@@ -65,8 +65,7 @@ def get_comments_summary(gh_user: str, repo: str, issue_number: int, db: Session
 
 @app.get("/api/{gh_user}/{repo}/{issue_number}/comment-summary/{comment_summary_id}/",
          response_model=schemas.CommentSummaryDetail)
-def get_comment_summary_detail(comment_summary_id: int,
-                               db: Session = Depends(get_db_session)):
+def get_comment_summary_detail(comment_summary_id: int, db: Session = Depends(get_db_session)):
   """
   Get details about a comment summary with particular id.
   """
@@ -75,3 +74,13 @@ def get_comment_summary_detail(comment_summary_id: int,
   
   comment_summary = crud.get_comment_summary_detail(comment_summary_id, db)
   return comment_summary
+
+@app.delete("/api/{gh_user}/{repo}/{issue_number}/comment-summary/{comment_summary_id}/", status_code=204)
+def delete_comment_summary(comment_summary_id: int, db: Session = Depends(get_db_session)):
+  """
+  Deletes the required comment summary.
+  """
+  if db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).first() is None:
+    raise HTTPException(status_code=404, detail="Comment summary not found.")
+  
+  

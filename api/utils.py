@@ -1,5 +1,22 @@
+from sqlalchemy.orm import Session
+from typing import Dict
+
+from api.database import Base
+
 def construct_issue_id(gh_user: str, repo: str, issue_number: int) -> str:
   return f"{gh_user}/{repo}#{issue_number}"
+
+def upsert(items: Dict, model: Base, db: Session):
+  """
+  Upsert items.
+  :param items: Dictionary of <id: primary key, object: model>
+  :param model: model class
+  :param db: database session
+  """
+  for row_entry in db.query(Base.id).filter(model.id.in_(items.keys())).all():
+    db.merge(items.pop(row_entry.id))
+
+  db.bulk_save_objects(items.values())
 
 def get_summary(text: str) -> str:
   lorem_text = """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed tortor efficitur, scelerisque
