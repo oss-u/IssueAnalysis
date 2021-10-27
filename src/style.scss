@@ -28,3 +28,16 @@
 .textarea-vertical-resize-only {
   resize: vertical;
 }
+
+.nav-component {
+  position: fixed;
+  bottom: 0;
+  z-index: 100;
+  width: 70%;
+  // visibility: hidden;
+  // align-self: flex-end;
+}
+
+// .making-flex {
+//  align-items: flex-start;
+// }

@@ -60,19 +60,104 @@ class Summary {
 }
 
 class SummaryComponent extends React.Component<
-  { summaries: Array<string> },
+  { summaries: any, editExistingSummary },
   {}
 > {
   render() {
     let summaryContent: Array<Element> = [];
     this.props.summaries.forEach((s) =>
       summaryContent.push(
-        <div className="Box flex-column m-1 p-1 color-border-info">
-          {s}
+        <div className="Box flex-column m-1 p-1 color-border-info"
+          onClick={() => { this.props.editExistingSummary(s.id); }}>
+          {s.summary}
         </div>
       )
     );
     return summaryContent;
+  }
+}
+
+class NavigationComponent extends React.Component<
+  { navbarContent: Array<IssueComment>, commentParser },
+  { currIndex: number }> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      currIndex: 0
+    };
+
+  }
+
+  scrollToComment = () => {
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    commentTags.forEach((tag) => {
+      if (this.props.commentParser(tag).id === this.props.navbarContent[this.state.currIndex].id) {
+          tag.closest("div.TimelineItem").scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+      }
+    });
+  }
+
+  render() {
+    if (!this.props.navbarContent) {
+      return (<></>);
+    }
+    
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    // let flag = false;
+    this.props.navbarContent.forEach(c => {
+      commentTags.forEach((tag) => {
+        if (this.props.commentParser(tag).id === c.id) {
+          tag.classList.add("color-border-success-emphasis");
+          // if (!flag) {
+          //   tag.closest("div.TimelineItem").scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+          //   flag = true;
+          // }
+        }
+      });
+    });
+    this.scrollToComment();
+
+    let navComponent = (<div id="navigation-component" className="nav-component">
+      <div className="Box">
+        <div className="Box-row Box-row--gray d-flex flex-row-reverse">
+          <button className="btn btn-primary btn-sm">
+            Done
+          </button>
+          <button className="btn btn-sm mx-1" 
+            onClick={() => {
+              if (this.state.currIndex + 1 < this.props.navbarContent.length) {
+                this.setState({
+                  currIndex: this.state.currIndex + 1
+                });
+                this.scrollToComment();
+              }
+              
+            }}>
+            &#12297;
+          </button>
+          <button className="btn btn-sm mx-1"
+          onClick={() => {
+            if (this.state.currIndex - 1 >= 0) {
+              this.setState({
+                currIndex: this.state.currIndex - 1
+              });
+              this.scrollToComment();
+            }
+            
+          }}>
+            &#12296;
+          </button>
+          <div className="m-1">
+            {this.state.currIndex + 1} of {this.props.navbarContent.length} summarized comments
+          </div>
+        </div>
+      </div>
+    </div>);
+    return navComponent;
   }
 }
 
@@ -322,9 +407,39 @@ class SubSummaryComponent extends React.Component<
     });
   };
 
-  // addSummaryEditListener = () => {
-  //   const summaryTags = document.querySelectorAll()
-  // }
+  editExistingSummary = (id: string) => {
+    this.setState({
+      editing: id
+    });
+    // const commentTags = document.querySelectorAll(
+    //   "div.timeline-comment.unminimized-comment"
+    // );
+    // // Highlight the added comments
+    // let flag = false;
+    // this.state.subsummaries.forEach(s => {
+    //   if (s.id === id) {
+    //     s.comments.forEach(c => {
+    //       commentTags.forEach((tag) => {
+    //         if (this.commentParser(tag).id === c.id) {
+    //           tag.classList.add("color-border-success-emphasis");
+    //           if (!flag) {
+    //             tag.closest("div.TimelineItem").scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    //             flag = true;
+    //           }
+    //         }
+    //       });
+    //     });
+    //   }
+    // });
+    // Show the option to edit
+    // Show NavigationComponent
+    // const navComponent = document.getElementById("navigation-component");
+    // navComponent.style.visibility = "visible";
+    // this.setState({
+    //   editing: id
+    // });
+    // this.toggleSummaryBoxComponent("comment");
+  }
 
   toggleSummaryBoxComponent = (visiblePanel: string) => {
     this.setState({
@@ -360,7 +475,7 @@ class SubSummaryComponent extends React.Component<
     );
     let items = [...this.state.subsummaries];
     let item = { ...items[modifiedSummary] };
-    
+
     item.summary = storedSummary;
     items[modifiedSummary] = item;
     this.setState({
@@ -393,16 +508,20 @@ class SubSummaryComponent extends React.Component<
     if (this.state.subsummaries.length) {
       let allSummaries = [];
       this.state.subsummaries.forEach((s) => {
-        allSummaries.push(s.summary);
+        if (s.summary) {
+          allSummaries.push({ summary: s.summary, id: s.id });
+        }
+
       });
-      return <SummaryComponent summaries={allSummaries} />;
-    } else {
-      return (
-        <div className="blankslate">
-          <p>Click on the comments to create a summary.</p>
-        </div>
-      );
+      if (allSummaries.length) {
+        return <SummaryComponent summaries={allSummaries} editExistingSummary={this.editExistingSummary} />;
+      }
     }
+    return (
+      <div className="blankslate">
+        <p>Click on the comments to create a summary.</p>
+      </div>
+    );
   };
 
   loadViewBasedOnState = () => {
@@ -416,27 +535,38 @@ class SubSummaryComponent extends React.Component<
   };
 
   render() {
+    let navbarContent;
+    if (this.state.editing) {
+      this.state.subsummaries.forEach(ss => {
+        if (ss.id === this.state.editing) {
+          navbarContent = ss.comments;
+        }
+      })
+    }
     return (
-      <div id="topLevelSummary" className="Box">
-        <div className="Box-header">
-          <div className="clearfix">
-            <div className="float-left">
-              <h2 className="Box-title p-1">User Summaries</h2>
-            </div>
-            <div className="float-right">
-              <div className="float-right d-inline-flex">
-                <button
-                  className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
-                  onClick={this.addCommentsToSummary}
-                >
-                  +
-                </button>
+      <>
+        <div id="sub-summary" className="Box">
+          <div className="Box-header">
+            <div className="clearfix">
+              <div className="float-left">
+                <h2 className="Box-title p-1">User Summaries</h2>
+              </div>
+              <div className="float-right">
+                <div className="float-right d-inline-flex">
+                  <button
+                    className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
+                    onClick={this.addCommentsToSummary}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+          <div id="summary-component">{this.loadViewBasedOnState()}</div>
         </div>
-        <div id="summary-component">{this.loadViewBasedOnState()}</div>
-      </div>
+        <NavigationComponent navbarContent={navbarContent} commentParser={this.commentParser} />
+      </>
     );
   }
 }
