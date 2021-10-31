@@ -94,7 +94,7 @@ class NavigationComponent extends React.Component<
     );
     commentTags.forEach((tag) => {
       if (this.props.commentParser(tag).id === this.props.navbarContent[this.state.currIndex].id) {
-          tag.closest("div.TimelineItem").scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+        tag.closest("div.TimelineItem").scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
       }
     });
   }
@@ -103,7 +103,7 @@ class NavigationComponent extends React.Component<
     if (!this.props.navbarContent) {
       return (<></>);
     }
-    
+
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
@@ -121,8 +121,47 @@ class NavigationComponent extends React.Component<
     });
     this.scrollToComment();
 
-    let navComponent = (<div id="navigation-component" className="nav-component">
-      <div className="Box">
+    let navComponent = (<div id="navigation-component">
+      <div className="clearfix">
+        <div className="float-left">
+          <div className="my-2 ml-2">
+            {this.state.currIndex + 1} of {this.props.navbarContent.length} comments
+          </div>
+        </div>
+        <div className="float-right">
+          <div className="float-right my-1 mr-1">
+            <button className="btn btn-primary btn-sm">
+              Done
+            </button>
+          </div>
+          <div className="float-right">
+            <button className="btn-octicon my-2"
+              onClick={() => {
+                if (this.state.currIndex - 1 >= 0) {
+                  this.setState({
+                    currIndex: this.state.currIndex - 1
+                  });
+                  this.scrollToComment();
+                }
+              }}>
+              &#12296;
+            </button>
+            <button className="btn-octicon my-2"
+              onClick={() => {
+                if (this.state.currIndex + 1 < this.props.navbarContent.length) {
+                  this.setState({
+                    currIndex: this.state.currIndex + 1
+                  });
+                  this.scrollToComment();
+                }
+              }}>
+              &#12297;
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>);
+    {/* <div className="Box">
         <div className="Box-row Box-row--gray d-flex flex-row-reverse">
           <button className="btn btn-primary btn-sm">
             Done
@@ -156,7 +195,7 @@ class NavigationComponent extends React.Component<
           </div>
         </div>
       </div>
-    </div>);
+    </div>); */}
     return navComponent;
   }
 }
@@ -278,7 +317,7 @@ class CommentComponent extends React.Component<
       );
     });
     return (
-      <div className="Box flex-column m-1 p-1 color-border-success">
+      <div className="Box flex-column m-1 ml-1 p-1 color-border-success">
         <h5>Comments to Summarise</h5>
         {comments}
         <div className="container-lg clearfix">
@@ -516,29 +555,27 @@ class SubSummaryComponent extends React.Component<
       })
     }
     return (
-      <>
-        <div id="sub-summary" className="Box">
-          <div className="Box-header">
-            <div className="clearfix">
-              <div className="float-left">
-                <h2 className="Box-title p-1">User Summaries</h2>
-              </div>
-              <div className="float-right">
-                <div className="float-right d-inline-flex">
-                  <button
-                    className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
-                    onClick={this.addCommentsToSummary}
-                  >
-                    +
-                  </button>
-                </div>
+      <div id="sub-summary" className="Box">
+        <div className="Box-header">
+          <div className="clearfix">
+            <div className="float-left">
+              <h2 className="Box-title p-1">User Summaries</h2>
+            </div>
+            <div className="float-right">
+              <div className="float-right d-inline-flex">
+                <button
+                  className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
+                  onClick={this.addCommentsToSummary}
+                >
+                  +
+                </button>
               </div>
             </div>
           </div>
-          <div id="summary-component">{this.loadViewBasedOnState()}</div>
         </div>
+        <div id="summary-component">{this.loadViewBasedOnState()}</div>
         <NavigationComponent navbarContent={navbarContent} commentParser={this.commentParser} />
-      </>
+      </div>
     );
   }
 }
