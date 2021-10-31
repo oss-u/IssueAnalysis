@@ -8,23 +8,43 @@ import SubSummaryComponent from "./subSummary";
 import { informationTypeMap } from "./utils/maps";
 
 const createSummaryPanel = () => {
-  const discussionBucket = document.querySelector("#discussion_bucket div");
+  const discussionBucket = document.getElementById("discussion_bucket");
+  const layout = document.querySelector(".Layout");
+  layout.classList.add("Layout--sidebar-narrow");
+  layout.parentNode.removeChild(layout);
+
+  // console.log(discussionBucket.children);
+  // const discussionBucket = document.querySelector("#discussion_bucket div");
   // discussionBucket.classList.add("making-flex");
 
   // configuring css to add the summary column to the left side
-  const children = discussionBucket.children;
-  children[0].classList.remove("col-md-9");
-  children[0].classList.add("col-md-7");
-  children[1].classList.remove("col-md-3");
-  children[1].classList.add("col-md-2");
-
+  // const children = discussionBucket.children;
+  // children[1].classList.remove("col-md-9");
+  // children[1].classList.add("col-md-7");
+  // children[0].classList.remove("col-md-3");
+  // children[0].classList.add("col-md-2");
 
   let summaryPanel = document.createElement("div");
-  summaryPanel.className = "col-md-3";
-  discussionBucket.insertBefore(
-    summaryPanel,
-    discussionBucket.firstElementChild
-  );
+  summaryPanel.className = "Layout-sidebar";
+  // discussionBucket.appendChild(summaryPanel);
+
+  let contentAndSummaryWrapper = document.createElement("div");
+  contentAndSummaryWrapper.className = "Layout Layout--sidebar-narrow";
+
+  let contentWrapper = document.createElement("div");
+  contentWrapper.className = "Layout-main";
+  contentWrapper.appendChild(layout);
+
+  contentAndSummaryWrapper.appendChild(summaryPanel);
+  contentAndSummaryWrapper.appendChild(contentWrapper);
+  discussionBucket.appendChild(contentAndSummaryWrapper);
+
+  const children = discussionBucket.children;
+  // discussionBucket.insertBefore(
+  //   summaryPanel,
+  //   discussionBucket.firstElementChild
+  // );
+  // CHanges on October 31, 2021 - GitHub CSS update to Layout Component
 
   let subSummaryComponent = document.createElement("div");
   summaryPanel.appendChild(subSummaryComponent);
@@ -32,14 +52,7 @@ const createSummaryPanel = () => {
   informationTypeTagger.className = "mt-6";
   summaryPanel.appendChild(informationTypeTagger);
 
-  // let navComponent = document.createElement("div");
-  // navComponent.className = "m-1";
-  // const discussionTimelineAction = discussionBucket.querySelector("div.discussion-timeline-actions");
-  // discussionTimelineAction.insertBefore(navComponent, discussionTimelineAction.firstElementChild);
-
   ReactDOM.render(<SubSummaryComponent />, subSummaryComponent);
-  // ReactDOM.render(<InformationTypeTagger />, informationTypeTagger);
-  // ReactDOM.render(<NavigationComponent />, navComponent);
 };
 
 const initSummaryPanelComponent = () => {

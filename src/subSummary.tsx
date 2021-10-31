@@ -411,34 +411,6 @@ class SubSummaryComponent extends React.Component<
     this.setState({
       editing: id
     });
-    // const commentTags = document.querySelectorAll(
-    //   "div.timeline-comment.unminimized-comment"
-    // );
-    // // Highlight the added comments
-    // let flag = false;
-    // this.state.subsummaries.forEach(s => {
-    //   if (s.id === id) {
-    //     s.comments.forEach(c => {
-    //       commentTags.forEach((tag) => {
-    //         if (this.commentParser(tag).id === c.id) {
-    //           tag.classList.add("color-border-success-emphasis");
-    //           if (!flag) {
-    //             tag.closest("div.TimelineItem").scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-    //             flag = true;
-    //           }
-    //         }
-    //       });
-    //     });
-    //   }
-    // });
-    // Show the option to edit
-    // Show NavigationComponent
-    // const navComponent = document.getElementById("navigation-component");
-    // navComponent.style.visibility = "visible";
-    // this.setState({
-    //   editing: id
-    // });
-    // this.toggleSummaryBoxComponent("comment");
   }
 
   toggleSummaryBoxComponent = (visiblePanel: string) => {
