@@ -233,7 +233,7 @@ class SummaryInputComponent extends React.Component<
 }
 
 class CommentComponent extends React.Component<
-  { comments: Array<IssueComment>; actionHandler; resetSession},
+  { comments: Array<IssueComment>; actionHandler; resetSession },
   {}
 > {
   constructor(props) {
@@ -500,6 +500,7 @@ class SubSummaryComponent extends React.Component<
     // response is summary
 
     let storedSummary = "Sent to backend, summary stored"; // API response
+
     let modifiedSummary = this.state.subsummaries.findIndex(
       (e) => e.id === this.state.editing
     );
@@ -508,6 +509,11 @@ class SubSummaryComponent extends React.Component<
 
     item.summary = storedSummary;
     items[modifiedSummary] = item;
+
+    item.comments.forEach(c => {
+      this.addedComments.push(c.id);
+    });
+
     this.setState({
       subsummaries: items,
       visible: "summary",
@@ -524,7 +530,7 @@ class SubSummaryComponent extends React.Component<
 
   render() {
     let navbarContent;
-    if (this.state.editing) {
+    if (this.state.editing && (this.state.visible === "comments")) {
       this.state.subsummaries.forEach(ss => {
         if (ss.id === this.state.editing) {
           navbarContent = ss.comments;
