@@ -85,7 +85,6 @@ class NavigationComponent extends React.Component<
     this.state = {
       currIndex: 0
     };
-
   }
 
   scrollToComment = () => {
@@ -107,21 +106,15 @@ class NavigationComponent extends React.Component<
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
-    // let flag = false;
     this.props.navbarContent.forEach(c => {
       commentTags.forEach((tag) => {
         if (this.props.commentParser(tag).id === c.id) {
           tag.classList.add("color-border-success-emphasis");
-          // if (!flag) {
-          //   tag.closest("div.TimelineItem").scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-          //   flag = true;
-          // }
         }
       });
     });
     this.scrollToComment();
-
-    let navComponent = (<div id="navigation-component">
+    return (<div id="navigation-component">
       <div className="clearfix">
         <div className="float-left">
           <div className="my-2 ml-2">
@@ -161,42 +154,6 @@ class NavigationComponent extends React.Component<
         </div>
       </div>
     </div>);
-    {/* <div className="Box">
-        <div className="Box-row Box-row--gray d-flex flex-row-reverse">
-          <button className="btn btn-primary btn-sm">
-            Done
-          </button>
-          <button className="btn btn-sm mx-1" 
-            onClick={() => {
-              if (this.state.currIndex + 1 < this.props.navbarContent.length) {
-                this.setState({
-                  currIndex: this.state.currIndex + 1
-                });
-                this.scrollToComment();
-              }
-              
-            }}>
-            &#12297;
-          </button>
-          <button className="btn btn-sm mx-1"
-          onClick={() => {
-            if (this.state.currIndex - 1 >= 0) {
-              this.setState({
-                currIndex: this.state.currIndex - 1
-              });
-              this.scrollToComment();
-            }
-            
-          }}>
-            &#12296;
-          </button>
-          <div className="m-1">
-            {this.state.currIndex + 1} of {this.props.navbarContent.length} summarized comments
-          </div>
-        </div>
-      </div>
-    </div>); */}
-    return navComponent;
   }
 }
 
@@ -276,7 +233,7 @@ class SummaryInputComponent extends React.Component<
 }
 
 class CommentComponent extends React.Component<
-  { comments: Array<IssueComment>; handler; backButtonHandler },
+  { comments: Array<IssueComment>; actionHandler; resetSession},
   {}
 > {
   constructor(props) {
@@ -324,7 +281,7 @@ class CommentComponent extends React.Component<
           <button
             className="btn btn-sm btn-primary float-right m-1"
             onClick={() => {
-              this.props.handler("input");
+              this.props.actionHandler("input");
             }}
           >
             Generate Summary
@@ -333,7 +290,8 @@ class CommentComponent extends React.Component<
             className="btn btn-sm m-1 float-right"
             type="button"
             onClick={() => {
-              this.props.backButtonHandler("summary");
+              this.props.resetSession();
+              this.props.actionHandler("summary");
             }}
           >
             Back
@@ -346,7 +304,7 @@ class CommentComponent extends React.Component<
 
 class SubSummaryComponent extends React.Component<
   {},
-  { subsummaries: Array<Summary>; editing: string; visible: string }
+  { subsummaries: Array<Summary>; editing: string; visible: string; }
 > {
   addedComments: Array<string>;
   constructor(props) {
@@ -360,32 +318,6 @@ class SubSummaryComponent extends React.Component<
     this.loadCommentComponents = this.loadCommentComponents.bind(this);
     this.saveSummary == this.saveSummary.bind(this);
   }
-
-  commentParser = (comment: Element) => {
-    const a_profile: string = comment.querySelector("img.avatar")["src"];
-    const a_uname: string = comment.querySelector("a.author").textContent;
-    const a_createdOn: string = comment.querySelector(
-      "a.js-timestamp relative-time"
-    )["title"];
-    const c_body = Array.from(comment.querySelectorAll("td.comment-body p"))
-      .map((elem) => elem.innerHTML)
-      .join(" ");
-    const c_bodytext = Array.from(comment.querySelectorAll("td.comment-body p"))
-      .map((elem) => elem.innerHTML)
-      .join(" ");
-    const c_id = comment.querySelector("a.js-timestamp")["href"];
-    const author = new Author(a_uname, a_createdOn, a_profile);
-    return new IssueComment(c_id, c_body, c_bodytext, author);
-  };
-
-  removeBorderHighlights = () => {
-    const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
-    );
-    commentTags.forEach((tag) => {
-      tag.classList.remove("color-border-success");
-    });
-  };
 
   addBorderHighlights = () => {
     const commentTags = document.querySelectorAll(
@@ -410,7 +342,6 @@ class SubSummaryComponent extends React.Component<
         );
         let items = [...this.state.subsummaries];
         let item = { ...items[modifiedSummary] };
-        this.addedComments.push(newComment.id);
         item.comments = item.comments.concat(newComment);
         items[modifiedSummary] = item;
         this.setState({
@@ -421,7 +352,6 @@ class SubSummaryComponent extends React.Component<
         let newSummary = new Summary("", newComment);
         let tempSubsummary = this.state.subsummaries;
         tempSubsummary.push(newSummary);
-        this.addedComments.push(newComment.id);
         this.setState({
           subsummaries: tempSubsummary,
           editing: newSummary.id,
@@ -446,17 +376,28 @@ class SubSummaryComponent extends React.Component<
     });
   };
 
+  commentParser = (comment: Element) => {
+    const a_profile: string = comment.querySelector("img.avatar")["src"];
+    const a_uname: string = comment.querySelector("a.author").textContent;
+    const a_createdOn: string = comment.querySelector(
+      "a.js-timestamp relative-time"
+    )["title"];
+    const c_body = Array.from(comment.querySelectorAll("td.comment-body p"))
+      .map((elem) => elem.innerHTML)
+      .join(" ");
+    const c_bodytext = Array.from(comment.querySelectorAll("td.comment-body p"))
+      .map((elem) => elem.innerHTML)
+      .join(" ");
+    const c_id = comment.querySelector("a.js-timestamp")["href"];
+    const author = new Author(a_uname, a_createdOn, a_profile);
+    return new IssueComment(c_id, c_body, c_bodytext, author);
+  };
+
   editExistingSummary = (id: string) => {
     this.setState({
       editing: id
     });
   }
-
-  toggleSummaryBoxComponent = (visiblePanel: string) => {
-    this.setState({
-      visible: visiblePanel,
-    });
-  };
 
   loadCommentComponents = () => {
     let t = [];
@@ -466,14 +407,92 @@ class SubSummaryComponent extends React.Component<
           <CommentComponent
             key={index}
             comments={value.comments}
-            handler={this.toggleSummaryBoxComponent}
-            backButtonHandler={this.toggleSummaryBoxComponent}
+            actionHandler={this.toggleSummaryBoxComponent}
+            resetSession={this.resetSession}
           />
         );
       }
     });
     return t;
   };
+
+  loadSummaryComponent = () => {
+    if (this.state.subsummaries.length) {
+      let allSummaries = [];
+      this.state.subsummaries.forEach((s) => {
+        if (s.summary) {
+          allSummaries.push({ summary: s.summary, id: s.id });
+        }
+
+      });
+      if (allSummaries.length) {
+        return <SummaryComponent summaries={allSummaries} editExistingSummary={this.editExistingSummary} />;
+      }
+    }
+    return (
+      <div className="blankslate">
+        <p>Click on the '+' icon to add comments  create a summary.</p>
+      </div>
+    );
+  };
+
+  loadSummaryInputComponent = () => {
+    let autogeneratedSummary = "Autogenerated summary from the API";
+    let editingSubsummary;
+    this.state.subsummaries.forEach((value, index) => {
+      if (value.id === this.state.editing) {
+        editingSubsummary = value;
+      }
+    });
+    return (
+      <SummaryInputComponent
+        existingSummary={autogeneratedSummary}
+        subSummaryObject={editingSubsummary}
+        backButtonHandler={this.toggleSummaryBoxComponent}
+        submitHandler={this.saveSummary}
+      />
+    );
+  };
+
+  loadViewBasedOnState = () => {
+    if (this.state.visible === "summary") {
+      return this.loadSummaryComponent();
+    } else if (this.state.visible === "input") {
+      return this.loadSummaryInputComponent();
+    } else if (this.state.visible === "comments") {
+      return this.loadCommentComponents();
+    }
+  };
+
+  removeBorderHighlights = () => {
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    commentTags.forEach((tag) => {
+      tag.classList.remove("color-border-success");
+    });
+  };
+
+  resetBorderHighlights = () => {
+    this.removeBorderHighlights();
+    this.addBorderHighlights();
+  }
+
+  resetSession = () => {
+    let modifiedSummary = this.state.subsummaries.findIndex(
+      (e) => e.id === this.state.editing
+    );
+    this.state.subsummaries.splice(modifiedSummary, 1);
+    let oldState = this.state.subsummaries;
+    this.setState({
+      subsummaries: oldState,
+      editing: '',
+
+    });
+
+
+    this.resetBorderHighlights();
+  }
 
   saveSummary = (summary: HTMLFormElement) => {
     summary.preventDefault();
@@ -497,52 +516,10 @@ class SubSummaryComponent extends React.Component<
     this.removeBorderHighlights();
   };
 
-  loadSummaryInputComponent = () => {
-    let autogeneratedSummary = "Autogenerated summary from the API";
-    let editingSubsummary;
-    this.state.subsummaries.forEach((value, index) => {
-      if (value.id === this.state.editing) {
-        editingSubsummary = value;
-      }
+  toggleSummaryBoxComponent = (visiblePanel: string) => {
+    this.setState({
+      visible: visiblePanel,
     });
-    return (
-      <SummaryInputComponent
-        existingSummary={autogeneratedSummary}
-        subSummaryObject={editingSubsummary}
-        backButtonHandler={this.toggleSummaryBoxComponent}
-        submitHandler={this.saveSummary}
-      />
-    );
-  };
-
-  loadSummaryComponent = () => {
-    if (this.state.subsummaries.length) {
-      let allSummaries = [];
-      this.state.subsummaries.forEach((s) => {
-        if (s.summary) {
-          allSummaries.push({ summary: s.summary, id: s.id });
-        }
-
-      });
-      if (allSummaries.length) {
-        return <SummaryComponent summaries={allSummaries} editExistingSummary={this.editExistingSummary} />;
-      }
-    }
-    return (
-      <div className="blankslate">
-        <p>Click on the '+' icon to add comments  create a summary.</p>
-      </div>
-    );
-  };
-
-  loadViewBasedOnState = () => {
-    if (this.state.visible === "summary") {
-      return this.loadSummaryComponent();
-    } else if (this.state.visible === "input") {
-      return this.loadSummaryInputComponent();
-    } else if (this.state.visible === "comments") {
-      return this.loadCommentComponents();
-    }
   };
 
   render() {
