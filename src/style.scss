@@ -32,12 +32,14 @@
 .nav-component {
   position: fixed;
   bottom: 0;
-  z-index: 100;
-  width: 70%;
-  // visibility: hidden;
-  // align-self: flex-end;
+  z-index: 999;
 }
 
-// .making-flex {
-//  align-items: flex-start;
-// }
+.summary-container {
+  position: relative;
+}
+
+.summary-sticky {
+  top: 5vw;
+  position: sticky;
+}

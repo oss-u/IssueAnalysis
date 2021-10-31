@@ -4,7 +4,7 @@ import "./style.scss";
 
 import InformationTypeTagger from "./tagComment";
 import SubSummaryComponent from "./subSummary";
-// import NavigationComponent from "./navigationPanel";
+import NavigationComponent from "./navigationPanel";
 import { informationTypeMap } from "./utils/maps";
 
 const createSummaryPanel = () => {
@@ -26,6 +26,9 @@ const createSummaryPanel = () => {
 
   let summaryPanel = document.createElement("div");
   summaryPanel.className = "Layout-sidebar";
+  summaryPanel.classList.add("summary-container");
+
+  // summaryPanel.classList.add("summary-panel-container");
   // discussionBucket.appendChild(summaryPanel);
 
   let contentAndSummaryWrapper = document.createElement("div");
@@ -39,7 +42,6 @@ const createSummaryPanel = () => {
   contentAndSummaryWrapper.appendChild(contentWrapper);
   discussionBucket.appendChild(contentAndSummaryWrapper);
 
-  const children = discussionBucket.children;
   // discussionBucket.insertBefore(
   //   summaryPanel,
   //   discussionBucket.firstElementChild
@@ -48,6 +50,10 @@ const createSummaryPanel = () => {
 
   let subSummaryComponent = document.createElement("div");
   summaryPanel.appendChild(subSummaryComponent);
+  // subSummaryComponent.classList.add("position-sticky");
+  // subSummaryComponent.classList.add("top-0");
+  subSummaryComponent.classList.add("summary-sticky");
+  
   let informationTypeTagger = document.createElement("div");
   informationTypeTagger.className = "mt-6";
   summaryPanel.appendChild(informationTypeTagger);

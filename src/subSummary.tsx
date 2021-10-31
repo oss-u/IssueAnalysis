@@ -491,7 +491,7 @@ class SubSummaryComponent extends React.Component<
     }
     return (
       <div className="blankslate">
-        <p>Click on the comments to create a summary.</p>
+        <p>Click on the '+' icon to add comments  create a summary.</p>
       </div>
     );
   };
