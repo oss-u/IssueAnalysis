@@ -112,7 +112,6 @@ class NavigationComponent extends React.Component<
   }
 
   render() {
-    console.log("navbar", this.props.navbarContent);
     if (!this.props.navbarContent) {
       return (<></>);
     }
@@ -137,7 +136,7 @@ class NavigationComponent extends React.Component<
         </div>
         <div className="float-right">
           <div className="float-right my-1 mr-1">
-            <button className="btn btn-primary btn-sm" onClick={() => {this.props.doneHandler();}}>
+            <button className="btn btn-primary btn-sm" onClick={() => { this.props.doneHandler(); }}>
               Done
             </button>
           </div>
@@ -338,17 +337,21 @@ class SubSummaryComponent extends React.Component<
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
+    console.log(this.state.subsummaries);
     commentTags.forEach((tag) => {
-      if (
-        this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])
-      ) {
-        tag.classList.add("color-border-success");
+      if (this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])) {
+        if (!tag.classList.contains("color-border-success")) {
+          tag.classList.add("color-border-success");
+        }
       }
     });
   };
 
+  showSpecificHighlights = () => {
+
+  }
+
   addCommentsOnClick = (tag: Element) => {
-    tag.classList.add("color-border-success");
     let newComment = this.commentParser(tag);
     if (!this.addedComments.includes(newComment.id)) {
       if (this.state.editing) {
@@ -357,12 +360,14 @@ class SubSummaryComponent extends React.Component<
         );
         let items = [...this.state.subsummaries];
         let item = { ...items[modifiedSummary] };
-        item.comments = item.comments.concat(newComment);
-        items[modifiedSummary] = item;
-        this.setState({
-          subsummaries: items,
-          visible: "comments",
-        });
+        if (!item.comments.some(e => e.id === newComment.id)) {
+          item.comments = item.comments.concat(newComment);
+          items[modifiedSummary] = item;
+          this.setState({
+            subsummaries: items,
+            visible: "comments",
+          });
+        }
       } else {
         let newSummary = new Summary("", newComment);
         let tempSubsummary = this.state.subsummaries;
@@ -373,6 +378,8 @@ class SubSummaryComponent extends React.Component<
           visible: "comments",
         });
       }
+      tag.classList.add("color-border-success");
+      // this.addBorderHighlights();
     }
   };
 
@@ -380,7 +387,7 @@ class SubSummaryComponent extends React.Component<
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
-    this.addBorderHighlights();
+    // this.addBorderHighlights();
     commentTags.forEach((tag) => {
       if (tag.getAttribute("listener") !== "true") {
         tag.addEventListener("click", () => {
@@ -451,7 +458,7 @@ class SubSummaryComponent extends React.Component<
     }
     return (
       <div className="blankslate">
-        <p>Click on the '+' icon to add comments  create a summary.</p>
+        <p>Click on the '+' icon to add comments and create a summary.</p>
       </div>
     );
   };
@@ -488,8 +495,11 @@ class SubSummaryComponent extends React.Component<
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
+
     commentTags.forEach((tag) => {
-      tag.classList.remove("color-border-success");
+      if (tag.classList.contains("color-border-success")) {
+        tag.classList.remove("color-border-success");
+      }
     });
   };
 
@@ -534,12 +544,13 @@ class SubSummaryComponent extends React.Component<
       this.addedComments.push(c.id);
     });
 
+
     this.setState({
       subsummaries: items,
       visible: "summary",
       editing: "",
     });
-    this.removeBorderHighlights();
+    this.resetBorderHighlights();
   };
 
   toggleSummaryBoxComponent = (visiblePanel: string) => {
@@ -550,7 +561,6 @@ class SubSummaryComponent extends React.Component<
 
   render() {
     let navbarContent;
-    console.log(this.state.viewing, this.state.editing, this.state.visible);
     if ((this.state.editing || this.state.viewing) && (this.state.visible === "summary")) {
       this.state.subsummaries.forEach(ss => {
         if (ss.id === this.state.viewing) {
@@ -578,7 +588,7 @@ class SubSummaryComponent extends React.Component<
           </div>
         </div>
         <div id="summary-component">{this.loadViewBasedOnState()}</div>
-        <NavigationComponent navbarContent={navbarContent} commentParser={this.commentParser} doneHandler={this.exitNavBar}/>
+        <NavigationComponent navbarContent={navbarContent} commentParser={this.commentParser} doneHandler={this.exitNavBar} />
       </div>
     );
   }
