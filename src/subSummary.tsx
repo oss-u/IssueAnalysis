@@ -211,7 +211,7 @@ class SummaryInputComponent extends React.Component<
     });
 
     return (
-      <div className="Box flex-column m-1 p-1 color-border-success">
+      <div className="Box flex-column m-1 p-1 color-border-success-emphasis">
         <h5>Edit Summary</h5>
         <form onSubmit={this.props.submitHandler}>
           {comments}
@@ -287,7 +287,7 @@ class CommentComponent extends React.Component<
       );
     });
     return (
-      <div className="Box flex-column m-1 ml-1 p-1 color-border-success">
+      <div className="Box flex-column m-1 ml-1 p-1 color-border-success-emphasis">
         <h5>Comments to Summarise</h5>
         {comments}
         <div className="container-lg clearfix">
@@ -337,18 +337,27 @@ class SubSummaryComponent extends React.Component<
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
-    console.log(this.state.subsummaries);
     commentTags.forEach((tag) => {
       if (this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])) {
-        if (!tag.classList.contains("color-border-success")) {
-          tag.classList.add("color-border-success");
+        if (!tag.classList.contains("color-border-success-emphasis")) {
+          tag.classList.add("color-border-success-emphasis");
         }
       }
     });
   };
 
-  showSpecificHighlights = () => {
-
+  showSpecificHighlights = (c: Array<IssueComment>) => {
+    this.removeBorderHighlights();
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    commentTags.forEach((tag) => {
+      if (c.includes(tag.querySelector("a.js-timestamp")["href"])) {
+        if (!tag.classList.contains("color-border-success-emphasis")) {
+          tag.classList.add("color-border-success-emphasis");
+        }
+      }
+    });
   }
 
   addCommentsOnClick = (tag: Element) => {
@@ -378,8 +387,7 @@ class SubSummaryComponent extends React.Component<
           visible: "comments",
         });
       }
-      tag.classList.add("color-border-success");
-      // this.addBorderHighlights();
+      tag.classList.add("color-border-success-emphasis");
     }
   };
 
@@ -387,7 +395,6 @@ class SubSummaryComponent extends React.Component<
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
-    // this.addBorderHighlights();
     commentTags.forEach((tag) => {
       if (tag.getAttribute("listener") !== "true") {
         tag.addEventListener("click", () => {
@@ -422,9 +429,17 @@ class SubSummaryComponent extends React.Component<
   }
 
   viewExistingSummary = (id: string) => {
+    // this.removeBorderHighlights();
+    console.log("removed all highlights");
     this.setState({
       viewing: id
     });
+    let currentSummary = this.state.subsummaries.findIndex(
+      (e) => e.id === id
+    );
+    let items = [...this.state.subsummaries];
+    let item = { ...items[currentSummary] };
+    this.showSpecificHighlights(item.comments);
   }
 
   loadCommentComponents = () => {
@@ -497,8 +512,8 @@ class SubSummaryComponent extends React.Component<
     );
 
     commentTags.forEach((tag) => {
-      if (tag.classList.contains("color-border-success")) {
-        tag.classList.remove("color-border-success");
+      if (tag.classList.contains("color-border-success-emphasis")) {
+        tag.classList.remove("color-border-success-emphasis");
       }
     });
   };
@@ -521,7 +536,7 @@ class SubSummaryComponent extends React.Component<
     });
 
 
-    this.resetBorderHighlights();
+    // this.resetBorderHighlights();
   }
 
   saveSummary = (summary: HTMLFormElement) => {
