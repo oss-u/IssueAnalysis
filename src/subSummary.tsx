@@ -70,7 +70,8 @@ class SummaryComponent extends React.Component<
         summaryContent.push(
           <div className="Box flex-column m-1 p- color-border-info"
             onClick={() => { this.props.viewExistingSummary(s.id); }}>
-            <button className="btn-octicon float-right" type="button" aria-label="Pencil icon">
+            <button className="btn-octicon float-right" type="button"
+              aria-label="Pencil icon" >
               <svg className="octicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a1.75 1.75 0 01.445-.758l8.61-8.61zm1.414 1.06a.25.25 0 00-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 000-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 00-.064.108l-.558 1.953 1.953-.558a.249.249 0 00.108-.064l6.286-6.286z"></path></svg>
             </button>
             <div className="m-1">{s.summary}</div>
@@ -90,7 +91,7 @@ class SummaryComponent extends React.Component<
 }
 
 class NavigationComponent extends React.Component<
-  { navbarContent: Array<IssueComment>, commentParser },
+  { navbarContent: Array<IssueComment>, commentParser, doneHandler },
   { currIndex: number }> {
   constructor(props) {
     super(props);
@@ -111,6 +112,7 @@ class NavigationComponent extends React.Component<
   }
 
   render() {
+    console.log("navbar", this.props.navbarContent);
     if (!this.props.navbarContent) {
       return (<></>);
     }
@@ -135,7 +137,7 @@ class NavigationComponent extends React.Component<
         </div>
         <div className="float-right">
           <div className="float-right my-1 mr-1">
-            <button className="btn btn-primary btn-sm">
+            <button className="btn btn-primary btn-sm" onClick={() => {this.props.doneHandler();}}>
               Done
             </button>
           </div>
@@ -406,6 +408,12 @@ class SubSummaryComponent extends React.Component<
     return new IssueComment(c_id, c_body, c_bodytext, author);
   };
 
+  exitNavBar = () => {
+    this.setState({
+      viewing: ""
+    })
+  }
+
   viewExistingSummary = (id: string) => {
     this.setState({
       viewing: id
@@ -542,9 +550,10 @@ class SubSummaryComponent extends React.Component<
 
   render() {
     let navbarContent;
-    if ((this.state.editing || this.state.viewing) && (this.state.visible === "comments")) {
+    console.log(this.state.viewing, this.state.editing, this.state.visible);
+    if ((this.state.editing || this.state.viewing) && (this.state.visible === "summary")) {
       this.state.subsummaries.forEach(ss => {
-        if (ss.id === this.state.editing) {
+        if (ss.id === this.state.viewing) {
           navbarContent = ss.comments;
         }
       })
@@ -569,7 +578,7 @@ class SubSummaryComponent extends React.Component<
           </div>
         </div>
         <div id="summary-component">{this.loadViewBasedOnState()}</div>
-        <NavigationComponent navbarContent={navbarContent} commentParser={this.commentParser} />
+        <NavigationComponent navbarContent={navbarContent} commentParser={this.commentParser} doneHandler={this.exitNavBar}/>
       </div>
     );
   }
