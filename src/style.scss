@@ -28,3 +28,12 @@
 .textarea-vertical-resize-only {
   resize: vertical;
 }
+
+.summary-container {
+  position: relative;
+}
+
+.summary-sticky {
+  top: 5vw;
+  position: sticky;
+}

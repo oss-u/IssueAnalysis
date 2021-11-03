@@ -1,14 +1,25 @@
 import React from "react";
 import "./style.scss";
 
-
 function guidGenerator() {
   var S4 = function () {
     return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
   };
-  return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+  return (
+    S4() +
+    S4() +
+    "-" +
+    S4() +
+    "-" +
+    S4() +
+    "-" +
+    S4() +
+    "-" +
+    S4() +
+    S4() +
+    S4()
+  );
 }
-
 
 class Author {
   uname: string;
@@ -21,7 +32,6 @@ class Author {
     this.profile = p;
   }
 }
-
 
 class IssueComment {
   body: string;
@@ -49,28 +59,171 @@ class Summary {
   }
 }
 
-class SummaryComponent extends React.Component<{ summaries: Array<string> }, {}> {
+class SummaryComponent extends React.Component<
+  { summaries: any, viewExistingSummary, viewing: string },
+  {}
+> {
   render() {
     let summaryContent: Array<Element> = [];
-    this.props.summaries.forEach(s => summaryContent.push(
-      <div className='Box flex-column m-1 p-1 color-border-info'>
-        {this.props.summaries}
-      </div>
-    ))
-    return (summaryContent);
+    this.props.summaries.forEach((s) => {
+      if (this.props.viewing && this.props.viewing === s.id) {
+        summaryContent.push(
+          <div className="Box flex-column m-1 p- color-border-info"
+            onClick={() => { this.props.viewExistingSummary(s.id); }}>
+            <button className="btn-octicon float-right" type="button"
+              aria-label="Pencil icon" >
+              <svg className="octicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a1.75 1.75 0 01.445-.758l8.61-8.61zm1.414 1.06a.25.25 0 00-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 000-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 00-.064.108l-.558 1.953 1.953-.558a.249.249 0 00.108-.064l6.286-6.286z"></path></svg>
+            </button>
+            <div className="m-1">{s.summary}</div>
+          </div>
+        )
+      } else {
+        summaryContent.push(
+          <div className="Box flex-column m-1 p-1 color-border-info"
+            onClick={() => { this.props.viewExistingSummary(s.id); }}>
+            {s.summary}
+          </div>
+        )
+      }
+    });
+    return summaryContent;
   }
 }
 
+class NavigationComponent extends React.Component<
+  { navbarContent: Array<IssueComment>, commentParser, doneHandler },
+  { currIndex: number }> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      currIndex: 0
+    };
+  }
 
-class SummaryInputComponent extends React.Component<{ existingSummary: string, backButtonHandler, submitHandler }, {}> {
+  scrollToComment = () => {
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    commentTags.forEach((tag) => {
+      if (this.props.commentParser(tag).id === this.props.navbarContent[this.state.currIndex].id) {
+        tag.closest("div.TimelineItem").scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+      }
+    });
+  }
+
   render() {
+    console.log("navbar", this.props.navbarContent);
+    if (!this.props.navbarContent) {
+      return (<></>);
+    }
+
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    this.props.navbarContent.forEach(c => {
+      commentTags.forEach((tag) => {
+        if (this.props.commentParser(tag).id === c.id) {
+          tag.classList.add("color-border-success-emphasis");
+        }
+      });
+    });
+    this.scrollToComment();
+    return (<div id="navigation-component">
+      <div className="clearfix">
+        <div className="float-left">
+          <div className="my-2 ml-2">
+            {this.state.currIndex + 1} of {this.props.navbarContent.length} comments
+          </div>
+        </div>
+        <div className="float-right">
+          <div className="float-right my-1 mr-1">
+            <button className="btn btn-primary btn-sm" onClick={() => {this.props.doneHandler();}}>
+              Done
+            </button>
+          </div>
+          <div className="float-right">
+            <button className="btn-octicon my-2"
+              onClick={() => {
+                if (this.state.currIndex - 1 >= 0) {
+                  this.setState({
+                    currIndex: this.state.currIndex - 1
+                  });
+                  this.scrollToComment();
+                }
+              }}>
+              &#12296;
+            </button>
+            <button className="btn-octicon my-2"
+              onClick={() => {
+                if (this.state.currIndex + 1 < this.props.navbarContent.length) {
+                  this.setState({
+                    currIndex: this.state.currIndex + 1
+                  });
+                  this.scrollToComment();
+                }
+              }}>
+              &#12297;
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>);
+  }
+}
+
+class SummaryInputComponent extends React.Component<
+  {
+    existingSummary: string;
+    subSummaryObject: Summary;
+    backButtonHandler;
+    submitHandler;
+  },
+  {}
+> {
+  render() {
+    let comments = [];
+    this.props.subSummaryObject.comments.forEach((e) => {
+      let dateFormatting = e.author.createdOn.split(",").slice(0, 2).join(", ");
+      comments.push(
+        <div className="d-flex flex-row m-1">
+          <div className="Box width-full">
+            <div className="Box-row Box-row--gray p-1">
+              <div className="clearfix">
+                <div className="col-1 float-left">
+                  <img
+                    className="avatar"
+                    height="20"
+                    width="20"
+                    alt={e.author.uname}
+                    src={e.author.profile}
+                  />
+                </div>
+                <div className="col-10 float-left pl-2">
+                  <h6>commented on {dateFormatting}</h6>
+                </div>
+              </div>
+            </div>
+            <div className="Box-row p-1 ">
+              <p className="markdown-body">{e.bodyText.slice(0, 50)}...</p>
+            </div>
+          </div>
+        </div>
+      );
+    });
+
     return (
-      <div className='Box flex-column m-1 p-1 color-border-success'>
+      <div className="Box flex-column m-1 p-1 color-border-success">
         <h5>Edit Summary</h5>
         <form onSubmit={this.props.submitHandler}>
-          <textarea className="form-control input-block textarea-vertical-resize-only"
-            aria-label="summary-input" name="summary-textarea">{this.props.existingSummary}</textarea>
-          <div className='clearfix flex-row'>
+          {comments}
+          <textarea
+            className="form-control input-block textarea-vertical-resize-only"
+            aria-label="summary-input"
+            name="summary-textarea"
+          >
+            {this.props.existingSummary}
+          </textarea>
+          <div className="clearfix flex-row">
             <button
               className="btn btn-sm btn-primary m-1 float-right"
               type="submit"
@@ -79,76 +232,164 @@ class SummaryInputComponent extends React.Component<{ existingSummary: string, b
             </button>
             <button
               className="btn btn-sm m-1 float-right"
-              type="button" onClick={() => { this.props.backButtonHandler('comments') }}
+              type="button"
+              onClick={() => {
+                this.props.backButtonHandler("comments");
+              }}
             >
               Back
             </button>
           </div>
         </form>
       </div>
-
     );
   }
 }
 
-class CommentComponent extends React.Component<{ comments: Array<IssueComment>, handler }, {}> {
+class CommentComponent extends React.Component<
+  { comments: Array<IssueComment>; actionHandler; resetSession },
+  {}
+> {
   constructor(props) {
     super(props);
     this.state = {
-      visible: true
-    }
+      visible: true,
+    };
   }
 
   render() {
     let comments = [];
-    this.props.comments.forEach(e => {
-      let dateFormatting = e.author.createdOn.split(',').slice(0, 2).join(', ');
+    this.props.comments.forEach((e) => {
+      let dateFormatting = e.author.createdOn.split(",").slice(0, 2).join(", ");
       comments.push(
         <div className="d-flex flex-row m-1">
           <div className="Box width-full">
             <div className="Box-row Box-row--gray p-1">
-              <div className='clearfix'>
-                <div className='col-1 float-left'><img className="avatar" height="20" width="20" alt={e.author.uname}
-                  src={e.author.profile} /></div>
-                <div className="col-10 float-left pl-2"><h6>commented on {dateFormatting}</h6></div>
+              <div className="clearfix">
+                <div className="col-1 float-left">
+                  <img
+                    className="avatar"
+                    height="20"
+                    width="20"
+                    alt={e.author.uname}
+                    src={e.author.profile}
+                  />
+                </div>
+                <div className="col-10 float-left pl-2">
+                  <h6>commented on {dateFormatting}</h6>
+                </div>
               </div>
             </div>
-            <div className="Box-row p-1 "><p className='markdown-body'>{e.bodyText.slice(0, 50)}...</p></div>
+            <div className="Box-row p-1 ">
+              <p className="markdown-body">{e.bodyText.slice(0, 50)}...</p>
+            </div>
           </div>
         </div>
-      )
+      );
     });
-    return (<div className='Box flex-column m-1 p-1 color-border-success'>
-      <h5>Comments to Summarise</h5>
-      {comments}
-      <div className="container-lg clearfix">
-        <button className="btn btn-sm btn-primary float-right m-1"
-          onClick={() => {
-            this.props.handler('input');
-          }}>
-          Generate Summary
-        </button>
+    return (
+      <div className="Box flex-column m-1 ml-1 p-1 color-border-success">
+        <h5>Comments to Summarise</h5>
+        {comments}
+        <div className="container-lg clearfix">
+          <button
+            className="btn btn-sm btn-primary float-right m-1"
+            onClick={() => {
+              this.props.actionHandler("input");
+            }}
+          >
+            Generate Summary
+          </button>
+          <button
+            className="btn btn-sm m-1 float-right"
+            type="button"
+            onClick={() => {
+              this.props.resetSession();
+              this.props.actionHandler("summary");
+            }}
+          >
+            Back
+          </button>
+        </div>
       </div>
-    </div>
     );
   }
 }
 
-
-
-class SubSummaryComponent extends React.Component<{}, { subsummaries: Array<Summary>, editing: string, visible: string }> {
+class SubSummaryComponent extends React.Component<
+  {},
+  { subsummaries: Array<Summary>; editing: string; visible: string; viewing: string }
+> {
   addedComments: Array<string>;
   constructor(props) {
     super(props);
-    this.addedComments = []
+    this.addedComments = [];
     this.state = {
       subsummaries: [],
-      editing: '',
-      visible: 'summary'
-    }
+      editing: "",
+      visible: "summary",
+      viewing: ""
+    };
     this.loadCommentComponents = this.loadCommentComponents.bind(this);
     this.saveSummary == this.saveSummary.bind(this);
   }
+
+  addBorderHighlights = () => {
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    commentTags.forEach((tag) => {
+      if (
+        this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])
+      ) {
+        tag.classList.add("color-border-success");
+      }
+    });
+  };
+
+  addCommentsOnClick = (tag: Element) => {
+    tag.classList.add("color-border-success");
+    let newComment = this.commentParser(tag);
+    if (!this.addedComments.includes(newComment.id)) {
+      if (this.state.editing) {
+        let modifiedSummary = this.state.subsummaries.findIndex(
+          (e) => e.id === this.state.editing
+        );
+        let items = [...this.state.subsummaries];
+        let item = { ...items[modifiedSummary] };
+        item.comments = item.comments.concat(newComment);
+        items[modifiedSummary] = item;
+        this.setState({
+          subsummaries: items,
+          visible: "comments",
+        });
+      } else {
+        let newSummary = new Summary("", newComment);
+        let tempSubsummary = this.state.subsummaries;
+        tempSubsummary.push(newSummary);
+        this.setState({
+          subsummaries: tempSubsummary,
+          editing: newSummary.id,
+          visible: "comments",
+        });
+      }
+    }
+  };
+
+  addCommentsToSummary = () => {
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    this.addBorderHighlights();
+    commentTags.forEach((tag) => {
+      if (tag.getAttribute("listener") !== "true") {
+        tag.addEventListener("click", () => {
+          this.addCommentsOnClick(tag);
+        });
+        tag.setAttribute("listener", "true");
+      }
+    });
+  };
 
   commentParser = (comment: Element) => {
     const a_profile: string = comment.querySelector("img.avatar")["src"];
@@ -167,128 +408,158 @@ class SubSummaryComponent extends React.Component<{}, { subsummaries: Array<Summ
     return new IssueComment(c_id, c_body, c_bodytext, author);
   };
 
-
-  addCommentsOnClick = (tag: Element) => {
-    tag.classList.add("color-border-success");
-    let newComment = this.commentParser(tag);
-    if (this.state.editing) {
-      let modifiedSummary = this.state.subsummaries.findIndex(e => e.id === this.state.editing);
-      let items = [...this.state.subsummaries];
-      let item = { ...items[modifiedSummary] };
-      this.addedComments.push(newComment.id);
-      item.comments = item.comments.concat(newComment);
-      items[modifiedSummary] = item;
-      this.setState({
-        subsummaries: items,
-        visible: 'comments'
-      });
-    } else {
-      let newSummary = new Summary('', newComment);
-      this.addedComments.push(newComment.id);
-      this.setState({
-        subsummaries: new Array(newSummary),
-        editing: newSummary.id,
-        visible: 'comments'
-      });
-    }
-  }
-
-  addCommentsToSummary = () => {
-    const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
-    );
-    commentTags.forEach(tag => {
-      if (tag.getAttribute('listener') !== 'true') {
-        tag.addEventListener("click", () => {
-          this.addCommentsOnClick(tag);
-        });
-        tag.setAttribute('listener', 'true');
-      }
+  exitNavBar = () => {
+    this.setState({
+      viewing: ""
     })
   }
 
-  toggleSummaryBoxComponent = (visiblePanel: string) => {
+  viewExistingSummary = (id: string) => {
     this.setState({
-      visible: visiblePanel
+      viewing: id
     });
   }
 
   loadCommentComponents = () => {
     let t = [];
     this.state.subsummaries.forEach((value, index) => {
-      t.push(<CommentComponent key={index} comments={value.comments} handler={this.toggleSummaryBoxComponent} />)
-    })
+      if (value.id === this.state.editing) {
+        t.push(
+          <CommentComponent
+            key={index}
+            comments={value.comments}
+            actionHandler={this.toggleSummaryBoxComponent}
+            resetSession={this.resetSession}
+          />
+        );
+      }
+    });
     return t;
+  };
+
+  loadSummaryComponent = () => {
+    if (this.state.subsummaries.length) {
+      let allSummaries = [];
+      this.state.subsummaries.forEach((s) => {
+        if (s.summary) {
+          allSummaries.push({ summary: s.summary, id: s.id });
+        }
+      });
+      if (allSummaries.length) {
+        return <SummaryComponent summaries={allSummaries} viewExistingSummary={this.viewExistingSummary} viewing={this.state.viewing} />;
+      }
+    }
+    return (
+      <div className="blankslate">
+        <p>Click on the '+' icon to add comments  create a summary.</p>
+      </div>
+    );
+  };
+
+  loadSummaryInputComponent = () => {
+    let autogeneratedSummary = "Autogenerated summary from the API";
+    let editingSubsummary;
+    this.state.subsummaries.forEach((value, index) => {
+      if (value.id === this.state.editing) {
+        editingSubsummary = value;
+      }
+    });
+    return (
+      <SummaryInputComponent
+        existingSummary={autogeneratedSummary}
+        subSummaryObject={editingSubsummary}
+        backButtonHandler={this.toggleSummaryBoxComponent}
+        submitHandler={this.saveSummary}
+      />
+    );
+  };
+
+  loadViewBasedOnState = () => {
+    if (this.state.visible === "summary") {
+      return this.loadSummaryComponent();
+    } else if (this.state.visible === "input") {
+      return this.loadSummaryInputComponent();
+    } else if (this.state.visible === "comments") {
+      return this.loadCommentComponents();
+    }
+  };
+
+  removeBorderHighlights = () => {
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    commentTags.forEach((tag) => {
+      tag.classList.remove("color-border-success");
+    });
+  };
+
+  resetBorderHighlights = () => {
+    this.removeBorderHighlights();
+    this.addBorderHighlights();
   }
 
+  resetSession = () => {
+    let modifiedSummary = this.state.subsummaries.findIndex(
+      (e) => e.id === this.state.editing
+    );
+    this.state.subsummaries.splice(modifiedSummary, 1);
+    let oldState = this.state.subsummaries;
+    this.setState({
+      subsummaries: oldState,
+      editing: '',
+
+    });
+
+
+    this.resetBorderHighlights();
+  }
 
   saveSummary = (summary: HTMLFormElement) => {
     summary.preventDefault();
     // make an API call and submit the form
     // response is summary
-    let storedSummary = 'Sent to backend, summary stored'; // API response
-    let modifiedSummary = this.state.subsummaries.findIndex(e => e.id === this.state.editing);
+
+    let storedSummary = "Sent to backend, summary stored"; // API response
+
+    let modifiedSummary = this.state.subsummaries.findIndex(
+      (e) => e.id === this.state.editing
+    );
     let items = [...this.state.subsummaries];
     let item = { ...items[modifiedSummary] };
+
     item.summary = storedSummary;
     items[modifiedSummary] = item;
-    this.setState({
-      subsummaries: items,
-      visible: 'summary',
-      editing: ''
+
+    item.comments.forEach(c => {
+      this.addedComments.push(c.id);
     });
 
-    // const commentTags = document.querySelectorAll(
-    //   "div.timeline-comment.unminimized-comment"
-    // );
-    // commentTags.forEach(tag => {
-    //   if (tag.getAttribute('listener') === 'true') {
-    //     // tag.removeEventListener("click", this.addCommentsOnClick);
-    //     tag.setAttribute('listener', 'false');
-    //   }
-    // });
-  }
+    this.setState({
+      subsummaries: items,
+      visible: "summary",
+      editing: "",
+    });
+    this.removeBorderHighlights();
+  };
 
-  loadSummaryInputComponent = () => {
-    let autogeneratedSummary = 'Autogenerated summary from the API';
-    return (
-      <SummaryInputComponent existingSummary={autogeneratedSummary}
-        backButtonHandler={this.toggleSummaryBoxComponent}
-        submitHandler={this.saveSummary}
-      />
-    );
-  }
-
-  loadSummaryComponent = () => {
-    
-    if (this.state.subsummaries.length) {
-      console.log(this.state.subsummaries.length);
-      let allSummaries = [];
-      this.state.subsummaries.forEach(s => {
-        allSummaries.push(s.summary);
-      });
-      return (<SummaryComponent summaries={allSummaries} />);
-    } else {
-      <div className="blankslate">
-        <h3 className="mb-1">This is a blank slate</h3>
-        <p>Use it to provide information when no dynamic content exists.</p>
-      </div>
-    }
-  }
-
-  loadViewBasedOnState = () => {
-    if (this.state.visible === 'summary') {
-      return this.loadSummaryComponent();
-    } else if (this.state.visible === 'input') {
-      return this.loadSummaryInputComponent();
-    } else if (this.state.visible === 'comments') {
-      return this.loadCommentComponents();
-    }
-  }
+  toggleSummaryBoxComponent = (visiblePanel: string) => {
+    this.setState({
+      visible: visiblePanel,
+    });
+  };
 
   render() {
+    let navbarContent;
+    console.log(this.state.viewing, this.state.editing, this.state.visible);
+    if ((this.state.editing || this.state.viewing) && (this.state.visible === "summary")) {
+      this.state.subsummaries.forEach(ss => {
+        if (ss.id === this.state.viewing) {
+          navbarContent = ss.comments;
+        }
+      })
+    }
     return (
-      <div id="topLevelSummary" className="Box">
+      <div id="sub-summary" className="Box">
         <div className="Box-header">
           <div className="clearfix">
             <div className="float-left">
@@ -306,7 +577,8 @@ class SubSummaryComponent extends React.Component<{}, { subsummaries: Array<Summ
             </div>
           </div>
         </div>
-        <div id='summary-component'>{this.loadViewBasedOnState()}</div>
+        <div id="summary-component">{this.loadViewBasedOnState()}</div>
+        <NavigationComponent navbarContent={navbarContent} commentParser={this.commentParser} doneHandler={this.exitNavBar}/>
       </div>
     );
   }
