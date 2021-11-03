@@ -60,7 +60,7 @@ class Summary {
 }
 
 class SummaryComponent extends React.Component<
-  { summaries: any, viewExistingSummary, viewing: string },
+  { summaries: any, viewExistingSummary, viewing: string, editButtonHandler },
   {}
 > {
   render() {
@@ -71,7 +71,7 @@ class SummaryComponent extends React.Component<
           <div className="Box flex-column m-1 p- color-border-info"
             onClick={() => { this.props.viewExistingSummary(s.id); }}>
             <button className="btn-octicon float-right" type="button"
-              aria-label="Pencil icon" >
+              aria-label="Pencil icon" onClick={this.props.editButtonHandler}>
               <svg className="octicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a1.75 1.75 0 01.445-.758l8.61-8.61zm1.414 1.06a.25.25 0 00-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 000-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 00-.064.108l-.558 1.953 1.953-.558a.249.249 0 00.108-.064l6.286-6.286z"></path></svg>
             </button>
             <div className="m-1">{s.summary}</div>
@@ -112,7 +112,6 @@ class NavigationComponent extends React.Component<
   }
 
   render() {
-    console.log("navbar", this.props.navbarContent);
     if (!this.props.navbarContent) {
       return (<></>);
     }
@@ -137,7 +136,7 @@ class NavigationComponent extends React.Component<
         </div>
         <div className="float-right">
           <div className="float-right my-1 mr-1">
-            <button className="btn btn-primary btn-sm" onClick={() => {this.props.doneHandler();}}>
+            <button className="btn btn-primary btn-sm" onClick={() => { this.props.doneHandler(); }}>
               Done
             </button>
           </div>
@@ -212,7 +211,7 @@ class SummaryInputComponent extends React.Component<
     });
 
     return (
-      <div className="Box flex-column m-1 p-1 color-border-success">
+      <div className="Box flex-column m-1 p-1 color-border-success-emphasis">
         <h5>Edit Summary</h5>
         <form onSubmit={this.props.submitHandler}>
           {comments}
@@ -259,6 +258,7 @@ class CommentComponent extends React.Component<
 
   render() {
     let comments = [];
+    let generateButtonState = this.props.comments.length ? false : true;
     this.props.comments.forEach((e) => {
       let dateFormatting = e.author.createdOn.split(",").slice(0, 2).join(", ");
       comments.push(
@@ -288,7 +288,7 @@ class CommentComponent extends React.Component<
       );
     });
     return (
-      <div className="Box flex-column m-1 ml-1 p-1 color-border-success">
+      <div className="Box flex-column m-1 ml-1 p-1 color-border-success-emphasis">
         <h5>Comments to Summarise</h5>
         {comments}
         <div className="container-lg clearfix">
@@ -297,6 +297,7 @@ class CommentComponent extends React.Component<
             onClick={() => {
               this.props.actionHandler("input");
             }}
+            disabled={generateButtonState}
           >
             Generate Summary
           </button>
@@ -339,16 +340,36 @@ class SubSummaryComponent extends React.Component<
       "div.timeline-comment.unminimized-comment"
     );
     commentTags.forEach((tag) => {
-      if (
-        this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])
-      ) {
-        tag.classList.add("color-border-success");
+      if (this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])) {
+        if (!tag.classList.contains("color-border-success-emphasis")) {
+          tag.classList.add("color-border-success-emphasis");
+        }
       }
     });
   };
 
+
+  // BUG BUG BUG
+  // Create 2 different summaries -> Edit a summary -> Go 'Back' -> Summary gets deleted
+  //
+
+
+  showSpecificHighlights = (c: Array<IssueComment>) => {
+    this.removeBorderHighlights();
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    let commentList = c.map(e => e.id);
+    commentTags.forEach((tag) => {
+      if (commentList.includes(tag.querySelector("a.js-timestamp")["href"])) {
+        if (!tag.classList.contains("color-border-success-emphasis")) {
+          tag.classList.add("color-border-success-emphasis");
+        }
+      }
+    });
+  }
+
   addCommentsOnClick = (tag: Element) => {
-    tag.classList.add("color-border-success");
     let newComment = this.commentParser(tag);
     if (!this.addedComments.includes(newComment.id)) {
       if (this.state.editing) {
@@ -357,8 +378,15 @@ class SubSummaryComponent extends React.Component<
         );
         let items = [...this.state.subsummaries];
         let item = { ...items[modifiedSummary] };
-        item.comments = item.comments.concat(newComment);
-        items[modifiedSummary] = item;
+        if (!item.comments.some(e => e.id === newComment.id)) {
+          item.comments = item.comments.concat(newComment);
+          items[modifiedSummary] = item;
+        } else {
+          item.comments.splice(item.comments.findIndex(e => e.id === newComment.id), 1)
+          if (tag.classList.contains("color-border-success-emphasis")) {
+            tag.classList.remove("color-border-success-emphasis");
+          }
+        }
         this.setState({
           subsummaries: items,
           visible: "comments",
@@ -373,14 +401,34 @@ class SubSummaryComponent extends React.Component<
           visible: "comments",
         });
       }
+      tag.classList.add("color-border-success-emphasis");
+    } else {
+      if (this.state.editing) {
+        let modifiedSummary = this.state.subsummaries.findIndex(
+          (e) => e.id === this.state.editing
+        );
+        let items = [...this.state.subsummaries];
+        let item = { ...items[modifiedSummary] };
+        if (item.comments.some(e => e.id === newComment.id)) {
+          item.comments.splice(item.comments.findIndex(e => e.id === newComment.id), 1)
+          this.addedComments.splice(this.addedComments.findIndex(e => e === newComment.id), 1);
+          if (tag.classList.contains("color-border-success-emphasis")) {
+            tag.classList.remove("color-border-success-emphasis");
+          }
+        }
+        this.setState({
+          subsummaries: items,
+          visible: "comments",
+        });
+      }
     }
+
   };
 
   addCommentsToSummary = () => {
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
-    this.addBorderHighlights();
     commentTags.forEach((tag) => {
       if (tag.getAttribute("listener") !== "true") {
         tag.addEventListener("click", () => {
@@ -414,10 +462,25 @@ class SubSummaryComponent extends React.Component<
     })
   }
 
+  editExistingSummary = () => {
+    this.resetBorderHighlights();
+    this.setState({
+      editing: this.state.viewing,
+      viewing: "",
+      visible: "comments"
+    });
+  }
+
   viewExistingSummary = (id: string) => {
     this.setState({
       viewing: id
     });
+    let currentSummary = this.state.subsummaries.findIndex(
+      (e) => e.id === id
+    );
+    let items = [...this.state.subsummaries];
+    let item = { ...items[currentSummary] };
+    this.showSpecificHighlights(item.comments);
   }
 
   loadCommentComponents = () => {
@@ -446,12 +509,16 @@ class SubSummaryComponent extends React.Component<
         }
       });
       if (allSummaries.length) {
-        return <SummaryComponent summaries={allSummaries} viewExistingSummary={this.viewExistingSummary} viewing={this.state.viewing} />;
+        return <SummaryComponent summaries={allSummaries}
+          viewExistingSummary={this.viewExistingSummary}
+          viewing={this.state.viewing}
+          editButtonHandler={this.editExistingSummary}
+        />;
       }
     }
     return (
       <div className="blankslate">
-        <p>Click on the '+' icon to add comments  create a summary.</p>
+        <p>Click on the '+' icon to add comments and create a summary.</p>
       </div>
     );
   };
@@ -488,8 +555,11 @@ class SubSummaryComponent extends React.Component<
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
+
     commentTags.forEach((tag) => {
-      tag.classList.remove("color-border-success");
+      if (tag.classList.contains("color-border-success-emphasis")) {
+        tag.classList.remove("color-border-success-emphasis");
+      }
     });
   };
 
@@ -511,7 +581,7 @@ class SubSummaryComponent extends React.Component<
     });
 
 
-    this.resetBorderHighlights();
+    // this.resetBorderHighlights();
   }
 
   saveSummary = (summary: HTMLFormElement) => {
@@ -534,12 +604,13 @@ class SubSummaryComponent extends React.Component<
       this.addedComments.push(c.id);
     });
 
+
     this.setState({
       subsummaries: items,
       visible: "summary",
       editing: "",
     });
-    this.removeBorderHighlights();
+    this.resetBorderHighlights();
   };
 
   toggleSummaryBoxComponent = (visiblePanel: string) => {
@@ -550,7 +621,6 @@ class SubSummaryComponent extends React.Component<
 
   render() {
     let navbarContent;
-    console.log(this.state.viewing, this.state.editing, this.state.visible);
     if ((this.state.editing || this.state.viewing) && (this.state.visible === "summary")) {
       this.state.subsummaries.forEach(ss => {
         if (ss.id === this.state.viewing) {
@@ -578,7 +648,7 @@ class SubSummaryComponent extends React.Component<
           </div>
         </div>
         <div id="summary-component">{this.loadViewBasedOnState()}</div>
-        <NavigationComponent navbarContent={navbarContent} commentParser={this.commentParser} doneHandler={this.exitNavBar}/>
+        <NavigationComponent navbarContent={navbarContent} commentParser={this.commentParser} doneHandler={this.exitNavBar} />
       </div>
     );
   }
