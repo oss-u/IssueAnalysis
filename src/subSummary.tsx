@@ -64,7 +64,7 @@ class SummaryComponent extends React.Component<
   {}
 > {
   render() {
-    let summaryContent: Array<Element> = [];
+    let summaryContent: Array<JSX.Element> = [];
     this.props.summaries.forEach((s) => {
       if (this.props.viewing && this.props.viewing === s.id) {
         summaryContent.push(
