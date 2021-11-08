@@ -9,6 +9,9 @@ class InfoTypeSummary(BaseModel):
 class MainSummary(BaseModel):
   summaries: List[InfoTypeSummary]
 
+class SummaryInput(BaseModel):
+  text: str
+
 class SummaryText(BaseModel):
   summary: str
 

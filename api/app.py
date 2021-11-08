@@ -43,11 +43,11 @@ def api_home():
   }
 
 @app.post("/api/generate-summary/", response_model=schemas.SummaryText)
-def generate_summary(text: str):
+def generate_summary(summary_input: schemas.SummaryInput):
   """
   Generates summary from text.
   """
-  return schemas.SummaryText(summary=utils.get_summary(text))
+  return schemas.SummaryText(summary=utils.get_summary(summary_input.text))
 
 @app.post("/api/information-type/", response_model=List[schemas.Sentence])
 def predict_information_type(comment: str):
