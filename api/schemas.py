@@ -17,9 +17,7 @@ class SummaryText(BaseModel):
 
 class Sentence(BaseModel):
   sentence: str
-  offset: int
-  limit: int
-  type_id: Optional[int]
+  info_type: Optional[str]
 
 class Author(BaseModel):
   user_id: str

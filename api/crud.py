@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session, joinedload
+from imblearn import pipeline
 
 from api import models, schemas, utils
+from segmentation import Comment
 
 
 def get_main_summary(gh_user: str, repo: str, db: Session):
@@ -85,3 +87,7 @@ def post_comment_summary(gh_user, repo, issue_number, comment_summary_obj: schem
 def delete_comment_summary(comment_summary_id, db: Session):
   db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).delete()
   db.commit()
+
+def predict_info_types(comment: str, model: pipeline.Pipeline):
+  comment = Comment(comment)
+  return comment.get_predictions(model)

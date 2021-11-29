@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, Response
 from sqlalchemy.orm import Session
 from typing import List
+import pickle
+import pathlib
 
 from api.database import SessionLocal
 from api import schemas, crud, models, utils
@@ -21,6 +23,10 @@ app.add_middleware(
   allow_methods=["*"],
   allow_headers=["*"],
 )
+
+curr_dir = pathlib.Path(__file__).parent.resolve()
+with open(pathlib.Path.joinpath(curr_dir, "models/LTS.pkl"), "rb") as f:
+  model = pickle.load(f)
 
 def get_db_session():
   session = SessionLocal()
@@ -50,11 +56,11 @@ def generate_summary(summary_input: schemas.SummaryInput):
   return schemas.SummaryText(summary=utils.get_summary(summary_input.text))
 
 @app.post("/api/information-type/", response_model=List[schemas.Sentence])
-def predict_information_type(comment: str):
+def predict_information_type(comment: schemas.SummaryInput):
   """
   Predict information types in sentences of a comment. Performs sentence splitting as well.
   """
-  pass
+  return crud.predict_info_types(comment.text, model)
 
 @app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=schemas.CommentSummaryWithId)
 def post_comments_summary(gh_user: str, repo: str, issue_number: int, comment_summary: schemas.CommentSummary,
