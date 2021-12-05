@@ -1,1 +1,1 @@
-from segmentation.segment import Artifact, Prediction, Comment
+from segmentation.Sentencizer import Sentencizer

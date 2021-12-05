@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
 
+
 class InfoTypeSummary(BaseModel):
   type_id: int
   content: str
@@ -15,8 +16,12 @@ class SummaryInput(BaseModel):
 class SummaryText(BaseModel):
   summary: str
 
+class Span(BaseModel):
+  start: int
+  end: int
+
 class Sentence(BaseModel):
-  sentence: str
+  span: Span
   info_type: Optional[str]
 
 class Author(BaseModel):

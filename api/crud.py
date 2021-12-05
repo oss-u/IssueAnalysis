@@ -1,16 +1,16 @@
 from sqlalchemy.orm import Session, joinedload
-from imblearn import pipeline
+from typing import List
 
 from api import models, schemas, utils
-from segmentation import Comment
-
+from segmentation import Sentencizer
 
 def get_main_summary(gh_user: str, repo: str, db: Session):
   # hard-coded
   return schemas.MainSummary(
     summaries=[
       schemas.InfoTypeSummary(type_id=1,
-                              content="I would like to propose an additional instance method to the ensemble estimators to fit additional sub estimators."),
+                              content="I would like to propose an additional instance method to the ensemble "
+                                      "estimators to fit additional sub estimators."),
       schemas.InfoTypeSummary(type_id=2, content="There is something similar in adaboost!"),
       schemas.InfoTypeSummary(type_id=6, content="I don't know if fit_extends is the best solution to the problem.")
     ]
@@ -88,6 +88,13 @@ def delete_comment_summary(comment_summary_id, db: Session):
   db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).delete()
   db.commit()
 
-def predict_info_types(comment: str, model: pipeline.Pipeline):
-  comment = Comment(comment)
-  return comment.get_predictions(model)
+def predict_info_types(comment: str, sentencizer: Sentencizer) -> List[schemas.Sentence]:
+  sentence_spans = sentencizer.sentencize(comment)
+  sentences = [comment[span.start:span.end] for span in sentence_spans]
+  predictions = sentencizer.predict(sentences)
+
+  return [
+    # Span workaround for python dataclasses to pydantic models
+    schemas.Sentence(span=schemas.Span(start=span.start, end=span.end), info_type=pred)
+    for span, pred in zip(sentence_spans, predictions)
+  ]

@@ -8,6 +8,7 @@ import pathlib
 
 from api.database import SessionLocal
 from api import schemas, crud, models, utils
+from segmentation import Sentencizer
 
 app = FastAPI()
 
@@ -27,6 +28,8 @@ app.add_middleware(
 curr_dir = pathlib.Path(__file__).parent.resolve()
 with open(pathlib.Path.joinpath(curr_dir, "models/LTS.pkl"), "rb") as f:
   model = pickle.load(f)
+
+sentencizer = Sentencizer(model)
 
 def get_db_session():
   session = SessionLocal()
@@ -60,7 +63,7 @@ def predict_information_type(comment: schemas.SummaryInput):
   """
   Predict information types in sentences of a comment. Performs sentence splitting as well.
   """
-  return crud.predict_info_types(comment.text, model)
+  return crud.predict_info_types(comment.text, sentencizer)
 
 @app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=schemas.CommentSummaryWithId)
 def post_comments_summary(gh_user: str, repo: str, issue_number: int, comment_summary: schemas.CommentSummary,
