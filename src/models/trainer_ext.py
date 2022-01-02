@@ -1,4 +1,6 @@
 import os
+import json
+from collections import defaultdict
 
 import numpy as np
 import torch
@@ -227,9 +229,12 @@ class Trainer(object):
 
         can_path = '%s_step%d.candidate' % (self.args.result_path, step)
         gold_path = '%s_step%d.gold' % (self.args.result_path, step)
+        sentences_path = f"{self.args.result_path}{step}.sentenceids"
+        summary_sentences = defaultdict(list)  # Dict(line_number: List[sentences]), line ~ batch
         with open(can_path, 'w') as save_pred:
             with open(gold_path, 'w') as save_gold:
                 with torch.no_grad():
+                    batch_idx = 0
                     for batch in test_iter:
                         src = batch.src
                         segs = batch.segs
@@ -269,8 +274,10 @@ class Trainer(object):
                                 if (self.args.block_trigram):
                                     if (not _block_tri(candidate, _pred)):
                                         _pred.append(candidate)
+                                        summary_sentences[batch_idx].append(int(j))
                                 else:
                                     _pred.append(candidate)
+                                    summary_sentences[batch_idx].append(int(j))
 
                                 if ((not cal_oracle) and (not self.args.recall_eval) and len(_pred) == 3):
                                     break
@@ -286,6 +293,12 @@ class Trainer(object):
                             save_gold.write(gold[i].strip() + '\n')
                         for i in range(len(pred)):
                             save_pred.write(pred[i].strip() + '\n')
+                        
+                        batch_idx += 1
+
+        with open(sentences_path, 'w') as sentence_id_file:
+            json.dump(summary_sentences, sentence_id_file)
+
         if (step != -1 and self.args.report_rouge):
             rouges = test_rouge(self.args.temp_dir, can_path, gold_path)
             logger.info('Rouges at step %d \n%s' % (step, rouge_results_to_str(rouges)))
