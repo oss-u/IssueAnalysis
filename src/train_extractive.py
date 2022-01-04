@@ -14,11 +14,11 @@ import time
 import torch
 
 import distributed
-from models import data_loader, model_builder
-from models.data_loader import load_dataset
-from models.model_builder import ExtSummarizer
-from models.trainer_ext import build_trainer
-from others.logging import logger, init_logger
+from src.models import data_loader, model_builder
+from src.models.data_loader import load_dataset
+from src.models.model_builder import ExtSummarizer
+from src.models.trainer_ext import build_trainer
+from src.others.logging import logger, init_logger
 
 model_flags = ['hidden_size', 'ff_size', 'heads', 'inter_layers', 'encoder', 'ff_actv', 'use_interval', 'rnn_size']
 
@@ -264,6 +264,5 @@ def test_text_ext(args):
     test_iter = data_loader.load_text(args, args.text_src, args.text_tgt, device)
 
     trainer = build_trainer(args, device_id, model, None)
-    trainer.test(test_iter, -1)
-
-
+    _, sentence_ids = trainer.test(test_iter, -1)
+    return sentence_ids

@@ -5,7 +5,7 @@ import sys
 import time
 from datetime import datetime
 
-from others.logging import logger
+from src.others.logging import logger
 
 
 def build_report_manager(opt):

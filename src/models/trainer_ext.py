@@ -1,15 +1,16 @@
 import os
 import json
 from collections import defaultdict
+from typing import Dict, List, Tuple
 
 import numpy as np
 import torch
 from tensorboardX import SummaryWriter
 
 import distributed
-from models.reporter_ext import ReportMgr, Statistics
-from others.logging import logger
-from others.utils import test_rouge, rouge_results_to_str
+from src.models.reporter_ext import ReportMgr, Statistics
+from src.others.logging import logger
+from src.others.utils import test_rouge, rouge_results_to_str
 
 
 def _tally_parameters(model):
@@ -199,11 +200,12 @@ class Trainer(object):
             self._report_step(0, step, valid_stats=stats)
             return stats
 
-    def test(self, test_iter, step, cal_lead=False, cal_oracle=False):
-        """ Validate model.
+    def test(self, test_iter, step, cal_lead=False, cal_oracle=False) -> Tuple[Dict[str, List[int]], Statistics]:
+        """ Validate model. Modification: Does not print to files. Returns sentence IDs.
             valid_iter: validate data iterator
         Returns:
             :obj:`nmt.Statistics`: validation loss statistics
+            :obj:Dict[str, List[int]]: Sentence IDs
         """
 
         # Set model in validating mode.
@@ -231,80 +233,86 @@ class Trainer(object):
         gold_path = '%s_step%d.gold' % (self.args.result_path, step)
         sentences_path = f"{self.args.result_path}{step}.sentenceids"
         summary_sentences = defaultdict(list)  # Dict(line_number: List[sentences]), line ~ batch
-        with open(can_path, 'w') as save_pred:
-            with open(gold_path, 'w') as save_gold:
-                with torch.no_grad():
-                    batch_idx = 0
-                    for batch in test_iter:
-                        src = batch.src
-                        segs = batch.segs
-                        clss = batch.clss
-                        mask = batch.mask_src
-                        mask_cls = batch.mask_cls
-                        gold = []
-                        pred = []
-                        if (cal_lead):
-                            selected_ids = [list(range(batch.clss.size(1)))] * batch.batch_size
-                        elif (cal_oracle):
-                            labels = batch.src_sent_labels
-                            selected_ids = [[j for j in range(batch.clss.size(1)) if labels[i][j] == 1] for i in
-                                            range(batch.batch_size)]
+        
+        # with open(can_path, 'w') as save_pred:
+        #     with open(gold_path, 'w') as save_gold:
+        with torch.no_grad():
+            batch_idx = 0
+            for batch in test_iter:
+                src = batch.src
+                segs = batch.segs
+                clss = batch.clss
+                mask = batch.mask_src
+                mask_cls = batch.mask_cls
+                gold = []
+                pred = []
+                if (cal_lead):
+                    selected_ids = [list(range(batch.clss.size(1)))] * batch.batch_size
+                elif (cal_oracle):
+                    labels = batch.src_sent_labels
+                    selected_ids = [[j for j in range(batch.clss.size(1)) if labels[i][j] == 1] for i in
+                                    range(batch.batch_size)]
+                else:
+                    sent_scores, mask = self.model(src, segs, clss, mask, mask_cls)
+
+                    sent_scores = sent_scores + mask.float()
+                    sent_scores = sent_scores.cpu().data.numpy()
+                    selected_ids = np.argsort(-sent_scores, 1)
+
+                    if (hasattr(batch, 'src_sent_labels')):
+                        labels = batch.src_sent_labels
+                        loss = self.loss(sent_scores, labels.float())
+                        loss = (loss * mask.float()).sum()
+                        batch_stats = Statistics(float(loss.cpu().data.numpy()), len(labels))
+                        stats.update(batch_stats)
+
+                for i, idx in enumerate(selected_ids):
+                    _pred = []
+                    if (len(batch.src_str[i]) == 0):
+                        continue
+                    for j in selected_ids[i][:len(batch.src_str[i])]:
+                        if (j >= len(batch.src_str[i])):
+                            continue
+                        candidate = batch.src_str[i][j].strip()
+                        if (self.args.block_trigram):
+                            if (not _block_tri(candidate, _pred)):
+                                _pred.append(candidate)
+                                summary_sentences[batch_idx].append(int(j))
                         else:
-                            sent_scores, mask = self.model(src, segs, clss, mask, mask_cls)
+                            _pred.append(candidate)
+                            summary_sentences[batch_idx].append(int(j))
 
-                            sent_scores = sent_scores + mask.float()
-                            sent_scores = sent_scores.cpu().data.numpy()
-                            selected_ids = np.argsort(-sent_scores, 1)
+                        if ((not cal_oracle) and (not self.args.recall_eval) and len(_pred) == 3):
+                            break
 
-                            if (hasattr(batch, 'src_sent_labels')):
-                                labels = batch.src_sent_labels
-                                loss = self.loss(sent_scores, labels.float())
-                                loss = (loss * mask.float()).sum()
-                                batch_stats = Statistics(float(loss.cpu().data.numpy()), len(labels))
-                                stats.update(batch_stats)
+                    _pred = '<q>'.join(_pred)
+                    if (self.args.recall_eval):
+                        _pred = ' '.join(_pred.split()[:len(batch.tgt_str[i].split())])
 
-                        for i, idx in enumerate(selected_ids):
-                            _pred = []
-                            if (len(batch.src_str[i]) == 0):
-                                continue
-                            for j in selected_ids[i][:len(batch.src_str[i])]:
-                                if (j >= len(batch.src_str[i])):
-                                    continue
-                                candidate = batch.src_str[i][j].strip()
-                                if (self.args.block_trigram):
-                                    if (not _block_tri(candidate, _pred)):
-                                        _pred.append(candidate)
-                                        summary_sentences[batch_idx].append(int(j))
-                                else:
-                                    _pred.append(candidate)
-                                    summary_sentences[batch_idx].append(int(j))
+                    pred.append(_pred)
+                    gold.append(batch.tgt_str[i])
 
-                                if ((not cal_oracle) and (not self.args.recall_eval) and len(_pred) == 3):
-                                    break
+                # TODO: Disable gold output
+                # for i in range(len(gold)):
+                #     save_gold.write(gold[i].strip() + '\n')
+                
+                # TODO: No need to write this output as the output can be constructed
+                #       using sentence ids
+                # for i in range(len(pred)):
+                #     save_pred.write(pred[i].strip() + '\n')
+                
+                batch_idx += 1
 
-                            _pred = '<q>'.join(_pred)
-                            if (self.args.recall_eval):
-                                _pred = ' '.join(_pred.split()[:len(batch.tgt_str[i].split())])
-
-                            pred.append(_pred)
-                            gold.append(batch.tgt_str[i])
-
-                        for i in range(len(gold)):
-                            save_gold.write(gold[i].strip() + '\n')
-                        for i in range(len(pred)):
-                            save_pred.write(pred[i].strip() + '\n')
-                        
-                        batch_idx += 1
-
-        with open(sentences_path, 'w') as sentence_id_file:
-            json.dump(summary_sentences, sentence_id_file)
+        # TODO: Return sentence ids instead of writing
+        # with open(sentences_path, 'w') as sentence_id_file:
+        #     json.dump(summary_sentences, sentence_id_file)
 
         if (step != -1 and self.args.report_rouge):
             rouges = test_rouge(self.args.temp_dir, can_path, gold_path)
             logger.info('Rouges at step %d \n%s' % (step, rouge_results_to_str(rouges)))
         self._report_step(0, step, valid_stats=stats)
 
-        return stats
+        return summary_sentences, stats
 
     def _gradient_accumulation(self, true_batchs, normalization, total_stats,
                                report_stats):
