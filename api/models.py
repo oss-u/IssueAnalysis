@@ -78,3 +78,15 @@ class CommentSummaryXComment(Base):
 #                                   sa.Column('commentSummaryId', sa.Integer, sa.ForeignKey(CommentSummary.id)),
 #                                   sa.Column('commentId', sa.String, sa.ForeignKey(Comment.id))
 #                                   )
+
+
+class CommentInformationType(Base):
+  __tablename__ = 'CommentInformationType'
+  id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+  comment_id = sa.Column(sa.String)
+  issue = sa.Column(sa.String, index=True, nullable=False)
+  datetime = sa.Column(sa.DateTime)
+  span_start = sa.Column(sa.Integer, nullable=False)
+  span_end = sa.Column(sa.Integer, nullable=False)
+  info_type = sa.Column(sa.String, nullable=False)
+  text = sa.Column(sa.String, nullable=False)

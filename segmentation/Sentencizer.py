@@ -38,8 +38,9 @@ class Sentencizer:
     text = re.sub(r"i\.e\.", "that is,", text)
     # text = re.sub(r"\n([A-Z])"," . \g<1>",text)
     
-    # Replace new lines, multiple spaces, and some weird end characters with a single space, so if there is a period before the new line, the sentences will be split, if not it is a run on sentence across multiple lines
-    # text = re.sub(r"\n"," ",text)
+    # Replace new lines, multiple spaces, and some weird end characters with a single space, so if there is a period
+    # before the new line, the sentences will be split, if not it is a run on sentence across multiple lines text =
+    # re.sub(r"\n"," ",text)
     text = re.sub(r"[ \t]+", " ", text)
     
     text = re.sub(r"\xa0", " ", text)

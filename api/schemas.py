@@ -22,7 +22,13 @@ class Span(BaseModel):
 
 class Sentence(BaseModel):
   span: Span
-  info_type: Optional[str]
+  info_type: str
+
+class InformationTypeIdentifiedComment(BaseModel):
+  comment: str
+  sentences: List[Sentence]
+  datetime: Optional[datetime]    # when the comment was made
+  comment_id: Optional[str]
 
 class Author(BaseModel):
   user_id: str

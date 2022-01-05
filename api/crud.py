@@ -98,3 +98,21 @@ def predict_info_types(comment: str, sentencizer: Sentencizer) -> List[schemas.S
     schemas.Sentence(span=schemas.Span(start=span.start, end=span.end), info_type=pred)
     for span, pred in zip(sentence_spans, predictions)
   ]
+
+def save_info_types(gh_user: str, repo: str, issue_number: int, comment: schemas.InformationTypeIdentifiedComment,
+                    db: Session):
+  issue_id = utils.construct_issue_id(gh_user, repo, issue_number)
+  comments_with_predicted_info_types = [models.CommentInformationType(
+    issue=issue_id,
+    span_start=sent.span.start,
+    span_end=sent.span.end,
+    text=comment.comment[sent.span.start:sent.span.end],
+    info_type=sent.info_type,
+    datetime=comment.datetime if comment.datetime else None,
+    comment_id=comment.comment_id if comment.comment_id else None
+  ) for sent in comment.sentences]
+  db.bulk_save_objects(comments_with_predicted_info_types)
+  db.commit()
+  
+  return comment
+

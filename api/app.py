@@ -26,7 +26,7 @@ app.add_middleware(
 )
 
 curr_dir = pathlib.Path(__file__).parent.resolve()
-with open(pathlib.Path.joinpath(curr_dir, "models/LTS.pkl"), "rb") as f:
+with open(pathlib.Path.joinpath(curr_dir, "ml_models/LTS.pkl"), "rb") as f:
   model = pickle.load(f)
 
 sentencizer = Sentencizer(model)
@@ -58,12 +58,21 @@ def generate_summary(summary_input: schemas.SummaryInput):
   """
   return schemas.SummaryText(summary=utils.get_summary(summary_input.text))
 
-@app.post("/api/information-type/", response_model=List[schemas.Sentence])
+@app.post("/api/predict-information-type/", response_model=List[schemas.Sentence])
 def predict_information_type(comment: schemas.SummaryInput):
   """
   Predict information types in sentences of a comment. Performs sentence splitting as well.
   """
   return crud.predict_info_types(comment.text, sentencizer)
+
+@app.post("/api/{gh_user}/{repo}/{issue_number}/save-information-type/",
+          response_model=schemas.InformationTypeIdentifiedComment)
+def save_information_type(gh_user: str, repo: str, issue_number: int, comment: schemas.InformationTypeIdentifiedComment,
+                          db: Session = Depends(get_db_session)):
+  """
+  Saves the predicted and edited information types of a comment. Assumes sentence split.
+  """
+  return crud.save_info_types(gh_user, repo, issue_number, comment, db)
 
 @app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=schemas.CommentSummaryWithId)
 def post_comments_summary(gh_user: str, repo: str, issue_number: int, comment_summary: schemas.CommentSummary,
