@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./style.scss";
-import SummariseButton from "./commentButtons";
 import { informationTypeMap } from "./utils/maps";
 import CommentButtons from "./commentButtons";
+import InfotypeMarker from "./infotypeMarker";
 
 const newComment = () => {
   const discussionBucket = document.querySelector("#discussion_bucket div");
@@ -42,15 +42,41 @@ const newComment = () => {
   commentButtonContainer.hidden = true;
 
 
+  let sidebar = document.getElementById("partial-discussion-sidebar");
+  console.log(sidebar);
+
+  // let summaryPanel = document.createElement("div");
+  // summaryPanel.className = "Layout-sidebar";
+  sidebar.classList.add("summary-container");
+
+  // let subSummaryComponent = document.createElement("div");
+
+
+  // comment-body markdown-body js-preview-body
+
+  const previewContainer = tabContainer.getElementsByClassName("comment-body markdown-body js-preview-body")[0];
+  console.log(previewContainer);
+
+  let infotypeMarkerContainer = document.createElement("div");
+  sidebar.appendChild(infotypeMarkerContainer);
+  infotypeMarkerContainer.classList.add("summary-sticky");
+  // infotypeMarkerContainer.setAttribute("role", "tabpanel");
+  // infotypeMarkerContainer.setAttribute("aria-labelledby", "summarise-tab");
+  // infotypeMarkerContainer.hidden = true;
+
   ReactDOM.render(<CommentButtons />, commentButtonContainer);
+  ReactDOM.render(<InfotypeMarker />, infotypeMarkerContainer);
+
+
 
   tabContainer.appendChild(commentButtonContainer);
-  
+
   summariseButton.onclick = () => {
     commentButtonContainer.hidden = false;
   };
 
   tabNav.appendChild(summariseButton);
+  // tabNav.insertBefore(summariseButton, tabNav.lastElementChild);
 }
 
 const initNewCommentComponent = () => {
