@@ -1,5 +1,5 @@
 import initTopLevelSummaryComponent from "./topLevelSummary";
-import initNewCommentComponent from "./newComment";
+import initNewCommentComponent from "./commentPanel";
 import initSummaryPanelComponent from "./summaryPanel";
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -13,6 +13,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 function init() {
   initTopLevelSummaryComponent();
   initSummaryPanelComponent();
+  initNewCommentComponent();
 }
 
 init();
