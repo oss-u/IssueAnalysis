@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./style.scss";
-import { informationTypeMap } from "./utils/maps";
-import CommentButtons from "./commentButtons";
-import InfotypeMarker from "./infotypeMarker";
+import "../style.scss";
+import { informationTypeMap } from "../utils/maps";
+import CommentButtons from "../components/commentButtons";
+import InfotypeMarker from "../components/infotypeMarker";
 
 const newComment = () => {
   const discussionBucket = document.querySelector("#discussion_bucket div");

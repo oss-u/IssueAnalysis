@@ -1,11 +1,11 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import "./style.scss";
+import "../style.scss";
 
-import InformationTypeTagger from "./tagComment";
-import SubSummaryComponent from "./subSummary";
-import NavigationComponent from "./navigationPanel";
-import { informationTypeMap } from "./utils/maps";
+import InformationTypeTagger from "../components/tagComment";
+import SubSummaryComponent from "../components/subSummary";
+import NavigationComponent from "../components/navigationPanel";
+import { informationTypeMap } from "../utils/maps";
 
 const createSummaryPanel = () => {
   const discussionBucket = document.getElementById("discussion_bucket");

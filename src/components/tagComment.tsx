@@ -1,6 +1,6 @@
 import React from "react";
 import "./style.scss";
-import { informationTypeMap } from "./utils/maps";
+import { informationTypeMap } from "../utils/maps";
 
 class InformationTypeTagger extends React.Component<{}, {}> {
   render() {

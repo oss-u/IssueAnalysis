@@ -1,6 +1,6 @@
 import React from "react";
 import axios from 'axios';
-import "./style.scss";
+import "../style.scss";
 
 function guidGenerator() {
   var S4 = function () {

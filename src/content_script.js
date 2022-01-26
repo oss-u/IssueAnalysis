@@ -1,6 +1,6 @@
-import initTopLevelSummaryComponent from "./topLevelSummary";
-import initNewCommentComponent from "./commentPanel";
-import initSummaryPanelComponent from "./summaryPanel";
+import initTopLevelSummaryComponent from "./content/topLevelSummary";
+import initNewCommentComponent from "./content/commentPanel";
+import initSummaryPanelComponent from "./content/summaryPanel";
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   // listen for messages sent from background.js
