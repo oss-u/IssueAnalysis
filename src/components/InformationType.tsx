@@ -7,14 +7,15 @@ interface InformationTypeProps {
     tooltip: string;
     editing: boolean;
     onClick: () => void;
+    onEdit: (content: string) => void;
 }
 
 export default function InformationType(props: InformationTypeProps): JSX.Element {
-    const {title, content, tooltip, editing, onClick} = props
+    const {title, content, tooltip, editing, onClick, onEdit} = props
 
     const renderContent = (content: string, editing: boolean) => {
         if (editing) {
-            return <textarea className="form-control width-full">{content}</textarea>
+            return <textarea className="form-control width-full" onChange={(e) => onEdit(e.target.value)}>{content}</textarea>
         }
         return <p>{content}</p>
     }

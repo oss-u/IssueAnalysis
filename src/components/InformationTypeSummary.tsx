@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import React from "react";
+import React, { useEffect } from "react";
 import "../style.scss";
 import { informationTypeMap } from "../utils/maps";
 import InformationType from "./InformationType";
@@ -11,20 +11,14 @@ interface SummaryType{
 
 export default function InformationTypeSummary(): JSX.Element{
   const [informationTypeSummaries, setInformationTypeSummaries] = React.useState<SummaryType[]>([]);
+  // Stores the temporary edited state of the summaries before save
+  const [editedSummaries, setEditedSummaries] = React.useState<SummaryType[]>(informationTypeSummaries);
   const [visible, setVisible] = React.useState<boolean>(true);
   const [editing, setEditing] = React.useState<boolean>(false);
 
-  function toggleVisibility(objId: string, btnId: string) {
-    let btn = document.getElementById(btnId);
-    let el = document.getElementById(objId);
-    if (btn.innerText === "Hide") {
-      btn.innerText = "Show";
-      el.style.display = "none";
-    } else if (btn.innerText === "Show") {
-      btn.innerText = "Hide";
-      el.style.display = "block";
-    }
-  }
+  useEffect(() => {
+    setEditedSummaries(informationTypeSummaries)
+  }, [informationTypeSummaries]);
 
   const initializeTopLevelSummary = () => {
     // API specifications - to get the summary
@@ -44,8 +38,28 @@ export default function InformationTypeSummary(): JSX.Element{
       },
     ];
     setInformationTypeSummaries(summaries);
-
   }
+
+  const onEditSummary = (idNum: number) => {
+    return (content: string) => {
+      const newSummaries = [...editedSummaries]
+      const editedSummary = {
+        typeId: idNum,
+        content
+      }
+      const editedIndex = newSummaries.findIndex((sumType) => sumType.typeId === idNum)
+      newSummaries[editedIndex] = editedSummary;
+      console.log(newSummaries);
+      setEditedSummaries(newSummaries);
+    }
+  }
+
+  const onSave = () => {
+    setInformationTypeSummaries(editedSummaries);
+    setEditing(false);
+  }
+
+
     return (
       <div>
         <div id="topLevelSummary" className="Box">
@@ -86,6 +100,7 @@ export default function InformationTypeSummary(): JSX.Element{
               content={infoType.content}
               editing={editing}
               onClick={()=>{setEditing(true)}}
+              onEdit={onEditSummary(infoType.typeId)}
             />)}
           </div>}
         </div>
@@ -94,7 +109,7 @@ export default function InformationTypeSummary(): JSX.Element{
             <div className="btn mr-2" onClick={() => setEditing(false)}>
               Back
             </div>
-            <div className="btn btn-primary">
+            <div className="btn btn-primary" onClick={onSave}>
               Save
             </div>
           </div>)}
