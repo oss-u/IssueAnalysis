@@ -1,75 +1,26 @@
 import ReactDOM from "react-dom";
-import React from "react";
+import React, { useEffect } from "react";
 import "../style.scss";
 import { informationTypeMap } from "../utils/maps";
+import InformationType from "./InformationType";
 
-interface IInformationType {
-  typeId: number;
-  title: string;
-  tooltip: string;
-  content: string;
+interface SummaryType{
+  typeId: number,
+  content: string
 }
 
-class InformationType
-  extends React.Component<{ typeId: number; content: string }, {}>
-  implements IInformationType
-{
-  typeId: number;
-  title: string;
-  tooltip: string;
-  content: string;
+export default function InformationTypeSummary(): JSX.Element{
+  const [informationTypeSummaries, setInformationTypeSummaries] = React.useState<SummaryType[]>([]);
+  // Stores the temporary edited state of the summaries before save
+  const [editedSummaries, setEditedSummaries] = React.useState<SummaryType[]>(informationTypeSummaries);
+  const [visible, setVisible] = React.useState<boolean>(true);
+  const [editing, setEditing] = React.useState<boolean>(false);
 
-  constructor(props: IInformationType) {
-    super(props);
-    this.typeId = props.typeId;
-    this.title = informationTypeMap.get(this.typeId).title;
-    this.tooltip = informationTypeMap.get(this.typeId).tooltip;
-    this.content = props.content;
-  }
+  useEffect(() => {
+    setEditedSummaries(informationTypeSummaries)
+  }, [informationTypeSummaries]);
 
-  render() {
-    return (
-      <div className="Box-body">
-        <div className="tooltipped tooltipped-se" aria-label={this.tooltip}>
-          <h4>{this.title}</h4>
-          
-        </div>
-        <p>{this.content}</p>
-      </div>
-    );
-  }
-}
-
-class InformationTypeSummary extends React.Component<
-  {},
-  { informationTypeSummaries: { typeId: number; content: string }[] }
-> {
-  constructor(props) {
-    super(props);
-    // this.updateTopLevelSummary = this.updateTopLevelSummary.bind(this);
-    this.state = {
-      informationTypeSummaries: [],
-    };
-  }
-
-  toggleVisibility(objId: string, btnId: string) {
-    let btn = document.getElementById(btnId);
-    let el = document.getElementById(objId);
-    if (btn.innerText === "Hide") {
-      btn.innerText = "Show";
-      el.style.display = "none";
-    } else if (btn.innerText === "Show") {
-      btn.innerText = "Hide";
-      el.style.display = "block";
-    }
-  }
-
-  enableActionOnBox(objId: string) {
-    let el = document.getElementById(objId);
-    el.setAttribute("aria-disabled", "false");
-  }
-
-  updateTopLevelSummary = () => {
+  const initializeTopLevelSummary = () => {
     // API specifications - to get the summary
     // Should return an array. Array contains
     // tuples with summary and the information type ID.
@@ -86,66 +37,82 @@ class InformationTypeSummary extends React.Component<
           "I don't know if fit_extends is the best solution to the problem.",
       },
     ];
-    this.setState({
-      informationTypeSummaries: summaries,
-    });
-
-    this.enableActionOnBox('minimiseButton');
+    setInformationTypeSummaries(summaries);
   }
 
-  render() {
-    let infoTypes = [];
-    this.state.informationTypeSummaries.forEach(
-      (infoType: { typeId: number; content: string }) => {
-        infoTypes.push(
-          <InformationType
-            typeId={infoType.typeId}
-            content={infoType.content}
-          />
-        );
+  const onEditSummary = (idNum: number) => {
+    return (content: string) => {
+      const newSummaries = [...editedSummaries]
+      const editedSummary = {
+        typeId: idNum,
+        content
       }
-    );
-    return (
-      <div id="topLevelSummary" className="Box">
-        <div className="Box-header">
-          <div className="clearfix">
-            <div className="col-6 float-left px-1">
-              <h2 className="Box-title p-1">Information Type Summaries</h2>
-            </div>
+      const editedIndex = newSummaries.findIndex((sumType) => sumType.typeId === idNum)
+      newSummaries[editedIndex] = editedSummary;
+      console.log(newSummaries);
+      setEditedSummaries(newSummaries);
+    }
+  }
 
-            <div className="col-3 float-right">
-              <div className="clearfix">
-                <div className="col-6 float-right px-1 d-inline-flex">
-                  <button
-                    id="minimiseButton"
-                    className="btn btn-sm"
-                    type="button"
-                    aria-disabled="true"
-                    onClick={() => {
-                      this.toggleVisibility(
-                        "infoTypesSummaryDiv",
-                        "minimiseButton"
-                      );
-                    }}
-                  >
-                    Hide
-                  </button>
-                  <button
-                    className="btn btn-sm btn-primary ml-2"
-                    type="button"
-                    onClick={this.updateTopLevelSummary}
-                  >
-                    Generate
-                  </button>
+  const onSave = () => {
+    setInformationTypeSummaries(editedSummaries);
+    setEditing(false);
+  }
+
+
+    return (
+      <div>
+        <div id="topLevelSummary" className="Box">
+          <div className="Box-header">
+            <div className="clearfix">
+              <div className="col-6 float-left px-1">
+                <h2 className="Box-title p-1">Information Type Summaries</h2>
+              </div>
+              <div className="col-3 float-right">
+                <div className="clearfix">
+                  <div className="col-6 float-right px-1 d-inline-flex">
+                    <button
+                      id="minimiseButton"
+                      className="btn btn-sm"
+                      type="button"
+                      aria-disabled={informationTypeSummaries.length === 0 ? "true" : "false"}
+                      onClick={() => setVisible(!visible)}
+                    >
+                      {visible ? "Hide" : "Show"}
+                    </button>
+                    <button
+                      className="btn btn-sm btn-primary ml-2"
+                      type="button"
+                      onClick={initializeTopLevelSummary}
+                    >
+                      Generate
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          {visible && <div id="infoTypesSummaryDiv">
+            {informationTypeSummaries.map((infoType) => 
+              <InformationType
+              title={informationTypeMap.get(infoType.typeId).title}
+              tooltip={informationTypeMap.get(infoType.typeId).tooltip}
+              content={infoType.content}
+              editing={editing}
+              onClick={()=>{setEditing(true)}}
+              onEdit={onEditSummary(infoType.typeId)}
+            />)}
+          </div>}
         </div>
-        <div id="infoTypesSummaryDiv">{infoTypes}</div>
+        {(visible && editing) && (
+          <div id="editButtons" className="d-flex flex-justify-end mt-2">
+            <div className="btn mr-2" onClick={() => setEditing(false)}>
+              Back
+            </div>
+            <div className="btn btn-primary" onClick={onSave}>
+              Save
+            </div>
+          </div>)}
       </div>
     );
   }
-}
-
-export default InformationTypeSummary
