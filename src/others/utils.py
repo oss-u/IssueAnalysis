@@ -3,7 +3,7 @@ import re
 import shutil
 import time
 
-from src.others import pyrouge
+from others import pyrouge
 
 REMAP = {"-lrb-": "(", "-rrb-": ")", "-lcb-": "{", "-rcb-": "}",
          "-lsb-": "[", "-rsb-": "]", "``": '"', "''": '"'}

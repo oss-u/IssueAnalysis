@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass
 import uuid
 
-from src.train_extractive import test_text_ext
+from train_extractive import test_text_ext
 
 """
 Main entry point to the model through main function.
@@ -145,6 +145,7 @@ class Args:
   temp_dir: str = "temp"
   text_tgt: str = ''
   result_path: str = "test_results"
+  model_path: str = "../models/"
   
   batch_size: int = 140
   test_batch_size: int = 200
@@ -214,12 +215,14 @@ class Args:
   train_from: str = ''
   report_rouge: bool = True
   block_trigram: bool = True
+  
+  world_size: int = 1
 
 
 def summarise(sentences: List[str]) -> List[int]:
   text = ' [CLS] [SEP] '.join(sentences)
   args = Args(
-    test_from="bert_data/bertext_cnndm_transformer.pt",
+    test_from="src/bert_data/bertext_cnndm_transformer.pt",
     text_src=text,
     report_rouge=False,
     use_bert_emb=True,
@@ -228,8 +231,8 @@ def summarise(sentences: List[str]) -> List[int]:
     load_from_extractive="EXT_CKPT"
   )
   
-  sentence_ids = test_text_ext(args)
-  return sentence_ids
+  sentence_ids = test_text_ext(args)    # returns defaultdict with only 1 key (0)
+  return sentence_ids[0]
   
 
 

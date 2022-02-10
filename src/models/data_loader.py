@@ -6,7 +6,7 @@ import random
 import torch
 from tqdm import tqdm
 
-from src.others.logging import logger
+from others.logging import logger
 
 
 
@@ -292,12 +292,12 @@ class DataIterator(object):
 
 # def load_text(args, source_fp, target_fp, device):
 def load_text(args, source, target_fp, device):
-    from src.others.tokenization import BertTokenizer
+    from others.tokenization import BertTokenizer
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
     sep_vid = tokenizer.vocab['[SEP]']
     cls_vid = tokenizer.vocab['[CLS]']
     # n_lines = len(open(source_fp).read().split('\n'))
-    n_lines = source.split('\n')
+    n_lines = len(source.split('\n'))
 
     def _process_src(raw):
         raw = raw.strip().lower()
@@ -327,9 +327,11 @@ def load_text(args, source, target_fp, device):
         return src, mask_src, segments_ids, clss, mask_cls
 
     # TODO: Take string input
+    # TODO: Currently only runs when target_fp is not provided
     if(target_fp==''):
         # with open(source_fp) as source:
-            for x in tqdm(source, total=n_lines):
+        #     for x in tqdm(source, total=n_lines):
+                x = source
                 src, mask_src, segments_ids, clss, mask_cls = _process_src(x)
                 segs = torch.tensor(segments_ids)[None, :].to(device)
                 batch = Batch()
