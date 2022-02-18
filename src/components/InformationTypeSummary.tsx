@@ -2,11 +2,20 @@ import ReactDOM from "react-dom";
 import React, { useEffect } from "react";
 import "../style.scss";
 import { informationTypeMap } from "../utils/maps";
-import InformationType from "./InformationType";
+import {default as InformationTypeComponent} from "./InformationType";
+import { getCurrentUserName } from "../utils";
+import TopLevelNavBox from "./TopLevelNavBox";
+import { InformationType } from "../types";
 
 interface SummaryType{
   typeId: number,
   content: string
+}
+
+const mapInfoIdToType: {[id: number]: InformationType} = {
+  1: "expectedBehaviour",
+  2: "motivation",
+  6: "solutionDiscussion",
 }
 
 export default function InformationTypeSummary(): JSX.Element{
@@ -15,6 +24,8 @@ export default function InformationTypeSummary(): JSX.Element{
   const [editedSummaries, setEditedSummaries] = React.useState<SummaryType[]>(informationTypeSummaries);
   const [visible, setVisible] = React.useState<boolean>(true);
   const [editing, setEditing] = React.useState<boolean>(false);
+  const [authors, setAuthors] = React.useState<string[]>([]);
+  const [initNavInfoType, setInitNavInfoType] = React.useState<InformationType>("none");
 
   useEffect(() => {
     setEditedSummaries(informationTypeSummaries)
@@ -49,19 +60,27 @@ export default function InformationTypeSummary(): JSX.Element{
       }
       const editedIndex = newSummaries.findIndex((sumType) => sumType.typeId === idNum)
       newSummaries[editedIndex] = editedSummary;
-      console.log(newSummaries);
       setEditedSummaries(newSummaries);
     }
   }
 
   const onSave = () => {
     setInformationTypeSummaries(editedSummaries);
+    const newAuthors = new Set(authors)
+    newAuthors.add(getCurrentUserName())
+    setAuthors(Array.from(newAuthors.values()));
     setEditing(false);
+  }
+
+  const onClickInfoType = (infoTypeId: number) => {
+    const infoType = mapInfoIdToType[infoTypeId];
+    setInitNavInfoType(infoType);
   }
 
 
     return (
       <div>
+        {initNavInfoType !== "none" && <TopLevelNavBox initInfoType={initNavInfoType} onClose={() => setInitNavInfoType("none")}/>}
         <div id="topLevelSummary" className="Box">
           <div className="Box-header">
             <div className="clearfix">
@@ -94,24 +113,38 @@ export default function InformationTypeSummary(): JSX.Element{
           </div>
           {visible && <div id="infoTypesSummaryDiv">
             {informationTypeSummaries.map((infoType) => 
-              <InformationType
+              <InformationTypeComponent
               title={informationTypeMap.get(infoType.typeId).title}
               tooltip={informationTypeMap.get(infoType.typeId).tooltip}
               content={infoType.content}
               editing={editing}
-              onClick={()=>{setEditing(true)}}
+              onClick={() => onClickInfoType(infoType.typeId)}
               onEdit={onEditSummary(infoType.typeId)}
             />)}
           </div>}
         </div>
-        {(visible && editing) && (
+        {visible && (
           <div id="editButtons" className="d-flex flex-justify-end mt-2">
-            <div className="btn mr-2" onClick={() => setEditing(false)}>
-              Back
-            </div>
-            <div className="btn btn-primary" onClick={onSave}>
-              Save
-            </div>
+              {editing && (
+                <>
+                <div className="btn mr-2" onClick={() => setEditing(false)}>
+                  Back
+                </div>
+                <div className="btn btn-primary" onClick={onSave}>
+                  Save
+                </div>
+                </> )}
+              {
+                !editing && (
+                  <>
+                    {authors.length > 0 && (
+                      <div className="lh-condensed text-semibold f6 mr-3">
+                        Summary by {authors.join(", ")}
+                      </div>)}
+                    <div className="btn" onClick={() => setEditing(true)}>
+                      Edit
+                    </div>
+                  </>)}
           </div>)}
       </div>
     );

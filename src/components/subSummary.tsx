@@ -1,64 +1,7 @@
 import React from "react";
-import axios from 'axios';
 import "../style.scss";
-
-function guidGenerator() {
-  var S4 = function () {
-    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-  };
-  return (
-    S4() +
-    S4() +
-    "-" +
-    S4() +
-    "-" +
-    S4() +
-    "-" +
-    S4() +
-    "-" +
-    S4() +
-    S4() +
-    S4()
-  );
-}
-
-class Author {
-  uname: string;
-  createdOn: string;
-  profile: string;
-
-  constructor(u: string, c: string, p: string) {
-    this.uname = u;
-    this.createdOn = c;
-    this.profile = p;
-  }
-}
-
-class IssueComment {
-  body: string;
-  id: string;
-  author: Author;
-  bodyText: string;
-
-  constructor(id: string, b: string, bt: string, a: Author) {
-    this.id = id;
-    this.body = b;
-    this.author = a;
-    this.bodyText = bt;
-  }
-}
-
-class Summary {
-  id: string;
-  summary: string;
-  comments: Array<IssueComment>;
-
-  constructor(summary, comments) {
-    this.id = guidGenerator();
-    this.summary = summary;
-    this.comments = [comments];
-  }
-}
+import { IssueComment, Summary } from "../types";
+import { commentParser } from "../utils/comment_parser";
 
 class SummaryComponent extends React.Component<
   { summaries: any, viewExistingSummary, viewing: string, editButtonHandler },
@@ -211,7 +154,7 @@ class SummaryInputComponent extends React.Component<
               </div>
             </div>
             <div className="Box-row p-1 ">
-              <p className="markdown-body">{e.bodyText.slice(0, 50)}...</p>
+              <p className="markdown-body">{e.text.slice(0, 50)}...</p>
             </div>
           </div>
         </div>
@@ -289,7 +232,7 @@ class CommentComponent extends React.Component<
               </div>
             </div>
             <div className="Box-row p-1 ">
-              <p className="markdown-body">{e.bodyText.slice(0, 50)}...</p>
+              <p className="markdown-body">{e.text.slice(0, 50)}...</p>
             </div>
           </div>
         </div>
@@ -379,7 +322,7 @@ class SubSummaryComponent extends React.Component<
   }
 
   addCommentsOnClick = (tag: Element) => {
-    let newComment = this.commentParser(tag);
+    let newComment = commentParser(tag);
     if (!this.addedComments.includes(newComment.id)) {
       if (this.state.editing) {
         let modifiedSummary = this.state.subsummaries.findIndex(
@@ -458,28 +401,11 @@ class SubSummaryComponent extends React.Component<
     let concatComments = '';
     // merge all the summaries in concatComments
     for (let i = 0; i < item.comments.length; i++) {
-      concatComments = concatComments.concat(item.comments[i].bodyText, ' ');
+      concatComments = concatComments.concat(item.comments[i].text, ' ');
     }
     concatComments = concatComments.trim();
     return concatComments;
   }
-
-  commentParser = (comment: Element) => {
-    const a_profile: string = comment.querySelector("img.avatar")["src"];
-    const a_uname: string = comment.querySelector("a.author").textContent;
-    const a_createdOn: string = comment.querySelector(
-      "a.js-timestamp relative-time"
-    )["title"];
-    const c_body = Array.from(comment.querySelectorAll("td.comment-body p"))
-      .map((elem) => elem.innerHTML)
-      .join(" ");
-    const c_bodytext = Array.from(comment.querySelectorAll("td.comment-body p"))
-      .map((elem) => elem.innerHTML)
-      .join(" ");
-    const c_id = comment.querySelector("a.js-timestamp")["href"];
-    const author = new Author(a_uname, a_createdOn, a_profile);
-    return new IssueComment(c_id, c_body, c_bodytext, author);
-  };
 
   exitNavBar = () => {
     this.setState({
@@ -695,7 +621,7 @@ class SubSummaryComponent extends React.Component<
           </div>
         </div>
         <div id="summary-component">{this.loadViewBasedOnState()}</div>
-        <NavigationComponent navbarContent={navbarContent} commentParser={this.commentParser} doneHandler={this.exitNavBar} />
+        <NavigationComponent navbarContent={navbarContent} commentParser={commentParser} doneHandler={this.exitNavBar} />
       </div>
     );
   }
