@@ -1,3 +1,5 @@
+import datetime
+
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 
@@ -79,14 +81,39 @@ class CommentSummaryXComment(Base):
 #                                   sa.Column('commentId', sa.String, sa.ForeignKey(Comment.id))
 #                                   )
 
-
+# Sentences table
 class CommentInformationType(Base):
   __tablename__ = 'CommentInformationType'
   id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
-  comment_id = sa.Column(sa.String)
+  comment_id = sa.Column(sa.String, nullable=False)
   issue = sa.Column(sa.String, index=True, nullable=False)
   datetime = sa.Column(sa.DateTime)
   span_start = sa.Column(sa.Integer, nullable=False)
   span_end = sa.Column(sa.Integer, nullable=False)
-  info_type = sa.Column(sa.String, nullable=False)
+  info_type = sa.Column(sa.String, nullable=False)      # TODO: ForeignKey
   text = sa.Column(sa.String, nullable=False)
+
+class TopLevelSummary(Base):
+  __tablename__ = 'TopLevelSummary'
+  id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+  text = sa.Column(sa.String, nullable=False)
+  info_type = sa.Column(sa.String, nullable=False)      # TODO: ForeignKey
+  issue = sa.Column(sa.String, index=True, nullable=False)
+  posted_on = sa.Column(sa.DateTime(timezone=True), default=datetime.datetime.utcnow,
+                        onupdate=datetime.datetime.utcnow)
+  author = sa.Column(sa.String)     # might require profile link
+  
+  __table_args__ = (sa.UniqueConstraint('issue', 'info_type', name='issue_info_type'),)
+  
+class TopLevelSummarySpan(Base):
+  __tablename__ = 'TopLevelSummarySpan'
+  id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+  summary_id = sa.Column(sa.Integer, nullable=False, index=True)
+  
+  summary_span_start = sa.Column(sa.Integer, nullable=False)    # TODO: keep both summary span and comment span
+  summary_span_end = sa.Column(sa.Integer, nullable=False)
+  comment_span_start = sa.Column(sa.Integer, nullable=False)
+  comment_span_end = sa.Column(sa.Integer, nullable=False)
+  
+  commented_on = sa.Column(sa.DateTime(timezone=True), default=datetime.datetime.utcnow)
+  comment_id = sa.Column(sa.String, nullable=False)   # comment it belongs to

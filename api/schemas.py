@@ -1,6 +1,7 @@
-from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
+
+from pydantic import BaseModel
 
 
 class InfoTypeSummary(BaseModel):
@@ -68,3 +69,40 @@ class CommentSummaryWithId(CommentSummary):
 
 class CommentSummaryDetail(ShortCommentSummary):
   comments: List[Comment]
+
+# TOP LEVEL SUMMARY
+class TopLevelSummarySpan(BaseModel):
+  summary_id: int
+  summary_span: Span      # sentence span limit in summary
+  comment_span: Span      # sentence span limit in corresponding comment
+  commented_on: datetime
+  comment_id: str
+
+class TopLevelSummary(BaseModel):
+  id: int
+  text: str
+  info_type: str    # TODO: Enum
+  issue: str
+  posted_on: datetime
+  author: str
+  spans: Optional[List[TopLevelSummarySpan]]
+
+# Summarization Service
+class SentenceSummRequest(BaseModel):
+  text: str
+  sentence_id: int
+
+class TopLevelSummRequest(BaseModel):
+  info_type: str
+  sentences: List[SentenceSummRequest]
+
+class TopLevelSummSpanResponse(BaseModel):
+  id: int
+  span: Span
+
+class TopLevelSummSummaryResponse(BaseModel):
+  info_type: str
+  sentences: List[TopLevelSummSpanResponse]
+
+class TopLevelSummResponse(BaseModel):
+  summaries: List[TopLevelSummSummaryResponse]

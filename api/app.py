@@ -1,13 +1,14 @@
+import pathlib
+import pickle
+from typing import List
+
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, Response
 from sqlalchemy.orm import Session
-from typing import List
-import pickle
-import pathlib
 
-from api.database import SessionLocal
 from api import schemas, crud, models, utils
+from api.database import SessionLocal
 from segmentation import Sentencizer
 
 app = FastAPI()
@@ -115,3 +116,70 @@ def delete_comment_summary(comment_summary_id: int, db: Session = Depends(get_db
   if db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).first() is not None:
     crud.delete_comment_summary(comment_summary_id, db)
   return Response(status_code=204)
+
+# TOP LEVEL SUMMARY
+@app.post("/api/{gh_user}/{repo}/{issue_number}/generate-top-level-summary/", response_model=List[schemas.TopLevelSummary])
+def generate_top_level_summary(gh_user: str, repo: str, issue_number: int, author: str,
+                               db: Session = Depends(get_db_session)):
+  """
+  Generates top level summaries and saves them.
+  """
+  issue_id = utils.construct_issue_id(gh_user, repo, issue_number)
+  return crud.generate_top_level_summary(issue_id, author, db)
+
+@app.get("/api/{gh_user}/{repo}/{issue_number}/top-level-summary/", response_model=List[schemas.TopLevelSummary])
+def get_top_level_summary(gh_user: str, repo: str, issue_number: int, db: Session = Depends(get_db_session)):
+  """
+  Returns all the top level summaries and the sentence-to-comment level context for a particular
+  issue id.
+  """
+  issue_id = utils.construct_issue_id(gh_user, repo, issue_number)
+  if db.query(models.TopLevelSummary).filter(models.TopLevelSummary.issue == issue_id).first() is None:
+    raise HTTPException(status_code=404, detail=f"Top level summary does not exist for {issue_id} issue.")
+  return crud.get_top_level_summary(issue_id, db)
+
+@app.post("/api/{gh_user}/{repo}/{issue_number}/top-level-summary/", response_model=schemas.TopLevelSummary)
+def update_top_level_summary(gh_user: str, repo: str, issue_number: int, summary: schemas.TopLevelSummary,
+                             db: Session = Depends(get_db_session)):
+  """
+  Updates top level summary when the user edits the generated one. Single info type summary is updated through this endpoint.
+  Note: The comment level context is lost, that is, no information on which sentence of summary belongs to which comment.
+  """
+  issue_id = utils.construct_issue_id(gh_user, repo, issue_number)
+  if db.query(models.TopLevelSummary).filter(models.TopLevelSummary.id == summary.id).first() is None:
+    raise HTTPException(status_code=404, detail=f"No top level summary exists with id: {summary.id}.")
+  return crud.update_top_level_summary(summary, db)
+
+@app.post("/test/generate-summary/", response_model=schemas.TopLevelSummResponse)
+def test_generate_summary():
+  """
+  Endpoint for mocking summarization service. Replaced with actual service in beta.
+  """
+  return schemas.TopLevelSummResponse(
+    summaries=[
+      schemas.TopLevelSummSummaryResponse(
+        info_type="Social Conversation",
+        sentences=[
+          schemas.TopLevelSummSpanResponse(
+            id=2,
+            span=schemas.Span(
+              start=0,
+              end=12
+            )
+          )
+        ]
+      ),
+      schemas.TopLevelSummSummaryResponse(
+        info_type="Investigation and Exploration",
+        sentences=[
+          schemas.TopLevelSummSpanResponse(
+            id=3,
+            span=schemas.Span(
+              start=13,
+              end=27
+            )
+          )
+        ]
+      )
+    ]
+  )

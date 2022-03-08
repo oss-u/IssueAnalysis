@@ -1,7 +1,9 @@
-from sqlalchemy.orm import Session
 from typing import Dict
 
+from sqlalchemy.orm import Session
+
 from api.database import Base
+
 
 def construct_issue_id(gh_user: str, repo: str, issue_number: int) -> str:
   return f"{gh_user}/{repo}#{issue_number}"
