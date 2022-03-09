@@ -16,7 +16,7 @@ class InformationTypeTagger extends React.Component<{}, {}> {
               <div className="form-group-header">
                 <label htmlFor="tag-information-types">Comment Preview</label>
               </div>
-                // Need to add the content here
+              // Need to add the content here
             </div>
 
             <div className="form-group">

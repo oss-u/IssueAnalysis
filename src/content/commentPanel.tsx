@@ -23,7 +23,6 @@ const newComment = () => {
 
   const tabNav = commentFormHead.querySelector("[class^=tabnav-tabs]");
 
-
   let summariseButton = document.createElement("button");
   summariseButton.setAttribute("type", "button");
   summariseButton.setAttribute(
@@ -41,7 +40,6 @@ const newComment = () => {
   commentButtonContainer.setAttribute("aria-labelledby", "summarise-tab");
   commentButtonContainer.hidden = true;
 
-
   let sidebar = document.getElementById("partial-discussion-sidebar");
   console.log(sidebar);
 
@@ -51,10 +49,11 @@ const newComment = () => {
 
   // let subSummaryComponent = document.createElement("div");
 
-
   // comment-body markdown-body js-preview-body
 
-  const previewContainer = tabContainer.getElementsByClassName("comment-body markdown-body js-preview-body")[0];
+  const previewContainer = tabContainer.getElementsByClassName(
+    "comment-body markdown-body js-preview-body"
+  )[0];
   console.log(previewContainer);
 
   let infotypeMarkerContainer = document.createElement("div");
@@ -67,8 +66,6 @@ const newComment = () => {
   ReactDOM.render(<CommentButtons />, commentButtonContainer);
   ReactDOM.render(<InfotypeMarker />, infotypeMarkerContainer);
 
-
-
   tabContainer.appendChild(commentButtonContainer);
 
   summariseButton.onclick = () => {
@@ -77,7 +74,7 @@ const newComment = () => {
 
   tabNav.appendChild(summariseButton);
   // tabNav.insertBefore(summariseButton, tabNav.lastElementChild);
-}
+};
 
 const initNewCommentComponent = () => {
   newComment();

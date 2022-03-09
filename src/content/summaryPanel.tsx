@@ -53,7 +53,7 @@ const createSummaryPanel = () => {
   // subSummaryComponent.classList.add("position-sticky");
   // subSummaryComponent.classList.add("top-0");
   subSummaryComponent.classList.add("summary-sticky");
-  
+
   let informationTypeTagger = document.createElement("div");
   informationTypeTagger.className = "mt-6";
   summaryPanel.appendChild(informationTypeTagger);
