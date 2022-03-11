@@ -80,7 +80,7 @@ export default function InformationTypeSummary(): JSX.Element{
 
     return (
       <div>
-        {initNavInfoType !== "none" && <TopLevelNavBox initInfoType={initNavInfoType} onClose={() => setInitNavInfoType("none")}/>}
+        <TopLevelNavBox initInfoType={initNavInfoType} hidden={initNavInfoType === "none"} onClose={() => setInitNavInfoType("none")} />
         <div id="topLevelSummary" className="Box">
           <div className="Box-header">
             <div className="clearfix">
