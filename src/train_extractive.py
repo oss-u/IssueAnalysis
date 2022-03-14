@@ -14,11 +14,13 @@ import time
 import torch
 
 import distributed
-from models import data_loader, model_builder
-from models.data_loader import load_dataset
-from models.model_builder import ExtSummarizer
-from models.trainer_ext import build_trainer
-from others.logging import logger, init_logger
+from src.models import data_loader, model_builder
+from src.models.data_loader import load_dataset
+from src.models.model_builder import ExtSummarizer, Bert
+from src.models.encoder import ExtTransformerEncoder, Classifier
+from src.models.optimizers import Optimizer
+from src.models.trainer_ext import build_trainer
+from src.others.logging import logger, init_logger
 
 model_flags = ['hidden_size', 'ff_size', 'heads', 'inter_layers', 'encoder', 'ff_actv', 'use_interval', 'rnn_size']
 
@@ -249,7 +251,9 @@ def train_single_ext(args, device_id):
 
 def test_text_ext(args):
     logger.info('Loading checkpoint from %s' % args.test_from)
+    start = time.time()
     checkpoint = torch.load(args.test_from, map_location=lambda storage, loc: storage)
+    print(f"Checkpoint loading time: {time.time() - start}s")
     opt = vars(checkpoint['opt'])
     for k in opt.keys():
         if (k in model_flags):
@@ -258,11 +262,19 @@ def test_text_ext(args):
     device = "cpu" if args.visible_gpus == '-1' else "cuda"
     device_id = 0 if device == "cuda" else -1
 
+    start = time.time()
     model = ExtSummarizer(args, device, checkpoint)
+    print(f"Model instance time taken: {time.time() - start}s")
     model.eval()
 
     test_iter = data_loader.load_text(args, args.text_src, args.text_tgt, device)
 
+    start = time.time()
     trainer = build_trainer(args, device_id, model, None)
+    print(f"Time to build trainer: {time.time() - start}s")
+
+    start = time.time()
     sentence_ids, _ = trainer.test(test_iter, -1)
+    print(f"Time take in inference: {time.time() - start}")
+
     return sentence_ids

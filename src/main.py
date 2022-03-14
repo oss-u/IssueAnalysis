@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass
 import uuid
 
-from train_extractive import test_text_ext
+from src.train_extractive import test_text_ext
 
 """
 Main entry point to the model through main function.
