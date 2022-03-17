@@ -222,7 +222,7 @@ class Args:
 def summarise(sentences: List[str]) -> List[int]:
   text = ' [CLS] [SEP] '.join(sentences)
   args = Args(
-    test_from="src/bert_data/bertext_cnndm_transformer.pt",
+    test_from="src/bert_data/bertext_cnndm_transformer_cleaned.pt",
     text_src=text,
     report_rouge=False,
     use_bert_emb=True,
