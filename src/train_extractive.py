@@ -278,3 +278,16 @@ def test_text_ext(args):
     print(f"Time take in inference: {time.time() - start}")
 
     return sentence_ids
+
+
+def test_text_ext_lite(args, trainer):
+    device = "cpu" if args.visible_gpus == '-1' else "cuda"
+    device_id = 0 if device == "cuda" else -1
+
+    test_iter = data_loader.load_text(args, args.text_src, args.text_tgt, device)
+
+    start = time.time()
+    sentence_ids, _ = trainer.test(test_iter, -1)
+    print(f"Time take in inference: {time.time() - start}s")
+
+    return sentence_ids
