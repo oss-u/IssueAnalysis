@@ -1,19 +1,12 @@
-import time
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import json
-from flask import Flask, request
-
 import torch
+import time
 
 from src.args import Args
 from src.main import main
 from src.models.model_builder import ExtSummarizer
 from src.models.trainer_ext import build_trainer
 
-hostname = "localhost"
-port = 8080
-app = Flask(__name__)
-
+# global variables for caching
 # model initialization
 args = Args(
   test_from="src/bert_data/bertext_cnndm_transformer_cleaned.pt",
@@ -46,35 +39,9 @@ trainer = build_trainer(args, device_id, model, None)
 print(f"Time to build trainer: {time.time() - start}s")
 
 
-@app.route("/", methods=['GET', 'POST'])
-def index():
-  if request.method == 'GET':
-    return do_GET()
-  elif request.method == 'POST':
-    return do_POST(request.json)
+def generate_summary(request):
+  body = request.json()
 
-
-def do_GET():
-  sentences = [
-    "But before I do that I have a question, you would want all tests from the three directories you linked above in the same `tests/selenium` directory? or you want them separated as they are now?",
-    "so that the selenium directory is something like: ```\nselenium/base/\nselenium/notebook/\n``` Let me know if it's okay to start tackling the `notebook` directory and what structure do you prefer inside the new `tests/selenium` directory and I can start working on immediately.",
-    "For now, let's keep the `tests/selenium` directory flat, placing files directly in there.",
-    "We can easily rearrange it later if we need to divide them up, but I'm not convinced that the current way the JS tests are divided is that useful.Okay great!",
-    "I'll start tackling the test files in the `tests/notebook` then, okay?Sounds good.",
-    "@mpacer was looking at converting `markdown.js` from that folder, so if you want to start with another file, that would be good."
-  ]
-
-  args.text_src = ' [CLS] [SEP] '.join(sentences)
-
-  data = {
-    "summary": main(sentences, trainer, args),
-    "status": 200
-  }
-
-  return data
-
-def do_POST(body):
-  
   if body['type'] == 'top-level':
     response = []
     for sentence_set in body['sentence_set']:
@@ -83,14 +50,14 @@ def do_POST(body):
       for sentence in sentence_set['sentences']:
         sentences.append(sentence['text'])
         sentence_id_mapping.append((sentence['sentence_id'], sentence['text']))
-      
+    
       summary, sentence_ids = main(sentences, trainer, args)
-      
+    
       response_info_type = {
         'info_type': sentence_set['info_type'],
         'sentences': []
       }
-      
+    
       previous = 0
       for sentence_index in sentence_ids:
         response_info_type['sentences'].append({
@@ -100,11 +67,11 @@ def do_POST(body):
             'end': previous + len(sentence_id_mapping[sentence_index][1])
           }
         })
-        
-        previous += len(sentence_id_mapping[sentence_index][1]) + 1
       
-      response.append(response_info_type)
+        previous += len(sentence_id_mapping[sentence_index][1]) + 1
     
+      response.append(response_info_type)
+  
     return {
       'summaries': response
     }
@@ -113,7 +80,3 @@ def do_POST(body):
     return {
       'summary': main(sentences, trainer, args)
     }
-
-
-if __name__ == '__main__':
-  app.run(host=hostname, port=port)
