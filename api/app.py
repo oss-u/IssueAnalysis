@@ -57,7 +57,8 @@ def generate_summary(summary_input: schemas.SummaryInput):
   """
   Generates summary from text.
   """
-  return schemas.SummaryText(summary=utils.get_summary(summary_input.text))
+  # return schemas.SummaryText(summary=utils.get_summary(summary_input.text))
+  return crud.generate_summary(text=summary_input.text, sentencizer=sentencizer)
 
 @app.post("/api/predict-information-type/", response_model=List[schemas.Sentence])
 def predict_information_type(comment: schemas.SummaryInput):
@@ -67,13 +68,34 @@ def predict_information_type(comment: schemas.SummaryInput):
   return crud.predict_info_types(comment.text, sentencizer)
 
 @app.post("/api/{gh_user}/{repo}/{issue_number}/save-information-type/",
-          response_model=schemas.InformationTypeIdentifiedComment)
+          response_model=schemas.InformationTypeIdentifiedCommentResponse)
 def save_information_type(gh_user: str, repo: str, issue_number: int, comment: schemas.InformationTypeIdentifiedComment,
                           db: Session = Depends(get_db_session)):
   """
   Saves the predicted and edited information types of a comment. Assumes sentence split.
   """
   return crud.save_info_types(gh_user, repo, issue_number, comment, db)
+
+@app.get("/api/{gh_user}/{repo}/{issue_number}/information-type/",
+         response_model=schemas.InformationTypeIdentifiedCommentResponse)
+def get_information_type(gh_user: str, repo: str, issue_number: int, comment_id: str,
+                         db: Session = Depends(get_db_session)):
+  """
+  Returns all the sentence spans stored for a comment_id in an issue.
+  """
+  issue_id = utils.construct_issue_id(gh_user, repo, issue_number)
+  if db.query(models.CommentInformationType).filter(models.CommentInformationType.issue==issue_id).filter(models.CommentInformationType.comment_id==comment_id).first() is None:
+    return HTTPException(status_code=404, detail="Not found.")
+  return crud.get_information_type_spans(issue_id, comment_id, db)
+
+@app.post("/api/update-information-type/")
+def update_information_type(span_update: schemas.InformationTypeSpanUpdate, db: Session = Depends(get_db_session)):
+  """
+  Updates information type of a span by its ID.
+  """
+  if db.query(models.CommentInformationType).filter(models.CommentInformationType.id==span_update.span_id).first() is None:
+    return HTTPException(status_code=404, detail="Not found.")
+  return crud.update_info_type(span_update, db)
 
 @app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=schemas.CommentSummaryWithId)
 def post_comments_summary(gh_user: str, repo: str, issue_number: int, comment_summary: schemas.CommentSummary,
@@ -118,14 +140,19 @@ def delete_comment_summary(comment_summary_id: int, db: Session = Depends(get_db
   return Response(status_code=204)
 
 # TOP LEVEL SUMMARY
-@app.post("/api/{gh_user}/{repo}/{issue_number}/generate-top-level-summary/", response_model=List[schemas.TopLevelSummary])
+@app.post("/api/{gh_user}/{repo}/{issue_number}/generate-top-level-summary/",
+          response_model=List[schemas.TopLevelSummary])
 def generate_top_level_summary(gh_user: str, repo: str, issue_number: int, author: str,
                                db: Session = Depends(get_db_session)):
   """
   Generates top level summaries and saves them.
   """
   issue_id = utils.construct_issue_id(gh_user, repo, issue_number)
-  return crud.generate_top_level_summary(issue_id, author, db)
+  
+  try:
+    return crud.generate_top_level_summary(issue_id, author, db)
+  except ValueError:
+    return HTTPException(status_code=503, detail="Summarization service unable for some reason.")
 
 @app.get("/api/{gh_user}/{repo}/{issue_number}/top-level-summary/", response_model=List[schemas.TopLevelSummary])
 def get_top_level_summary(gh_user: str, repo: str, issue_number: int, db: Session = Depends(get_db_session)):
@@ -142,8 +169,10 @@ def get_top_level_summary(gh_user: str, repo: str, issue_number: int, db: Sessio
 def update_top_level_summary(gh_user: str, repo: str, issue_number: int, summary: schemas.TopLevelSummary,
                              db: Session = Depends(get_db_session)):
   """
-  Updates top level summary when the user edits the generated one. Single info type summary is updated through this endpoint.
-  Note: The comment level context is lost, that is, no information on which sentence of summary belongs to which comment.
+  Updates top level summary when the user edits the generated one. Single info type summary is updated through
+  this endpoint.
+  Note: The comment level context is lost, that is, no information on which
+  sentence of summary belongs to which comment.
   """
   issue_id = utils.construct_issue_id(gh_user, repo, issue_number)
   if db.query(models.TopLevelSummary).filter(models.TopLevelSummary.id == summary.id).first() is None:

@@ -107,6 +107,17 @@ def delete_comment_summary(comment_summary_id, db: Session):
   db.commit()
 
 
+def generate_summary(text: str, sentencizer: Sentencizer) -> schemas.SummaryText:
+  request_payload = {
+    'type': 'comment-level',
+    'sentence_set': [text[span.start:span.end] for span in sentencizer.sentencize(text)]
+  }
+  queryUrl = "http://localhost:8080/"
+  response = requests.post(queryUrl, json=request_payload)
+  return schemas.SummaryText(summary=response.json()['summary'])
+
+
+# top-level summary
 def predict_info_types(comment: str, sentencizer: Sentencizer) -> List[schemas.Sentence]:
   sentence_spans = sentencizer.sentencize(comment)
   sentences = [comment[span.start:span.end] for span in sentence_spans]
@@ -122,7 +133,7 @@ def predict_info_types(comment: str, sentencizer: Sentencizer) -> List[schemas.S
 def save_info_types(gh_user: str, repo: str, issue_number: int, comment: schemas.InformationTypeIdentifiedComment,
                     db: Session):
   issue_id = utils.construct_issue_id(gh_user, repo, issue_number)
-  comments_with_predicted_info_types = [models.CommentInformationType(
+  spans_with_predicted_info_types = [models.CommentInformationType(
     issue=issue_id,
     span_start=sent.span.start,
     span_end=sent.span.end,
@@ -131,10 +142,45 @@ def save_info_types(gh_user: str, repo: str, issue_number: int, comment: schemas
     datetime=comment.datetime if comment.datetime else None,
     comment_id=comment.comment_id if comment.comment_id else None
   ) for sent in comment.sentences]
-  db.bulk_save_objects(comments_with_predicted_info_types)
+  db.bulk_save_objects(spans_with_predicted_info_types)
   db.commit()
   
-  return comment
+  return get_information_type_spans(issue_id=issue_id, comment_id=comment.comment_id, db=db)
+  
+  # return comment
+  # return schemas.InformationTypeIdentifiedCommentResponse(
+  #   comment=comment.comment,
+  #   comment_id=comment.comment_id,
+  #   sentences=[schemas.SentenceResponse(
+  #     span=schemas.Span(start=span.span_start, end=span.span_end),
+  #     info_type=span.info_type,
+  #     id=span.id
+  #   ) for span in spans_with_predicted_info_types],
+  #   datetime=comment.datetime
+  # )
+
+
+def update_info_type(span_update: schemas.InformationTypeSpanUpdate, db: Session):
+  db.query(models.CommentInformationType).filter(models.CommentInformationType.id == span_update.span_id).update({
+    models.CommentInformationType.info_type: span_update.info_type
+  })
+  db.commit()
+  return span_update
+
+
+def get_information_type_spans(issue_id: str, comment_id: str, db: Session):
+  comment_spans = db.query(models.CommentInformationType).filter(models.CommentInformationType.issue == issue_id) \
+    .filter(models.CommentInformationType.comment_id == comment_id).all()
+  
+  return schemas.InformationTypeIdentifiedCommentResponse(
+    comment="dummy. don't use",
+    comment_id=comment_id,
+    sentences=[schemas.SentenceResponse(
+      span=schemas.Span(start=span.span_start, end=span.span_end),
+      info_type=span.info_type,
+      id=span.id          # TODO: add datetime of whenever updated
+    ) for span in comment_spans]
+  )
 
 
 # TOP LEVEL SUMMARY
@@ -149,13 +195,18 @@ def generate_top_level_summary(issue_id: str, author: str, db: Session) -> List[
   root.info(sentences)
   
   # create request body
-  top_level_summ_request_dict = {info_type: schemas.TopLevelSummRequest(info_type=info_type, sentences=[])
-                                 for info_type in ["Social Conversation", "Investigation and Exploration"]} # TODO: complete list
+  top_level_summ_request_dict = {}
+  
   for sentence in sentences:
+    if sentence.info_type not in top_level_summ_request_dict:
+      top_level_summ_request_dict[sentence.info_type] = schemas.TopLevelSummRequest(info_type=sentence.info_type,
+                                                                                    sentences=[])
     top_level_summ_request_dict[sentence.info_type].sentences.append(
       schemas.SentenceSummRequest(text=sentence.text, sentence_id=sentence.id)
     )
-  request_payload = [request.dict() for request in top_level_summ_request_dict.values()]
+  
+  sentence_set = [request.dict() for request in top_level_summ_request_dict.values()]
+  request_payload = {'type': 'top-level', 'sentence_set': sentence_set}
   root.info(f"[REQUEST PAYLOAD] {request_payload}")
   
   # request and collect response (sync)
@@ -180,7 +231,7 @@ def generate_top_level_summary(issue_id: str, author: str, db: Session) -> List[
       for sentence in sentences:
         if summary_sentence['id'] == sentence.id:
           summary_text.append(sentence.text)
-          sentences_with_summary_span.append(      # summary span
+          sentences_with_summary_span.append(  # summary span
             (sentence, summary_sentence['span']))  # works as sentence to info_type mapping is 1-on-1
           break
     
@@ -211,7 +262,7 @@ def generate_top_level_summary(issue_id: str, author: str, db: Session) -> List[
       comment_id=sentence.comment_id
     ) for sentence, summary_span in sentences_with_summary_span]
     
-    db.bulk_save_objects(summary_sentence_spans)    # adds new span. need to regularly remove archived ones
+    db.bulk_save_objects(summary_sentence_spans)
     db.commit()
   
   return get_top_level_summary(issue_id, db)
