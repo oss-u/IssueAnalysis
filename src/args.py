@@ -9,7 +9,6 @@ class Args:
   text_tgt: str = ''
   result_path: str = "test_results"
   model_path: str = "src/models/"
-
   batch_size: int = 140
   test_batch_size: int = 200
   max_ndocs_in_batch: int = 6
