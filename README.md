@@ -2,6 +2,12 @@
 
 **This code is for EMNLP 2019 paper [Text Summarization with Pretrained Encoders](https://arxiv.org/abs/1908.08345)**
 
+## Addition for OSS-U:
+Trimmed the model to reduce size by ~70% and designed the API to cut down the logistics overhead of the model
+by a 100% for non-cold start calls.
+To deploy as GCP Cloud Function: `gcloud functions deploy gen_summary --region=us-central1 --allow-unauthenticated --entry-point=generate_summary --runtime=python38 --memory=8192 --env-vars-file=.
+env.yaml --max-instances=2 --trigger-http --timeout=540`
+
 Results on CNN/DailyMail (20/8/2019):
 
 
