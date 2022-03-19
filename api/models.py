@@ -87,7 +87,7 @@ class CommentInformationType(Base):
   id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
   comment_id = sa.Column(sa.String, nullable=False)
   issue = sa.Column(sa.String, index=True, nullable=False)
-  datetime = sa.Column(sa.DateTime)
+  datetime = sa.Column(sa.DateTime)   # TODO: whenever updated
   span_start = sa.Column(sa.Integer, nullable=False)
   span_end = sa.Column(sa.Integer, nullable=False)
   info_type = sa.Column(sa.String, nullable=False)      # TODO: ForeignKey

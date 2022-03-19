@@ -25,11 +25,24 @@ class Sentence(BaseModel):
   span: Span
   info_type: str
 
+class SentenceResponse(Sentence):
+  id: int
+
 class InformationTypeIdentifiedComment(BaseModel):
   comment: str
   sentences: List[Sentence]
   datetime: Optional[datetime]    # when the comment was made
   comment_id: Optional[str]
+
+class InformationTypeIdentifiedCommentResponse(BaseModel):
+  comment_id: Optional[str]
+  sentences: List[SentenceResponse]
+  datetime: Optional[datetime]
+  comment: str
+
+class InformationTypeSpanUpdate(BaseModel):
+  span_id: int
+  info_type: str
 
 class Author(BaseModel):
   user_id: str
