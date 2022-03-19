@@ -112,9 +112,10 @@ def generate_summary(text: str, sentencizer: Sentencizer) -> schemas.SummaryText
     'type': 'comment-level',
     'sentence_set': [text[span.start:span.end] for span in sentencizer.sentencize(text)]
   }
-  queryUrl = "http://localhost:8080/"
-  response = requests.post(queryUrl, json=request_payload)
-  return schemas.SummaryText(summary=response.json()['summary'])
+  SUMMARIZATION_SERVICE_ENDPOINT = os.getenv('ALPHA_SUMMARY_SERVICE_ENDPOINT') \
+    if os.getenv('ENVIRONMENT') == 'alpha' else os.getenv('BETA_SUMMARY_SERVICE_ENDPOINT')
+  response = requests.post(SUMMARIZATION_SERVICE_ENDPOINT, json=request_payload, timeout=500)
+  return schemas.SummaryText(summary=response.json()['summary'][0])
 
 
 # top-level summary
@@ -146,18 +147,6 @@ def save_info_types(gh_user: str, repo: str, issue_number: int, comment: schemas
   db.commit()
   
   return get_information_type_spans(issue_id=issue_id, comment_id=comment.comment_id, db=db)
-  
-  # return comment
-  # return schemas.InformationTypeIdentifiedCommentResponse(
-  #   comment=comment.comment,
-  #   comment_id=comment.comment_id,
-  #   sentences=[schemas.SentenceResponse(
-  #     span=schemas.Span(start=span.span_start, end=span.span_end),
-  #     info_type=span.info_type,
-  #     id=span.id
-  #   ) for span in spans_with_predicted_info_types],
-  #   datetime=comment.datetime
-  # )
 
 
 def update_info_type(span_update: schemas.InformationTypeSpanUpdate, db: Session):
