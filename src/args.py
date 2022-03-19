@@ -5,10 +5,10 @@ from dataclasses import dataclass
 class Args:
   test_from: str
   text_src: str
-  temp_dir: str = "temp"
+  temp_dir: str = "/tmp/"
   text_tgt: str = ''
   result_path: str = "test_results"
-  model_path: str = "../models/"
+  model_path: str = "src/models/"
 
   batch_size: int = 140
   test_batch_size: int = 200

@@ -43,7 +43,7 @@ def build_trainer(args, device_id, model, optim):
 
     print('gpu_rank %d' % gpu_rank)
 
-    tensorboard_log_dir = args.model_path
+    tensorboard_log_dir = "/tmp/"   # args.model_path
 
     writer = SummaryWriter(tensorboard_log_dir, comment="Unmt")
 
