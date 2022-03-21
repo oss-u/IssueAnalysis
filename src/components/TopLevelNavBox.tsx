@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import ReactDOM from "react-dom";
 import "../style.scss";
 import { InformationType, IssueComment } from "../types";
@@ -12,11 +12,13 @@ interface TopLevelNavBoxProps {
     initInfoType: InformationType;
     hidden: boolean;
     onClose: () => void;
+    onOpen: () => void;
 }
 
 export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element {
-    const {initInfoType, hidden, onClose} = props;
+    const {initInfoType, hidden, onClose, onOpen} = props;
 
+    const [clickedCommentId, setClickedCommentId] = useState<string | null>(null);
     const [editSelectedHighlight, setEditSelectedHighlight] = useState<boolean>(false);
     const [selectedInfoType, setSelectedInfoType] = useState<InformationType>(initInfoType);
     const [selectedSentenceIndex, setSelectedSentenceIndex] = useState<number>(0);
@@ -37,18 +39,31 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
         })
     }
 
+
     useEffect(() => {
         const allCommentElements = Array.from(getAllCommentsOnIssue())
         const allComments = allCommentElements.map(commentParser)
         let allHighlights: Highlight[] = []
         allComments.forEach((comment, index) => {
-            const newHighlights: Highlight[] = [{id: `h${uuidv4()}`, commentId: comment.id, span: {start: 14, end: 30}, infoType: "expectedBehaviour"}];
+            const newHighlights: Highlight[] = [{id: `h${uuidv4()}`, commentId: comment.id, span: {start: 14, end: 20}, infoType: "expectedBehaviour"}, {id: `h${uuidv4()}`, commentId: comment.id, span: {start: 20, end: 25}, infoType: "motivation"}, {id: `h${uuidv4()}`, commentId: comment.id, span: {start: 25, end: 30}, infoType: "solutionDiscussion"}];
             allHighlights = allHighlights.concat(newHighlights);
+            comment.tag.addEventListener('click', () => setClickedCommentId(comment.id));
         })
         setComments(allComments);
         setAllSummarySentences(allHighlights);
         setOriginalCommentHTML(getOriginalCommentHTMLs(allComments));
     }, [])
+
+    useEffect(() => {
+        if (clickedCommentId){
+            if (hidden) {
+                onOpen();
+            }
+            const newFilteredHighlights = allSummarySentences.filter((highlight) => highlight.commentId === clickedCommentId);
+            setFilteredHighlights(newFilteredHighlights);
+            setClickedCommentId(null);
+        }
+    }, [clickedCommentId])
 
     useEffect(() => {
         const newFilteredHighlights = allSummarySentences.filter((sentence) => sentence.infoType === selectedInfoType);

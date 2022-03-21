@@ -2,7 +2,6 @@ import React, { useState } from "react"
 import ReactDOM from "react-dom";
 import "../style.scss";
 import { InformationType } from "../types";
-import { v4 as uuidv4 } from "uuid";
 
 
 export interface Highlight {
@@ -14,17 +13,24 @@ export interface Highlight {
 
 interface HighlightProps {
   text: string,
+  infoType: InformationType,
   onClick: () => void;
   selected: boolean;
 }
 
-export default function Highlight(props: HighlightProps): JSX.Element {
-    const {text, selected} = props
+const informationTypeToHighlightColorMap = {
+  "expectedBehaviour": "#FF0000",
+  "motivation": "#00FF00",
+  "solutionDiscussion": "#0000FF",
+}
 
-    const [backgroundColor, setBackgroundColor] = useState<string>(selected ? "#3C89D0" : "#30C5FF");
+export default function Highlight(props: HighlightProps): JSX.Element {
+    const {text, infoType, selected} = props
+
+    const [backgroundColor, setBackgroundColor] = useState<string>(selected ? "#3C89D0" : informationTypeToHighlightColorMap[infoType]);
 
     return (
-        <span style={{backgroundColor}} onClick={() => setBackgroundColor("#FF0000")}>
+        <span style={{backgroundColor}} onClick={() => setBackgroundColor("#FF00FF")}>
           {text}
         </span>
       );
@@ -32,8 +38,7 @@ export default function Highlight(props: HighlightProps): JSX.Element {
 
 export function highlightComment(commentEl: Element, selectedHighlightId: string, highlights: Highlight[]) {
   let addedLength = 0;
-  let highlightNum = 0;
-  const highlightIds: string[] = [];
+  const highlightIdsAndInfoTypes: {id: string, infoType: string}[] = [];
   //Create div blocks around highlights with unique ids
   let newInnerHTML: string = commentEl.innerHTML.trim();
   highlights.forEach((highlight) => {
@@ -43,17 +48,16 @@ export function highlightComment(commentEl: Element, selectedHighlightId: string
     const oldInnerHTML = newInnerHTML;
     newInnerHTML = oldInnerHTML.slice(0, highlight.span.start + addedLength) + highlightOpenTag + oldInnerHTML.slice(highlight.span.start + addedLength, highlight.span.end + addedLength) + highlightCloseTag + oldInnerHTML.slice(highlight.span.end + addedLength);
     addedLength += highlightOpenTag.length + highlightCloseTag.length;
-    highlightNum += 1;
-    highlightIds.push(highlightId);
+    highlightIdsAndInfoTypes.push({id: highlightId, infoType: highlight.infoType});
   })
   commentEl.innerHTML = newInnerHTML;
-  highlightIds.forEach((id) => {
-    const highlightSpan = document.querySelector(`#${id}`);
+  highlightIdsAndInfoTypes.forEach((idInfoTypePair) => {
+    const highlightSpan = document.querySelector(`#${idInfoTypePair.id}`);
     if (!highlightSpan){
       return;
     }
     const highlightText = highlightSpan.textContent;
     highlightSpan.textContent = '';
-    ReactDOM.render(<Highlight text={highlightText} selected={selectedHighlightId === id}/>, highlightSpan);
+    ReactDOM.render(<Highlight text={highlightText} infoType={idInfoTypePair.infoType} selected={selectedHighlightId === idInfoTypePair.id}/>, highlightSpan);
   })
 }
