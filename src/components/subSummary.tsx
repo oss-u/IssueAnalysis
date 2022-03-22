@@ -1,4 +1,5 @@
 import React from "react";
+import { generateSummary } from "../endpoints/endpoints";
 import "../style.scss";
 import { IssueComment, Summary } from "../types";
 import { commentParser } from "../utils/comment_parser";
@@ -471,21 +472,12 @@ class SubSummaryComponent extends React.Component<
 
   loadSummaryInputComponent = () => {
     let concatenatedComments = this.concatCommentsOfSubsummary();
-
+    console.log("loadSummary")
     if (!this.state.genSumm) {
-      fetch('https://issue-analysis-backend.herokuapp.com/api/generate-summary', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: concatenatedComments
-        })
-      }).then((resp) => resp.json()).then((data) => {
-        this.setState({
-          genSumm: data['summary']
-        });
-      });
+      console.log("no gensumm");
+      generateSummary(concatenatedComments).then((summaryRes) => this.setState({
+        genSumm: summaryRes.summary
+      }));
     }
 
     let editingSubsummary;

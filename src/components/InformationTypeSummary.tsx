@@ -6,16 +6,40 @@ import {default as InformationTypeComponent} from "./InformationType";
 import { getCurrentUserName } from "../utils";
 import TopLevelNavBox from "./TopLevelNavBox";
 import { InformationType } from "../types";
+import { generateTopLevelSummary, testAPI } from "../endpoints";
 
 interface SummaryType{
   typeId: number,
   content: string
 }
 
+interface IssueDetails {
+  user: string,
+  repository: string,
+  issueNum: number
+}
+
 const mapInfoIdToType: {[id: number]: InformationType} = {
   1: "expectedBehaviour",
   2: "motivation",
   6: "solutionDiscussion",
+}
+
+const parseURLForIssueDetails = (): IssueDetails => {
+  const url = window.location.href;
+  const splitURL = url.split('/');
+  const issueDetails: IssueDetails = {
+    user: splitURL[3],
+    repository: splitURL[4],
+    issueNum: parseInt(splitURL[6])
+  }
+  return issueDetails;
+}
+
+const getAuthorFromPage = (): string => {
+  const authorDoc = document.querySelector("#partial-discussion-header > div.d-flex.flex-items-center.flex-wrap.mt-0.gh-header-meta > div.flex-auto.min-width-0.mb-2 > a");
+  const author = authorDoc.textContent
+  return author
 }
 
 export default function InformationTypeSummary(): JSX.Element{
@@ -31,24 +55,29 @@ export default function InformationTypeSummary(): JSX.Element{
     setEditedSummaries(informationTypeSummaries)
   }, [informationTypeSummaries]);
 
+
   const initializeTopLevelSummary = () => {
     // API specifications - to get the summary
     // Should return an array. Array contains
     // tuples with summary and the information type ID.
-    let summaries = [
+    let newSummaries: SummaryType[] = [
       {
         typeId: 1,
         content:
-          "I would like to propose an additional instance method to the ensemble estimators to fit additional sub estimators.",
-      },
-      { typeId: 2, content: "There is something similar in adaboost!" },
-      {
-        typeId: 6,
-        content:
-          "I don't know if fit_extends is the best solution to the problem.",
+          "Generated summary was empty",
       },
     ];
-    setInformationTypeSummaries(summaries);
+    const issueDetails = parseURLForIssueDetails();
+    const author = getAuthorFromPage();
+    generateTopLevelSummary(issueDetails.user, issueDetails.repository, issueDetails.issueNum, author).then((summaries) => {
+      const generatedSummaries: SummaryType[] = summaries.map((summary) => ({typeId: summary.id, content: summary.text}))
+      console.log(generatedSummaries);
+      if (generatedSummaries.length !== 0){
+        newSummaries = generatedSummaries
+      }
+      setInformationTypeSummaries(newSummaries);
+    });
+    
   }
 
   const onEditSummary = (idNum: number) => {
@@ -80,7 +109,7 @@ export default function InformationTypeSummary(): JSX.Element{
 
     return (
       <div>
-        <TopLevelNavBox initInfoType={initNavInfoType} hidden={initNavInfoType === "none"} onClose={() => setInitNavInfoType("none")} />
+        <TopLevelNavBox initInfoType={initNavInfoType} hidden={initNavInfoType === "none"} onClose={() => setInitNavInfoType("none")} onOpen={() => {}} />
         <div id="topLevelSummary" className="Box">
           <div className="Box-header">
             <div className="clearfix">
