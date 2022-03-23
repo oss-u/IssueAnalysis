@@ -3,6 +3,7 @@ import "../style.scss";
 import { InformationTypes } from "../types";
 import { getCurrentUserName } from "../utils";
 import { informationTypeMap } from "../utils/maps";
+import TopLevelNavBox from "../components/TopLevelNavBox";
 
 interface InformationTypeProps {
   title: string;
@@ -10,14 +11,6 @@ interface InformationTypeProps {
   tooltip: string;
   tabLink: string;
   // onEdit: (content: string) => void;
-}
-
-// summaries={summaries} navInfoTypeCallback={setInitNavInfoType}
-
-interface InformationTypeTabProps {
-  // figure out the right types for this
-  summaries: any;
-  navInfoTypeCallback: any;
 }
 
 const mapInfoIdToType: { [id: number]: InformationTypes } = {
@@ -44,9 +37,6 @@ interface SummaryType {
   typeId: number;
   content: string;
 }
-
-
-
 
 export function InformationTypeTabs(): JSX.Element {
   const [initNavInfoType, setInitNavInfoType] = React.useState<InformationTypes>("none");
@@ -98,6 +88,7 @@ export function InformationTypeTabs(): JSX.Element {
 
   return (
     <div className="Box-body">
+      {initNavInfoType !== "none" && <TopLevelNavBox initInfoType={initNavInfoType} onClose={() => setInitNavInfoType("none")} />}
       <nav className="UnderlineNav" aria-label="infoTypeTabs">
         <div className="UnderlineNav-body" role="tablist">
           {

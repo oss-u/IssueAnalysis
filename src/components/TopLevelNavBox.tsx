@@ -1,20 +1,19 @@
 
 import React, { useEffect, useState } from "react"
 import "../style.scss";
-import { InformationType, InfoSentence, IssueComment } from "../types";
+import { InformationTypes, InfoSentence, IssueComment } from "../types";
 import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
 import { sentenceSeparatorRegex } from "../utils/constants";
 
 
 interface TopLevelNavBoxProps {
-    initInfoType: InformationType;
+    initInfoType: InformationTypes;
     onClose: () => void
 }
 
 export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element {
     const {initInfoType, onClose} = props;
-
-    const [selectedInfoType, setSelectedInfoType] = useState<InformationType>(initInfoType);
+    const [selectedInfoType, setSelectedInfoType] = useState<InformationTypes>(initInfoType);
     const [infoTypeSentences, setInfoTypeSentences] = useState<InfoSentence[]>([]);
     const [selectedSentenceIndex, setSelectedSentenceIndex] = useState<number | null>(null);
     const [comments, setComments] = useState<IssueComment[]>([]);
@@ -29,7 +28,8 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
             
             const commentSentenceStrings = comment.text.split(sentenceSeparatorRegex);
             const commentSentences = commentSentenceStrings.map((sentence, index) => {
-                let infoType: InformationType = "none";
+                // there are 16 of these so moving them into a map would be a good idea
+                let infoType: InformationTypes = "none";
                 if (index % 3 === 0)
                     infoType = "expectedBehaviour";
                 else if (index % 3 === 1)
@@ -94,7 +94,7 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
         })
     }, [selectedSentenceIndex, infoTypeSentences])
 
-    const onSelectInfoType = (infoType: InformationType) => {
+    const onSelectInfoType = (infoType: InformationTypes) => {
         setSelectedInfoType(infoType)
     }
 
@@ -117,7 +117,7 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
             </div>
             <div className="d-flex flex-row width-full">
                 <div className="mr-4">Showing</div>
-                <select className="form-select" value={selectedInfoType} onChange={(e) => onSelectInfoType(e.target.value as InformationType)}>
+                <select className="form-select" value={selectedInfoType} onChange={(e) => onSelectInfoType(e.target.value as InformationTypes)}>
                     <option value="expectedBehaviour">Expected Behaviour</option>
                     <option value="motivation">Motivation</option>
                     <option value="solutionDiscussion">Solution Discussion</option>

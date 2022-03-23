@@ -38,14 +38,14 @@ export class Summary {
     }
 }
 
-export type InformationType = "expectedBehaviour" | "motivation" | "solutionDiscussion" | "none"
+export type InformationTypes = "expectedBehaviour" | "motivation" | "solutionDiscussion" | "none"
 
 export class InfoSentence {
     commentId: string;
     sentenceNum: number;
-    iType: InformationType;
+    iType: InformationTypes;
 
-    constructor(commentId: string, sentenceNum: number, iType: InformationType) {
+    constructor(commentId: string, sentenceNum: number, iType: InformationTypes) {
         this.commentId = commentId;
         this.sentenceNum = sentenceNum;
         this.iType = iType
