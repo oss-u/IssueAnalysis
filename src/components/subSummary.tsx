@@ -4,6 +4,7 @@ import { generateSummary } from "../endpoints";
 import "../style.scss";
 import { IssueComment, Summary } from "../types";
 import { commentParser } from "../utils/comment_parser";
+import { Spinner } from "@primer/components";
 
 class SummaryComponent extends React.Component<
   { summaries: any; viewExistingSummary; viewing: string; editButtonHandler },
@@ -565,11 +566,15 @@ class SubSummaryComponent extends React.Component<
         />
       );
     } else {
+      // Check this later
+      const spanStyle = {
+        alignItems: "center",
+      }
       return (
-        <span className="Label mt-3">
-          <span>Loading</span>
-          <span className="AnimatedEllipsis"></span>
+        <span style={spanStyle}>
+          <Spinner size="medium" />
         </span>
+        
       );
     }
   };
