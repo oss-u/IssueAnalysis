@@ -34,7 +34,7 @@ export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
   const [editedSummaries, setEditedSummaries] = React.useState<ISummaryType[]>(summaries);
   const [editing, setEditing] = React.useState<boolean>(false);
   const [authors, setAuthors] = React.useState<string[]>([]);
-  const [currentSummary, setCurrentSummary] = React.useState<ISummaryType>(editedSummaries[0]);
+  const [currentIndex, setCurrentIndex] = React.useState<number>(0);
 
   useEffect(() => {
     setEditedSummaries(summaries)
@@ -61,23 +61,16 @@ export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
 
   const onEditSummary = (event) => {
     event.persist();
-    // const newSummaries = [...editedSummaries];
+    const newSummaries = [...editedSummaries];
     const editedSummary = {
-      typeId: currentSummary.typeId,
+      typeId: editedSummaries[currentIndex].typeId,
       content: event.target.value,
     };
-    console.log(editedSummary);
-    console.log("----");
-    // const editedIndex = newSummaries.findIndex(
-    //   (sumType) => sumType.typeId === currentSummary.typeId
-    // );
-    // console.log(editedIndex);
-    // console.log("----");
-    // newSummaries[editedIndex] = editedSummary;
-    // setEditedSummaries(newSummaries);
-    setCurrentSummary(editedSummary);
-    console.log(currentSummary);
-    console.log("-----=====-----");
+    const editedIndex = newSummaries.findIndex(
+      (sumType) => sumType.typeId === editedSummaries[currentIndex].typeId
+    );
+    newSummaries[editedIndex] = editedSummary;
+    setEditedSummaries(newSummaries);
   };
 
   const debounce = (f, delay) => {
@@ -98,19 +91,16 @@ export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
       // TODO - add a top margin
       return (<textarea className="form-control width-full p-4"
               onChange={optimisedEditSummary}>
-        {currentSummary.content}
+        {editedSummaries[currentIndex].content}
       </textarea>)
     } else
-    return (<div className="p-4">{currentSummary.content}</div>);
+    return (<div className="p-4">{editedSummaries[currentIndex].content}</div>);
   }
 
   return (
     <div className="Box-body" onClick={onNonEditClick}>
-      {initNavInfoType !== "none" && <TopLevelNavBox 
-                                        initInfoType={initNavInfoType}
-                                        hidden={true} // TODO - Check truthy (Chek with Kevin)
-                                        onClose={() => setInitNavInfoType("none")} 
-                                        onOpen={() => {}}/>}
+      {<TopLevelNavBox initInfoType={initNavInfoType} hidden={initNavInfoType==="none"}
+                      onClose={() => setInitNavInfoType("none")} onOpen={() => {}}/>}
       <nav className="UnderlineNav" aria-label="infoTypeTabs">
         <div className="UnderlineNav-body" role="tablist">
           {
@@ -118,9 +108,9 @@ export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
               return (<button className="UnderlineNav-item"
                 role="tab"
                 type="button"
-                aria-selected={(summary.typeId===currentSummary.typeId)? true: false}
+                aria-selected={(summary.typeId===editedSummaries[currentIndex].typeId)? true: false}
                 onClick={() => {
-                  setCurrentSummary(summary);
+                  setCurrentIndex(index);
                 }}>
                 {informationTypeMap.get(summary.typeId).title}
               </button>);
