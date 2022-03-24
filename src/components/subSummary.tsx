@@ -311,7 +311,7 @@ class CommentComponent extends React.Component<
             }}
             disabled={generateButtonState}
           >
-            Generate Summary
+            Generate
           </button>
           <button
             className="btn btn-sm m-1 float-right"
