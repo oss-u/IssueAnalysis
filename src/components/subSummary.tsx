@@ -4,7 +4,7 @@ import { generateSummary } from "../endpoints";
 import "../style.scss";
 import { IssueComment, Summary } from "../types";
 import { commentParser } from "../utils/comment_parser";
-import { Spinner } from "@primer/components";
+import { Spinner, Truncate } from "@primer/components";
 
 class SummaryComponent extends React.Component<
   { summaries: any; viewExistingSummary; viewing: string; editButtonHandler },
@@ -209,7 +209,11 @@ class SummaryInputComponent extends React.Component<
               </div>
             </div>
             <div className="Box-row p-1 ">
-              <p className="markdown-body">{e.text.slice(0, 50)}...</p>
+              <p className="markdown-body">
+                <Truncate title="CommentText" expandable maxWidth={250}>
+                  {e.text}
+                </Truncate>
+              </p>
             </div>
           </div>
         </div>
@@ -287,7 +291,9 @@ class CommentComponent extends React.Component<
               </div>
             </div>
             <div className="Box-row p-1 ">
-              <p className="markdown-body">{e.text.slice(0, 50)}...</p>
+            <Truncate title="CommentText" maxWidth={250}>
+                  {e.text}
+                </Truncate>
             </div>
           </div>
         </div>
