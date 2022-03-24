@@ -17,7 +17,6 @@ interface TopLevelNavBoxProps {
 
 export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element {
     const {initInfoType, hidden, onClose, onOpen} = props;
-
     const [clickedCommentId, setClickedCommentId] = useState<string | null>(null);
     const [editSelectedHighlight, setEditSelectedHighlight] = useState<boolean>(false);
     const [selectedInfoType, setSelectedInfoType] = useState<InformationType>(initInfoType);
