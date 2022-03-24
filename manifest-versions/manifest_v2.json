@@ -1,0 +1,33 @@
+{
+    "manifest_version": 2,
+  
+    "name": "SummIT",
+    "author": "avinashbhat",
+    "description": "GitHub Issue Discussion Summariser.",
+    "version": "0.0.1",
+    "homepage_url": "https://github.com/avinashbhat/SummIT.git",
+  
+    "browser_action": {
+      "default_icon": "icon.png",
+      "default_popup": "popup.html"
+    },
+  
+    "background": {
+      "scripts": ["background.js"]
+    },
+  
+    "content_scripts": [
+      {
+        "matches": ["*://*.github.com/*/issues/*", "*://*.github.com/*/pull/*"],
+        "js": ["content_script.js"]
+      }
+    ],
+  
+    "permissions": [
+      "*://*.github.com/*",
+      "storage",
+      "webRequest",
+      "webNavigation",
+      "activeTab"
+    ]
+  }
