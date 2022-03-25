@@ -196,7 +196,7 @@ class SummaryInputComponent extends React.Component<
     this.props.subSummaryObject.comments.forEach((e) => {
       let dateFormatting = e.author.createdOn.split(",").slice(0, 2).join(", ");
       comments.push(
-        <div className="d-flex flex-row m-1">
+        <div className="d-flex flex-row mb-1">
           <div className="Box width-full">
             <div className="Box-row Box-row--gray p-1">
               <div className="clearfix">
@@ -279,7 +279,7 @@ class CommentComponent extends React.Component<
     this.props.comments.forEach((e) => {
       let dateFormatting = e.author.createdOn.split(",").slice(0, 2).join(", ");
       comments.push(
-        <div className="d-flex flex-row m-1">
+        <div className="d-flex flex-row mb-1">
           <div className="Box width-full">
             <div className="Box-row Box-row--gray p-1">
               <div className="clearfix">
