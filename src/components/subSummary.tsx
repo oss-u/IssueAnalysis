@@ -694,7 +694,7 @@ class SubSummaryComponent extends React.Component<
       });
     }
     return (
-      <div id="sub-summary" className="Box">
+      <div id="sub-summary" className="Box sub-scroll" >
         <div className="Box-header">
           <div className="clearfix">
             <div className="float-left">
