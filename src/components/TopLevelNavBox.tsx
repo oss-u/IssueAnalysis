@@ -2,30 +2,35 @@
 import React, { useCallback, useEffect, useState } from "react"
 import ReactDOM from "react-dom";
 import "../style.scss";
-import { InformationType, IssueComment } from "../types";
+import { Highlight, IssueComment } from "../types";
 import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
-import {highlightComment, Highlight} from "./HighlightedComment";
+import {highlightComment} from "./HighlightedComment";
 import { v4 as uuidv4 } from "uuid"
+import { informationTypeMap } from "../utils/maps";
+import { ISummaryType } from "./InformationType";
 
 
 interface TopLevelNavBoxProps {
-    initInfoType: InformationType;
+    summaries: ISummaryType[];
+    initInfoTypeId: number;
     hidden: boolean;
     onClose: () => void;
     onOpen: () => void;
 }
 
+const informationTypeOptions = Array.from(informationTypeMap).map(([id, infoType]) => (<option value={id}>{infoType.title}</option>));
+
 export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element {
-    const {initInfoType, hidden, onClose, onOpen} = props;
+    const {summaries, initInfoTypeId, hidden, onClose, onOpen} = props;
     const [clickedCommentId, setClickedCommentId] = useState<string | null>(null);
     const [editSelectedHighlight, setEditSelectedHighlight] = useState<boolean>(false);
-    const [selectedInfoType, setSelectedInfoType] = useState<InformationType>(initInfoType);
+    const [selectedInfoTypeId, setSelectedInfoTypeId] = useState<number>(initInfoTypeId);
     const [selectedSentenceIndex, setSelectedSentenceIndex] = useState<number>(0);
     const [allSummarySentences, setAllSummarySentences] = useState<Highlight[]>([]);
     const [filteredHighlights, setFilteredHighlights] = useState<Highlight[]>([]);
     const [comments, setComments] = useState<IssueComment[]>([]);
     const [originalCommentHTML, setOriginalCommentHTML] = useState<string[]>([]);
-    const [changeInfoTypeTo, setChangeInfoTypeTo] = useState<InformationType>("none");
+    const [changeInfoTypeTo, setChangeInfoTypeTo] = useState<number | null>(null);
 
     const getOriginalCommentHTMLs = (allComments: IssueComment[]): string[] => {
         const commentHTMLs = allComments.map((comment) => comment.tag.querySelector("div.edit-comment-hide > task-lists > table > tbody > tr > td").innerHTML);
@@ -42,12 +47,14 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
     useEffect(() => {
         const allCommentElements = Array.from(getAllCommentsOnIssue())
         const allComments = allCommentElements.map(commentParser)
-        let allHighlights: Highlight[] = []
-        allComments.forEach((comment, index) => {
-            const newHighlights: Highlight[] = [{id: `h${uuidv4()}`, commentId: comment.id, span: {start: 14, end: 20}, infoType: "expectedBehaviour"}, {id: `h${uuidv4()}`, commentId: comment.id, span: {start: 20, end: 25}, infoType: "motivation"}, {id: `h${uuidv4()}`, commentId: comment.id, span: {start: 25, end: 30}, infoType: "solutionDiscussion"}];
-            allHighlights = allHighlights.concat(newHighlights);
-            comment.tag.addEventListener('click', () => setClickedCommentId(comment.id));
-        })
+        //let allHighlights: Highlight[] = []
+        // allComments.forEach((comment, index) => {
+        //     //const newHighlights: Highlight[] = [{id: `h${uuidv4()}`, commentId: comment.id, span: {start: 14, end: 20}, infoTypeId: 0}, {id: `h${uuidv4()}`, commentId: comment.id, span: {start: 20, end: 25}, infoTypeId: 1}, {id: `h${uuidv4()}`, commentId: comment.id, span: {start: 25, end: 30}, infoTypeId: 2}];
+        //     //allHighlights = allHighlights.concat(newHighlights);
+            
+        //     comment.tag.addEventListener('click', () => setClickedCommentId(comment.id));
+        // })
+        const allHighlights = summaries.map((summary) => summary.commentHighlights).flat();
         setComments(allComments);
         setAllSummarySentences(allHighlights);
         setOriginalCommentHTML(getOriginalCommentHTMLs(allComments));
@@ -65,11 +72,11 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
     }, [clickedCommentId])
 
     useEffect(() => {
-        const newFilteredHighlights = allSummarySentences.filter((sentence) => sentence.infoType === selectedInfoType);
+        const newFilteredHighlights = allSummarySentences.filter((sentence) => sentence.infoTypeId === selectedInfoTypeId);
         setFilteredHighlights(newFilteredHighlights);
         setSelectedSentenceIndex(0)
-        setChangeInfoTypeTo(selectedInfoType);
-    }, [selectedInfoType])
+        setChangeInfoTypeTo(selectedInfoTypeId);
+    }, [selectedInfoTypeId])
 
     useEffect(() => {
         if (!selectedSentenceIndex){
@@ -87,8 +94,8 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
     }, [selectedSentenceIndex, filteredHighlights])
 
     useEffect(() => {
-        setSelectedInfoType(initInfoType)
-    }, [initInfoType])
+        setSelectedInfoTypeId(initInfoTypeId)
+    }, [initInfoTypeId])
 
     useEffect(() => {
         cleanupComments();
@@ -101,8 +108,8 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
         })
     }, [selectedSentenceIndex, filteredHighlights])
 
-    const onSelectInfoType = (infoType: InformationType) => {
-        setSelectedInfoType(infoType)
+    const onSelectInfoType = (infoTypeId: number) => {
+        setSelectedInfoTypeId(infoTypeId)
     }
 
     const cleanUpAndClose = () => {
@@ -149,10 +156,8 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
                 </div>
                 <div className="d-flex flex-row width-full">
                     <div className="mr-4">Showing</div>
-                    <select className="form-select" value={selectedInfoType} onChange={(e) => onSelectInfoType(e.target.value as InformationType)}>
-                        <option value="expectedBehaviour">Expected Behaviour</option>
-                        <option value="motivation">Motivation</option>
-                        <option value="solutionDiscussion">Solution Discussion</option>
+                    <select className="form-select" value={selectedInfoTypeId} onChange={(e) => onSelectInfoType(parseInt(e.target.value))}>
+                        {informationTypeOptions}
                     </select>
                 </div>
                 <div id="navContainer" className="d-flex flex-row width-full">
@@ -170,10 +175,8 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
                 </div>
                 <div className="d-flex flex-row width-full">
                     <div className="h4 mr-3">As</div>
-                    <select className="form-select" value={changeInfoTypeTo} onChange={(e) => setChangeInfoTypeTo(e.target.value as InformationType)}>
-                        <option value="expectedBehaviour">Expected Behaviour</option>
-                        <option value="motivation">Motivation</option>
-                        <option value="solutionDiscussion">Solution Discussion</option>
+                    <select className="form-select" value={changeInfoTypeTo} onChange={(e) => setChangeInfoTypeTo(parseInt(e.target.value))}>
+                        {informationTypeOptions}
                     </select>
                 </div>
                 <div className="d-flex flex-row width-full flex-justify-end">
