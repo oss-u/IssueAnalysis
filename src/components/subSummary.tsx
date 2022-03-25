@@ -511,7 +511,7 @@ class SubSummaryComponent extends React.Component<
     this.setState({
       editing: this.state.viewing,
       viewing: "",
-      visible: "comments",
+      visible: "input",
     });
   };
 
@@ -590,15 +590,11 @@ class SubSummaryComponent extends React.Component<
         />
       );
     } else {
-      // Check this later
-      const spanStyle = {
-        alignItems: "center",
-      }
       return (
-        <span style={spanStyle}>
-          <Spinner size="medium" />
+        <span className="Label m-3">
+          <span>Loading</span>
+          <span className="AnimatedEllipsis"></span>
         </span>
-        
       );
     }
   };
