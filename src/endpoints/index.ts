@@ -62,6 +62,21 @@ export const saveInformationType = async (
   return res.json();
 };
 
+export const getInformationType = async (
+  gh_user: string,
+  repo: string,
+  issue_number: string,
+  commentId: string
+): Promise<ModelComment> => {
+  const extension = `/${gh_user}/${repo}/${issue_number}/information-type`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("GET");
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.json();
+};
+
+
 export interface ModelInfoTypeSummary {
   id: number;
   text: string;
