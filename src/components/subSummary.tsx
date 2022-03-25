@@ -4,7 +4,9 @@ import { generateSummary } from "../endpoints";
 import "../style.scss";
 import { IssueComment, Summary } from "../types";
 import { commentParser } from "../utils/comment_parser";
-import { Spinner, Truncate } from "@primer/components";
+import { Spinner, Truncate } from '@primer/components';
+import { IconButton } from '@primer/react';
+import { PlusIcon, TriangleRightIcon } from '@primer/octicons-react';
 
 class SummaryComponent extends React.Component<
   { summaries: any; viewExistingSummary; viewing: string; editButtonHandler },
@@ -13,7 +15,6 @@ class SummaryComponent extends React.Component<
   render() {
     let summaryContent: Array<JSX.Element> = [];
     this.props.summaries.forEach((s) => {
-      console.log(s);
       const uniqueAuthors = [
         ...new Set(s.comments.map((comment) => comment.author.uname)),
       ];
@@ -116,6 +117,8 @@ class NavigationComponent extends React.Component<
     this.props.navbarContent.forEach((c) => {
       commentTags.forEach((tag) => {
         if (this.props.commentParser(tag).id === c.id) {
+          const tagHeader = tag.querySelector(".timeline-comment-header");
+          tagHeader.setAttribute("style", "background:#6cc644");
           tag.classList.add("color-border-success-emphasis");
         }
       });
@@ -335,7 +338,7 @@ class CommentComponent extends React.Component<
 }
 
 class SubSummaryComponent extends React.Component<
-  {},
+  {resizePanel},
   {
     subsummaries: Array<Summary>;
     editing: string;
@@ -368,6 +371,8 @@ class SubSummaryComponent extends React.Component<
         this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])
       ) {
         if (!tag.classList.contains("color-border-success-emphasis")) {
+          const tagHeader = tag.querySelector(".timeline-comment-header");
+          tagHeader.setAttribute("style", "background:#6cc644");
           tag.classList.add("color-border-success-emphasis");
         }
       }
@@ -387,6 +392,8 @@ class SubSummaryComponent extends React.Component<
     commentTags.forEach((tag) => {
       if (commentList.includes(tag.querySelector("a.js-timestamp")["href"])) {
         if (!tag.classList.contains("color-border-success-emphasis")) {
+          const tagHeader = tag.querySelector(".timeline-comment-header");
+          tagHeader.setAttribute("style", "background:#6cc644");
           tag.classList.add("color-border-success-emphasis");
         }
       }
@@ -411,6 +418,8 @@ class SubSummaryComponent extends React.Component<
             1
           );
           if (tag.classList.contains("color-border-success-emphasis")) {
+            const tagHeader = tag.querySelector(".timeline-comment-header");
+            tagHeader.removeAttribute("style");
             tag.classList.remove("color-border-success-emphasis");
           }
         }
@@ -428,6 +437,8 @@ class SubSummaryComponent extends React.Component<
           visible: "comments",
         });
       }
+      const tagHeader = tag.querySelector(".timeline-comment-header");
+      tagHeader.setAttribute("style", "background:#6cc644");
       tag.classList.add("color-border-success-emphasis");
     } else {
       if (this.state.editing) {
@@ -446,6 +457,8 @@ class SubSummaryComponent extends React.Component<
             1
           );
           if (tag.classList.contains("color-border-success-emphasis")) {
+            const tagHeader = tag.querySelector(".timeline-comment-header");
+            tagHeader.removeAttribute("style");
             tag.classList.remove("color-border-success-emphasis");
           }
         }
@@ -607,6 +620,8 @@ class SubSummaryComponent extends React.Component<
 
     commentTags.forEach((tag) => {
       if (tag.classList.contains("color-border-success-emphasis")) {
+        const tagHeader = tag.querySelector(".timeline-comment-header");    
+        tagHeader.removeAttribute("style");
         tag.classList.remove("color-border-success-emphasis");
       }
     });
@@ -687,12 +702,14 @@ class SubSummaryComponent extends React.Component<
             </div>
             <div className="float-right">
               <div className="float-right d-inline-flex">
-                <button
-                  className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
-                  onClick={this.addCommentsToSummary}
-                >
-                  +
-                </button>
+              <IconButton aria-label="add" 
+                size="medium" icon={PlusIcon} 
+                className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
+                onClick={this.addCommentsToSummary}/>
+                <IconButton aria-label="add" 
+                size="medium" icon={TriangleRightIcon} 
+                className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
+                onClick={() => {this.props.resizePanel(1)}}/>
               </div>
             </div>
           </div>
