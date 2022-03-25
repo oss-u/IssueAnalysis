@@ -1,4 +1,8 @@
-import { predictInformationType } from "../endpoints";
+import {
+  ModelComment,
+  predictInformationType,
+  saveInformationType,
+} from "../endpoints";
 
 export const addCommentToDB = async (
   gh_user: string,
@@ -8,4 +12,13 @@ export const addCommentToDB = async (
   commentText: string
 ) => {
   const spans = await predictInformationType(commentText);
+  const infoTypedComment: ModelComment = {
+    comment: commentText,
+    comment_id: commentId,
+    sentences: spans,
+    datetime: new Date().toISOString(),
+  };
+  await saveInformationType(gh_user, repo, issue_number, infoTypedComment);
+  console.log(infoTypedComment);
+  return;
 };

@@ -1,9 +1,9 @@
 import React, {useEffect} from "react";
 import "../style.scss";
-import { InformationType } from "../types";
 import { getCurrentUserName } from "../utils";
 import { informationTypeMap } from "../utils/maps";
 import TopLevelNavBox from "../components/TopLevelNavBox";
+import { Highlight } from "../types";
 
 interface InformationTypeProps {
   title: string;
@@ -13,15 +13,10 @@ interface InformationTypeProps {
   // onEdit: (content: string) => void;
 }
 
-const mapInfoIdToType: { [id: number]: InformationType } = {
-  1: "expectedBehaviour",
-  2: "motivation",
-  6: "solutionDiscussion",
-}
-
-interface ISummaryType {
+export interface ISummaryType {
   typeId: number;
   content: string;
+  commentHighlights: Highlight[];
 }
 
 interface IInformationTypeTabs {
@@ -30,7 +25,7 @@ interface IInformationTypeTabs {
 
 export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
   const { summaries } = props;
-  const [initNavInfoType, setInitNavInfoType] = React.useState<InformationType>("none");
+  const [initNavInfoTypeId, setInitNavInfoTypeId] = React.useState<number | null>(null);
   const [editedSummaries, setEditedSummaries] = React.useState<ISummaryType[]>(summaries);
   const [editing, setEditing] = React.useState<boolean>(false);
   const [authors, setAuthors] = React.useState<string[]>([]);
@@ -55,16 +50,15 @@ export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
   };
 
   const onClickInfoType = (infoTypeId: number) => {
-    const infoType = mapInfoIdToType[infoTypeId];
-    setInitNavInfoType(infoType);
+    setInitNavInfoTypeId(infoTypeId);
   }
 
   const onEditSummary = (event) => {
     event.persist();
     const newSummaries = [...editedSummaries];
     const editedSummary = {
-      typeId: editedSummaries[currentIndex].typeId,
-      content: event.target.value,
+      ...editedSummaries[currentIndex],
+      content: event.target.value
     };
     const editedIndex = newSummaries.findIndex(
       (sumType) => sumType.typeId === editedSummaries[currentIndex].typeId
@@ -94,13 +88,13 @@ export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
         {editedSummaries[currentIndex].content}
       </textarea>)
     } else
-    return (<div className="p-4">{editedSummaries[currentIndex].content}</div>);
+    return (<div className="p-4" dangerouslySetInnerHTML={{__html: editedSummaries[currentIndex].content}} />);
   }
 
   return (
     <div className="Box-body" onClick={onNonEditClick}>
-      {<TopLevelNavBox initInfoType={initNavInfoType} hidden={initNavInfoType==="none"}
-                      onClose={() => setInitNavInfoType("none")} onOpen={() => {}}/>}
+      {<TopLevelNavBox initInfoTypeId={initNavInfoTypeId} hidden={initNavInfoTypeId===null}
+                      onClose={() => setInitNavInfoTypeId(null)} onOpen={() => {}} summaries={summaries}/>}
       <nav className="UnderlineNav" aria-label="infoTypeTabs">
         <div className="UnderlineNav-body" role="tablist">
           {

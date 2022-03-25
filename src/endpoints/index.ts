@@ -51,7 +51,7 @@ export interface ModelComment {
 export const saveInformationType = async (
   gh_user: string,
   repo: string,
-  issue_number: string,
+  issue_number: number,
   comment: ModelComment
 ): Promise<ModelComment> => {
   const extension = `/${gh_user}/${repo}/${issue_number}/save-information-type`;

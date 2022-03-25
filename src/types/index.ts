@@ -45,7 +45,8 @@ export type InformationType =
   | "none";
 
 export interface Highlight {
+  id: string;
   commentId: string;
   span: { start: number; end: number };
-  infoType: InformationType;
+  infoTypeId: number;
 }

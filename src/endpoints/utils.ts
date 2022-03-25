@@ -23,6 +23,5 @@ export const makeRequestArguments = (
   headers: {
     "Content-Type": "application/json",
   },
-  mode: "cors",
   body: JSON.stringify(body) || null,
 });
