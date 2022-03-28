@@ -6,7 +6,7 @@ import { IssueComment, Summary } from "../types";
 import { commentParser } from "../utils/comment_parser";
 import { Spinner, Truncate } from '@primer/components';
 import { IconButton } from '@primer/react';
-import { PlusIcon, TriangleRightIcon } from '@primer/octicons-react';
+import { PlusIcon, TriangleRightIcon, TriangleLeftIcon, Icon } from '@primer/octicons-react';
 
 class SummaryComponent extends React.Component<
   { summaries: any; viewExistingSummary; viewing: string; editButtonHandler },
@@ -347,8 +347,10 @@ class SubSummaryComponent extends React.Component<
     visible: string;
     viewing: string;
     genSumm: string;
+    arrow: Icon;
   }
 > {
+  
   addedComments: Array<string>;
   constructor(props) {
     super(props);
@@ -359,6 +361,7 @@ class SubSummaryComponent extends React.Component<
       visible: "summary",
       viewing: "",
       genSumm: "",
+      arrow: TriangleRightIcon
     };
     this.loadCommentComponents = this.loadCommentComponents.bind(this);
     this.saveSummary == this.saveSummary.bind(this);
@@ -593,10 +596,10 @@ class SubSummaryComponent extends React.Component<
       );
     } else {
       return (
-        <span className="Label m-3">
-          <span>Loading</span>
+        <div className="Label m-3">
+          <span >Loading</span>
           <span className="AnimatedEllipsis"></span>
-        </span>
+        </div>
       );
     }
   };
@@ -705,9 +708,14 @@ class SubSummaryComponent extends React.Component<
                 className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
                 onClick={this.addCommentsToSummary}/>
                 <IconButton aria-label="add" 
-                size="medium" icon={TriangleRightIcon} 
+                size="medium" icon={this.state.arrow} 
                 className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
-                onClick={() => {this.props.resizePanel(1)}}/>
+                onClick={() => {
+                  this.props.resizePanel(1);
+                  this.setState({
+                    arrow: TriangleLeftIcon
+                  });
+                  }}/>
               </div>
             </div>
           </div>
