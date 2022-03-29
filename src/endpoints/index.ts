@@ -108,3 +108,35 @@ export const generateTopLevelSummary = async (
   throwErrorsForResponse(res);
   return res.json();
 };
+
+export interface Author {
+  user_id: string,
+  link: string
+}
+
+export interface Comment {
+  id: string,
+  text: string,
+  author: string,
+  commented_on: string
+}
+
+export interface Subsummary {
+  summary: string;
+  author: Author;
+  comments: Comment[];
+}
+
+export const saveUserSummaries = async (
+  gh_user: string,
+  repo: string,
+  issue_number: number,
+  subsummaries: Subsummary
+): Promise<ModelComment> => {
+  const extension = `/${gh_user}/${repo}/${issue_number}/comment-summary`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("POST", subsummaries);
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.json();
+};

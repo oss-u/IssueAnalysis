@@ -1,11 +1,13 @@
 import React from "react";
 import axios from "axios";
-import { generateSummary } from "../endpoints";
+import { generateSummary, saveUserSummaries, Author, Subsummary, Comment } from "../endpoints";
 import "../style.scss";
 import { IssueComment, Summary } from "../types";
 import { commentParser } from "../utils/comment_parser";
 import { Spinner, Truncate } from '@primer/components';
 import { IconButton } from '@primer/react';
+import { getCurrentUserName } from "../utils";
+import { parseURLForIssueDetails } from "../utils/scraping";
 import { PlusIcon, TriangleRightIcon, TriangleLeftIcon, Icon } from '@primer/octicons-react';
 
 class SummaryComponent extends React.Component<
@@ -649,11 +651,25 @@ class SubSummaryComponent extends React.Component<
     // this.resetBorderHighlights();
   };
 
+  // getLoggedInUser = () => {
+  //   // A really bad way to get logged in user, but for now this will do
+  //   const header = document.querySelector(".details-overlay.details-reset.js-feature-preview-indicator-container");
+  //   const summary = header.getElementsByTagName("summary")[0];
+  //   const img = summary.getElementsByTagName("img")[0];
+  //   return img.alt.substring(1); // since logged in user starts with @, for example "@avinashbhat"
+  // }
+
   saveSummary = (summary: HTMLFormElement) => {
     summary.preventDefault();
     // make an API call and submit the form
     // response is summary
-
+    let liUser: string = getCurrentUserName();
+    let author: Author = {
+      "user_id": liUser,
+      "link": "https://github.com/" + liUser
+    
+    }
+    
     let storedSummary = this.state.genSumm; // API response
 
     let modifiedSummary = this.state.subsummaries.findIndex(
@@ -664,9 +680,32 @@ class SubSummaryComponent extends React.Component<
 
     item.summary = storedSummary;
     items[modifiedSummary] = item;
-
+    
+    let comments: Comment[] = [];
     item.comments.forEach((c) => {
+      let comment: Comment = {
+        id: c.id,
+        text: c.text,
+        author: c.author.uname,
+        commented_on: new Date(c.author.createdOn).toISOString()
+      }
+      comments.push(comment);
       this.addedComments.push(c.id);
+    });
+
+    const subsummaries: Subsummary = {
+      summary: this.state.genSumm,
+      author: author,
+      comments: comments
+    }
+
+    const issueDetails = parseURLForIssueDetails();
+    saveUserSummaries(liUser, issueDetails.repository, issueDetails.issueNum, subsummaries).then((response) => {
+      console.log(response);
+    }).catch((e) => {
+      // Might want to move this to a Toast
+      console.log("Error in saving the summary.");
+      console.log(e);
     });
 
     this.setState({
