@@ -16,14 +16,18 @@ function panelSetup(): HTMLDivElement {
   // The summary panel on the left
   summaryPanel.id = "summary-panel";
   summaryPanel.className = "Layout-sidebar";
-  summaryPanel.style.position = "relative";
+  summaryPanel.style.top = "10%";
+  summaryPanel.style.position = "sticky";
+  // summaryPanel.style.position = "relative";
   // summaryPanel.classList.add("summary-container");
 
   // The wrapper at the top level
   let contentAndSummaryWrapper = document.createElement("div");
   contentAndSummaryWrapper.id = "content-summary-wrapper";
-  contentAndSummaryWrapper.id = "summary-wrapper";
+  // contentAndSummaryWrapper.id = "summary-wrapper";
   contentAndSummaryWrapper.className = "Layout Layout--sidebar-narrow";
+  contentAndSummaryWrapper.style.position = "relative";
+  
 
   // Only wrap the content
   let contentWrapper = document.createElement("div");
@@ -52,7 +56,7 @@ const resizeSummaryPanel = (panelState: number) => {
   const summaryPanel = document.getElementById("summary-panel");
   const actionPanel = document.getElementById("action-wrapper");
   const contentWrapper = document.getElementById("content-wrapper");
-  const summaryWrapper = document.getElementById("summary-wrapper");
+  const summaryWrapper = document.getElementById("content-summary-wrapper");
   const mainLayoutTimeline = contentWrapper.children[0];
 
   if (panelState) {
@@ -101,8 +105,10 @@ const createSummaryPanel = () => {
   summaryPanel = panelSetup();
   let subSummaryComponent = document.createElement("div");
   subSummaryComponent.id = "subsummary";
+  subSummaryComponent.style.top = "10%";
+  subSummaryComponent.style.position = "sticky";
   summaryPanel.appendChild(subSummaryComponent);
-  subSummaryComponent.classList.add("summary-sticky");
+  // subSummaryComponent.classList.add("summary-sticky");
 
   // let informationTypeTagger = document.createElement("div");
   // informationTypeTagger.className = "mt-6";
