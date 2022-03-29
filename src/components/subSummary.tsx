@@ -348,6 +348,7 @@ class SubSummaryComponent extends React.Component<
     viewing: string;
     genSumm: string;
     arrow: Icon;
+    panelState: number;
   }
 > {
   
@@ -361,7 +362,8 @@ class SubSummaryComponent extends React.Component<
       visible: "summary",
       viewing: "",
       genSumm: "",
-      arrow: TriangleRightIcon
+      arrow: TriangleRightIcon,
+      panelState: 1
     };
     this.loadCommentComponents = this.loadCommentComponents.bind(this);
     this.saveSummary == this.saveSummary.bind(this);
@@ -682,6 +684,14 @@ class SubSummaryComponent extends React.Component<
     });
   };
 
+  toggleArrow = () => {
+    if (this.state.arrow === TriangleLeftIcon) {
+      return TriangleRightIcon
+    } else {
+      return TriangleLeftIcon
+    }
+  }
+
   render() {
     let navbarContent;
     if (
@@ -711,9 +721,10 @@ class SubSummaryComponent extends React.Component<
                 size="medium" icon={this.state.arrow} 
                 className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
                 onClick={() => {
-                  this.props.resizePanel(1);
+                  this.props.resizePanel(this.state.panelState);
                   this.setState({
-                    arrow: TriangleLeftIcon
+                    panelState: 1-this.state.panelState,
+                    arrow: this.toggleArrow()
                   });
                   }}/>
               </div>
