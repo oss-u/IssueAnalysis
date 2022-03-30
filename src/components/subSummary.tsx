@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
-import { generateSummary, saveUserSummaries, Author, Subsummary, Comment } from "../endpoints";
+import { generateSummary, saveUserSummaries, getUserSummaries, deleteUserSummaries,
+         Author, Subsummary, Comment, getUserSummaryComments } from "../endpoints";
 import "../style.scss";
 import { IssueComment, Summary } from "../types";
 import { commentParser } from "../utils/comment_parser";
@@ -369,6 +370,54 @@ class SubSummaryComponent extends React.Component<
     };
     this.loadCommentComponents = this.loadCommentComponents.bind(this);
     this.saveSummary == this.saveSummary.bind(this);
+    this.getExistingUserSummaries();
+  }
+
+  getExistingUserSummaries = () => {
+    let existingSubsummaries: Summary[] = [];
+    const issueDetails = parseURLForIssueDetails();
+    const allCommentMap = new Map<string, IssueComment>();
+    document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    ).forEach(ct => {
+      let parsed: IssueComment = commentParser(ct);
+      allCommentMap.set(parsed.id, parsed);
+    });
+    getUserSummaries(issueDetails.user, issueDetails.repository, issueDetails.issueNum).then((response) => {
+      response.map((s) => {
+        getUserSummaryComments(issueDetails.user, issueDetails.repository, issueDetails.issueNum, s.id).then((res) => {
+          let issueComments: IssueComment[] = [];
+            res.comments.map((c) => {
+              let auth = {
+                uname: c.author,
+                createdOn: c.commented_on,
+                profile: "https://github.com/" + c.author,
+              }
+              let iComment: IssueComment = {
+                id: c.id,
+                tag: allCommentMap.get(c.id).tag,
+                author: auth,
+                text: c.text
+              }
+              issueComments.push(iComment);
+            });
+          let ess: Summary = {
+            id: res.id.toString(),
+            summary: res.summary,
+            comments: issueComments
+          }
+          existingSubsummaries.push(ess);
+          this.setState({
+            subsummaries: existingSubsummaries
+          });
+        }).catch((e) => {
+          console.log(e);
+        })
+      });
+    }).catch((e) => {
+      // add a toast (maybe?)
+      console.log(e);
+    });
   }
 
   addBorderHighlights = () => {
@@ -574,9 +623,7 @@ class SubSummaryComponent extends React.Component<
 
   loadSummaryInputComponent = () => {
     let concatenatedComments = this.concatCommentsOfSubsummary();
-    console.log("loadSummary")
     if (!this.state.genSumm) {
-      console.log("no gensumm");
       generateSummary(concatenatedComments).then((summaryRes) => this.setState({
         genSumm: summaryRes.summary
       }));
@@ -701,6 +748,7 @@ class SubSummaryComponent extends React.Component<
 
     const issueDetails = parseURLForIssueDetails();
     saveUserSummaries(liUser, issueDetails.repository, issueDetails.issueNum, subsummaries).then((response) => {
+      // Nothing to do, its already saved
       console.log(response);
     }).catch((e) => {
       // Might want to move this to a Toast
@@ -743,6 +791,7 @@ class SubSummaryComponent extends React.Component<
         }
       });
     }
+
     return (
       <div id="sub-summary" className="Box sub-scroll" >
         <div className="Box-header">

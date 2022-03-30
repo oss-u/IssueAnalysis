@@ -33,6 +33,10 @@
   position: relative;
 }
 
+.user-summary-container {
+  position: sticky;
+}
+
 .summary-sticky {
   top: 5vh;
   position: sticky;
