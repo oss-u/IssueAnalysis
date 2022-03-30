@@ -33,8 +33,12 @@
   position: relative;
 }
 
+.user-summary-container {
+  position: sticky;
+}
+
 .summary-sticky {
-  top: 5vw;
+  top: 5vh;
   position: sticky;
 }
 
@@ -42,4 +46,13 @@
   max-height: 80vh;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+.subsummary-overflow {
+  overflow-wrap: anywhere;
+}
+
+.loading-center {
+  display: flex;
+  justify-content: center;
 }

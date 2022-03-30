@@ -82,31 +82,3 @@ export default function InformationTypeSummary(): JSX.Element {
     </div>
   );
 }
-
-
-
-// const onEditSummary = (idNum: number) => {
-//   return (content: string) => {
-//     const newSummaries = [...editedSummaries]
-//     const editedSummary = {
-//       typeId: idNum,
-//       content
-//     }
-//     const editedIndex = newSummaries.findIndex((sumType) => sumType.typeId === idNum)
-//     newSummaries[editedIndex] = editedSummary;
-//     setEditedSummaries(newSummaries);
-//   }
-// }
-
-// const onSave = () => {
-//   setInformationTypeSummaries(editedSummaries);
-//   const newAuthors = new Set(authors)
-//   newAuthors.add(getCurrentUserName())
-//   setAuthors(Array.from(newAuthors.values()));
-//   setEditing(false);
-// }
-
-// const onClickInfoType = (infoTypeId: number) => {
-//   const infoType = mapInfoIdToType[infoTypeId];
-//   setInitNavInfoType(infoType);
-// }

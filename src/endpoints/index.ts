@@ -108,3 +108,83 @@ export const generateTopLevelSummary = async (
   throwErrorsForResponse(res);
   return res.json();
 };
+
+export interface Author {
+  user_id: string,
+  link: string
+}
+
+export interface Comment {
+  id: string,
+  text: string,
+  author: string,
+  commented_on: string
+}
+
+export interface Subsummary {
+  summary: string;
+  author: Author;
+  comments: Comment[];
+}
+
+interface UserSummaries {
+  id: number,
+  summary: string,
+  author: Author,
+  comments: Comment[]
+}
+
+export const saveUserSummaries = async (
+  gh_user: string,
+  repo: string,
+  issue_number: number,
+  subsummaries: Subsummary
+): Promise<UserSummaries> => {
+  const extension = `/${gh_user}/${repo}/${issue_number}/comment-summary`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("POST", subsummaries);
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.json();
+};
+
+export const getUserSummaries = async (
+  gh_user: string,
+  repo: string,
+  issue_number: number,
+): Promise<UserSummaries[]> => {
+  const extension = `/${gh_user}/${repo}/${issue_number}/comment-summary`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("GET");
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.json();
+};
+
+export const getUserSummaryComments = async (
+  gh_user: string,
+  repo: string,
+  issue_number: number,
+  comment_summary_id: number
+): Promise<UserSummaries> => {
+  const extension = `/${gh_user}/${repo}/${issue_number}/comment-summary/${comment_summary_id}/`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("GET");
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.json();
+};
+
+export const deleteUserSummaries = async (
+  gh_user: string,
+  repo: string,
+  issue_number: number,
+  comment_summary_id: number
+): Promise<string> => {
+  const extension = `/${gh_user}/${repo}/${issue_number}/comment-summary/${comment_summary_id}/`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("DELETE");
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.json();
+};

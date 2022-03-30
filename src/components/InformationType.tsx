@@ -82,8 +82,7 @@ export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
   
   function InformationTypeJSX(): JSX.Element {
     if (editing) {
-      // TODO - add a top margin
-      return (<textarea className="form-control width-full p-4"
+      return (<textarea className="form-control width-full p-4 mb-2"
               onChange={optimisedEditSummary}>
         {editedSummaries[currentIndex].content}
       </textarea>)
