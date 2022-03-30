@@ -20,6 +20,9 @@ interface TopLevelNavBoxProps {
 
 const informationTypeOptions = Array.from(informationTypeMap).map(([id, infoType]) => (<option value={id}>{infoType.title}</option>));
 
+const NAVBOX_WIDTH = 300;
+const GITHUB_MAX_CONTENT_SIZE = 1280;
+
 export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element {
     const {summaries, initInfoTypeId, hidden, onClose, onOpen} = props;
     const [clickedCommentId, setClickedCommentId] = useState<string | null>(null);
@@ -31,6 +34,8 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
     const [comments, setComments] = useState<IssueComment[]>([]);
     const [originalCommentHTML, setOriginalCommentHTML] = useState<string[]>([]);
     const [changeInfoTypeTo, setChangeInfoTypeTo] = useState<number | null>(null);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement>(document.querySelector("#show_issue") as HTMLElement);
+    const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 
     const getOriginalCommentHTMLs = (allComments: IssueComment[]): string[] => {
         const commentHTMLs = allComments.map((comment) => comment.tag.querySelector("div.edit-comment-hide > task-lists > table > tbody > tr > td").innerHTML);
@@ -58,6 +63,9 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
         setComments(allComments);
         setAllSummarySentences(allHighlights);
         setOriginalCommentHTML(getOriginalCommentHTMLs(allComments));
+        window.addEventListener('resize', (e) => {
+            setWindowWidth(window.innerWidth);
+        })
     }, [])
 
     useEffect(() => {
@@ -146,8 +154,9 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
         return <></>
     }
     
+    const windowWidthMaxed = windowWidth > GITHUB_MAX_CONTENT_SIZE;
     return (
-        <div className="Box position-fixed p-2 d-flex flex-column" style={{width: 300, zIndex: 100, right: 8}}>
+        <div className="Box position-fixed p-2 d-flex flex-column" style={{width: NAVBOX_WIDTH, zIndex: 100, right: windowWidthMaxed ? undefined : 8, left: windowWidthMaxed ? anchorEl.offsetLeft + anchorEl.offsetWidth - NAVBOX_WIDTH : undefined}}>
             {!editSelectedHighlight && (<>
                 <div id="navButtons" className="d-flex flex-row flex-justify-end">
                         <button className="btn-octicon my-2" onClick={() => setSelectedSentenceIndex(selectedSentenceIndex-1)}>&#12296;</button>
@@ -156,7 +165,7 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
                 </div>
                 <div className="d-flex flex-row width-full">
                     <div className="mr-4">Showing</div>
-                    <select className="form-select" value={selectedInfoTypeId} onChange={(e) => onSelectInfoType(parseInt(e.target.value))}>
+                    <select className="form-select" style={{maxWidth: 200}} value={selectedInfoTypeId} onChange={(e) => onSelectInfoType(parseInt(e.target.value))}>
                         {informationTypeOptions}
                     </select>
                 </div>

@@ -40,38 +40,32 @@ export default function InformationTypeSummary(): JSX.Element {
   return (
     <div>
       <div id="topLevelSummary" className="Box">
-        <div className="Box-header">
-          <div className="clearfix">
-            <div className="col-6 float-left px-1">
-              <h2 className="Box-title p-1">Information Type Summaries</h2>
-            </div>
-            <div className="col-3 float-right">
-              <div className="clearfix">
-                <div className="col-6 float-right px-1 d-inline-flex">
-                  <button className="btn btn-sm" type="button" onClick={scrapeAndAddCommentsToDB}>
-                    Add Comments to DB
-                  </button>
-                  <button
-                    id="minimiseButton"
-                    className="btn btn-sm ml-2"
-                    type="button"
-                    aria-disabled={(tabSummaries.length > 0) ? "false" : "true"}
-                    onClick={() => {
-                      if (tabSummaries.length > 0)
+        <div className="Box-header width-full">
+          <div className="d-flex flex-justify-between width-full">
+            <h2 className="Box-title p-1">Information Type Summaries</h2>
+            <div className="d-inline-flex">
+              <button className="btn btn-sm" type="button" onClick={scrapeAndAddCommentsToDB}>
+                Add Comments to DB
+              </button>
+              <button
+                id="minimiseButton"
+                className="btn btn-sm ml-2"
+                type="button"
+                aria-disabled={(tabSummaries.length > 0) ? "false" : "true"}
+                onClick={() => {
+                  if (tabSummaries.length > 0)
                         setVisible(!visible);
-                    }}
-                  >
-                    {visible ? "Hide" : "Show"}
-                  </button>
-                  <button
-                    className="btn btn-sm btn-primary ml-2"
-                    type="button"
-                    onClick={initializeTopLevelSummary}
-                  >
-                    Generate
-                  </button>
-                </div>
-              </div>
+                }}
+              >
+                {visible ? "Hide" : "Show"}
+              </button>
+              <button
+                className="btn btn-sm btn-primary ml-2"
+                type="button"
+                onClick={initializeTopLevelSummary}
+              >
+                Generate
+              </button>
             </div>
           </div>
         </div>

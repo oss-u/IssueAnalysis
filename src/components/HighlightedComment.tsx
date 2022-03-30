@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import ReactDOM from "react-dom";
 import "../style.scss";
-import { InformationType } from "../types";
+import {Highlight} from "../types"
 
 interface HighlightProps {
   text: string,
