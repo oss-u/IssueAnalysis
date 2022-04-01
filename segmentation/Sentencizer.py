@@ -2,6 +2,7 @@ import re
 import uuid
 from dataclasses import dataclass
 from typing import List, Tuple, Dict
+
 from spacy.lang.en import English
 
 
@@ -136,7 +137,7 @@ class Sentencizer:
       
       sentences_span.append(Span(start=start, end=end+acc_offset))
       
-      start = end + acc_offset + 1
+      start = end + acc_offset
       acc_offset += local_offset
     
     return sentences_span
@@ -146,3 +147,12 @@ class Sentencizer:
       Sentencizer.clean_text(Sentencizer.preprocess(sent, tag_artifact=False)[0])
       for sent in sentences
     ])
+
+
+# For testing
+if __name__ == '__main__':
+  sentences = "I will go more into depth by providing a generic example of the problem. I think it has to do with the GridSearchCV being placed in a for loop. (To not waste too much of your time, you should probably start at the run_tune_process() method which is being called at the bottom of the code and calls the method containing GridSearchCV() in a for loop)"
+  sentencizer = Sentencizer(None)
+  spans = sentencizer.sentencize(sentences)
+  print(spans)
+  print([sentences[span.start:span.end] for span in spans])
