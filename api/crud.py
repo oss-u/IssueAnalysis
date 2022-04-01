@@ -107,6 +107,31 @@ def delete_comment_summary(comment_summary_id, db: Session):
   db.commit()
 
 
+def update_comment_summary_summary(comment_summary_id: int, summary_text: str, db: Session):
+  db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).update({
+    models.CommentSummary.summary: summary_text
+  })
+  db.commit()
+
+
+def update_comment_summary_comment(comment_summary_id: int, comments: List[schemas.Comment], db: Session):
+  comments = {comment.id: comment for comment in comments}
+  
+  # update comments
+  for comment in db.query(models.Comment).filter(models.Comment.in_(comment.id for comment in comments)).all():
+    db.merge(comments.pop(comment.id))
+  
+  db.add_all(comments.values())
+  db.commit()
+  
+  # creating relation for new comments added
+  new_comment_summary_relations = [models.CommentSummaryXComment(
+    commentSummaryId=comment_summary_id,
+    commentId=comment_id
+  ) for comment_id in comments.keys()]
+  db.bulk_save_objects(new_comment_summary_relations)
+
+
 def generate_summary(text: str, sentencizer: Sentencizer) -> schemas.SummaryText:
   request_payload = {
     'type': 'comment-level',

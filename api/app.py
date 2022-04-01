@@ -139,6 +139,26 @@ def delete_comment_summary(comment_summary_id: int, db: Session = Depends(get_db
     crud.delete_comment_summary(comment_summary_id, db)
   return Response(status_code=204)
 
+@app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/{comment_summary_id}/update-summary")
+def update_comment_summary_summary(comment_summary_id: int, summary: schemas.SummaryInput,
+                                   db: Session = Depends(get_db_session)):
+  """
+  Updates summary part of a comment summary with given id.
+  """
+  if db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).first() is not None:
+    crud.update_comment_summary_summary(comment_summary_id, summary.text, db)
+  return Response(status_code=404)
+
+@app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/{comment_summary_id}/update-comments")
+def update_comment_summary_comment(comment_summary_id: int, comments: List[schemas.Comment],
+                                   db: Session = Depends(get_db_session)):
+  """
+  Updates comments part of a comment summary with given id.
+  """
+  if db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).first() is not None:
+    crud.update_comment_summary_comment(comment_summary_id, comments, db)
+  return Response(status_code=404)
+
 # TOP LEVEL SUMMARY
 @app.post("/api/{gh_user}/{repo}/{issue_number}/generate-top-level-summary/",
           response_model=List[schemas.TopLevelSummary])
