@@ -22,9 +22,7 @@ export default function Highlight(props: HighlightProps): JSX.Element {
     const [backgroundColor, setBackgroundColor] = useState<string>(selected ? "#3C89D0" : "#6CA9FF");
 
     return (
-        <span style={{backgroundColor}} onClick={() => setBackgroundColor("#FF00FF")}>
-          {text}
-        </span>
+        <span style={{backgroundColor}} onClick={() => setBackgroundColor("#FF00FF")} dangerouslySetInnerHTML={{__html: text}}/>
       );
 }
 

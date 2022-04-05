@@ -3,7 +3,7 @@ import "../style.scss";
 import { getCurrentUserName } from "../utils";
 import { informationTypeMap } from "../utils/maps";
 import TopLevelNavBox from "../components/TopLevelNavBox";
-import { Highlight } from "../types";
+import { Highlight, IssueComment } from "../types";
 
 interface InformationTypeProps {
   title: string;
@@ -21,10 +21,11 @@ export interface ISummaryType {
 
 interface IInformationTypeTabs {
   summaries: ISummaryType[];
+  selectedComment: IssueComment | null;
 }
 
 export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
-  const { summaries } = props;
+  const { summaries, selectedComment } = props;
   const [initNavInfoTypeId, setInitNavInfoTypeId] = React.useState<number | null>(null);
   const [editedSummaries, setEditedSummaries] = React.useState<ISummaryType[]>(summaries);
   const [editing, setEditing] = React.useState<boolean>(false);
@@ -92,8 +93,8 @@ export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
 
   return (
     <div className="Box-body" onClick={onNonEditClick}>
-      {<TopLevelNavBox initInfoTypeId={initNavInfoTypeId} hidden={initNavInfoTypeId===null}
-                      onClose={() => setInitNavInfoTypeId(null)} onOpen={() => {}} summaries={summaries}/>}
+      {/* {<TopLevelNavBox initInfoTypeId={initNavInfoTypeId} hidden={initNavInfoTypeId===null}
+                      onClose={() => setInitNavInfoTypeId(null)} onOpen={() => {}} summaries={summaries} selectedComment={selectedComment}/>} */}
       <nav className="UnderlineNav" aria-label="infoTypeTabs">
         <div className="UnderlineNav-body" role="tablist">
           {
