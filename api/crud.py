@@ -159,6 +159,10 @@ def predict_info_types(comment: str, sentencizer: Sentencizer) -> List[schemas.S
 def save_info_types(gh_user: str, repo: str, issue_number: int, comment: schemas.InformationTypeIdentifiedComment,
                     db: Session):
   issue_id = utils.construct_issue_id(gh_user, repo, issue_number)
+  
+  # delete all pre-existing sentences for a comment, while updating
+  db.query(models.CommentInformationType).filter(models.CommentInformationType.comment_id == comment.comment_id).delete()
+  
   spans_with_predicted_info_types = [models.CommentInformationType(
     issue=issue_id,
     span_start=sent.span.start,
@@ -168,6 +172,7 @@ def save_info_types(gh_user: str, repo: str, issue_number: int, comment: schemas
     datetime=comment.datetime if comment.datetime else None,
     comment_id=comment.comment_id if comment.comment_id else None
   ) for sent in comment.sentences]
+  
   db.bulk_save_objects(spans_with_predicted_info_types)
   db.commit()
   
