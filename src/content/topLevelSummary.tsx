@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom";
 import React from "react";
 import "../style.scss";
-import InformationTypeSummary from "../components/InformationTypeSummary";
+import TopLevelSummary from "../components/TopLevelSummary";
 
 const createTopLevelSummary = () => {
   const discussion_header = document.querySelector(
@@ -10,7 +10,7 @@ const createTopLevelSummary = () => {
 
   let topLevelSummary = document.createElement("div");
   discussion_header.appendChild(topLevelSummary);
-  ReactDOM.render(<InformationTypeSummary />, topLevelSummary);
+  ReactDOM.render(<TopLevelSummary />, topLevelSummary);
 };
 
 const initTopLevelSummaryComponent = () => {

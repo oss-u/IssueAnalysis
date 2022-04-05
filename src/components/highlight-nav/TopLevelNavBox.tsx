@@ -1,13 +1,19 @@
 
+/**
+ * DEPRECATED COMPONENT
+ */
+
+
+
 import React, { useCallback, useEffect, useState } from "react"
 import ReactDOM from "react-dom";
 import "../style.scss";
-import { Highlight, IssueComment } from "../types";
-import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
-import {highlightComment} from "./HighlightedComment";
+import { Highlight, IssueComment } from "../../types";
+import { commentParser, getAllCommentsOnIssue } from "../../utils/comment_parser";
+import {highlightComment} from "../HighlightedComment";
 import { v4 as uuidv4 } from "uuid"
-import { informationTypeMap } from "../utils/maps";
-import { ISummaryType } from "./InformationType";
+import { informationTypeMap } from "../../utils/maps";
+import { ISummaryType } from "../InformationTypeTabs";
 
 
 interface TopLevelNavBoxProps {

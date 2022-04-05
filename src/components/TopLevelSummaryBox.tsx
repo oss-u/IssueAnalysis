@@ -1,20 +1,33 @@
 import ReactDOM from "react-dom";
-import React from "react";
+import React, { useEffect } from "react";
 import "../style.scss";
 import { generateTopLevelSummary } from "../endpoints";
-import { InformationTypeTabs, ISummaryType } from "./InformationType";
+import InformationTypeTabs, { ISummaryType } from "./InformationTypeTabs";
 import { getAuthorFromPage, parseURLForIssueDetails } from "../utils/scraping";
 import { scrapeAndAddCommentsToDB } from "../scripts/scrape-and-add-comments";
 import { v4 as uuidv4 } from "uuid";
 import { Highlight, IssueComment } from "../types";
 import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
 import octicons from "@primer/octicons"
-import NavigationController from "./NavigationController";
 
-export default function InformationTypeSummary(): JSX.Element {
+interface TopLevelSummaryBoxProps{
+  summaries: ISummaryType[];
+  selectedInfoTypeId: number | null;
+  updateSummaries: (newSummaries: ISummaryType[]) => void;
+  updateSelectedComment: (comment: IssueComment | null) => void;
+  updateSelectedInfoTypeId: (newId: number | null) => void;
+}
+
+export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.Element {
+  const {summaries, selectedInfoTypeId, updateSummaries, updateSelectedComment, updateSelectedInfoTypeId} = props;
+
   const [visible, setVisible] = React.useState<boolean>(false);
-  const [tabSummaries, setTabSummaries] = React.useState<ISummaryType[]>([]);
-  const [selectedComment, setSelectedComment] = React.useState<IssueComment | null>(null);
+
+  useEffect(() => {
+    if (!visible){
+      updateSelectedInfoTypeId(null);
+    }
+  }, [visible])
 
   const initializeTopLevelSummary = () => {
     const defaultSummary: ISummaryType[] = [
@@ -24,19 +37,24 @@ export default function InformationTypeSummary(): JSX.Element {
           "Generated summary was empty",
         commentHighlights: []
       },
+      {
+        typeId: 2,
+        content:
+          "Generated summary was empty",
+        commentHighlights: []
+      },
     ];
     const issueDetails = parseURLForIssueDetails();
     const author = getAuthorFromPage();
-    generateTopLevelSummary(issueDetails.user, issueDetails.repository, issueDetails.issueNum, author).then((summaries) => {
-      console.log(summaries);
-      const generatedSummaries: ISummaryType[] = summaries.map((summary) => {
+    generateTopLevelSummary(issueDetails.user, issueDetails.repository, issueDetails.issueNum, author).then((resSummaries) => {
+      const generatedSummaries: ISummaryType[] = resSummaries.map((summary) => {
         const highlights: Highlight[] = summary.spans.map(
           (span) => ({id: `h${uuidv4()}`, commentId: span.comment_id, span: span.comment_span, infoTypeId: summary.id})
         )
         return {typeId: summary.id, content: summary.text, commentHighlights: highlights}
       });
       const newSummaries = generatedSummaries.length !== 0 ? generatedSummaries : defaultSummary;
-      setTabSummaries(newSummaries);
+      updateSummaries(newSummaries);
       setVisible(true);
       Array.from(getAllCommentsOnIssue()).forEach((comment) => {
         const commentDetails = commentParser(comment);
@@ -44,17 +62,14 @@ export default function InformationTypeSummary(): JSX.Element {
         const newButton = document.createElement('button');
         newButton.innerHTML = octicons.paintbrush.toSVG();
         newButton.className = "btn-octicon";
-        newButton.onclick = (e) => {setSelectedComment(commentDetails)};
+        newButton.onclick = (e) => {updateSelectedComment(commentDetails)};
         iconContainer.prepend(newButton);
       })
     });
   };
 
-  const comments = Array.from(getAllCommentsOnIssue()).map((comment) => commentParser(comment));
-
   return (
     <div>
-      <NavigationController selectedComment={selectedComment} selectedInfoTypeId={null} comments={comments} summaries={tabSummaries} onChangeSelectedComment={(newComment) => setSelectedComment(newComment)} />
       <div id="topLevelSummary" className="Box">
         <div className="Box-header width-full">
           <div className="d-flex flex-justify-between width-full">
@@ -67,9 +82,9 @@ export default function InformationTypeSummary(): JSX.Element {
                 id="minimiseButton"
                 className="btn btn-sm ml-2"
                 type="button"
-                aria-disabled={(tabSummaries.length > 0) ? "false" : "true"}
+                aria-disabled={(summaries.length > 0) ? "false" : "true"}
                 onClick={() => {
-                  if (tabSummaries.length > 0)
+                  if (summaries.length > 0)
                         setVisible(!visible);
                 }}
               >
@@ -87,7 +102,7 @@ export default function InformationTypeSummary(): JSX.Element {
         </div>
       </div>
       {visible && (
-          <InformationTypeTabs summaries={tabSummaries} selectedComment={selectedComment}/>
+          <InformationTypeTabs summaries={summaries} selectedInfoTypeId={selectedInfoTypeId} updateSelectedInfoTypeId={updateSelectedInfoTypeId} />
       )}
     </div>
   );

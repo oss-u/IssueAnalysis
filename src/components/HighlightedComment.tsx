@@ -38,6 +38,7 @@ export function highlightComment(commentEl: Element, selectedHighlightId: string
     const oldInnerHTML = newInnerHTML;
     newInnerHTML = oldInnerHTML.slice(0, highlight.span.start + addedLength) + highlightOpenTag + oldInnerHTML.slice(highlight.span.start + addedLength, highlight.span.end + addedLength) + highlightCloseTag + oldInnerHTML.slice(highlight.span.end + addedLength);
     addedLength += highlightOpenTag.length + highlightCloseTag.length;
+    console.log("inside highlight comment");
     highlightIdsAndInfoTypes.push({id: highlightId, infoTypeId: highlight.infoTypeId});
   })
   commentEl.innerHTML = newInnerHTML;

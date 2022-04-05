@@ -1,20 +1,12 @@
 import React, { useEffect } from "react";
-import { Highlight } from "../types";
-import { informationTypeMap } from "../utils/maps";
+import { Highlight } from "../../types";
+import { informationTypeMap } from "../../utils/maps";
+import { getCircularIndex } from "../../utils/navigation";
 
 interface CommentNavBoxProps {
     highlights: Highlight[]
     onChangeSelectedHightlight: (index: number) => void
     onClose: () => void;
-}
-
-const getCircularIndex = (curVal: number, maxVal: number, direction: '+' | '-') => {
-    switch(direction){
-        case '+':
-            return (curVal + 1) % maxVal;
-        case '-':
-            return curVal - 1 < 0 ? maxVal -1 : curVal - 1
-    }
 }
 
 export function CommentNavBox(props: CommentNavBoxProps): JSX.Element {
@@ -24,6 +16,7 @@ export function CommentNavBox(props: CommentNavBoxProps): JSX.Element {
     useEffect(() => {
         onChangeSelectedHightlight(selectedHighlightIndex);
     }, [selectedHighlightIndex])
+
 
     return (
         <div className="Box p-2 d-flex flex-column">
@@ -35,7 +28,7 @@ export function CommentNavBox(props: CommentNavBoxProps): JSX.Element {
                 </div>
                 <div className="d-flex flex-row width-full">
                     <div className="mr-4">Showing</div>
-                    <div>{informationTypeMap.get(highlights[selectedHighlightIndex].infoTypeId).title}</div>
+                    <div>{highlights.length > 0 ? informationTypeMap.get(highlights[selectedHighlightIndex].infoTypeId).title : "No Highlights"}</div>
                 </div>
                 <div id="navContainer" className="d-flex flex-row width-full">
                     <div className="mr-4">Sentence</div>

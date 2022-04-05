@@ -2,7 +2,6 @@ import React, {useEffect} from "react";
 import "../style.scss";
 import { getCurrentUserName } from "../utils";
 import { informationTypeMap } from "../utils/maps";
-import TopLevelNavBox from "../components/TopLevelNavBox";
 import { Highlight, IssueComment } from "../types";
 
 interface InformationTypeProps {
@@ -21,26 +20,24 @@ export interface ISummaryType {
 
 interface IInformationTypeTabs {
   summaries: ISummaryType[];
-  selectedComment: IssueComment | null;
+  selectedInfoTypeId: number | null;
+  updateSelectedInfoTypeId: (newId: number | null) => void;
 }
 
-export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
-  const { summaries, selectedComment } = props;
-  const [initNavInfoTypeId, setInitNavInfoTypeId] = React.useState<number | null>(null);
+export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
+  const { summaries, selectedInfoTypeId, updateSelectedInfoTypeId } = props;
   const [editedSummaries, setEditedSummaries] = React.useState<ISummaryType[]>(summaries);
   const [editing, setEditing] = React.useState<boolean>(false);
   const [authors, setAuthors] = React.useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = React.useState<number>(0);
 
   useEffect(() => {
+    updateSelectedInfoTypeId(summaries.length > currentIndex ? summaries[currentIndex].typeId : null);
+  }, [])
+
+  useEffect(() => {
     setEditedSummaries(summaries)
   }, [summaries]);
-
-  const onNonEditClick = (infoType) => {
-    if (!editing) {
-      onClickInfoType(infoType.typeId)
-    }
-  };
 
   const onSave = () => {
     // navInfoTypeCallback();
@@ -49,10 +46,6 @@ export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
     setAuthors(Array.from(newAuthors.values()));
     setEditing(false);
   };
-
-  const onClickInfoType = (infoTypeId: number) => {
-    setInitNavInfoTypeId(infoTypeId);
-  }
 
   const onEditSummary = (event) => {
     event.persist();
@@ -92,7 +85,7 @@ export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
   }
 
   return (
-    <div className="Box-body" onClick={onNonEditClick}>
+    <div className="Box-body">
       {/* {<TopLevelNavBox initInfoTypeId={initNavInfoTypeId} hidden={initNavInfoTypeId===null}
                       onClose={() => setInitNavInfoTypeId(null)} onOpen={() => {}} summaries={summaries} selectedComment={selectedComment}/>} */}
       <nav className="UnderlineNav" aria-label="infoTypeTabs">
@@ -105,6 +98,8 @@ export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
                 aria-selected={(summary.typeId===editedSummaries[currentIndex].typeId)? true: false}
                 onClick={() => {
                   setCurrentIndex(index);
+                  console.log(summaries[index].typeId)
+                  updateSelectedInfoTypeId(summaries[index].typeId);
                 }}>
                 {informationTypeMap.get(summary.typeId).title}
               </button>);
@@ -135,6 +130,7 @@ export function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
                 <div className="lh-condensed f6 mr-3 mt-3">
                   Summary by <span className="text-semibold">{authors.join(", ")}</span>
                 </div>)}
+              <div>{selectedInfoTypeId ? informationTypeMap.get(selectedInfoTypeId).title : "No info type selected"}</div>
               <div className="btn btn-sm" onClick={() => {
                 setEditing(true);
               }}>

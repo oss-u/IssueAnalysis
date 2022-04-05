@@ -1,17 +1,11 @@
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { Highlight, IssueComment } from "../types";
-import { CommentNavBox } from "./CommentNavBox";
+import { CommentNavBox } from "./highlight-nav/CommentNavBox";
 import { highlightComment } from "./HighlightedComment";
-import { ISummaryType } from "./InformationType";
-
-interface NavigationControllerProps {
-    selectedInfoTypeId: number | null;
-    selectedComment: IssueComment | null;
-    onChangeSelectedComment: (newComment: IssueComment| null) => void
-    comments: IssueComment[];
-    summaries: ISummaryType[];
-}
+import TopLevelSummaryBox from "./TopLevelSummaryBox";
+import { ISummaryType } from "./InformationTypeTabs";
+import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
 
 const getAllHighlightsFromSummaries = (summaries: ISummaryType[]): Highlight[] => summaries.flatMap((summary) => summary.commentHighlights);
 
@@ -29,11 +23,14 @@ const cleanupComments = (comments: IssueComment[], originalCommentHTML: string[]
     })
 }
 
-export default function NavigationController(props: NavigationControllerProps): JSX.Element {
-    const {selectedInfoTypeId, selectedComment, onChangeSelectedComment, comments, summaries} = props;
+export default function TopLevelSummary(): JSX.Element {
+    const [comments, setComments] = React.useState<IssueComment[]>(Array.from(getAllCommentsOnIssue()).map((comment) => commentParser(comment)));
+    const [summaries, setSummaries] = React.useState<ISummaryType[]>([]);
+    const [selectedInfoTypeId, setSelectedInfoTypeId] = React.useState<number | null>(null);
+    const [selectedComment, setSelectedComment] = React.useState<IssueComment | null>(null);
     const [selectedCommentNavBox, setSelectedCommentNavBox] = React.useState<HTMLDivElement | null>(null);
     const [selectedHighlightIndex, setSelectedHighlightIndex] = React.useState<number>(0);
-    const [allHighlights, setAllHighlights] = React.useState<Highlight[]>(getAllHighlightsFromSummaries(summaries));
+    const [allHighlights, setAllHighlights] = React.useState<Highlight[]>([]);
     const [selectedHighlights, setSelectedHighlights] = React.useState<Highlight[]>([]);
     const [originalCommentHTML, setOriginalCommentHTML] = React.useState<string[]>(getOriginalCommentHTMLs(comments));
 
@@ -42,16 +39,17 @@ export default function NavigationController(props: NavigationControllerProps): 
     }, [summaries])
 
     useEffect(() => {
+        if (selectedCommentNavBox){
+            selectedCommentNavBox.remove();
+            setSelectedCommentNavBox(null);
+        }
         if (!selectedComment){
-            if (selectedCommentNavBox){
-                selectedCommentNavBox.remove();
-                setSelectedCommentNavBox(null);
-            }
             if (!selectedInfoTypeId){
                 setSelectedHighlights([]);
             }
             return;
         }
+        setSelectedInfoTypeId(null);
         const newFilteredHighlights = allHighlights.filter((highlight) => highlight.commentId === selectedComment.id);
         setSelectedHighlights(newFilteredHighlights);
     }, [selectedComment])
@@ -63,6 +61,7 @@ export default function NavigationController(props: NavigationControllerProps): 
             }
             return;
         }
+        setSelectedComment(null);
         const newFilteredHighlights = allHighlights.filter((highlight) => highlight.infoTypeId === selectedInfoTypeId);
         setSelectedHighlights(newFilteredHighlights);
     }, [selectedInfoTypeId])
@@ -96,7 +95,14 @@ export default function NavigationController(props: NavigationControllerProps): 
         const filteredHighlights = allHighlights.filter((h) => h.commentId === selectedComment.id);
         setSelectedHighlights(filteredHighlights);
         setSelectedCommentNavBox(insertedBox);
-        ReactDOM.render(<CommentNavBox highlights={filteredHighlights} onChangeSelectedHightlight={(num) => setSelectedHighlightIndex(num)} onClose={() => onChangeSelectedComment(null)} />, insertedBox);
+        ReactDOM.render(<CommentNavBox highlights={filteredHighlights} onChangeSelectedHightlight={(num) => setSelectedHighlightIndex(num)} onClose={() => setSelectedComment(null)} />, insertedBox);
     }, [selectedComment])
-    return (<div id="NavController"/>)
+    
+    return (<TopLevelSummaryBox 
+                summaries={summaries}
+                selectedInfoTypeId={selectedInfoTypeId}
+                updateSummaries={(newSummaries) => setSummaries(newSummaries)} 
+                updateSelectedComment={(newSelectedComment) => setSelectedComment(newSelectedComment)} 
+                updateSelectedInfoTypeId={(newInfoTypeId) => setSelectedInfoTypeId(newInfoTypeId)}
+            />)
 }
