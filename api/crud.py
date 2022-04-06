@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 from typing import List
+from fastapi import HTTPException
 
 import requests
 from sqlalchemy.orm import Session, joinedload
@@ -139,7 +140,12 @@ def generate_summary(text: str, sentencizer: Sentencizer) -> schemas.SummaryText
   }
   SUMMARIZATION_SERVICE_ENDPOINT = os.getenv('ALPHA_SUMMARY_SERVICE_ENDPOINT') \
     if os.getenv('ENVIRONMENT') == 'alpha' else os.getenv('BETA_SUMMARY_SERVICE_ENDPOINT')
-  response = requests.post(SUMMARIZATION_SERVICE_ENDPOINT, json=request_payload, timeout=500)
+  
+  try:
+    response = requests.post(SUMMARIZATION_SERVICE_ENDPOINT, json=request_payload, timeout=20)
+  except requests.ReadTimeout:
+    root.error(f"{SUMMARIZATION_SERVICE_ENDPOINT} timed out.")
+    raise HTTPException(status_code=408, detail=f"{SUMMARIZATION_SERVICE_ENDPOINT} timed out.")
   return schemas.SummaryText(summary=response.json()['summary'][0])
 
 
@@ -206,7 +212,7 @@ def get_information_type_spans(issue_id: str, comment_id: str, db: Session):
 def generate_top_level_summary(issue_id: str, author: str, db: Session) -> List[schemas.TopLevelSummary]:
   # for updating
   summaries_that_exist = {
-    summary.info_type: summary.id
+    summary.info_type: summary.idp
     for summary in db.query(models.TopLevelSummary).filter(models.CommentInformationType.issue == issue_id).all()
   }
   
@@ -231,7 +237,13 @@ def generate_top_level_summary(issue_id: str, author: str, db: Session) -> List[
   # request and collect response (sync)
   SUMMARIZATION_SERVICE_ENDPOINT = os.getenv('ALPHA_SUMMARY_SERVICE_ENDPOINT') \
     if os.getenv('ENVIRONMENT') == 'alpha' else os.getenv('BETA_SUMMARY_SERVICE_ENDPOINT')
-  response = requests.post(SUMMARIZATION_SERVICE_ENDPOINT, json=request_payload)
+  
+  try:
+    response = requests.post(SUMMARIZATION_SERVICE_ENDPOINT, json=request_payload, timeout=20)
+  except requests.ReadTimeout:
+    root.error(f"{SUMMARIZATION_SERVICE_ENDPOINT} time out")
+    raise HTTPException(status_code=408, detail=f"{SUMMARIZATION_SERVICE_ENDPOINT} timed out")
+    
   if not response.ok:
     raise ValueError("Couldn't fetch data from Summarization Service")
   response = response.json()  # List
