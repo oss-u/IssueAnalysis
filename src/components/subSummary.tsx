@@ -9,6 +9,9 @@ import { getCurrentUserName } from "../utils";
 import { parseURLForIssueDetails } from "../utils/scraping";
 import { PlusIcon, TriangleRightIcon, TrashIcon, 
           TriangleLeftIcon, Icon, PencilIcon } from '@primer/octicons-react';
+import ReactMarkdown from 'react-markdown';
+import TurndownService from 'turndown';
+import remarkGfm from 'remark-gfm';
 
 class SummaryComponent extends React.Component<
   { summaries: any; viewExistingSummary; viewing: string; editButtonHandler; deleteButtonHandler; },
@@ -190,26 +193,30 @@ class SummaryInputComponent extends React.Component<
 
   constructor(props) {
     super(props);
+    let turndownService = new TurndownService();
     this.state = {
       writing: true,
-      content: this.props.existingSummary
+      content: turndownService.turndown(this.props.existingSummary),      
     };
   }
 
   subsummaryView = () => {
+    
     if (this.state.writing) {
       return (<textarea
-                  className="form-control input-block textarea-vertical-resize-only markdown-body"
+                  className="form-control input-block textarea-vertical-resize-only"
                   aria-label="summary-input"
                   name="summary-textarea"
                   onChange={this.optimisedEditTextArea}
                 >
+                  
         {this.state.content}
       </textarea>)
     } else
     return (
       <div className="Box">
-        <div className="pt-2 pl-2 markdown-body" dangerouslySetInnerHTML={{__html: this.state.content}} />
+        <ReactMarkdown className="pt-2 pl-2" remarkPlugins={[remarkGfm]}>{this.state.content}</ReactMarkdown>
+        {/* <div className="pt-2 pl-2" dangerouslySetInnerHTML={{__html: this.state.content}} /> */}
       </div>);
   }
 
