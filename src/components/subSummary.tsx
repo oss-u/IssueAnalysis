@@ -1,11 +1,10 @@
 import React from "react";
-import axios from "axios";
 import { generateSummary, saveUserSummaries, getUserSummaries, deleteUserSummaries,
          Author, Subsummary, Comment, getUserSummaryComments } from "../endpoints";
 import "../style.scss";
 import { IssueComment, Summary } from "../types";
 import { commentParser } from "../utils/comment_parser";
-import { IconButton } from '@primer/react';
+import { IconButton, Box, TabNav } from '@primer/react';
 import { getCurrentUserName } from "../utils";
 import { parseURLForIssueDetails } from "../utils/scraping";
 import { PlusIcon, TriangleRightIcon, TrashIcon, 
@@ -185,8 +184,55 @@ class SummaryInputComponent extends React.Component<
     backButtonHandler;
     submitHandler;
   },
-  {}
+  {writing: boolean,
+  content: string}
 > {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      writing: true,
+      content: this.props.existingSummary
+    };
+  }
+
+  subsummaryView = () => {
+    if (this.state.writing) {
+      return (<textarea
+                  className="form-control input-block textarea-vertical-resize-only markdown-body"
+                  aria-label="summary-input"
+                  name="summary-textarea"
+                  onChange={this.optimisedEditTextArea}
+                >
+        {this.state.content}
+      </textarea>)
+    } else
+    return (
+      <div className="Box">
+        <div className="pt-2 pl-2 markdown-body" dangerouslySetInnerHTML={{__html: this.state.content}} />
+      </div>);
+  }
+
+  onEditTextArea = (event) => {
+    event.persist();
+    this.setState({
+      content: event.target.value
+    });
+  };
+
+  debounce = (f, delay) => {
+    let debounceTimer;
+    return function (this) {
+        const context = this;
+        const args = arguments;
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => f.apply(context, args), delay);
+    }
+  }
+
+  // 1 second
+  optimisedEditTextArea = this.debounce(this.onEditTextArea, 1000);
+
   render() {
     let comments = [];
     this.props.subSummaryObject.comments.forEach((e) => {
@@ -220,23 +266,44 @@ class SummaryInputComponent extends React.Component<
       );
     });
 
+
     // This cannot be set as HTML because it is a text area
     return (
       <div className="Box flex-column m-1 p-1 color-border-success-emphasis">
         <h5>Edit Summary</h5>
-        <form onSubmit={this.props.submitHandler}>
           {comments}
-          <textarea
-            className="form-control input-block textarea-vertical-resize-only"
-            aria-label="summary-input"
-            name="summary-textarea"
-          >
-            {this.props.existingSummary}
-          </textarea>
+          <nav className="tabnav-tabs pl-1">
+              <button className="tabnav-tab" 
+                      role="tab" 
+                      type="button"
+                      aria-selected={this.state.writing?true:false}
+                      onClick={()=> {
+                        this.setState({
+                          writing: true
+                        });
+                      }}>
+                Write
+              </button>
+              <button className="tabnav-tab ml-1" 
+                      role="tab" 
+                      type="button"
+                      aria-selected={this.state.writing?false:true}
+                      onClick={()=> {
+                        this.setState({
+                          writing: false
+                        });
+                      }}>
+                Preview
+              </button>
+          </nav>
+
+          {this.subsummaryView()} 
+
           <div className="clearfix flex-row">
             <button
               className="btn btn-sm btn-primary m-1 float-right"
               type="submit"
+              onClick={() => {this.props.submitHandler(this.state.content)}}
             >
               Done
             </button>
@@ -250,7 +317,6 @@ class SummaryInputComponent extends React.Component<
               Back
             </button>
           </div>
-        </form>
       </div>
     );
   }
@@ -705,8 +771,9 @@ class SubSummaryComponent extends React.Component<
     // this.resetBorderHighlights();
   };
 
-  saveSummary = (summary: HTMLFormElement) => {
-    summary.preventDefault();
+  saveSummary = (summary: string) => {
+    console.log(summary);
+    // summary.preventDefault();
     // make an API call and submit the form
     // response is summary
     let liUser: string = getCurrentUserName();
@@ -746,14 +813,14 @@ class SubSummaryComponent extends React.Component<
     }
 
     const issueDetails = parseURLForIssueDetails();
-    saveUserSummaries(liUser, issueDetails.repository, issueDetails.issueNum, subsummaries).then((response) => {
-      // Nothing to do, its already saved
-      console.log(response);
-    }).catch((e) => {
-      // Might want to move this to a Toast
-      console.log("Error in saving the summary.");
-      console.log(e);
-    });
+    // saveUserSummaries(issueDetails.user, issueDetails.repository, issueDetails.issueNum, subsummaries).then((response) => {
+    //   // Nothing to do, its already saved
+    //   console.log(response);
+    // }).catch((e) => {
+    //   // Might want to move this to a Toast
+    //   console.log("Error in saving the summary.");
+    //   console.log(e);
+    // });
 
     this.setState({
       subsummaries: items,
