@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import ReactDOM from "react-dom";
 import "../style.scss";
-import { InformationType } from "../types";
+import {Highlight} from "../types"
 
 interface HighlightProps {
   text: string,
@@ -22,9 +22,7 @@ export default function Highlight(props: HighlightProps): JSX.Element {
     const [backgroundColor, setBackgroundColor] = useState<string>(selected ? "#3C89D0" : "#6CA9FF");
 
     return (
-        <span style={{backgroundColor}} onClick={() => setBackgroundColor("#FF00FF")}>
-          {text}
-        </span>
+        <span style={{backgroundColor}} onClick={() => setBackgroundColor("#FF00FF")} dangerouslySetInnerHTML={{__html: text}}/>
       );
 }
 
@@ -40,6 +38,7 @@ export function highlightComment(commentEl: Element, selectedHighlightId: string
     const oldInnerHTML = newInnerHTML;
     newInnerHTML = oldInnerHTML.slice(0, highlight.span.start + addedLength) + highlightOpenTag + oldInnerHTML.slice(highlight.span.start + addedLength, highlight.span.end + addedLength) + highlightCloseTag + oldInnerHTML.slice(highlight.span.end + addedLength);
     addedLength += highlightOpenTag.length + highlightCloseTag.length;
+    console.log("inside highlight comment");
     highlightIdsAndInfoTypes.push({id: highlightId, infoTypeId: highlight.infoTypeId});
   })
   commentEl.innerHTML = newInnerHTML;

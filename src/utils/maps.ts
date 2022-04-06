@@ -1,4 +1,10 @@
-let informationTypeMap = new Map();
+export interface InformationType {
+  title: string;
+  tooltip: string;
+  tabLink: string;
+}
+
+let informationTypeMap = new Map<number, InformationType>();
 informationTypeMap.set(1, {
   title: "Expected Behaviour",
   tooltip: "An expected or ideal situation affected by the issue.",

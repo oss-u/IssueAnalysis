@@ -1,16 +1,23 @@
 
+/**
+ * DEPRECATED COMPONENT
+ */
+
+
+
 import React, { useCallback, useEffect, useState } from "react"
 import ReactDOM from "react-dom";
 import "../style.scss";
-import { Highlight, IssueComment } from "../types";
-import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
-import {highlightComment} from "./HighlightedComment";
+import { Highlight, IssueComment } from "../../types";
+import { commentParser, getAllCommentsOnIssue } from "../../utils/comment_parser";
+import {highlightComment} from "../HighlightedComment";
 import { v4 as uuidv4 } from "uuid"
-import { informationTypeMap } from "../utils/maps";
-import { ISummaryType } from "./InformationType";
+import { informationTypeMap } from "../../utils/maps";
+import { ISummaryType } from "../InformationTypeTabs";
 
 
 interface TopLevelNavBoxProps {
+    selectedComment: IssueComment | null;
     summaries: ISummaryType[];
     initInfoTypeId: number;
     hidden: boolean;
@@ -20,9 +27,11 @@ interface TopLevelNavBoxProps {
 
 const informationTypeOptions = Array.from(informationTypeMap).map(([id, infoType]) => (<option value={id}>{infoType.title}</option>));
 
+const NAVBOX_WIDTH = 300;
+const GITHUB_MAX_CONTENT_SIZE = 1280;
+
 export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element {
-    const {summaries, initInfoTypeId, hidden, onClose, onOpen} = props;
-    const [clickedCommentId, setClickedCommentId] = useState<string | null>(null);
+    const {selectedComment, summaries, initInfoTypeId, hidden, onClose, onOpen} = props;
     const [editSelectedHighlight, setEditSelectedHighlight] = useState<boolean>(false);
     const [selectedInfoTypeId, setSelectedInfoTypeId] = useState<number>(initInfoTypeId);
     const [selectedSentenceIndex, setSelectedSentenceIndex] = useState<number>(0);
@@ -31,6 +40,8 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
     const [comments, setComments] = useState<IssueComment[]>([]);
     const [originalCommentHTML, setOriginalCommentHTML] = useState<string[]>([]);
     const [changeInfoTypeTo, setChangeInfoTypeTo] = useState<number | null>(null);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement>(document.querySelector("#show_issue") as HTMLElement);
+    const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 
     const getOriginalCommentHTMLs = (allComments: IssueComment[]): string[] => {
         const commentHTMLs = allComments.map((comment) => comment.tag.querySelector("div.edit-comment-hide > task-lists > table > tbody > tr > td").innerHTML);
@@ -47,29 +58,24 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
     useEffect(() => {
         const allCommentElements = Array.from(getAllCommentsOnIssue())
         const allComments = allCommentElements.map(commentParser)
-        //let allHighlights: Highlight[] = []
-        // allComments.forEach((comment, index) => {
-        //     //const newHighlights: Highlight[] = [{id: `h${uuidv4()}`, commentId: comment.id, span: {start: 14, end: 20}, infoTypeId: 0}, {id: `h${uuidv4()}`, commentId: comment.id, span: {start: 20, end: 25}, infoTypeId: 1}, {id: `h${uuidv4()}`, commentId: comment.id, span: {start: 25, end: 30}, infoTypeId: 2}];
-        //     //allHighlights = allHighlights.concat(newHighlights);
-            
-        //     comment.tag.addEventListener('click', () => setClickedCommentId(comment.id));
-        // })
         const allHighlights = summaries.map((summary) => summary.commentHighlights).flat();
         setComments(allComments);
         setAllSummarySentences(allHighlights);
         setOriginalCommentHTML(getOriginalCommentHTMLs(allComments));
+        window.addEventListener('resize', (e) => {
+            setWindowWidth(window.innerWidth);
+        })
     }, [])
 
     useEffect(() => {
-        if (clickedCommentId){
+        if (selectedComment){
             if (hidden) {
                 onOpen();
             }
-            const newFilteredHighlights = allSummarySentences.filter((highlight) => highlight.commentId === clickedCommentId);
+            const newFilteredHighlights = allSummarySentences.filter((highlight) => highlight.commentId === selectedComment.id);
             setFilteredHighlights(newFilteredHighlights);
-            setClickedCommentId(null);
         }
-    }, [clickedCommentId])
+    }, [selectedComment])
 
     useEffect(() => {
         const newFilteredHighlights = allSummarySentences.filter((sentence) => sentence.infoTypeId === selectedInfoTypeId);
@@ -146,8 +152,9 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
         return <></>
     }
     
+    const windowWidthMaxed = windowWidth > GITHUB_MAX_CONTENT_SIZE;
     return (
-        <div className="Box position-fixed p-2 d-flex flex-column" style={{width: 300, zIndex: 100, right: 8}}>
+        <div className="Box p-2 d-flex flex-column">
             {!editSelectedHighlight && (<>
                 <div id="navButtons" className="d-flex flex-row flex-justify-end">
                         <button className="btn-octicon my-2" onClick={() => setSelectedSentenceIndex(selectedSentenceIndex-1)}>&#12296;</button>
@@ -156,7 +163,7 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
                 </div>
                 <div className="d-flex flex-row width-full">
                     <div className="mr-4">Showing</div>
-                    <select className="form-select" value={selectedInfoTypeId} onChange={(e) => onSelectInfoType(parseInt(e.target.value))}>
+                    <select className="form-select" style={{maxWidth: 200}} value={selectedInfoTypeId} onChange={(e) => onSelectInfoType(parseInt(e.target.value))}>
                         {informationTypeOptions}
                     </select>
                 </div>

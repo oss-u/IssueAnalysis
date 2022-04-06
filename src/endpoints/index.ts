@@ -76,7 +76,6 @@ export const getInformationType = async (
   return res.json();
 };
 
-
 export interface ModelInfoTypeSummary {
   id: number;
   text: string;
@@ -110,15 +109,15 @@ export const generateTopLevelSummary = async (
 };
 
 export interface Author {
-  user_id: string,
-  link: string
+  user_id: string;
+  link: string;
 }
 
 export interface Comment {
-  id: string,
-  text: string,
-  author: string,
-  commented_on: string
+  id: string;
+  text: string;
+  author: string;
+  commented_on: string;
 }
 
 export interface Subsummary {
@@ -128,10 +127,10 @@ export interface Subsummary {
 }
 
 interface UserSummaries {
-  id: number,
-  summary: string,
-  author: Author,
-  comments: Comment[]
+  id: number;
+  summary: string;
+  author: Author;
+  comments: Comment[];
 }
 
 export const saveUserSummaries = async (
@@ -151,7 +150,7 @@ export const saveUserSummaries = async (
 export const getUserSummaries = async (
   gh_user: string,
   repo: string,
-  issue_number: number,
+  issue_number: number
 ): Promise<UserSummaries[]> => {
   const extension = `/${gh_user}/${repo}/${issue_number}/comment-summary`;
   const input = makeRequestURL(extension);
