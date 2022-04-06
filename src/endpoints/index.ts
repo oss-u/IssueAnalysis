@@ -147,6 +147,38 @@ export const saveUserSummaries = async (
   return res.json();
 };
 
+
+export const updateUserSummaries = async (
+  gh_user: string,
+  repo: string,
+  issue_number: number,
+  comment_summary_id: number,
+  subsummaries: Subsummary
+): Promise<UserSummaries> => {
+  const extension = `/${gh_user}/${repo}/${issue_number}/comment-summary/${comment_summary_id}/update-summary`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("POST", subsummaries.summary);
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.json();
+};
+
+export const updateUserSummaryComments = async (
+  gh_user: string,
+  repo: string,
+  issue_number: number,
+  comment_summary_id: number,
+  subsummaries: Subsummary
+): Promise<UserSummaries> => {
+  const extension = `/${gh_user}/${repo}/${issue_number}/comment-summary/${comment_summary_id}/update-comments`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("POST", subsummaries.comments);
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.json();
+};
+
+
 export const getUserSummaries = async (
   gh_user: string,
   repo: string,
