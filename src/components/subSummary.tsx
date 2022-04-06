@@ -27,7 +27,7 @@ class SubSummaryComponent extends React.Component<
     panelState: number;
   }
 > {
-  
+  summaryIdMapping: Map<string, string> = new Map<string, string>();
   addedComments: Array<string>;
   constructor(props) {
     super(props);
@@ -43,7 +43,7 @@ class SubSummaryComponent extends React.Component<
     };
     this.loadCommentComponents = this.loadCommentComponents.bind(this);
     this.saveSummary == this.saveSummary.bind(this);
-    this.getExistingUserSummaries();
+    this.getExistingUserSummaries(); 
   }
 
   getExistingUserSummaries = () => {
@@ -80,6 +80,9 @@ class SubSummaryComponent extends React.Component<
             comments: issueComments
           }
           existingSubsummaries.push(ess);
+          existingSubsummaries.forEach(s => {
+            this.summaryIdMapping.set(s.id, s.id);
+          })
           this.setState({
             subsummaries: existingSubsummaries
           });
@@ -109,10 +112,6 @@ class SubSummaryComponent extends React.Component<
       }
     });
   };
-
-  // BUG BUG BUG
-  // Create 2 different summaries -> Edit a summary -> Go 'Back' -> Summary gets deleted
-  //
 
   showSpecificHighlights = (c: Array<IssueComment>) => {
     this.removeBorderHighlights();
@@ -316,8 +315,12 @@ class SubSummaryComponent extends React.Component<
   };
 
   loadSummaryInputComponent = () => {
+    let existing = false;
+    if(this.summaryIdMapping.get(this.state.editing)) {
+      existing = true;
+    }
     let concatenatedComments = this.concatCommentsOfSubsummary();
-    if (!this.state.genSumm) {
+    if (!this.state.genSumm && !existing) {
       generateSummary(concatenatedComments).then((summaryRes) => this.setState({
         genSumm: summaryRes.summary
       }));
@@ -329,11 +332,22 @@ class SubSummaryComponent extends React.Component<
         editingSubsummary = value;
       }
     });
-    if (this.state.genSumm) {
+    let generatedSummary;
+    if (this.state.genSumm && !existing) {
+      generatedSummary = this.state.genSumm;
+    } else if (existing) {
+      let modifiedSummary = this.state.subsummaries.findIndex(
+        (e) => e.id === this.state.editing
+      );
+      let items = [...this.state.subsummaries];
+      let item = { ...items[modifiedSummary] };
+      generatedSummary = item.summary;
+    }
+    if (generatedSummary) {
       // Also check if the number of elements have changed
       return (
         <SummaryInputComponent
-          existingSummary={this.state.genSumm}
+          existingSummary={generatedSummary}
           subSummaryObject={editingSubsummary}
           backButtonHandler={this.toggleSummaryBoxComponent}
           submitHandler={this.saveSummary}
@@ -399,15 +413,14 @@ class SubSummaryComponent extends React.Component<
       "link": "https://github.com/" + liUser
     }
     
-    let storedSummary = this.state.genSumm; // API response
-
     let modifiedSummary = this.state.subsummaries.findIndex(
       (e) => e.id === this.state.editing
     );
+
     let items = [...this.state.subsummaries];
     let item = { ...items[modifiedSummary] };
 
-    item.summary = storedSummary;
+    item.summary = summary;
     items[modifiedSummary] = item;
     
     let comments: Comment[] = [];
@@ -423,7 +436,7 @@ class SubSummaryComponent extends React.Component<
     });
 
     const subsummaries: Subsummary = {
-      summary: this.state.genSumm,
+      summary: summary,
       author: author,
       comments: comments
     }
@@ -433,17 +446,37 @@ class SubSummaryComponent extends React.Component<
     // Generally the put method is distinguished at the backend
     // Just make do with the APIs provided for now
     // Bad design :/
-    saveUserSummaries(issueDetails.user, issueDetails.repository, 
-      issueDetails.issueNum, subsummaries).then((response) => {
-      // Nothing to do, its already saved
-      console.log(response);
-    }).catch((e) => {
-      // Might want to move this to a Toast
-      console.log("Error in saving the summary.");
-      console.log(e);
-    });
-
-    
+    console.log(this.summaryIdMapping.get(this.state.editing));
+    if (this.summaryIdMapping.get(this.state.editing)) {
+      updateUserSummaries(issueDetails.user, issueDetails.repository, 
+        issueDetails.issueNum, parseInt(this.summaryIdMapping.get(this.state.editing)), 
+        subsummaries).then((response) => {
+        // save the comments
+        updateUserSummaryComments(issueDetails.user, issueDetails.repository, 
+          issueDetails.issueNum, parseInt(this.summaryIdMapping.get(this.state.editing)), 
+          subsummaries).then((response) => {
+            // Nothing to do, its already saved
+          }).catch((e) => {
+            // Might want to move this to a Toast
+            console.log("Error in saving the summary comments.");
+            console.log(e);
+          });
+      }).catch((e) => {
+        // Might want to move this to a Toast
+        console.log("Error in saving the summary.");
+        console.log(e);
+      });
+    } else {
+      let edited = this.state.editing;
+      saveUserSummaries(issueDetails.user, issueDetails.repository, 
+        issueDetails.issueNum, subsummaries).then((response) => {
+          this.summaryIdMapping.set(edited, response.id.toString());
+      }).catch((e) => {
+        // Might want to move this to a Toast
+        console.log("Error in saving the summary.");
+        console.log(e);
+      });
+    }
 
     this.setState({
       subsummaries: items,
