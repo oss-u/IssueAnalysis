@@ -134,6 +134,9 @@ def update_comment_summary_comment(comment_summary_id: int, comments: List[schem
 
 
 def generate_summary(text: str, sentencizer: Sentencizer) -> schemas.SummaryText:
+  if text.strip() == '':
+    return schemas.SummaryText(summary=text)
+  
   request_payload = {
     'type': 'comment-level',
     'sentence_set': [text[span.start:span.end] for span in sentencizer.sentencize(text)]
