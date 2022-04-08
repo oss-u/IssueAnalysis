@@ -215,7 +215,7 @@ def get_information_type_spans(issue_id: str, comment_id: str, db: Session):
 def generate_top_level_summary(issue_id: str, author: str, db: Session) -> List[schemas.TopLevelSummary]:
   # for updating
   summaries_that_exist = {
-    summary.info_type: summary.idp
+    summary.info_type: summary.id
     for summary in db.query(models.TopLevelSummary).filter(models.CommentInformationType.issue == issue_id).all()
   }
   
