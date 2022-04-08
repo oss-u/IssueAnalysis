@@ -100,12 +100,13 @@ export const generateTopLevelSummary = async (
   issue_number: number,
   author: string
 ): Promise<ModelInfoTypeSummary[]> => {
-  const extension = `/${gh_user}/${repo}/${issue_number}/generate-top-level-summary`;
-  const input = makeRequestURL(extension, { author });
-  const init = makeRequestArguments("POST");
-  const res = await fetch(input, init);
-  throwErrorsForResponse(res);
-  return res.json();
+  return [];
+  // const extension = `/${gh_user}/${repo}/${issue_number}/generate-top-level-summary`;
+  // const input = makeRequestURL(extension, { author });
+  // const init = makeRequestArguments("POST");
+  // const res = await fetch(input, init);
+  // throwErrorsForResponse(res);
+  // return res.json();
 };
 
 export interface Author {
