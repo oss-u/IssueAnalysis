@@ -1,6 +1,7 @@
 import React from "react";
 import { IconButton } from '@primer/react';
 import { TrashIcon, PencilIcon } from '@primer/octicons-react';
+import NavigationComponent from '../subsummary/Navigation';
 
 export default class SummaryComponent extends React.Component<
   { summaries: any; viewExistingSummary; viewing: string; editButtonHandler; deleteButtonHandler; },

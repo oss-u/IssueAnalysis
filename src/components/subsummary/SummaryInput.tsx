@@ -3,6 +3,8 @@ import { Summary } from "../../types";
 import ReactMarkdown from 'react-markdown';
 import TurndownService from 'turndown';
 import remarkGfm from 'remark-gfm';
+import { generateSummary } from "../../endpoints";
+import { Popover, Button, Heading, Text } from '@primer/react';
 
 export default class SummaryInputComponent extends React.Component<
   {
@@ -12,7 +14,8 @@ export default class SummaryInputComponent extends React.Component<
     submitHandler;
   },
   {writing: boolean,
-  content: string}
+  content: string,
+  popover: boolean}
 > {
 
   constructor(props) {
@@ -20,11 +23,54 @@ export default class SummaryInputComponent extends React.Component<
     let turndownService = new TurndownService();
     this.state = {
       writing: true,
+      popover: false,
       content: turndownService.turndown(this.props.existingSummary),      
     };
   }
 
   subsummaryView = () => {
+
+    if (this.state.popover) {
+      return (<div className="details">
+        <div className="details-reset details-overlay details-overlay-dark">
+          <div className = "details-dialog">
+            <div className="Box Box--overlay d-flex flex-column anim-fade-in fast">
+              <div className="Box-header">
+                <h3 className="Box-title">Warning</h3>
+              </div>
+                <div className="Box-body">
+                  <p>
+                    Regenerating the summary will overwrite the summar. Proceed?
+                  </p>
+                </div>
+              <div className="Box-footer">
+              <Button 
+                  className="btn btn-sm btn-primary m-1 float-right"
+                  ype="submit"
+                  onClick={() => {
+                  let commentText = this.concatCommentsOfSubsummary();
+                  generateSummary(commentText).then((summaryRes) => this.setState({
+                    content: summaryRes.summary,
+                    popover: false
+                  })).catch(() => {
+
+                  });
+                }} data-close-dialog>Yes</Button>
+                <Button 
+                  className="btn btn-sm m-1 float-right"
+                  type="button"
+                  onClick={() => {
+                  this.setState({
+                    popover: false
+                  });
+                }} data-close-dialog>No</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>)
+    }
+
     
     if (this.state.writing) {
       return (<textarea rows={5}
@@ -48,6 +94,18 @@ export default class SummaryInputComponent extends React.Component<
     this.setState({
       content: event.target.value
     });
+  };
+
+  concatCommentsOfSubsummary = () => {
+    // get the subsummary from the editing state
+    let item = { ...this.props.subSummaryObject.comments };
+    let concatComments = "";
+    // merge all the summaries in concatComments
+    for (let i = 0; i < item.length; i++) {
+      concatComments = concatComments.concat(item[i].text, ' ');
+    }
+    concatComments = concatComments.trim();
+    return concatComments;
   };
 
   debounce = (f, delay) => {
@@ -137,6 +195,17 @@ export default class SummaryInputComponent extends React.Component<
             >
               Done
             </button>
+            <button aria-haspopup="dialog"
+              className="btn btn-sm m-1 float-right"
+              type="button"
+              onClick={() => {
+                this.setState({
+                  popover: true
+                });
+              }}
+            >
+              Regenerate
+            </button>
             <button
               className="btn btn-sm m-1 float-right"
               type="button"
@@ -146,8 +215,8 @@ export default class SummaryInputComponent extends React.Component<
             >
               Back
             </button>
+            </div>
           </div>
-      </div>
     );
   }
 }

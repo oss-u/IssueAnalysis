@@ -11,7 +11,6 @@ import { parseURLForIssueDetails } from "../utils/scraping";
 import { PlusIcon, TriangleRightIcon, 
           TriangleLeftIcon, Icon } from '@primer/octicons-react';
 import SummaryComponent from './subsummary/Summary';
-import NavigationComponent from './subsummary/Navigation';
 import SummaryInputComponent from "./subsummary/SummaryInput";
 import CommentComponent from "./subsummary/Comment";
 
@@ -61,10 +60,12 @@ class SubSummaryComponent extends React.Component<
         getUserSummaryComments(issueDetails.user, issueDetails.repository, issueDetails.issueNum, s.id).then((res) => {
           let issueComments: IssueComment[] = [];
             res.comments.map((c) => {
+              let createdOnDate = new Date(c.commented_on).toLocaleString('default', 
+                                      {year: "numeric", month:"short", day:"numeric"});
               let auth = {
                 uname: c.author,
-                createdOn: c.commented_on,
-                profile: "https://github.com/" + c.author,
+                createdOn: createdOnDate,
+                profile: commentParser(allCommentMap.get(c.id).tag).author.profile,
               }
               let iComment: IssueComment = {
                 id: c.id,
@@ -73,6 +74,7 @@ class SubSummaryComponent extends React.Component<
                 text: c.text
               }
               issueComments.push(iComment);
+              this.addedComments.push(c.id);
             });
           let ess: Summary = {
             id: res.id.toString(),
@@ -157,7 +159,7 @@ class SubSummaryComponent extends React.Component<
         }
         this.setState({
           subsummaries: items,
-          visible: "comments",
+          visible: "input",
         });
       } else {
         let newSummary = new Summary("", newComment);
@@ -345,14 +347,12 @@ class SubSummaryComponent extends React.Component<
     }
     if (generatedSummary) {
       // Also check if the number of elements have changed
-      return (
-        <SummaryInputComponent
+      return (<SummaryInputComponent
           existingSummary={generatedSummary}
           subSummaryObject={editingSubsummary}
           backButtonHandler={this.toggleSummaryBoxComponent}
           submitHandler={this.saveSummary}
-        />
-      );
+        />);
     } else {
       return (
         <div className="Label m-3">
@@ -393,17 +393,18 @@ class SubSummaryComponent extends React.Component<
   };
 
   resetSession = () => {
-    let modifiedSummary = this.state.subsummaries.findIndex(
-      (e) => e.id === this.state.editing
-    );
-    this.state.subsummaries.splice(modifiedSummary, 1);
-    let oldState = this.state.subsummaries;
-    this.setState({
-      subsummaries: oldState,
-      editing: "",
-    });
-
-    // this.resetBorderHighlights();
+    if (!this.summaryIdMapping.get(this.state.editing)) {
+      let modifiedSummary = this.state.subsummaries.findIndex(
+        (e) => e.id === this.state.editing
+      );
+      this.state.subsummaries.splice(modifiedSummary, 1);
+      let oldState = this.state.subsummaries;
+      this.setState({
+        subsummaries: oldState,
+        editing: "",
+      });
+    }
+    this.resetBorderHighlights();
   };
 
   saveSummary = (summary: string) => {
@@ -513,7 +514,8 @@ class SubSummaryComponent extends React.Component<
         }
       });
     }
-
+    this.addCommentsToSummary();
+    this.resetBorderHighlights();
     return (
       <div id="sub-summary" className="Box" >
         <div className="Box-header">
@@ -526,7 +528,8 @@ class SubSummaryComponent extends React.Component<
               <IconButton aria-label="add" 
                 size="medium" icon={PlusIcon} 
                 className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
-                onClick={this.addCommentsToSummary}/>
+                // onClick={this.addCommentsToSummary}/>
+                />
                 <IconButton aria-label="add" 
                 size="medium" icon={this.state.arrow} 
                 className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
@@ -542,7 +545,6 @@ class SubSummaryComponent extends React.Component<
           </div>
         </div>
         <div id="summary-component" className="sub-scroll">{this.loadViewBasedOnState()}</div>
-        <NavigationComponent navbarContent={navbarContent} commentParser={commentParser} doneHandler={this.exitNavBar} />
       </div>
     );
   }

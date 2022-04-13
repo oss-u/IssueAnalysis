@@ -19,7 +19,7 @@ export interface ModalSummary {
 }
 
 export const generateSummary = async (text: string): Promise<ModalSummary> => {
-  const input = makeRequestURL("/generate-summary");
+  const input = makeRequestURL("/generate-summary/");
   const init = makeRequestArguments("POST", { text });
   const res = await fetch(input, init);
   throwErrorsForResponse(res);
