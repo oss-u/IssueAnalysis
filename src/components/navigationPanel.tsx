@@ -10,7 +10,7 @@ class NavigationComponent extends React.Component<{ commentList: any }, {}> {
           <div className="Box-row Box-row--gray d-flex flex-row-reverse">
             <button className="btn btn-primary btn-sm">Done</button>
             <div className="m-1">
-              {} of {} sumarized comments
+              {} of {} summarized comments
             </div>
           </div>
         </div>
