@@ -12,14 +12,16 @@ import octicons from "@primer/octicons"
 
 interface TopLevelSummaryBoxProps{
   summaries: ISummaryType[];
+  highlights: Highlight[];
   selectedInfoTypeId: number | null;
   updateSummaries: (newSummaries: ISummaryType[]) => void;
+  updateSelectedHighlightIndex: (index: number) => void;
   updateSelectedComment: (comment: IssueComment | null) => void;
   updateSelectedInfoTypeId: (newId: number | null) => void;
 }
 
 export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.Element {
-  const {summaries, selectedInfoTypeId, updateSummaries, updateSelectedComment, updateSelectedInfoTypeId} = props;
+  const {summaries, selectedInfoTypeId, highlights, updateSummaries, updateSelectedComment, updateSelectedInfoTypeId, updateSelectedHighlightIndex} = props;
 
   const [visible, setVisible] = React.useState<boolean>(false);
 
@@ -35,13 +37,13 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
         typeId: 1,
         content:
           "Generated summary was empty",
-        commentHighlights: []
+        commentHighlights: [{id: "h1", span: {start: 14, end: 24}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issue-1115550022", infoTypeId: 1}, {id: "h2", span: {start: 24, end: 34}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issue-1115550022", infoTypeId: 1}]
       },
       {
         typeId: 2,
         content:
           "Generated summary was empty",
-        commentHighlights: []
+        commentHighlights: [{id: "h3", span: {start: 14, end: 24}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issuecomment-1035612306", infoTypeId: 2}, {id: "h4", span: {start: 24, end: 34}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issuecomment-1035612306", infoTypeId: 2}]
       },
     ];
     const issueDetails = parseURLForIssueDetails();
@@ -102,7 +104,13 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
         </div>
       </div>
       {visible && (
-          <InformationTypeTabs summaries={summaries} selectedInfoTypeId={selectedInfoTypeId} updateSelectedInfoTypeId={updateSelectedInfoTypeId} />
+          <InformationTypeTabs 
+            summaries={summaries} 
+            selectedInfoTypeId={selectedInfoTypeId} 
+            updateSelectedInfoTypeId={updateSelectedInfoTypeId} 
+            onChangeSelectedHighlight={updateSelectedHighlightIndex} 
+            highlights={highlights}
+          />
       )}
     </div>
   );

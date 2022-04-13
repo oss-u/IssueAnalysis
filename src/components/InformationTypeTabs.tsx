@@ -3,6 +3,7 @@ import "../style.scss";
 import { getCurrentUserName } from "../utils";
 import { informationTypeMap } from "../utils/maps";
 import { Highlight, IssueComment } from "../types";
+import { TopLevelNavBar } from "./highlight-nav/TopLevelNavBar";
 
 interface InformationTypeProps {
   title: string;
@@ -21,11 +22,13 @@ export interface ISummaryType {
 interface IInformationTypeTabs {
   summaries: ISummaryType[];
   selectedInfoTypeId: number | null;
+  highlights: Highlight[];
   updateSelectedInfoTypeId: (newId: number | null) => void;
+  onChangeSelectedHighlight: (index: number) => void;
 }
 
 export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
-  const { summaries, selectedInfoTypeId, updateSelectedInfoTypeId } = props;
+  const { summaries, selectedInfoTypeId, updateSelectedInfoTypeId, highlights, onChangeSelectedHighlight } = props;
   const [editedSummaries, setEditedSummaries] = React.useState<ISummaryType[]>(summaries);
   const [editing, setEditing] = React.useState<boolean>(false);
   const [authors, setAuthors] = React.useState<string[]>([]);
@@ -73,6 +76,8 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
 
   // 1 second
   let optimisedEditSummary = debounce(onEditSummary, 1000);
+
+  const summaryInfoTypeIds = summaries.map((summary) => summary.typeId);
   
   function InformationTypeJSX(): JSX.Element {
     if (editing) {
@@ -130,11 +135,21 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
                 <div className="lh-condensed f6 mr-3 mt-3">
                   Summary by <span className="text-semibold">{authors.join(", ")}</span>
                 </div>)}
-              <div>{selectedInfoTypeId ? informationTypeMap.get(selectedInfoTypeId).title : "No info type selected"}</div>
-              <div className="btn btn-sm" onClick={() => {
-                setEditing(true);
-              }}>
-                Edit
+              <div className="d-flex flex-row flex-items-center">
+                {selectedInfoTypeId && 
+                  <TopLevelNavBar 
+                    highlights={highlights} 
+                    onChangeSelectedHightlight={onChangeSelectedHighlight}
+                    onChangeInfoType={updateSelectedInfoTypeId}
+                    selectedInfoTypeId={selectedInfoTypeId}
+                    summaryInfoTypeIds={summaryInfoTypeIds}
+                  />}
+                {/* <div>{selectedInfoTypeId ? informationTypeMap.get(selectedInfoTypeId).title : "No info type selected"}</div> */}
+                <div className="btn btn-sm ml-4" onClick={() => {
+                  setEditing(true);
+                }}>
+                  Edit
+                </div>
               </div>
             </>)
         }

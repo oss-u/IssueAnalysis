@@ -100,9 +100,11 @@ export default function TopLevelSummary(): JSX.Element {
     
     return (<TopLevelSummaryBox 
                 summaries={summaries}
+                highlights={selectedHighlights}
                 selectedInfoTypeId={selectedInfoTypeId}
                 updateSummaries={(newSummaries) => setSummaries(newSummaries)} 
                 updateSelectedComment={(newSelectedComment) => setSelectedComment(newSelectedComment)} 
                 updateSelectedInfoTypeId={(newInfoTypeId) => setSelectedInfoTypeId(newInfoTypeId)}
+                updateSelectedHighlightIndex={(newIndex) => setSelectedHighlightIndex(newIndex)}
             />)
 }
