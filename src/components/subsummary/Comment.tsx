@@ -22,7 +22,7 @@ export default class CommentComponent extends React.Component<
           <div className="Box width-full">
             <div className="Box-row Box-row--gray p-1">
               <div className="clearfix">
-                <div className="col-1 float-left">
+                <div className="float-left">
                   <img
                     className="avatar"
                     height="20"
