@@ -5,7 +5,7 @@ import { generateSummary, saveUserSummaries, getUserSummaries, deleteUserSummari
 import "../style.scss";
 import { IssueComment, Summary } from "../types";
 import { commentParser } from "../utils/comment_parser";
-import { IconButton} from '@primer/react';
+import { IconButton } from '@primer/react';
 import { getCurrentUserName } from "../utils";
 import { parseURLForIssueDetails } from "../utils/scraping";
 import { PlusIcon, TriangleRightIcon, 

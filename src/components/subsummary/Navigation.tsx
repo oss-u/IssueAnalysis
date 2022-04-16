@@ -54,20 +54,14 @@ export default class NavigationComponent extends React.Component<
     });
     this.scrollToComment();
     return (
-      // <div id="navigation-component">
-        <Box id="navigation-component" 
-              borderColor="border.default" 
-              borderTopWidth={1} 
-              borderTopStyle="solid" mt={3}>
+        <div className="Box-footer Box-row--gray lh-condensed text-normal f6 m-1 p-0">
           
         <div className="clearfix">
           <div className="float-right">
-            <div className="float-right my-1 mr-1">
-            </div>
             <div className="float-right">
               <IconButton variant="invisible"
               size="small"
-              className="btn btn-sm float-right my-1 ml-2"
+              className="btn btn-sm float-right my-1"
               aria-label="navigate-comment-right"
               icon={ChevronRightIcon}
               onClick={() => {
@@ -84,7 +78,7 @@ export default class NavigationComponent extends React.Component<
               <IconButton variant="invisible"
               size="small"
               className="btn btn-sm float-right my-1 ml-2"
-              aria-label="navigate-comment-right"
+              aria-label="navigate-comment-left"
               icon={ChevronLeftIcon}
               onClick={() => {
                 if (this.state.currIndex - 1 >= 0) {
@@ -103,7 +97,8 @@ export default class NavigationComponent extends React.Component<
             </div>
           </div>
           </div>
-        </Box>
+        {/* // </Box> */}
+        </div>
     );
   }
 }

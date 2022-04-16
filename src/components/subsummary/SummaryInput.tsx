@@ -40,7 +40,7 @@ export default class SummaryInputComponent extends React.Component<
               </div>
                 <div className="Box-body">
                   <p>
-                    Regenerating the summary will overwrite the summar. Proceed?
+                    Regenerating the summary will overwrite the existing summary. Proceed?
                   </p>
                 </div>
               <div className="Box-footer">
