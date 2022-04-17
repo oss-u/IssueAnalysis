@@ -103,7 +103,6 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
                 aria-selected={(summary.typeId===editedSummaries[currentIndex].typeId)? true: false}
                 onClick={() => {
                   setCurrentIndex(index);
-                  console.log(summaries[index].typeId)
                   updateSelectedInfoTypeId(summaries[index].typeId);
                 }}>
                 {informationTypeMap.get(summary.typeId).title}

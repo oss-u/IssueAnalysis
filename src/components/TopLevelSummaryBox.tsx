@@ -49,6 +49,7 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
     const issueDetails = parseURLForIssueDetails();
     const author = getAuthorFromPage();
     generateTopLevelSummary(issueDetails.user, issueDetails.repository, issueDetails.issueNum, author).then((resSummaries) => {
+      console.log(resSummaries);
       const generatedSummaries: ISummaryType[] = resSummaries.map((summary) => {
         const highlights: Highlight[] = summary.spans.map(
           (span) => ({id: `h${uuidv4()}`, commentId: span.comment_id, span: span.comment_span, infoTypeId: summary.id})
