@@ -2,7 +2,7 @@ import React from "react";
 import { IssueComment } from "../../types";
 import { commentParser } from "../../utils/comment_parser";
 import { ChevronRightIcon, ChevronLeftIcon } from '@primer/octicons-react';
-import { IconButton, Box } from '@primer/react';
+import { IconButton } from '@primer/react';
 
 export default class NavigationComponent extends React.Component<
   { navbarContent: Array<IssueComment> },
@@ -10,6 +10,16 @@ export default class NavigationComponent extends React.Component<
 > {
   constructor(props) {
     super(props);
+    this.props.navbarContent.sort((a: IssueComment, b: IssueComment) => {
+      let aDate = parseInt(a.id.split('/').at(-1).split('-').at(-1));
+      let bDate = parseInt(b.id.split('/').at(-1).split('-').at(-1));
+      if (aDate > bDate)
+        return 1;
+      else if (bDate > aDate)
+        return -1;
+      else
+        return 0;
+    });
     this.state = {
       currIndex: 0,
     };
@@ -47,7 +57,7 @@ export default class NavigationComponent extends React.Component<
       commentTags.forEach((tag) => {
         if (commentParser(tag).id === c.id) {
           const tagHeader = tag.querySelector(".timeline-comment-header");
-          tagHeader.setAttribute("style", "background:#6cc644");
+          tagHeader.setAttribute("style", "background:#1a7f37");
           tag.classList.add("color-border-success-emphasis");
         }
       });
@@ -55,7 +65,6 @@ export default class NavigationComponent extends React.Component<
     this.scrollToComment();
     return (
         <div className="Box-footer Box-row--gray lh-condensed text-normal f6 m-1 p-0">
-          
         <div className="clearfix">
           <div className="float-right">
             <div className="float-right">
@@ -97,7 +106,6 @@ export default class NavigationComponent extends React.Component<
             </div>
           </div>
           </div>
-        {/* // </Box> */}
         </div>
     );
   }
