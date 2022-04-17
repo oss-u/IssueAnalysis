@@ -2,9 +2,11 @@ import React from "react";
 import { Summary } from "../../types";
 import ReactMarkdown from 'react-markdown';
 import TurndownService from 'turndown';
+import { IconButton } from '@primer/react';
+import { TrashIcon } from '@primer/octicons-react';
 import remarkGfm from 'remark-gfm';
 import { generateSummary } from "../../endpoints";
-import { Popover, Button, Heading, Text } from '@primer/react';
+import { Button } from '@primer/react';
 
 export default class SummaryInputComponent extends React.Component<
   {
@@ -13,9 +15,11 @@ export default class SummaryInputComponent extends React.Component<
     backButtonHandler;
     submitHandler;
   },
-  {writing: boolean,
-  content: string,
-  popover: boolean}
+  {
+    writing: boolean,
+    content: string,
+    popover: boolean
+  }
 > {
 
   constructor(props) {
@@ -29,7 +33,6 @@ export default class SummaryInputComponent extends React.Component<
   }
 
   subsummaryView = () => {
-
     if (this.state.popover) {
       return (<div className="details">
         <div className="details-reset details-overlay details-overlay-dark">
@@ -142,6 +145,12 @@ export default class SummaryInputComponent extends React.Component<
                 <div className="col-10 float-left pl-2">
                   <h6>commented on {dateFormatting}</h6>
                 </div>
+                <IconButton variant="invisible"
+                  size="small"
+                  className="btn btn-sm float-right m-0 p-0"
+                  aria-label="delete-summary"
+                  icon={ TrashIcon }
+                  onClick={() => {console.log("Comment deleted!")}} />
               </div>
             </div>
             <div className="Box-row p-1">

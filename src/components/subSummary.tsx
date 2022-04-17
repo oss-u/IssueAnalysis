@@ -26,8 +26,10 @@ class SubSummaryComponent extends React.Component<
     panelState: number;
   }
 > {
+
   summaryIdMapping: Map<string, string> = new Map<string, string>();
   addedComments: Array<string>;
+
   constructor(props) {
     super(props);
     this.addedComments = [];
@@ -42,7 +44,8 @@ class SubSummaryComponent extends React.Component<
     };
     this.loadCommentComponents = this.loadCommentComponents.bind(this);
     this.saveSummary == this.saveSummary.bind(this);
-    this.getExistingUserSummaries(); 
+    // Get the comments and do the initialising
+    this.getExistingUserSummaries();
   }
 
   getExistingUserSummaries = () => {
@@ -102,13 +105,14 @@ class SubSummaryComponent extends React.Component<
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
+
     commentTags.forEach((tag) => {
       if (
         this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])
       ) {
         if (!tag.classList.contains("color-border-success-emphasis")) {
           const tagHeader = tag.querySelector(".timeline-comment-header");
-          tagHeader.setAttribute("style", "background:#6cc644");
+          // tagHeader.setAttribute("style", "background:#6cc644");
           tag.classList.add("color-border-success-emphasis");
         }
       }
@@ -127,7 +131,7 @@ class SubSummaryComponent extends React.Component<
       if (commentList.includes(tag.querySelector("a.js-timestamp")["href"])) {
         if (!tag.classList.contains("color-border-success-emphasis")) {
           const tagHeader = tag.querySelector(".timeline-comment-header");
-          tagHeader.setAttribute("style", "background:#6cc644");
+          tagHeader.setAttribute("style", "background:#1a7f37");
           tag.classList.add("color-border-success-emphasis");
         }
       }
@@ -146,22 +150,24 @@ class SubSummaryComponent extends React.Component<
         if (!item.comments.some((e) => e.id === newComment.id)) {
           item.comments = item.comments.concat(newComment);
           items[modifiedSummary] = item;
-        } else {
-          item.comments.splice(
-            item.comments.findIndex((e) => e.id === newComment.id),
-            1
-          );
-          if (tag.classList.contains("color-border-success-emphasis")) {
-            const tagHeader = tag.querySelector(".timeline-comment-header");
-            tagHeader.removeAttribute("style");
-            tag.classList.remove("color-border-success-emphasis");
-          }
         }
+        // else {
+        //   item.comments.splice(
+        //     item.comments.findIndex((e) => e.id === newComment.id),
+        //     1
+        //   );
+        //   if (tag.classList.contains("color-border-success-emphasis")) {
+        //     const tagHeader = tag.querySelector(".timeline-comment-header");
+        //     // tagHeader.removeAttribute("style");
+        //     tag.classList.remove("color-border-success-emphasis");
+        //   }
+        // }
         this.setState({
           subsummaries: items,
-          visible: "input",
+          visible: "comments",
         });
       } else {
+        // If not editing, then we are creating a new summary
         let newSummary = new Summary("", newComment);
         let tempSubsummary = this.state.subsummaries;
         tempSubsummary.push(newSummary);
@@ -172,39 +178,42 @@ class SubSummaryComponent extends React.Component<
         });
       }
       const tagHeader = tag.querySelector(".timeline-comment-header");
-      tagHeader.setAttribute("style", "background:#6cc644");
+      // tagHeader.setAttribute("style", "background:#9ed2a7");
       tag.classList.add("color-border-success-emphasis");
-    } else {
-      if (this.state.editing) {
-        let modifiedSummary = this.state.subsummaries.findIndex(
-          (e) => e.id === this.state.editing
-        );
-        let items = [...this.state.subsummaries];
-        let item = { ...items[modifiedSummary] };
-        if (item.comments.some((e) => e.id === newComment.id)) {
-          item.comments.splice(
-            item.comments.findIndex((e) => e.id === newComment.id),
-            1
-          );
-          this.addedComments.splice(
-            this.addedComments.findIndex((e) => e === newComment.id),
-            1
-          );
-          if (tag.classList.contains("color-border-success-emphasis")) {
-            const tagHeader = tag.querySelector(".timeline-comment-header");
-            tagHeader.removeAttribute("style");
-            tag.classList.remove("color-border-success-emphasis");
-          }
-        }
-        this.setState({
-          subsummaries: items,
-          visible: "comments",
-        });
-      }
-    }
+    } 
+    // else {
+    //   if (this.state.editing) {
+    //     let modifiedSummary = this.state.subsummaries.findIndex(
+    //       (e) => e.id === this.state.editing
+    //     );
+    //     let items = [...this.state.subsummaries];
+    //     let item = { ...items[modifiedSummary] };
+    //     if (item.comments.some((e) => e.id === newComment.id)) {
+    //       item.comments.splice(
+    //         item.comments.findIndex((e) => e.id === newComment.id),
+    //         1
+    //       );
+    //       this.addedComments.splice(
+    //         this.addedComments.findIndex((e) => e === newComment.id),
+    //         1
+    //       );
+          // if (tag.classList.contains("color-border-success-emphasis")) {
+          //   const tagHeader = tag.querySelector(".timeline-comment-header");
+          //   tagHeader.removeAttribute("style");
+          //   tag.classList.remove("color-border-success-emphasis");
+          // }
+    //     }
+    //     this.setState({
+    //       subsummaries: items,
+    //       visible: "comments",
+    //     });   
+    //   }
+    // }
   };
 
   addCommentsToSummary = () => {
+    // Change this code to add an explicit button 
+    // instead of a listener
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
@@ -234,12 +243,6 @@ class SubSummaryComponent extends React.Component<
     return concatComments;
   };
 
-  exitNavBar = () => {
-    this.setState({
-      viewing: "",
-    });
-  };
-
   editExistingSummary = () => {
     this.resetBorderHighlights();
     this.setState({
@@ -255,8 +258,26 @@ class SubSummaryComponent extends React.Component<
       if (ss.id === id.toString()) {
         deleteIndex = index;
       }
-    })
-    this.state.subsummaries.splice(deleteIndex, 1);
+    });
+    
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    const deletedComments = this.state.subsummaries[deleteIndex].comments.map(c => c.id);
+
+    commentTags.forEach((tag) => {
+      let deletedComment = commentParser(tag);
+      if (deletedComments.includes(deletedComment.id)) {
+        this.addedComments.splice(this.addedComments.indexOf(deletedComment.id), 1);
+        if (tag.classList.contains("color-border-success-emphasis")) {
+          const tagHeader = tag.querySelector(".timeline-comment-header");
+          tagHeader.removeAttribute("style");
+          tag.classList.remove("color-border-success-emphasis");
+        }
+      }
+    });
+
+    this.state.subsummaries.splice(deleteIndex, 1);    
 
     const issueDetails = parseURLForIssueDetails();
     deleteUserSummaries(issueDetails.user, issueDetails.repository, issueDetails.issueNum, id).then((response) => {
@@ -502,18 +523,10 @@ class SubSummaryComponent extends React.Component<
     }
   }
 
-  render() {
-    let navbarContent;
-    if (
-      (this.state.editing || this.state.viewing) &&
-      this.state.visible === "summary"
-    ) {
-      this.state.subsummaries.forEach((ss) => {
-        if (ss.id === this.state.viewing) {
-          navbarContent = ss.comments;
-        }
-      });
-    }
+  render() {    
+    // This needs to be here because 
+    // 1) Existing long threads can be unminimized
+    // 2) New comments can be added to the thread
     this.addCommentsToSummary();
     this.resetBorderHighlights();
     return (
