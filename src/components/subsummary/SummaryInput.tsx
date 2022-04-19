@@ -14,6 +14,7 @@ export default class SummaryInputComponent extends React.Component<
     subSummaryObject: Summary;
     backButtonHandler;
     submitHandler;
+    deleteCommentHandler;
   },
   {
     writing: boolean,
@@ -150,7 +151,9 @@ export default class SummaryInputComponent extends React.Component<
                   className="btn btn-sm float-right m-0 p-0"
                   aria-label="delete-summary"
                   icon={ TrashIcon }
-                  onClick={() => {console.log("Comment deleted!")}} />
+                  onClick={() => {
+                    this.props.deleteCommentHandler(this.props.subSummaryObject.id, e.id);
+                  }} />
               </div>
             </div>
             <div className="Box-row p-1">

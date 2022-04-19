@@ -151,17 +151,6 @@ class SubSummaryComponent extends React.Component<
           item.comments = item.comments.concat(newComment);
           items[modifiedSummary] = item;
         }
-        // else {
-        //   item.comments.splice(
-        //     item.comments.findIndex((e) => e.id === newComment.id),
-        //     1
-        //   );
-        //   if (tag.classList.contains("color-border-success-emphasis")) {
-        //     const tagHeader = tag.querySelector(".timeline-comment-header");
-        //     // tagHeader.removeAttribute("style");
-        //     tag.classList.remove("color-border-success-emphasis");
-        //   }
-        // }
         this.setState({
           subsummaries: items,
           visible: "comments",
@@ -181,34 +170,6 @@ class SubSummaryComponent extends React.Component<
       // tagHeader.setAttribute("style", "background:#9ed2a7");
       tag.classList.add("color-border-success-emphasis");
     } 
-    // else {
-    //   if (this.state.editing) {
-    //     let modifiedSummary = this.state.subsummaries.findIndex(
-    //       (e) => e.id === this.state.editing
-    //     );
-    //     let items = [...this.state.subsummaries];
-    //     let item = { ...items[modifiedSummary] };
-    //     if (item.comments.some((e) => e.id === newComment.id)) {
-    //       item.comments.splice(
-    //         item.comments.findIndex((e) => e.id === newComment.id),
-    //         1
-    //       );
-    //       this.addedComments.splice(
-    //         this.addedComments.findIndex((e) => e === newComment.id),
-    //         1
-    //       );
-          // if (tag.classList.contains("color-border-success-emphasis")) {
-          //   const tagHeader = tag.querySelector(".timeline-comment-header");
-          //   tagHeader.removeAttribute("style");
-          //   tag.classList.remove("color-border-success-emphasis");
-          // }
-    //     }
-    //     this.setState({
-    //       subsummaries: items,
-    //       visible: "comments",
-    //     });   
-    //   }
-    // }
   };
 
   addCommentsToSummary = () => {
@@ -251,6 +212,54 @@ class SubSummaryComponent extends React.Component<
       visible: "input",
     });
   };
+
+  deleteCommentFromExistingSummary = (summaryId, commentId) => {
+    let newS: Summary;
+    let newSs: Array<Summary> = this.state.subsummaries;
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    commentTags.forEach((tag) => {
+      let deletedComment = commentParser(tag);
+      if (commentId === deletedComment.id) {
+        this.addedComments.splice(this.addedComments.indexOf(deletedComment.id), 1);
+        if (tag.classList.contains("color-border-success-emphasis")) {
+          const tagHeader = tag.querySelector(".timeline-comment-header");
+          tagHeader.removeAttribute("style");
+          tag.classList.remove("color-border-success-emphasis");
+        }
+      }
+    });
+
+    // this.state.subsummaries.forEach(ss => {
+    //   if (ss.id === summaryId) {
+    //     ss.comments.splice(commentId, 1);
+    //   }
+    // });
+    
+    // find the summary from the list of summaries
+    newSs.forEach(ss => {
+      if (ss.id === summaryId) {
+        newS = ss;
+      }
+    });
+    // remove the comment from the summary
+    let cId;
+    newS.comments.forEach((c, index) => {
+      if (c.id === commentId) {
+        cId = index;
+      }
+    });
+    newS.comments.splice(cId, 1);
+    // replace the summary from the summary
+    newSs = newSs.map(s => s.id === newS.id ? newS : s);
+    console.log(summaryId, commentId, newSs, newS);
+    // update the original summary list
+    this.setState({
+      subsummaries: newSs
+    });
+    
+  }
 
   deleteExistingSummary = (id: number) => {
     let deleteIndex;
@@ -373,6 +382,7 @@ class SubSummaryComponent extends React.Component<
           subSummaryObject={editingSubsummary}
           backButtonHandler={this.toggleSummaryBoxComponent}
           submitHandler={this.saveSummary}
+          deleteCommentHandler={this.deleteCommentFromExistingSummary}
         />);
     } else {
       return (
