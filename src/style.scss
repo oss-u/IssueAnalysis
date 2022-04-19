@@ -45,7 +45,7 @@
 .sub-scroll {
   max-height: 80vh;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .subsummary-overflow {
@@ -55,4 +55,24 @@
 .loading-center {
   display: flex;
   justify-content: center;
+}
+
+.subsummary-height {
+  max-height: 80vh;
+}
+
+.scroll-align {
+  align-items: flex-start;
+}
+
+.scroll-sticky {
+  position: sticky;
+  bottom: 0;
+  align-self: flex-end;
+}
+
+.comment-height {
+  max-height: 20%;
+  overflow-y: auto;
+  overflow-x: auto;
 }

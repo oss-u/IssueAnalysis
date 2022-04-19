@@ -1,5 +1,6 @@
 export const getCurrentUserName = () => {
     const userNameEl = document.querySelector('head > meta[name="user-login"]');
+    console.log(userNameEl);
     return userNameEl.getAttribute("content")
 }
 
