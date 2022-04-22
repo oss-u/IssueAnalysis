@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
-import { Highlight, IssueComment, Summary } from "../types";
+import { Highlight, InformationType, IssueComment, Summary } from "../types";
 import { CommentNavBox } from "./highlight-nav/CommentNavBox";
 import { highlightComment } from "./HighlightedComment";
 import TopLevelSummaryBox from "./TopLevelSummaryBox";
@@ -25,7 +25,7 @@ const cleanupComments = (comments: IssueComment[], originalCommentHTML: string[]
 
 const modifySummaryFromHighlightEdit = (summary: ISummaryType, newHighlight: Highlight): ISummaryType => {
     const editedHighlightIndex = summary.commentHighlights.findIndex((highlight) => highlight.id === newHighlight.id);
-    const sameInfoType = summary.typeId === newHighlight.infoTypeId;
+    const sameInfoType = summary.infoType === newHighlight.infoType;
     if (editedHighlightIndex < 0 && !sameInfoType){
         return summary;
     }
@@ -43,7 +43,7 @@ const modifySummaryFromHighlightEdit = (summary: ISummaryType, newHighlight: Hig
 export default function TopLevelSummary(): JSX.Element {
     const [comments, setComments] = React.useState<IssueComment[]>(Array.from(getAllCommentsOnIssue()).map((comment) => commentParser(comment)));
     const [summaries, setSummaries] = React.useState<ISummaryType[]>([]);
-    const [selectedInfoTypeId, setSelectedInfoTypeId] = React.useState<number | null>(null);
+    const [selectedInfoType, setSelectedInfoType] = React.useState<InformationType | null>(null);
     const [selectedComment, setSelectedComment] = React.useState<IssueComment | null>(null);
     const [selectedCommentNavBox, setSelectedCommentNavBox] = React.useState<HTMLDivElement | null>(null);
     const [selectedHighlightIndex, setSelectedHighlightIndex] = React.useState<number>(0);
@@ -63,16 +63,16 @@ export default function TopLevelSummary(): JSX.Element {
     }, [summaries])
 
     useEffect(() => {
-        if (!selectedInfoTypeId){
+        if (!selectedInfoType){
             if (!selectedComment){
                 setSelectedHighlights([]);
             }
             return;
         }
         setSelectedComment(null);
-        const newFilteredHighlights = allHighlights.filter((highlight) => highlight.infoTypeId === selectedInfoTypeId);
+        const newFilteredHighlights = allHighlights.filter((highlight) => highlight.infoType === selectedInfoType);
         setSelectedHighlights(newFilteredHighlights);
-    }, [selectedInfoTypeId])
+    }, [selectedInfoType])
 
     useEffect(() => {
         cleanupComments(comments, originalCommentHTML);
@@ -94,7 +94,7 @@ export default function TopLevelSummary(): JSX.Element {
             setSelectedCommentNavBox(null);
         }
         if (!selectedComment){
-            if (!selectedInfoTypeId){
+            if (!selectedInfoType){
                 setSelectedHighlights([]);
             }
             return;
@@ -111,7 +111,7 @@ export default function TopLevelSummary(): JSX.Element {
         filteredHighlights.sort((h1, h2) => h1.span.start - h2.span.start);
         setSelectedHighlights(filteredHighlights);
         setSelectedCommentNavBox(insertedBox);
-        setSelectedInfoTypeId(null);
+        setSelectedInfoType(null);
         ReactDOM.render(
             <CommentNavBox 
                 highlights={filteredHighlights} 
@@ -124,10 +124,10 @@ export default function TopLevelSummary(): JSX.Element {
     return (<TopLevelSummaryBox 
                 summaries={summaries}
                 highlights={selectedHighlights}
-                selectedInfoTypeId={selectedInfoTypeId}
+                selectedInfoType={selectedInfoType}
                 updateSummaries={(newSummaries) => setSummaries(newSummaries)} 
                 updateSelectedComment={(newSelectedComment) => setSelectedComment(newSelectedComment)} 
-                updateSelectedInfoTypeId={(newInfoTypeId) => setSelectedInfoTypeId(newInfoTypeId)}
+                updateSelectedInfoType={(newInfoType) => setSelectedInfoType(newInfoType)}
                 updateSelectedHighlightIndex={(newIndex) => setSelectedHighlightIndex(newIndex)}
             />)
 }

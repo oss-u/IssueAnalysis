@@ -39,14 +39,23 @@ export class Summary {
 }
 
 export type InformationType =
-  | "expectedBehaviour"
-  | "motivation"
-  | "solutionDiscussion"
-  | "none";
+  | "Action on Issue"
+  | "Bug Reproduction"
+  | "Contribution and Commitment"
+  | "Expected Behaviour"
+  | "Investigation and Exploration"
+  | "Motivation"
+  | "Observed Bug Behaviour"
+  | "Potential New Issues and Requests"
+  | "Social Conversation"
+  | "Solution Discussion"
+  | "Task Progress"
+  | "Usage"
+  | "Workarounds";
 
 export interface Highlight {
   id: string;
   commentId: string;
   span: { start: number; end: number };
-  infoTypeId: number;
+  infoType: InformationType;
 }

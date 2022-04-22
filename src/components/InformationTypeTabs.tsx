@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import "../style.scss";
 import { getCurrentUserName } from "../utils";
 import { informationTypeMap } from "../utils/maps";
-import { Highlight, IssueComment } from "../types";
+import { Highlight, InformationType } from "../types";
 import { TopLevelNavBar } from "./highlight-nav/TopLevelNavBar";
 
 interface InformationTypeProps {
@@ -14,28 +14,28 @@ interface InformationTypeProps {
 }
 
 export interface ISummaryType {
-  typeId: number;
+  infoType: InformationType;
   content: string;
   commentHighlights: Highlight[];
 }
 
 interface IInformationTypeTabs {
   summaries: ISummaryType[];
-  selectedInfoTypeId: number | null;
+  selectedInfoType: InformationType | null;
   highlights: Highlight[];
-  updateSelectedInfoTypeId: (newId: number | null) => void;
+  updateSelectedInfoType: (newId: InformationType | null) => void;
   onChangeSelectedHighlight: (index: number) => void;
 }
 
 export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.Element {
-  const { summaries, selectedInfoTypeId, updateSelectedInfoTypeId, highlights, onChangeSelectedHighlight } = props;
+  const { summaries, selectedInfoType, updateSelectedInfoType, highlights, onChangeSelectedHighlight } = props;
   const [editedSummaries, setEditedSummaries] = React.useState<ISummaryType[]>(summaries);
   const [editing, setEditing] = React.useState<boolean>(false);
   const [authors, setAuthors] = React.useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = React.useState<number>(0);
 
   useEffect(() => {
-    updateSelectedInfoTypeId(summaries.length > currentIndex ? summaries[currentIndex].typeId : null);
+    updateSelectedInfoType(summaries.length > currentIndex ? summaries[currentIndex].infoType : null);
   }, [])
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
       content: event.target.value
     };
     const editedIndex = newSummaries.findIndex(
-      (sumType) => sumType.typeId === editedSummaries[currentIndex].typeId
+      (sumType) => sumType.infoType === editedSummaries[currentIndex].infoType
     );
     newSummaries[editedIndex] = editedSummary;
     setEditedSummaries(newSummaries);
@@ -77,7 +77,7 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
   // 1 second
   let optimisedEditSummary = debounce(onEditSummary, 1000);
 
-  const summaryInfoTypeIds = summaries.map((summary) => summary.typeId);
+  const summaryInfoTypes = summaries.map((summary) => summary.infoType);
   
   function InformationTypeJSX(): JSX.Element {
     if (editing) {
@@ -100,12 +100,12 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
               return (<button className="UnderlineNav-item"
                 role="tab"
                 type="button"
-                aria-selected={(summary.typeId===editedSummaries[currentIndex].typeId)? true: false}
+                aria-selected={(summary.infoType===editedSummaries[currentIndex].infoType) ? true: false}
                 onClick={() => {
                   setCurrentIndex(index);
-                  updateSelectedInfoTypeId(summaries[index].typeId);
+                  updateSelectedInfoType(summaries[index].infoType);
                 }}>
-                {informationTypeMap.get(summary.typeId).title}
+                {informationTypeMap.get(summary.infoType).title}
               </button>);
             })
           }
@@ -135,13 +135,13 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
                   Summary by <span className="text-semibold">{authors.join(", ")}</span>
                 </div>)}
               <div className="d-flex flex-row flex-items-center">
-                {selectedInfoTypeId && 
+                {selectedInfoType && 
                   <TopLevelNavBar 
                     highlights={highlights} 
                     onChangeSelectedHightlight={onChangeSelectedHighlight}
-                    onChangeInfoType={updateSelectedInfoTypeId}
-                    selectedInfoTypeId={selectedInfoTypeId}
-                    summaryInfoTypeIds={summaryInfoTypeIds}
+                    onChangeInfoType={updateSelectedInfoType}
+                    selectedInfoType={selectedInfoType}
+                    summaryInfoTypes={summaryInfoTypes}
                   />}
                 {/* <div>{selectedInfoTypeId ? informationTypeMap.get(selectedInfoTypeId).title : "No info type selected"}</div> */}
                 <div className="btn btn-sm ml-4" onClick={() => {

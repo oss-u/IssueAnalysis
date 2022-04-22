@@ -1,5 +1,5 @@
 import React from 'react';
-import { Highlight } from '../../types';
+import { Highlight, InformationType } from '../../types';
 import { informationTypeMap } from '../../utils/maps';
 
 interface EditSelectedHighlightProps {
@@ -13,7 +13,7 @@ const informationTypeOptions = Array.from(informationTypeMap).map(([id, infoType
 export function EditSelectedHighlight(props: EditSelectedHighlightProps): JSX.Element {
     const {selectedHighlight, onEditHighlight, onClose} = props;
 
-    const [selectedInfoTypeId, setSelectedInfoTypeId] = React.useState<number>(selectedHighlight.infoTypeId);
+    const [selectedInfoType, setSelectedInfoType] = React.useState<InformationType>(selectedHighlight.infoType);
 
     const getHighlightedText = (): string => {
         if (!selectedHighlight) {
@@ -27,7 +27,7 @@ export function EditSelectedHighlight(props: EditSelectedHighlightProps): JSX.El
     };
 
     const onSave = () => {
-        const newHighlight: Highlight = {...selectedHighlight, infoTypeId: selectedInfoTypeId}
+        const newHighlight: Highlight = {...selectedHighlight, infoType: selectedInfoType}
         onEditHighlight(newHighlight);
         onClose();
     }
@@ -39,7 +39,7 @@ export function EditSelectedHighlight(props: EditSelectedHighlightProps): JSX.El
         </div>
         <div className="d-flex flex-row width-full">
             <div className="h4 mr-3">As</div>
-            <select className="form-select" value={selectedInfoTypeId} onChange={(e) => setSelectedInfoTypeId(parseInt(e.target.value))}>
+            <select className="form-select" value={selectedInfoType} onChange={(e) => setSelectedInfoType(e.target.value as InformationType)}>
                 {informationTypeOptions}
             </select>
         </div>

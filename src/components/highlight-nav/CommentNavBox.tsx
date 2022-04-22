@@ -30,7 +30,7 @@ export function CommentNavBox(props: CommentNavBoxProps): JSX.Element {
                 </div>
                 <div className="d-flex flex-row width-full">
                     <div className="mr-4">Showing</div>
-                    <div>{highlights.length > 0 ? informationTypeMap.get(highlights[selectedHighlightIndex].infoTypeId).title : "No Highlights"}</div>
+                    <div>{highlights.length > 0 ? informationTypeMap.get(highlights[selectedHighlightIndex].infoType).title : "No Highlights"}</div>
                 </div>
                 <div id="navContainer" className="d-flex flex-row width-full">
                     <div className="mr-4">Sentence</div>
