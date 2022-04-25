@@ -1,6 +1,8 @@
 import React from 'react';
+import { getInformationType, updateInfoTypeOfHighlight } from '../../endpoints';
 import { Highlight, InformationType } from '../../types';
 import { informationTypeMap } from '../../utils/maps';
+import { parseURLForIssueDetails } from '../../utils/scraping';
 
 interface EditSelectedHighlightProps {
     selectedHighlight: Highlight;
@@ -9,6 +11,17 @@ interface EditSelectedHighlightProps {
 }
 
 const informationTypeOptions = Array.from(informationTypeMap).map(([id, infoType]) => (<option value={id}>{infoType.title}</option>));
+
+const saveInfoTypeToDB = async (highlight: Highlight, newInfoType: InformationType) => {
+    const issueDetails = parseURLForIssueDetails();
+    const allHighlights = await getInformationType(issueDetails.user, issueDetails.repository, issueDetails.issueNum, highlight.commentId);
+    const selectedHighlight = allHighlights.sentences.find((modelSpan) => modelSpan.span.start === highlight.span.start && modelSpan.span.end === highlight.span.end);
+    if (!selectedHighlight) {
+        throw Error(`Could not update ${highlight.id} as it was not found in DB`);
+    }
+    await updateInfoTypeOfHighlight(selectedHighlight.id, newInfoType);
+    console.log(`Successfully updated information type from ${highlight.infoType} to ${newInfoType} in DB`);
+}
 
 export function EditSelectedHighlight(props: EditSelectedHighlightProps): JSX.Element {
     const {selectedHighlight, onEditHighlight, onClose} = props;
@@ -29,6 +42,7 @@ export function EditSelectedHighlight(props: EditSelectedHighlightProps): JSX.El
     const onSave = () => {
         const newHighlight: Highlight = {...selectedHighlight, infoType: selectedInfoType}
         onEditHighlight(newHighlight);
+        saveInfoTypeToDB(selectedHighlight, selectedInfoType);
         onClose();
     }
 

@@ -9,6 +9,8 @@ import { v4 as uuidv4 } from "uuid";
 import { Highlight, InformationType, IssueComment } from "../types";
 import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
 import octicons from "@primer/octicons"
+import { CheckIcon, XIcon } from "@primer/octicons-react"
+import { Spinner } from "@primer/react";
 
 interface TopLevelSummaryBoxProps{
   summaries: ISummaryType[];
@@ -20,10 +22,29 @@ interface TopLevelSummaryBoxProps{
   updateSelectedInfoType: (newInfoType: InformationType | null) => void;
 }
 
+type LoadingStatus = 'complete' | 'loading' | 'error' | 'none';
+
+const getLoadingSymbolFromStatus = (status: LoadingStatus): JSX.Element => {
+  switch (status) {
+    case "complete":
+      return <CheckIcon className="ml-1"/>
+    case "error":
+      return <XIcon className="ml-1"/>
+    case "loading":
+      return (<span className="ml-1">
+          <Spinner size="small"/>
+        </span>)
+    default:
+      return <></>
+  }
+}
+
 export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.Element {
   const {summaries, selectedInfoType, highlights, updateSummaries, updateSelectedComment, updateSelectedInfoType, updateSelectedHighlightIndex} = props;
 
   const [visible, setVisible] = React.useState<boolean>(false);
+  const [addCommentToDBStatus, setAddCommentToDBStatus] = React.useState<LoadingStatus>('none');
+  const [generateStatus, setGenerateStatus] = React.useState<LoadingStatus>('none');
 
   useEffect(() => {
     if (!visible){
@@ -32,6 +53,7 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
   }, [visible])
 
   const initializeTopLevelSummary = () => {
+    setGenerateStatus('loading');
     const defaultSummary: ISummaryType[] = [
       {
         infoType: "Expected Behaviour",
@@ -68,8 +90,19 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
         newButton.onclick = (e) => {updateSelectedComment(commentDetails)};
         iconContainer.prepend(newButton);
       })
+      setGenerateStatus('complete');
+    }).catch((error) => {
+      console.error(`Failed to generate summary: ${error}`);
+      setGenerateStatus('error');
     });
   };
+
+  const addComments = () => {
+    setAddCommentToDBStatus('loading');
+    scrapeAndAddCommentsToDB().then((value) => 
+      setAddCommentToDBStatus('complete')).catch(
+        (value) => setAddCommentToDBStatus('error'))
+  }
 
   return (
     <div>
@@ -78,8 +111,9 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
           <div className="d-flex flex-justify-between width-full">
             <h2 className="Box-title p-1">Information Type Summaries</h2>
             <div className="d-inline-flex">
-              <button className="btn btn-sm" type="button" onClick={scrapeAndAddCommentsToDB}>
+              <button className="btn btn-sm" type="button" onClick={addComments}>
                 Add Comments to DB
+                {getLoadingSymbolFromStatus(addCommentToDBStatus)}
               </button>
               <button
                 id="minimiseButton"
@@ -99,6 +133,7 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
                 onClick={initializeTopLevelSummary}
               >
                 Generate
+                {getLoadingSymbolFromStatus(generateStatus)}
               </button>
             </div>
           </div>
