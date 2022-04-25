@@ -5,13 +5,11 @@
 
 
 
-import React, { useCallback, useEffect, useState } from "react"
-import ReactDOM from "react-dom";
+import React, { useEffect, useState } from "react"
 import "../style.scss";
 import { Highlight, IssueComment } from "../../types";
 import { commentParser, getAllCommentsOnIssue } from "../../utils/comment_parser";
 import {highlightComment} from "../HighlightedComment";
-import { v4 as uuidv4 } from "uuid"
 import { informationTypeMap } from "../../utils/maps";
 import { ISummaryType } from "../InformationTypeTabs";
 
@@ -25,7 +23,11 @@ interface TopLevelNavBoxProps {
     onOpen: () => void;
 }
 
-const informationTypeOptions = Array.from(informationTypeMap).map(([id, infoType]) => (<option value={id}>{infoType.title}</option>));
+const informationTypeOptions = Array.from(informationTypeMap).map(([id, infoType]) => {
+    console.log(infoType);
+    return (<option value={id}>{infoType.title}</option>)
+});
+console.log(informationTypeOptions);
 
 const NAVBOX_WIDTH = 300;
 const GITHUB_MAX_CONTENT_SIZE = 1280;
@@ -78,7 +80,7 @@ export default function TopLevelNavBox(props: TopLevelNavBoxProps): JSX.Element 
     }, [selectedComment])
 
     useEffect(() => {
-        const newFilteredHighlights = allSummarySentences.filter((sentence) => sentence.infoTypeId === selectedInfoTypeId);
+        const newFilteredHighlights = allSummarySentences.filter((sentence) => sentence.infoType === selectedInfoType);
         setFilteredHighlights(newFilteredHighlights);
         setSelectedSentenceIndex(0)
         setChangeInfoTypeTo(selectedInfoTypeId);

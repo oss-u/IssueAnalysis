@@ -1,19 +1,19 @@
-import React, {useEffect, useRef} from "react";
-import { Highlight } from "../../types";
+import React, {useEffect} from "react";
+import { Highlight, InformationType } from "../../types";
 import { informationTypeMap } from "../../utils/maps";
 import { getCircularIndex } from "../../utils/navigation";
 
 
 interface TopLevelNavBarProps {
     highlights: Highlight[];
-    selectedInfoTypeId: number;
-    summaryInfoTypeIds: number[];
+    selectedInfoType: InformationType;
+    summaryInfoTypes: InformationType[];
     onChangeSelectedHightlight: (index: number) => void;
-    onChangeInfoType: (id: number) => void;
+    onChangeInfoType: (newInfoType: InformationType) => void;
 }
 
 export function TopLevelNavBar(props: TopLevelNavBarProps): JSX.Element {
-    const {highlights, selectedInfoTypeId, summaryInfoTypeIds, onChangeSelectedHightlight, onChangeInfoType} = props;
+    const {highlights, selectedInfoType, summaryInfoTypes, onChangeSelectedHightlight, onChangeInfoType} = props;
     const [selectedHighlightIndex, setSelectedHighlightIndex] = React.useState<number>(0);
     const [onScreen, setOnScreen] = React.useState<boolean>(true);
     const [thisElement, setThisElement] = React.useState<HTMLDivElement | null>(null)
@@ -40,9 +40,7 @@ export function TopLevelNavBar(props: TopLevelNavBarProps): JSX.Element {
         onChangeSelectedHightlight(selectedHighlightIndex);
     }, [selectedHighlightIndex]);
 
-    const infoTypeOptions = summaryInfoTypeIds.map((infoTypeId) => (
-        <option value={infoTypeId}>{informationTypeMap.get(infoTypeId).title}</option>
-    ));
+    const infoTypeOptions = summaryInfoTypes.map((infoType) => (<option value={infoType}>{informationTypeMap.get(infoType).title}</option>));
 
     return (
         <div ref={(ref) => setThisElement(ref)} className="d-flex">
@@ -50,7 +48,7 @@ export function TopLevelNavBar(props: TopLevelNavBarProps): JSX.Element {
                 {!onScreen && (
                     <>
                         <div className="mr-2">Showing</div>
-                        <select className="form-select" value={selectedInfoTypeId} onChange={(e) => onChangeInfoType(parseInt(e.target.value))}>
+                        <select className="form-select" value={selectedInfoType} onChange={(e) => onChangeInfoType(e.target.value as InformationType)}>
                             {infoTypeOptions}
                         </select>
                     </>

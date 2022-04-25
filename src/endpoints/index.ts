@@ -79,7 +79,7 @@ export const getInformationType = async (
 export interface ModelInfoTypeSummary {
   id: number;
   text: string;
-  info_type: string;
+  info_type: InformationType;
   issue: string;
   posted_on: string;
   author: string;
@@ -100,13 +100,13 @@ export const generateTopLevelSummary = async (
   issue_number: number,
   author: string
 ): Promise<ModelInfoTypeSummary[]> => {
-  return [];
-  // const extension = `/${gh_user}/${repo}/${issue_number}/generate-top-level-summary`;
-  // const input = makeRequestURL(extension, { author });
-  // const init = makeRequestArguments("POST");
-  // const res = await fetch(input, init);
-  // throwErrorsForResponse(res);
-  // return res.json();
+  const extension = `/${gh_user}/${repo}/${issue_number}/generate-top-level-summary`;
+  const input = makeRequestURL(extension, { author });
+  const init = makeRequestArguments("POST");
+  const res = await fetch(input, init);
+  console.log(res.status);
+  throwErrorsForResponse(res);
+  return res.json();
 };
 
 export interface Author {
@@ -148,7 +148,6 @@ export const saveUserSummaries = async (
   return res.json();
 };
 
-
 export const updateUserSummaries = async (
   gh_user: string,
   repo: string,
@@ -159,7 +158,7 @@ export const updateUserSummaries = async (
   console.log(subsummaries.summary);
   const extension = `/${gh_user}/${repo}/${issue_number}/comment-summary/${comment_summary_id}/update-summary`;
   const input = makeRequestURL(extension);
-  const init = makeRequestArguments("POST", {"text": subsummaries.summary});
+  const init = makeRequestArguments("POST", { text: subsummaries.summary });
   const res = await fetch(input, init);
   throwErrorsForResponse(res);
   return res.json();
@@ -179,7 +178,6 @@ export const updateUserSummaryComments = async (
   throwErrorsForResponse(res);
   return res.json();
 };
-
 
 export const getUserSummaries = async (
   gh_user: string,

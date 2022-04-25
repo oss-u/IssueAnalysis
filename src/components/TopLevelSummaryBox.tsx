@@ -6,54 +6,55 @@ import InformationTypeTabs, { ISummaryType } from "./InformationTypeTabs";
 import { getAuthorFromPage, parseURLForIssueDetails } from "../utils/scraping";
 import { scrapeAndAddCommentsToDB } from "../scripts/scrape-and-add-comments";
 import { v4 as uuidv4 } from "uuid";
-import { Highlight, IssueComment } from "../types";
+import { Highlight, InformationType, IssueComment } from "../types";
 import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
 import octicons from "@primer/octicons"
 
 interface TopLevelSummaryBoxProps{
   summaries: ISummaryType[];
   highlights: Highlight[];
-  selectedInfoTypeId: number | null;
+  selectedInfoType: InformationType | null;
   updateSummaries: (newSummaries: ISummaryType[]) => void;
   updateSelectedHighlightIndex: (index: number) => void;
   updateSelectedComment: (comment: IssueComment | null) => void;
-  updateSelectedInfoTypeId: (newId: number | null) => void;
+  updateSelectedInfoType: (newInfoType: InformationType | null) => void;
 }
 
 export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.Element {
-  const {summaries, selectedInfoTypeId, highlights, updateSummaries, updateSelectedComment, updateSelectedInfoTypeId, updateSelectedHighlightIndex} = props;
+  const {summaries, selectedInfoType, highlights, updateSummaries, updateSelectedComment, updateSelectedInfoType, updateSelectedHighlightIndex} = props;
 
   const [visible, setVisible] = React.useState<boolean>(false);
 
   useEffect(() => {
     if (!visible){
-      updateSelectedInfoTypeId(null);
+      updateSelectedInfoType(null);
     }
   }, [visible])
 
   const initializeTopLevelSummary = () => {
     const defaultSummary: ISummaryType[] = [
       {
-        typeId: 1,
+        infoType: "Expected Behaviour",
         content:
           "Generated summary was empty",
-        commentHighlights: [{id: "h1", span: {start: 14, end: 24}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issue-1115550022", infoTypeId: 1}, {id: "h2", span: {start: 24, end: 34}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issue-1115550022", infoTypeId: 1}]
+        commentHighlights: [{id: "h1", span: {start: 14, end: 24}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issue-1115550022", infoType: "Expected Behaviour"}, {id: "h2", span: {start: 24, end: 34}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issue-1115550022", infoType: "Expected Behaviour"}]
       },
       {
-        typeId: 2,
+        infoType: "Motivation",
         content:
           "Generated summary was empty",
-        commentHighlights: [{id: "h3", span: {start: 14, end: 24}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issuecomment-1035612306", infoTypeId: 2}, {id: "h4", span: {start: 24, end: 34}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issuecomment-1035612306", infoTypeId: 2}]
+        commentHighlights: [{id: "h3", span: {start: 14, end: 24}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issuecomment-1035612306", infoType: "Motivation"}, {id: "h4", span: {start: 24, end: 34}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issuecomment-1035612306", infoType: "Motivation"}]
       },
     ];
     const issueDetails = parseURLForIssueDetails();
     const author = getAuthorFromPage();
     generateTopLevelSummary(issueDetails.user, issueDetails.repository, issueDetails.issueNum, author).then((resSummaries) => {
+      console.log(resSummaries);
       const generatedSummaries: ISummaryType[] = resSummaries.map((summary) => {
         const highlights: Highlight[] = summary.spans.map(
-          (span) => ({id: `h${uuidv4()}`, commentId: span.comment_id, span: span.comment_span, infoTypeId: summary.id})
+          (span) => ({id: `h${uuidv4()}`, commentId: span.comment_id, span: span.comment_span, infoType: summary.info_type})
         )
-        return {typeId: summary.id, content: summary.text, commentHighlights: highlights}
+        return {infoType: summary.info_type, content: summary.text, commentHighlights: highlights}
       });
       const newSummaries = generatedSummaries.length !== 0 ? generatedSummaries : defaultSummary;
       updateSummaries(newSummaries);
@@ -106,8 +107,8 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
       {visible && (
           <InformationTypeTabs 
             summaries={summaries} 
-            selectedInfoTypeId={selectedInfoTypeId} 
-            updateSelectedInfoTypeId={updateSelectedInfoTypeId} 
+            selectedInfoType={selectedInfoType} 
+            updateSelectedInfoType={updateSelectedInfoType} 
             onChangeSelectedHighlight={updateSelectedHighlightIndex} 
             highlights={highlights}
           />

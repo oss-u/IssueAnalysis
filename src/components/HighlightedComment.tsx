@@ -1,11 +1,11 @@
 import React, { useState } from "react"
 import ReactDOM from "react-dom";
 import "../style.scss";
-import {Highlight} from "../types"
+import {Highlight, InformationType} from "../types"
 
 interface HighlightProps {
   text: string,
-  infoTypeId: number,
+  infoType: InformationType,
   onClick: () => void;
   selected: boolean;
 }
@@ -17,7 +17,7 @@ interface HighlightProps {
 // }
 
 export default function Highlight(props: HighlightProps): JSX.Element {
-    const {text, infoTypeId, selected} = props
+    const {text, infoType, selected} = props
 
     const [backgroundColor, setBackgroundColor] = useState<string>(selected ? "#3C89D0" : "#6CA9FF");
 
@@ -28,7 +28,7 @@ export default function Highlight(props: HighlightProps): JSX.Element {
 
 export function highlightComment(commentEl: Element, selectedHighlightId: string, highlights: Highlight[]) {
   let addedLength = 0;
-  const highlightIdsAndInfoTypes: {id: string, infoTypeId: number}[] = [];
+  const highlightIdsAndInfoTypes: {id: string, infoType: InformationType}[] = [];
   //Create div blocks around highlights with unique ids
   let newInnerHTML: string = commentEl.innerHTML.trim();
   highlights.forEach((highlight) => {
@@ -38,7 +38,7 @@ export function highlightComment(commentEl: Element, selectedHighlightId: string
     const oldInnerHTML = newInnerHTML;
     newInnerHTML = oldInnerHTML.slice(0, highlight.span.start + addedLength) + highlightOpenTag + oldInnerHTML.slice(highlight.span.start + addedLength, highlight.span.end + addedLength) + highlightCloseTag + oldInnerHTML.slice(highlight.span.end + addedLength);
     addedLength += highlightOpenTag.length + highlightCloseTag.length;
-    highlightIdsAndInfoTypes.push({id: highlightId, infoTypeId: highlight.infoTypeId});
+    highlightIdsAndInfoTypes.push({id: highlightId, infoType: highlight.infoType});
   })
   commentEl.innerHTML = newInnerHTML;
   highlightIdsAndInfoTypes.forEach((idInfoTypePair) => {
@@ -48,6 +48,6 @@ export function highlightComment(commentEl: Element, selectedHighlightId: string
     }
     const highlightText = highlightSpan.textContent;
     highlightSpan.textContent = '';
-    ReactDOM.render(<Highlight text={highlightText} infoTypeId={idInfoTypePair.infoTypeId} selected={selectedHighlightId === idInfoTypePair.id} onClick={() => {}}/>, highlightSpan);
+    ReactDOM.render(<Highlight text={highlightText} infoType={idInfoTypePair.infoType} selected={selectedHighlightId === idInfoTypePair.id} onClick={() => {}}/>, highlightSpan);
   })
 }
