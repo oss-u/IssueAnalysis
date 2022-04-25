@@ -1,5 +1,5 @@
 export const API_BASE_ROUTE =
-  "https://issue-analysis-backend.herokuapp.com/api";
+  "https://ossu-issue-analysis-backend.herokuapp.com/api";
 
 export const makeRequestURL = (
   routeExtension: string,
