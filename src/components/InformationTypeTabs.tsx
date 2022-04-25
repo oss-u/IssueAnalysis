@@ -138,7 +138,7 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
                 {selectedInfoType && 
                   <TopLevelNavBar 
                     highlights={highlights} 
-                    onChangeSelectedHightlight={onChangeSelectedHighlight}
+                    onChangeSelectedHighlight={onChangeSelectedHighlight}
                     onChangeInfoType={updateSelectedInfoType}
                     selectedInfoType={selectedInfoType}
                     summaryInfoTypes={summaryInfoTypes}

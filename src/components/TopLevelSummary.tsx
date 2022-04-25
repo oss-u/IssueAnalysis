@@ -120,6 +120,21 @@ export default function TopLevelSummary(): JSX.Element {
                 onEditHighlight={onEditHighlight}
             />, insertedBox);
     }, [selectedComment, allHighlights])
+
+    const onChangeSelectedHighlightIndexTopLevel = (newIndex) => {
+        setSelectedHighlightIndex(newIndex)
+        const newSelectedHighlight = selectedHighlights[newIndex];
+        console.log(newSelectedHighlight);
+        if (!newSelectedHighlight) {
+            return;
+        }
+        const selectedComment = comments.find((comment) => comment.id === newSelectedHighlight.commentId);
+        console.log(selectedComment);
+        if (!selectedComment){
+            return;
+        }
+        selectedComment.tag.scrollIntoView({block: 'center', behavior: 'smooth'});
+    }
     
     return (<TopLevelSummaryBox 
                 summaries={summaries}
@@ -128,6 +143,6 @@ export default function TopLevelSummary(): JSX.Element {
                 updateSummaries={(newSummaries) => setSummaries(newSummaries)} 
                 updateSelectedComment={(newSelectedComment) => setSelectedComment(newSelectedComment)} 
                 updateSelectedInfoType={(newInfoType) => setSelectedInfoType(newInfoType)}
-                updateSelectedHighlightIndex={(newIndex) => setSelectedHighlightIndex(newIndex)}
+                updateSelectedHighlightIndex={onChangeSelectedHighlightIndexTopLevel}
             />)
 }

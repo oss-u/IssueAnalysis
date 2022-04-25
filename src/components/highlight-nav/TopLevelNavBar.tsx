@@ -8,12 +8,12 @@ interface TopLevelNavBarProps {
     highlights: Highlight[];
     selectedInfoType: InformationType;
     summaryInfoTypes: InformationType[];
-    onChangeSelectedHightlight: (index: number) => void;
+    onChangeSelectedHighlight: (index: number) => void;
     onChangeInfoType: (newInfoType: InformationType) => void;
 }
 
 export function TopLevelNavBar(props: TopLevelNavBarProps): JSX.Element {
-    const {highlights, selectedInfoType, summaryInfoTypes, onChangeSelectedHightlight, onChangeInfoType} = props;
+    const {highlights, selectedInfoType, summaryInfoTypes, onChangeSelectedHighlight, onChangeInfoType} = props;
     const [selectedHighlightIndex, setSelectedHighlightIndex] = React.useState<number>(0);
     const [onScreen, setOnScreen] = React.useState<boolean>(true);
     const [thisElement, setThisElement] = React.useState<HTMLDivElement | null>(null)
@@ -33,11 +33,11 @@ export function TopLevelNavBar(props: TopLevelNavBarProps): JSX.Element {
     }, [thisElement])
 
     useEffect(() => {
-        setSelectedHighlightIndex(0);
+        setSelectedHighlightIndex(-1);
     }, [highlights])
 
     useEffect(() => {
-        onChangeSelectedHightlight(selectedHighlightIndex);
+        onChangeSelectedHighlight(selectedHighlightIndex);
     }, [selectedHighlightIndex]);
 
     const infoTypeOptions = summaryInfoTypes.map((infoType) => (<option value={infoType}>{informationTypeMap.get(infoType).title}</option>));
