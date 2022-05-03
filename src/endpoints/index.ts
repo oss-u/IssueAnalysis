@@ -117,6 +117,19 @@ export const generateTopLevelSummary = async (
   return res.json();
 };
 
+export const getTopLevelSummary = async (
+  gh_user: string,
+  repo: string,
+  issue_number: number
+): Promise<ModelInfoTypeSummary[]> => {
+  const extension = `/${gh_user}/${repo}/${issue_number}/top-level-summary`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("GET");
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.json();
+};
+
 export const updateInfoTypeOfHighlight = async (
   span_id: number,
   info_type: InformationType

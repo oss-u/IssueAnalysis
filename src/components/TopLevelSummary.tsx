@@ -6,6 +6,7 @@ import { highlightComment } from "./HighlightedComment";
 import TopLevelSummaryBox from "./TopLevelSummaryBox";
 import { ISummaryType } from "./InformationTypeTabs";
 import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
+import octicons from "@primer/octicons"
 
 const getAllHighlightsFromSummaries = (summaries: ISummaryType[]): Highlight[] => summaries.flatMap((summary) => summary.commentHighlights);
 
@@ -40,9 +41,14 @@ const modifySummaryFromHighlightEdit = (summary: ISummaryType, newHighlight: Hig
     return {...summary, commentHighlights: newHighlights};
 }
 
-export default function TopLevelSummary(): JSX.Element {
+interface TopLevelSummaryProps {
+    initSummaries: ISummaryType[];
+}
+
+export default function TopLevelSummary(props: TopLevelSummaryProps): JSX.Element {
+    const {initSummaries} = props;
     const [comments, setComments] = React.useState<IssueComment[]>(Array.from(getAllCommentsOnIssue()).map((comment) => commentParser(comment)));
-    const [summaries, setSummaries] = React.useState<ISummaryType[]>([]);
+    const [summaries, setSummaries] = React.useState<ISummaryType[]>(initSummaries);
     const [selectedInfoType, setSelectedInfoType] = React.useState<InformationType | null>(null);
     const [selectedComment, setSelectedComment] = React.useState<IssueComment | null>(null);
     const [selectedCommentNavBox, setSelectedCommentNavBox] = React.useState<HTMLDivElement | null>(null);
@@ -57,6 +63,19 @@ export default function TopLevelSummary(): JSX.Element {
         setSummaries(newSummaries);
         // setSelectedComment(null);
     }
+
+    useEffect(() => {
+        Array.from(getAllCommentsOnIssue()).forEach((comment) => {
+            const commentDetails = commentParser(comment);
+            const iconContainer = comment.querySelector("div.timeline-comment-header.clearfix.d-block.d-sm-flex > div.timeline-comment-actions.flex-shrink-0");
+            const newButton = document.createElement('button');
+            newButton.innerHTML = octicons.paintbrush.toSVG();
+            newButton.className = "btn-octicon";
+            newButton.onclick = (e) => {setSelectedComment(commentDetails)};
+            iconContainer.prepend(newButton);
+          })
+    }, [])
+    
 
     useEffect(() => {
         setAllHighlights(getAllHighlightsFromSummaries(summaries));
