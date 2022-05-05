@@ -161,11 +161,11 @@ export default function TopLevelSummary(props: TopLevelSummaryProps): JSX.Elemen
         if (!newSelectedHighlight) {
             return;
         }
-        const selectedComment = comments.find((comment) => comment.id === newSelectedHighlight.commentId);
-        if (!selectedComment){
+        const highlightEl = document.querySelector(`#${newSelectedHighlight.id}`);
+        if (!highlightEl){
             return;
         }
-        selectedComment.tag.scrollIntoView({block: 'center', behavior: 'smooth'});
+        highlightEl.scrollIntoView({block: 'center', behavior: 'smooth'});
     }
     
     return (<TopLevelSummaryBox 
