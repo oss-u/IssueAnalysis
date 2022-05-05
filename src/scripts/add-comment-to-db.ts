@@ -19,6 +19,5 @@ export const addCommentToDB = async (
     datetime: new Date().toISOString(),
   };
   await saveInformationType(gh_user, repo, issue_number, infoTypedComment);
-  console.log(infoTypedComment);
   return;
 };

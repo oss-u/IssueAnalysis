@@ -112,7 +112,6 @@ export const generateTopLevelSummary = async (
   const input = makeRequestURL(extension, { author });
   const init = makeRequestArguments("POST");
   const res = await fetch(input, init);
-  console.log(res.status);
   throwErrorsForResponse(res);
   return res.json();
 };

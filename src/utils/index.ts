@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from "uuid";
 
 export const getCurrentUserName = () => {
   const userNameEl = document.querySelector('head > meta[name="user-login"]');
-  console.log(userNameEl);
   return userNameEl.getAttribute("content");
 };
 

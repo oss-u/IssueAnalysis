@@ -24,10 +24,8 @@ interface TopLevelNavBoxProps {
 }
 
 const informationTypeOptions = Array.from(informationTypeMap).map(([id, infoType]) => {
-    console.log(infoType);
     return (<option value={id}>{infoType.title}</option>)
 });
-console.log(informationTypeOptions);
 
 const NAVBOX_WIDTH = 300;
 const GITHUB_MAX_CONTENT_SIZE = 1280;

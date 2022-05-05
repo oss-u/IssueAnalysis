@@ -8,7 +8,23 @@ import { ISummaryType } from "./InformationTypeTabs";
 import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
 import octicons from "@primer/octicons"
 
-const getAllHighlightsFromSummaries = (summaries: ISummaryType[]): Highlight[] => summaries.flatMap((summary) => summary.commentHighlights);
+const getAllHighlightsFromSummaries = (summaries: ISummaryType[], allComments: IssueComment[]): Highlight[] => {
+    const allHighlights = summaries.flatMap((summary) => summary.commentHighlights);
+    const commentIdToClientHeight = {}
+    allComments.forEach((comment) => {
+        commentIdToClientHeight[comment.id] = comment.tag.getBoundingClientRect().top
+    });
+    console.log(commentIdToClientHeight);
+    const sortedHighlights = allHighlights.sort((h1, h2) => {
+        const heightDiff = commentIdToClientHeight[h1.commentId] - commentIdToClientHeight[h2.commentId];
+        if (heightDiff !== 0){
+            return heightDiff;
+        }
+        return h1.span.start - h2.span.start;
+    })
+    console.log(sortedHighlights);
+    return sortedHighlights;
+}
 
 const getOriginalCommentHTMLs = (allComments: IssueComment[]): string[] => {
     const commentHTMLs = allComments.map((comment) => comment.tag.querySelector("div.edit-comment-hide > task-lists > table > tbody > tr > td").innerHTML);
@@ -37,7 +53,6 @@ const modifySummaryFromHighlightEdit = (summary: ISummaryType, newHighlight: Hig
     if (sameInfoType){
         newHighlights.push(newHighlight);
     }
-    console.log(summary.commentHighlights, newHighlights);
     return {...summary, commentHighlights: newHighlights};
 }
 
@@ -78,7 +93,7 @@ export default function TopLevelSummary(props: TopLevelSummaryProps): JSX.Elemen
     
 
     useEffect(() => {
-        setAllHighlights(getAllHighlightsFromSummaries(summaries));
+        setAllHighlights(getAllHighlightsFromSummaries(summaries, comments));
     }, [summaries])
 
     useEffect(() => {
@@ -143,12 +158,10 @@ export default function TopLevelSummary(props: TopLevelSummaryProps): JSX.Elemen
     const onChangeSelectedHighlightIndexTopLevel = (newIndex) => {
         setSelectedHighlightIndex(newIndex)
         const newSelectedHighlight = selectedHighlights[newIndex];
-        console.log(newSelectedHighlight);
         if (!newSelectedHighlight) {
             return;
         }
         const selectedComment = comments.find((comment) => comment.id === newSelectedHighlight.commentId);
-        console.log(selectedComment);
         if (!selectedComment){
             return;
         }
