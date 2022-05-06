@@ -131,6 +131,7 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
             updateSelectedInfoType={updateSelectedInfoType} 
             onChangeSelectedHighlight={updateSelectedHighlightIndex} 
             highlights={highlights}
+            updateSummaries={updateSummaries}
           />
       )}
     </div>
