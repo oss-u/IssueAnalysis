@@ -216,15 +216,16 @@ def generate_top_level_summary(issue_id: str, author: str, db: Session) -> List[
   # for updating
   summaries_that_exist = {
     summary.info_type: summary.id
-    for summary in db.query(models.TopLevelSummary).filter(models.CommentInformationType.issue == issue_id).all()
+    for summary in db.query(models.TopLevelSummary).filter(models.TopLevelSummary.issue == issue_id).all()
   }
   
-  sentences = db.query(models.CommentInformationType).filter(models.CommentInformationType.issue == issue_id).all()
-  root.info(sentences)
+  sentences = db.query(models.CommentInformationType).filter(models.TopLevelSummary.issue == issue_id).all()
+  root.info(f"Total number of sentences: {len(sentences)}.")
   
   # create request body
   top_level_summ_request_dict = {}
   
+  # partitioning sentences based on information types
   for sentence in sentences:
     if sentence.info_type not in top_level_summ_request_dict:
       top_level_summ_request_dict[sentence.info_type] = schemas.TopLevelSummRequest(info_type=sentence.info_type,
@@ -235,7 +236,7 @@ def generate_top_level_summary(issue_id: str, author: str, db: Session) -> List[
   
   sentence_set = [request.dict() for request in top_level_summ_request_dict.values()]
   request_payload = {'type': 'top-level', 'sentence_set': sentence_set}
-  root.info(f"[REQUEST PAYLOAD] {request_payload}")
+  # root.info(f"[REQUEST PAYLOAD] {request_payload}")
   
   # request and collect response (sync)
   SUMMARIZATION_SERVICE_ENDPOINT = os.getenv('ALPHA_SUMMARY_SERVICE_ENDPOINT') \
@@ -250,7 +251,7 @@ def generate_top_level_summary(issue_id: str, author: str, db: Session) -> List[
   if not response.ok:
     raise ValueError("Couldn't fetch data from Summarization Service")
   response = response.json()  # List
-  root.info(response)
+  root.info(f"[SUMMARIZATION RESPONSE] {response}")
   
   # construct summary from returned IDs
   for summary in response['summaries']:
