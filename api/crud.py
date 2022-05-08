@@ -141,8 +141,7 @@ def generate_summary(text: str, sentencizer: Sentencizer) -> schemas.SummaryText
     'type': 'comment-level',
     'sentence_set': [text[span.start:span.end] for span in sentencizer.sentencize(text)]
   }
-  SUMMARIZATION_SERVICE_ENDPOINT = os.getenv('ALPHA_SUMMARY_SERVICE_ENDPOINT') \
-    if os.getenv('ENVIRONMENT') == 'alpha' else os.getenv('BETA_SUMMARY_SERVICE_ENDPOINT')
+  SUMMARIZATION_SERVICE_ENDPOINT = utils.get_summarization_endpoint()
   
   try:
     response = requests.post(SUMMARIZATION_SERVICE_ENDPOINT, json=request_payload, timeout=20)
@@ -219,7 +218,7 @@ def generate_top_level_summary(issue_id: str, author: str, db: Session) -> List[
     for summary in db.query(models.TopLevelSummary).filter(models.TopLevelSummary.issue == issue_id).all()
   }
   
-  sentences = db.query(models.CommentInformationType).filter(models.TopLevelSummary.issue == issue_id).all()
+  sentences = db.query(models.CommentInformationType).filter(models.CommentInformationType.issue == issue_id).all()
   root.info(f"Total number of sentences: {len(sentences)}.")
   
   # create request body
@@ -239,8 +238,7 @@ def generate_top_level_summary(issue_id: str, author: str, db: Session) -> List[
   # root.info(f"[REQUEST PAYLOAD] {request_payload}")
   
   # request and collect response (sync)
-  SUMMARIZATION_SERVICE_ENDPOINT = os.getenv('ALPHA_SUMMARY_SERVICE_ENDPOINT') \
-    if os.getenv('ENVIRONMENT') == 'alpha' else os.getenv('BETA_SUMMARY_SERVICE_ENDPOINT')
+  SUMMARIZATION_SERVICE_ENDPOINT = utils.get_summarization_endpoint()
   
   try:
     response = requests.post(SUMMARIZATION_SERVICE_ENDPOINT, json=request_payload, timeout=20)

@@ -1,4 +1,5 @@
 from typing import Dict
+import os
 
 from sqlalchemy.orm import Session
 
@@ -30,3 +31,6 @@ def get_summary(text: str) -> str:
   
   return f"{text[:min(len(lorem_text), len(text))]}" \
          f"{lorem_text[:len(lorem_text)-len(text)] if len(lorem_text)>len(text) else ''}"
+
+def get_summarization_endpoint():
+  return os.getenv('ALPHA_SUMMARY_SERVICE_ENDPOINT') if os.getenv('ENVIRONMENT') == 'alpha' else os.getenv('BETA_SUMMARY_SERVICE_ENDPOINT')
