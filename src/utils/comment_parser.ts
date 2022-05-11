@@ -10,7 +10,7 @@ export const commentParser = (comment: Element) => {
     "a.js-timestamp relative-time"
   )["title"];
   const c_bodytext = comment.querySelector("td.comment-body").innerHTML.trim();
-  const c_id = comment.querySelector("a.js-timestamp")["href"];
+  const c_id: string = comment.querySelector("a.js-timestamp")["href"].split('-').at(-1);
   const author = new Author(a_uname, a_createdOn, a_profile);
   return new IssueComment(c_id, comment, author, c_bodytext);
 };
