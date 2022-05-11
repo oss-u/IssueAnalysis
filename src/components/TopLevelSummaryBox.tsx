@@ -5,10 +5,10 @@ import { generateTopLevelSummary } from "../endpoints";
 import InformationTypeTabs, { ISummaryType } from "./InformationTypeTabs";
 import { getAuthorFromPage, parseURLForIssueDetails } from "../utils/scraping";
 import { scrapeAndAddCommentsToDB } from "../scripts/scrape-and-add-comments";
-import { v4 as uuidv4 } from "uuid";
 import { Highlight, InformationType, IssueComment } from "../types";
-import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
-import octicons from "@primer/octicons"
+import { CheckIcon, XIcon } from "@primer/octicons-react"
+import { Spinner } from "@primer/react";
+import { modelSummaryToISummary } from "../utils";
 
 interface TopLevelSummaryBoxProps{
   summaries: ISummaryType[];
@@ -20,10 +20,29 @@ interface TopLevelSummaryBoxProps{
   updateSelectedInfoType: (newInfoType: InformationType | null) => void;
 }
 
+type LoadingStatus = 'complete' | 'loading' | 'error' | 'none';
+
+const getLoadingSymbolFromStatus = (status: LoadingStatus): JSX.Element => {
+  switch (status) {
+    case "complete":
+      return <CheckIcon className="ml-1"/>
+    case "error":
+      return <XIcon className="ml-1"/>
+    case "loading":
+      return (<span className="ml-1">
+          <Spinner size="small"/>
+        </span>)
+    default:
+      return <></>
+  }
+}
+
 export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.Element {
   const {summaries, selectedInfoType, highlights, updateSummaries, updateSelectedComment, updateSelectedInfoType, updateSelectedHighlightIndex} = props;
 
-  const [visible, setVisible] = React.useState<boolean>(false);
+  const [visible, setVisible] = React.useState<boolean>(summaries.length > 0);
+  const [addCommentToDBStatus, setAddCommentToDBStatus] = React.useState<LoadingStatus>('none');
+  const [generateStatus, setGenerateStatus] = React.useState<LoadingStatus>('none');
 
   useEffect(() => {
     if (!visible){
@@ -32,6 +51,7 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
   }, [visible])
 
   const initializeTopLevelSummary = () => {
+    setGenerateStatus('loading');
     const defaultSummary: ISummaryType[] = [
       {
         infoType: "Expected Behaviour",
@@ -50,26 +70,24 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
     const author = getAuthorFromPage();
     generateTopLevelSummary(issueDetails.user, issueDetails.repository, issueDetails.issueNum, author).then((resSummaries) => {
       console.log(resSummaries);
-      const generatedSummaries: ISummaryType[] = resSummaries.map((summary) => {
-        const highlights: Highlight[] = summary.spans.map(
-          (span) => ({id: `h${uuidv4()}`, commentId: span.comment_id, span: span.comment_span, infoType: summary.info_type})
-        )
-        return {infoType: summary.info_type, content: summary.text, commentHighlights: highlights}
-      });
+      const generatedSummaries: ISummaryType[] = modelSummaryToISummary(resSummaries);
       const newSummaries = generatedSummaries.length !== 0 ? generatedSummaries : defaultSummary;
       updateSummaries(newSummaries);
       setVisible(true);
-      Array.from(getAllCommentsOnIssue()).forEach((comment) => {
-        const commentDetails = commentParser(comment);
-        const iconContainer = comment.querySelector("div.timeline-comment-header.clearfix.d-block.d-sm-flex > div.timeline-comment-actions.flex-shrink-0");
-        const newButton = document.createElement('button');
-        newButton.innerHTML = octicons.paintbrush.toSVG();
-        newButton.className = "btn-octicon";
-        newButton.onclick = (e) => {updateSelectedComment(commentDetails)};
-        iconContainer.prepend(newButton);
-      })
+      
+      setGenerateStatus('complete');
+    }).catch((error) => {
+      console.error(`Failed to generate summary: ${error}`);
+      setGenerateStatus('error');
     });
   };
+
+  const addComments = () => {
+    setAddCommentToDBStatus('loading');
+    scrapeAndAddCommentsToDB().then((value) => 
+      setAddCommentToDBStatus('complete')).catch(
+        (value) => setAddCommentToDBStatus('error'))
+  }
 
   return (
     <div>
@@ -78,8 +96,9 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
           <div className="d-flex flex-justify-between width-full">
             <h2 className="Box-title p-1">Information Type Summaries</h2>
             <div className="d-inline-flex">
-              <button className="btn btn-sm" type="button" onClick={scrapeAndAddCommentsToDB}>
+              <button className="btn btn-sm" type="button" onClick={addComments}>
                 Add Comments to DB
+                {getLoadingSymbolFromStatus(addCommentToDBStatus)}
               </button>
               <button
                 id="minimiseButton"
@@ -99,6 +118,7 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
                 onClick={initializeTopLevelSummary}
               >
                 Generate
+                {getLoadingSymbolFromStatus(generateStatus)}
               </button>
             </div>
           </div>
@@ -111,6 +131,7 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
             updateSelectedInfoType={updateSelectedInfoType} 
             onChangeSelectedHighlight={updateSelectedHighlightIndex} 
             highlights={highlights}
+            updateSummaries={updateSummaries}
           />
       )}
     </div>

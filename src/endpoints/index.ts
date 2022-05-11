@@ -31,6 +31,10 @@ export interface ModelInfoTypeSpan {
   info_type: InformationType;
 }
 
+export interface ModelInfoTypeSpanWithID extends ModelInfoTypeSpan {
+  id: number;
+}
+
 export const predictInformationType = async (
   text: string
 ): Promise<ModelInfoTypeSpan[]> => {
@@ -62,14 +66,18 @@ export const saveInformationType = async (
   return res.json();
 };
 
+export interface ModelCommentWithSpanIds extends ModelComment {
+  sentences: ModelInfoTypeSpanWithID[];
+}
+
 export const getInformationType = async (
   gh_user: string,
   repo: string,
-  issue_number: string,
-  commentId: string
-): Promise<ModelComment> => {
+  issue_number: number,
+  comment_id: string
+): Promise<ModelCommentWithSpanIds> => {
   const extension = `/${gh_user}/${repo}/${issue_number}/information-type`;
-  const input = makeRequestURL(extension);
+  const input = makeRequestURL(extension, { comment_id });
   const init = makeRequestArguments("GET");
   const res = await fetch(input, init);
   throwErrorsForResponse(res);
@@ -104,9 +112,36 @@ export const generateTopLevelSummary = async (
   const input = makeRequestURL(extension, { author });
   const init = makeRequestArguments("POST");
   const res = await fetch(input, init);
-  console.log(res.status);
   throwErrorsForResponse(res);
   return res.json();
+};
+
+export const getTopLevelSummary = async (
+  gh_user: string,
+  repo: string,
+  issue_number: number
+): Promise<ModelInfoTypeSummary[]> => {
+  const extension = `/${gh_user}/${repo}/${issue_number}/top-level-summary`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("GET");
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.json();
+};
+
+export const updateInfoTypeOfHighlight = async (
+  span_id: number,
+  info_type: InformationType
+): Promise<string> => {
+  const extension = `/update-information-type`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("POST", {
+    span_id,
+    info_type,
+  });
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.text();
 };
 
 export interface Author {

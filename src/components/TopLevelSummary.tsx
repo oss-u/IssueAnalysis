@@ -6,8 +6,25 @@ import { highlightComment } from "./HighlightedComment";
 import TopLevelSummaryBox from "./TopLevelSummaryBox";
 import { ISummaryType } from "./InformationTypeTabs";
 import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
+import octicons from "@primer/octicons"
 
-const getAllHighlightsFromSummaries = (summaries: ISummaryType[]): Highlight[] => summaries.flatMap((summary) => summary.commentHighlights);
+const getAllHighlightsFromSummaries = (summaries: ISummaryType[], allComments: IssueComment[]): Highlight[] => {
+    const allHighlights = summaries.flatMap((summary) => summary.commentHighlights);
+    const commentIdToClientHeight = {}
+    allComments.forEach((comment) => {
+        commentIdToClientHeight[comment.id] = comment.tag.getBoundingClientRect().top
+    });
+    console.log(commentIdToClientHeight);
+    const sortedHighlights = allHighlights.sort((h1, h2) => {
+        const heightDiff = commentIdToClientHeight[h1.commentId] - commentIdToClientHeight[h2.commentId];
+        if (heightDiff !== 0){
+            return heightDiff;
+        }
+        return h1.span.start - h2.span.start;
+    })
+    console.log(sortedHighlights);
+    return sortedHighlights;
+}
 
 const getOriginalCommentHTMLs = (allComments: IssueComment[]): string[] => {
     const commentHTMLs = allComments.map((comment) => comment.tag.querySelector("div.edit-comment-hide > task-lists > table > tbody > tr > td").innerHTML);
@@ -36,13 +53,17 @@ const modifySummaryFromHighlightEdit = (summary: ISummaryType, newHighlight: Hig
     if (sameInfoType){
         newHighlights.push(newHighlight);
     }
-    console.log(summary.commentHighlights, newHighlights);
     return {...summary, commentHighlights: newHighlights};
 }
 
-export default function TopLevelSummary(): JSX.Element {
+interface TopLevelSummaryProps {
+    initSummaries: ISummaryType[];
+}
+
+export default function TopLevelSummary(props: TopLevelSummaryProps): JSX.Element {
+    const {initSummaries} = props;
     const [comments, setComments] = React.useState<IssueComment[]>(Array.from(getAllCommentsOnIssue()).map((comment) => commentParser(comment)));
-    const [summaries, setSummaries] = React.useState<ISummaryType[]>([]);
+    const [summaries, setSummaries] = React.useState<ISummaryType[]>(initSummaries);
     const [selectedInfoType, setSelectedInfoType] = React.useState<InformationType | null>(null);
     const [selectedComment, setSelectedComment] = React.useState<IssueComment | null>(null);
     const [selectedCommentNavBox, setSelectedCommentNavBox] = React.useState<HTMLDivElement | null>(null);
@@ -59,7 +80,20 @@ export default function TopLevelSummary(): JSX.Element {
     }
 
     useEffect(() => {
-        setAllHighlights(getAllHighlightsFromSummaries(summaries));
+        Array.from(getAllCommentsOnIssue()).forEach((comment) => {
+            const commentDetails = commentParser(comment);
+            const iconContainer = comment.querySelector("div.timeline-comment-header.clearfix.d-block.d-sm-flex > div.timeline-comment-actions.flex-shrink-0");
+            const newButton = document.createElement('button');
+            newButton.innerHTML = octicons.paintbrush.toSVG();
+            newButton.className = "btn-octicon";
+            newButton.onclick = (e) => {setSelectedComment(commentDetails)};
+            iconContainer.prepend(newButton);
+          })
+    }, [])
+    
+
+    useEffect(() => {
+        setAllHighlights(getAllHighlightsFromSummaries(summaries, comments));
     }, [summaries])
 
     useEffect(() => {
@@ -120,6 +154,19 @@ export default function TopLevelSummary(): JSX.Element {
                 onEditHighlight={onEditHighlight}
             />, insertedBox);
     }, [selectedComment, allHighlights])
+
+    const onChangeSelectedHighlightIndexTopLevel = (newIndex) => {
+        setSelectedHighlightIndex(newIndex)
+        const newSelectedHighlight = selectedHighlights[newIndex];
+        if (!newSelectedHighlight) {
+            return;
+        }
+        const highlightEl = document.querySelector(`#${newSelectedHighlight.id}`);
+        if (!highlightEl){
+            return;
+        }
+        highlightEl.scrollIntoView({block: 'center', behavior: 'smooth'});
+    }
     
     return (<TopLevelSummaryBox 
                 summaries={summaries}
@@ -128,6 +175,6 @@ export default function TopLevelSummary(): JSX.Element {
                 updateSummaries={(newSummaries) => setSummaries(newSummaries)} 
                 updateSelectedComment={(newSelectedComment) => setSelectedComment(newSelectedComment)} 
                 updateSelectedInfoType={(newInfoType) => setSelectedInfoType(newInfoType)}
-                updateSelectedHighlightIndex={(newIndex) => setSelectedHighlightIndex(newIndex)}
+                updateSelectedHighlightIndex={onChangeSelectedHighlightIndexTopLevel}
             />)
 }

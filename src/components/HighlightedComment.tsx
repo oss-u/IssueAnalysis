@@ -48,6 +48,7 @@ export function highlightComment(commentEl: Element, selectedHighlightId: string
     }
     const highlightText = highlightSpan.textContent;
     highlightSpan.textContent = '';
-    ReactDOM.render(<Highlight text={highlightText} infoType={idInfoTypePair.infoType} selected={selectedHighlightId === idInfoTypePair.id} onClick={() => {}}/>, highlightSpan);
+    const selected = selectedHighlightId === idInfoTypePair.id;
+    ReactDOM.render(<Highlight text={highlightText} infoType={idInfoTypePair.infoType} selected={selected} onClick={() => {}}/>, highlightSpan);
   })
 }
