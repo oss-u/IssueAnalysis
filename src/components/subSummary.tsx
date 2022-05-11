@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { generateSummary, saveUserSummaries, getUserSummaries, deleteUserSummaries,
          Author, Subsummary, Comment, getUserSummaryComments, updateUserSummaries, 
          updateUserSummaryComments } from "../endpoints";
@@ -9,13 +10,13 @@ import { IconButton } from '@primer/react';
 import { getCurrentUserName } from "../utils";
 import { parseURLForIssueDetails } from "../utils/scraping";
 import { PlusIcon, TriangleRightIcon, 
-          TriangleLeftIcon, Icon } from '@primer/octicons-react';
+          TriangleLeftIcon, Icon, XIcon } from '@primer/octicons-react';
 import SummaryComponent from './subsummary/Summary';
 import SummaryInputComponent from "./subsummary/SummaryInput";
 import CommentComponent from "./subsummary/Comment";
 
 class SubSummaryComponent extends React.Component<
-  {resizePanel},
+  { resizePanel },
   {
     subsummaries: Array<Summary>;
     editing: string;
@@ -24,6 +25,7 @@ class SubSummaryComponent extends React.Component<
     genSumm: string;
     arrow: Icon;
     panelState: number;
+    addState: boolean;
   }
 > {
 
@@ -40,7 +42,8 @@ class SubSummaryComponent extends React.Component<
       viewing: "",
       genSumm: "",
       arrow: TriangleRightIcon,
-      panelState: 1
+      panelState: 1,
+      addState: false
     };
     this.loadCommentComponents = this.loadCommentComponents.bind(this);
     this.saveSummary == this.saveSummary.bind(this);
@@ -138,7 +141,7 @@ class SubSummaryComponent extends React.Component<
     });
   };
 
-  addCommentsOnClick = (tag: Element) => {
+  addCommentsOnClick = (tag: Element, ibElement: Element) => {
     let newComment = commentParser(tag);
     if (!this.addedComments.includes(newComment.id)) {
       if (this.state.editing) {
@@ -155,6 +158,7 @@ class SubSummaryComponent extends React.Component<
           subsummaries: items,
           visible: "comments",
         });
+        
       } else {
         // If not editing, then we are creating a new summary
         let newSummary = new Summary("", newComment);
@@ -166,26 +170,80 @@ class SubSummaryComponent extends React.Component<
           visible: "comments",
         });
       }
-      const tagHeader = tag.querySelector(".timeline-comment-header");
+      // const tagHeader = tag.querySelector(".timeline-comment-header");
       // tagHeader.setAttribute("style", "background:#9ed2a7");
-      tag.classList.add("color-border-success-emphasis");
-    } 
+      if (!tag.classList.contains("color-border-success-emphasis")) {
+        tag.classList.add("color-border-success-emphasis");
+      }
+      ReactDOM.render(<IconButton aria-label="add"
+                        icon={XIcon} 
+                        className="btn btn-sm btn-primary m-0 ml-md-2"
+                        onClick={() => {
+                          this.removeSpecificComment(tag, ibElement);
+                        }} />, ibElement)
+    }
   };
+
+
+  removeSpecificComment = (tag: Element, ibElement: Element) => {
+    this.deleteCommentFromExistingSummary(this.state.editing, commentParser(tag).id);
+    ReactDOM.render(<IconButton aria-label="add"
+                        icon={PlusIcon} 
+                        className="btn btn-sm btn-primary m-0 ml-md-2"
+                        onClick={() => {
+                          this.addCommentsOnClick(tag, ibElement);
+                        }} />, ibElement)
+  }
+
 
   addCommentsToSummary = () => {
     // Change this code to add an explicit button 
     // instead of a listener
-    const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
-    );
-    commentTags.forEach((tag) => {
-      if (tag.getAttribute("listener") !== "true") {
-        tag.addEventListener("click", () => {
-          this.addCommentsOnClick(tag);
+
+      const commentTags = document.querySelectorAll(
+        "div.timeline-comment.unminimized-comment"
+      );
+      if (!this.state.addState) {
+        commentTags.forEach((tag) => {
+          const commentHeader = tag.querySelector(".timeline-comment-actions");
+          let ibElement = commentHeader.querySelector("#add-comment-to-summary");
+          if (!ibElement) {
+            ibElement = document.createElement("div");
+            ibElement.id = "add-comment-to-summary";
+            ibElement.className = "comment-action-float";
+            commentHeader.appendChild(ibElement);
+          }
+          ReactDOM.render(<IconButton aria-label="add"
+                        icon={PlusIcon} 
+                        className="btn btn-sm btn-primary m-0 ml-md-2"
+                        onClick={() => {
+                          this.addCommentsOnClick(tag, ibElement);
+                        }} />, ibElement);
         });
-        tag.setAttribute("listener", "true");
-      }
-    });
+        this.setState({
+          visible: "comments",
+          addState: true
+        });
+    } else {      
+      commentTags.forEach((tag) => {
+        const commentHeader = tag.querySelector(".timeline-comment-actions");
+        let ibElement = commentHeader.querySelector("#add-comment-to-summary");
+        if (!ibElement) {
+          ibElement = document.createElement("div");
+          ibElement.id = "add-comment-to-summary";
+          ibElement.className = "comment-action-float";
+          commentHeader.appendChild(ibElement);
+        }
+        ReactDOM.render(<></>, ibElement);
+      });
+      
+      this.resetSession();
+      this.setState({
+        visible: "summary",
+        addState: false,
+        editing: ''
+      });
+    }
   };
 
   concatCommentsOfSubsummary = () => {
@@ -222,6 +280,7 @@ class SubSummaryComponent extends React.Component<
     commentTags.forEach((tag) => {
       let deletedComment = commentParser(tag);
       if (commentId === deletedComment.id) {
+        // add comments to unsavedSummaryComments
         this.addedComments.splice(this.addedComments.indexOf(deletedComment.id), 1);
         if (tag.classList.contains("color-border-success-emphasis")) {
           const tagHeader = tag.querySelector(".timeline-comment-header");
@@ -230,12 +289,6 @@ class SubSummaryComponent extends React.Component<
         }
       }
     });
-
-    // this.state.subsummaries.forEach(ss => {
-    //   if (ss.id === summaryId) {
-    //     ss.comments.splice(commentId, 1);
-    //   }
-    // });
     
     // find the summary from the list of summaries
     newSs.forEach(ss => {
@@ -253,7 +306,6 @@ class SubSummaryComponent extends React.Component<
     newS.comments.splice(cId, 1);
     // replace the summary from the summary
     newSs = newSs.map(s => s.id === newS.id ? newS : s);
-    console.log(summaryId, commentId, newSs, newS);
     // update the original summary list
     this.setState({
       subsummaries: newSs
@@ -309,19 +361,27 @@ class SubSummaryComponent extends React.Component<
 
   loadCommentComponents = () => {
     let t = [];
+    let commentCount = 0;
     this.state.subsummaries.forEach((value, index) => {
       if (value.id === this.state.editing) {
+        commentCount = value.comments.length;
         t.push(
           <CommentComponent
             key={index}
             comments={value.comments}
             actionHandler={this.toggleSummaryBoxComponent}
-            resetSession={this.resetSession}
+            addCommentsToSummary={this.addCommentsToSummary}
           />
         );
       }
     });
-    return t;
+    if (commentCount > 0) {
+      return t;
+    } else {
+      return (<div className="blankslate">
+      <p>Click on the '+' icon to add comments.</p>
+    </div>)
+    }
   };
 
   loadSummaryComponent = () => {
@@ -341,7 +401,7 @@ class SubSummaryComponent extends React.Component<
     }
     return (
       <div className="blankslate">
-        <p>Click on the '+' icon to add comments and create a summary.</p>
+        <p>Click on the 'Add' button to create a summary.</p>
       </div>
     );
   };
@@ -387,7 +447,7 @@ class SubSummaryComponent extends React.Component<
     } else {
       return (
         <div className="Label m-3">
-          <span >Loading</span>
+          <span>Loading</span>
           <span className="AnimatedEllipsis"></span>
         </div>
       );
@@ -478,7 +538,7 @@ class SubSummaryComponent extends React.Component<
     // Generally the put method is distinguished at the backend
     // Just make do with the APIs provided for now
     // Bad design :/
-    console.log(this.summaryIdMapping.get(this.state.editing));
+    // console.log(this.summaryIdMapping.get(this.state.editing));
     if (this.summaryIdMapping.get(this.state.editing)) {
       updateUserSummaries(issueDetails.user, issueDetails.repository, 
         issueDetails.issueNum, parseInt(this.summaryIdMapping.get(this.state.editing)), 
@@ -533,29 +593,37 @@ class SubSummaryComponent extends React.Component<
     }
   }
 
+  getAddState = () => {
+    if (this.state.addState) {
+      return "Cancel";
+    } else {
+      return "Add";
+    }
+  }
+
   render() {    
     // This needs to be here because 
     // 1) Existing long threads can be unminimized
     // 2) New comments can be added to the thread
-    this.addCommentsToSummary();
+    // this.addCommentsToSummary();
     this.resetBorderHighlights();
     return (
       <div id="sub-summary" className="Box" >
-        <div className="Box-header">
+        <div className="Box-header px-2 py-3">
           <div className="clearfix">
             <div className="float-left">
-              <h2 className="Box-title p-1">User Summaries</h2>
+              <h2 className="Box-title my-1 ml-2">User Summaries</h2>
             </div>
             <div className="float-right">
               <div className="float-right d-inline-flex">
-              <IconButton aria-label="add" 
-                size="medium" icon={PlusIcon} 
-                className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
-                // onClick={this.addCommentsToSummary}/>
-                />
+              <button className="btn btn-sm btn-primary m-0" 
+                      type="button"
+                      onClick={this.addCommentsToSummary}>
+                  {this.getAddState()}
+              </button> 
                 <IconButton aria-label="add" 
                 size="medium" icon={this.state.arrow} 
-                className="btn btn-sm btn-primary m-0 ml-2 ml-md-2"
+                className="btn btn-sm btn-primary m-0 ml-2"
                 onClick={() => {
                   this.props.resizePanel(this.state.panelState);
                   this.setState({

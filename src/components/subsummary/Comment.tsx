@@ -2,7 +2,7 @@ import React from "react";
 import { IssueComment } from "../../types";
 
 export default class CommentComponent extends React.Component<
-  { comments: Array<IssueComment>; actionHandler; resetSession },
+  { comments: Array<IssueComment>; actionHandler; addCommentsToSummary },
   {}
 > {
   constructor(props) {
@@ -61,8 +61,8 @@ export default class CommentComponent extends React.Component<
             className="btn btn-sm m-1 float-right"
             type="button"
             onClick={() => {
-              this.props.resetSession();
-              this.props.actionHandler("summary");
+              this.props.addCommentsToSummary();
+              // this.props.actionHandler("summary");
             }}
           >
             Back
