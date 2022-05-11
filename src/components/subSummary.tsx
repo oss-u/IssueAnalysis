@@ -104,42 +104,42 @@ class SubSummaryComponent extends React.Component<
     });
   }
 
-  addBorderHighlights = () => {
-    const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
-    );
+  // addBorderHighlights = () => {
+  //   const commentTags = document.querySelectorAll(
+  //     "div.timeline-comment.unminimized-comment"
+  //   );
 
-    commentTags.forEach((tag) => {
-      if (
-        this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])
-      ) {
-        if (!tag.classList.contains("color-border-success-emphasis")) {
-          const tagHeader = tag.querySelector(".timeline-comment-header");
-          // tagHeader.setAttribute("style", "background:#6cc644");
-          tag.classList.add("color-border-success-emphasis");
-        }
-      }
-    });
-  };
+  //   commentTags.forEach((tag) => {
+  //     if (
+  //       this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])
+  //     ) {
+  //       if (!tag.classList.contains("color-border-success-emphasis")) {
+  //         const tagHeader = tag.querySelector(".timeline-comment-header");
+  //         // tagHeader.setAttribute("style", "background:#6cc644");
+  //         tag.classList.add("color-border-success-emphasis");
+  //       }
+  //     }
+  //   });
+  // };
 
-  showSpecificHighlights = (c: Array<IssueComment>) => {
-    this.removeBorderHighlights();
-    const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
-    );
-    let commentList = [];
-    if (c !== undefined)
-      commentList = c.map((e) => e.id);
-    commentTags.forEach((tag) => {
-      if (commentList.includes(tag.querySelector("a.js-timestamp")["href"])) {
-        if (!tag.classList.contains("color-border-success-emphasis")) {
-          const tagHeader = tag.querySelector(".timeline-comment-header");
-          tagHeader.setAttribute("style", "background:#1a7f37");
-          tag.classList.add("color-border-success-emphasis");
-        }
-      }
-    });
-  };
+  // showSpecificHighlights = (c: Array<IssueComment>) => {
+  //   this.removeBorderHighlights();
+  //   const commentTags = document.querySelectorAll(
+  //     "div.timeline-comment.unminimized-comment"
+  //   );
+  //   let commentList = [];
+  //   if (c !== undefined)
+  //     commentList = c.map((e) => e.id);
+  //   commentTags.forEach((tag) => {
+  //     if (commentList.includes(tag.querySelector("a.js-timestamp")["href"])) {
+  //       if (!tag.classList.contains("color-border-success-emphasis")) {
+  //         const tagHeader = tag.querySelector(".timeline-comment-header");
+  //         tagHeader.setAttribute("style", "background:#1a7f37");
+  //         tag.classList.add("color-border-success-emphasis");
+  //       }
+  //     }
+  //   });
+  // };
 
   addCommentsOnClick = (tag: Element, ibElement: Element) => {
     let newComment = commentParser(tag);
@@ -172,9 +172,9 @@ class SubSummaryComponent extends React.Component<
       }
       // const tagHeader = tag.querySelector(".timeline-comment-header");
       // tagHeader.setAttribute("style", "background:#9ed2a7");
-      if (!tag.classList.contains("color-border-success-emphasis")) {
-        tag.classList.add("color-border-success-emphasis");
-      }
+      // if (!tag.classList.contains("color-border-success-emphasis")) {
+      //   tag.classList.add("color-border-success-emphasis");
+      // }
       ReactDOM.render(<IconButton aria-label="add"
                         icon={XIcon} 
                         className="btn btn-sm btn-primary m-0 ml-md-2"
@@ -199,6 +199,7 @@ class SubSummaryComponent extends React.Component<
   addCommentsToSummary = () => {
     // Change this code to add an explicit button 
     // instead of a listener
+    this.removeBorderHighlights();
 
       const commentTags = document.querySelectorAll(
         "div.timeline-comment.unminimized-comment"
@@ -213,12 +214,23 @@ class SubSummaryComponent extends React.Component<
             ibElement.className = "comment-action-float";
             commentHeader.appendChild(ibElement);
           }
-          ReactDOM.render(<IconButton aria-label="add"
-                        icon={PlusIcon} 
-                        className="btn btn-sm btn-primary m-0 ml-md-2"
-                        onClick={() => {
-                          this.addCommentsOnClick(tag, ibElement);
-                        }} />, ibElement);
+          let newComment = commentParser(tag);
+          if (this.addedComments.includes(newComment.id)) {
+            ReactDOM.render(<IconButton aria-label="add"
+            icon={PlusIcon} 
+            aria-disabled="true"
+            className="btn btn-sm btn-primary m-0 ml-md-2"
+            onClick={() => {
+              this.addCommentsOnClick(tag, ibElement);
+            }} />, ibElement);
+          } else {
+            ReactDOM.render(<IconButton aria-label="add"
+            icon={PlusIcon} 
+            className="btn btn-sm btn-primary m-0 ml-md-2"
+            onClick={() => {
+              this.addCommentsOnClick(tag, ibElement);
+            }} />, ibElement);
+          }
         });
         this.setState({
           visible: "comments",
@@ -237,7 +249,9 @@ class SubSummaryComponent extends React.Component<
         ReactDOM.render(<></>, ibElement);
       });
       
-      this.resetSession();
+      if (this.state.editing)
+        this.resetSession();
+
       this.setState({
         visible: "summary",
         addState: false,
@@ -263,7 +277,7 @@ class SubSummaryComponent extends React.Component<
   };
 
   editExistingSummary = () => {
-    this.resetBorderHighlights();
+    // this.resetBorderHighlights();
     this.setState({
       editing: this.state.viewing,
       viewing: "",
@@ -274,21 +288,21 @@ class SubSummaryComponent extends React.Component<
   deleteCommentFromExistingSummary = (summaryId, commentId) => {
     let newS: Summary;
     let newSs: Array<Summary> = this.state.subsummaries;
-    const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
-    );
-    commentTags.forEach((tag) => {
-      let deletedComment = commentParser(tag);
-      if (commentId === deletedComment.id) {
-        // add comments to unsavedSummaryComments
-        this.addedComments.splice(this.addedComments.indexOf(deletedComment.id), 1);
-        if (tag.classList.contains("color-border-success-emphasis")) {
-          const tagHeader = tag.querySelector(".timeline-comment-header");
-          tagHeader.removeAttribute("style");
-          tag.classList.remove("color-border-success-emphasis");
-        }
-      }
-    });
+    // const commentTags = document.querySelectorAll(
+    //   "div.timeline-comment.unminimized-comment"
+    // );
+    // commentTags.forEach((tag) => {
+    //   let deletedComment = commentParser(tag);
+    //   if (commentId === deletedComment.id) {
+    //     // add comments to unsavedSummaryComments
+    //     this.addedComments.splice(this.addedComments.indexOf(deletedComment.id), 1);
+    //     if (tag.classList.contains("color-border-success-emphasis")) {
+    //       const tagHeader = tag.querySelector(".timeline-comment-header");
+    //       tagHeader.removeAttribute("style");
+    //       tag.classList.remove("color-border-success-emphasis");
+    //     }
+    //   }
+    // });
     
     // find the summary from the list of summaries
     newSs.forEach(ss => {
@@ -321,22 +335,22 @@ class SubSummaryComponent extends React.Component<
       }
     });
     
-    const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
-    );
-    const deletedComments = this.state.subsummaries[deleteIndex].comments.map(c => c.id);
+    // const commentTags = document.querySelectorAll(
+    //   "div.timeline-comment.unminimized-comment"
+    // );
+    // const deletedComments = this.state.subsummaries[deleteIndex].comments.map(c => c.id);
 
-    commentTags.forEach((tag) => {
-      let deletedComment = commentParser(tag);
-      if (deletedComments.includes(deletedComment.id)) {
-        this.addedComments.splice(this.addedComments.indexOf(deletedComment.id), 1);
-        if (tag.classList.contains("color-border-success-emphasis")) {
-          const tagHeader = tag.querySelector(".timeline-comment-header");
-          tagHeader.removeAttribute("style");
-          tag.classList.remove("color-border-success-emphasis");
-        }
-      }
-    });
+    // commentTags.forEach((tag) => {
+    //   let deletedComment = commentParser(tag);
+    //   if (deletedComments.includes(deletedComment.id)) {
+    //     this.addedComments.splice(this.addedComments.indexOf(deletedComment.id), 1);
+    //     if (tag.classList.contains("color-border-success-emphasis")) {
+    //       const tagHeader = tag.querySelector(".timeline-comment-header");
+    //       tagHeader.removeAttribute("style");
+    //       tag.classList.remove("color-border-success-emphasis");
+    //     }
+    //   }
+    // });
 
     this.state.subsummaries.splice(deleteIndex, 1);    
 
@@ -356,7 +370,7 @@ class SubSummaryComponent extends React.Component<
     let currentSummary = this.state.subsummaries.findIndex((e) => e.id === id);
     let items = [...this.state.subsummaries];
     let item = { ...items[currentSummary] };
-    this.showSpecificHighlights(item.comments);
+    // this.showSpecificHighlights(item.comments);
   };
 
   loadCommentComponents = () => {
@@ -379,7 +393,7 @@ class SubSummaryComponent extends React.Component<
       return t;
     } else {
       return (<div className="blankslate">
-      <p>Click on the '+' icon to add comments.</p>
+      <p>Click on the '+' icon on comments to add them to the summary.</p>
     </div>)
     }
   };
@@ -478,10 +492,27 @@ class SubSummaryComponent extends React.Component<
     });
   };
 
-  resetBorderHighlights = () => {
-    this.removeBorderHighlights();
-    this.addBorderHighlights();
-  };
+  // resetBorderHighlights = () => {
+    // this.removeBorderHighlights();
+  //   this.addBorderHighlights();
+  // };
+
+  removeCommentIcons = () => {
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    commentTags.forEach((tag) => {
+      const commentHeader = tag.querySelector(".timeline-comment-actions");
+      let ibElement = commentHeader.querySelector("#add-comment-to-summary");
+      if (!ibElement) {
+        ibElement = document.createElement("div");
+        ibElement.id = "add-comment-to-summary";
+        ibElement.className = "comment-action-float";
+        commentHeader.appendChild(ibElement);
+      }
+      ReactDOM.render(<></>, ibElement);
+    });
+}
 
   resetSession = () => {
     if (!this.summaryIdMapping.get(this.state.editing)) {
@@ -495,7 +526,7 @@ class SubSummaryComponent extends React.Component<
         editing: "",
       });
     }
-    this.resetBorderHighlights();
+    // this.resetBorderHighlights();
   };
 
   saveSummary = (summary: string) => {
@@ -575,8 +606,11 @@ class SubSummaryComponent extends React.Component<
       visible: "summary",
       editing: "",
       genSumm: "",
+      addState: false
     });
-    this.resetBorderHighlights();
+
+    this.removeCommentIcons();
+    // this.resetBorderHighlights();
   };
 
   toggleSummaryBoxComponent = (visiblePanel: string) => {
@@ -597,7 +631,7 @@ class SubSummaryComponent extends React.Component<
     if (this.state.addState) {
       return "Cancel";
     } else {
-      return "Add";
+      return "New";
     }
   }
 
@@ -606,7 +640,7 @@ class SubSummaryComponent extends React.Component<
     // 1) Existing long threads can be unminimized
     // 2) New comments can be added to the thread
     // this.addCommentsToSummary();
-    this.resetBorderHighlights();
+    // this.resetBorderHighlights();
     return (
       <div id="sub-summary" className="Box" >
         <div className="Box-header px-2 py-3">
@@ -618,7 +652,12 @@ class SubSummaryComponent extends React.Component<
               <div className="float-right d-inline-flex">
               <button className="btn btn-sm btn-primary m-0" 
                       type="button"
-                      onClick={this.addCommentsToSummary}>
+                      onClick={() => {
+                        this.setState({
+                          editing: ''
+                        });
+                        this.addCommentsToSummary();
+                      }}>
                   {this.getAddState()}
               </button> 
                 <IconButton aria-label="add" 

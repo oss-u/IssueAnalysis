@@ -1,5 +1,6 @@
 import React from "react";
 import { IssueComment } from "../../types";
+import { commentParser } from "../../utils/comment_parser";
 
 export default class CommentComponent extends React.Component<
   { comments: Array<IssueComment>; actionHandler; addCommentsToSummary },
@@ -12,13 +13,43 @@ export default class CommentComponent extends React.Component<
     };
   }
 
+  scrollToComment = (commentId) => {
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    commentTags.forEach((tag) => {
+      if (
+        commentParser(tag).id === commentId
+      ) {
+        const commentHeader = tag.querySelector("div.timeline-comment-header");
+        if (commentHeader !== null)
+        {
+          commentHeader
+          .scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+            inline: "nearest",
+          });
+        } else {
+          tag
+          .closest("div.TimelineItem")
+          .scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+            inline: "nearest",
+          });
+        }
+      }
+    });
+  };
+
   render() {
     let comments = [];
     let generateButtonState = this.props.comments.length ? false : true;
     this.props.comments.forEach((e) => {
       let dateFormatting = e.author.createdOn.split(",").slice(0, 2).join(", ");
       comments.push(
-        <div className="d-flex flex-row mb-1">
+        <div className="d-flex flex-row mb-1" onClick={() => {this.scrollToComment(e.id)}}>
           <div className="Box width-full">
             <div className="Box-row Box-row--gray p-1">
               <div className="clearfix">
