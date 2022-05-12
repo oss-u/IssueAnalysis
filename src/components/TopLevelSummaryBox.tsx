@@ -1,20 +1,51 @@
 import ReactDOM from "react-dom";
 import React, { useEffect } from "react";
 import "../style.scss";
-import { generateTopLevelSummary } from "../endpoints";
-import InformationTypeTabs, { ISummaryType } from "./InformationTypeTabs";
+import { generateTopLevelSummary, ModelInfoTypeSpan, ModelInfoTypeSpanWithID, ModelInfoTypeSummary } from "../endpoints";
+import InformationTypeTabs, { SummaryWithHighlights } from "./InformationTypeTabs";
 import { getAuthorFromPage, parseURLForIssueDetails } from "../utils/scraping";
 import { scrapeAndAddCommentsToDB } from "../scripts/scrape-and-add-comments";
 import { Highlight, InformationType, IssueComment } from "../types";
 import { CheckIcon, XIcon } from "@primer/octicons-react"
 import { Spinner } from "@primer/react";
-import { modelSummaryToISummary } from "../utils";
+import { modelSummaryToSummaryWithHighlights } from "../utils";
+
+
+const getDefaultSummary = (): SummaryWithHighlights[] => {
+  return [
+    {
+      summary: {
+        id: 0,
+        text: "Generated summary was empty",
+        info_type: 'Expected Behaviour',
+        posted_on: new Date().toISOString(),
+        issue: "",
+        author: "",
+        spans: [],
+      },
+      commentHighlights: [{id: "h1", span: {start: 14, end: 24}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issue-1115550022", infoType: "Expected Behaviour"}, {id: "h2", span: {start: 24, end: 34}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issue-1115550022", infoType: "Expected Behaviour"}]
+    },
+    {
+      summary: {
+        id: 0,
+        text: "Generated summary was empty",
+        info_type: 'Expected Behaviour',
+        posted_on: new Date().toISOString(),
+        issue: "",
+        author: "",
+        spans: [],
+      },
+      commentHighlights: [{id: "h3", span: {start: 14, end: 24}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issuecomment-1035612306", infoType: "Motivation"}, {id: "h4", span: {start: 24, end: 34}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issuecomment-1035612306", infoType: "Motivation"}]
+    },
+  ];
+}
+  
 
 interface TopLevelSummaryBoxProps{
-  summaries: ISummaryType[];
+  summaries: SummaryWithHighlights[];
   highlights: Highlight[];
   selectedInfoType: InformationType | null;
-  updateSummaries: (newSummaries: ISummaryType[]) => void;
+  updateSummaries: (newSummaries: SummaryWithHighlights[]) => void;
   updateSelectedHighlightIndex: (index: number) => void;
   updateSelectedComment: (comment: IssueComment | null) => void;
   updateSelectedInfoType: (newInfoType: InformationType | null) => void;
@@ -52,26 +83,12 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
 
   const initializeTopLevelSummary = () => {
     setGenerateStatus('loading');
-    const defaultSummary: ISummaryType[] = [
-      {
-        infoType: "Expected Behaviour",
-        content:
-          "Generated summary was empty",
-        commentHighlights: [{id: "h1", span: {start: 14, end: 24}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issue-1115550022", infoType: "Expected Behaviour"}, {id: "h2", span: {start: 24, end: 34}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issue-1115550022", infoType: "Expected Behaviour"}]
-      },
-      {
-        infoType: "Motivation",
-        content:
-          "Generated summary was empty",
-        commentHighlights: [{id: "h3", span: {start: 14, end: 24}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issuecomment-1035612306", infoType: "Motivation"}, {id: "h4", span: {start: 24, end: 34}, commentId: "https://github.com/oss-u/IssueAnalysis/issues/21#issuecomment-1035612306", infoType: "Motivation"}]
-      },
-    ];
     const issueDetails = parseURLForIssueDetails();
     const author = getAuthorFromPage();
     generateTopLevelSummary(issueDetails.user, issueDetails.repository, issueDetails.issueNum, author).then((resSummaries) => {
       console.log(resSummaries);
-      const generatedSummaries: ISummaryType[] = modelSummaryToISummary(resSummaries);
-      const newSummaries = generatedSummaries.length !== 0 ? generatedSummaries : defaultSummary;
+      const generatedSummaries: SummaryWithHighlights[] = modelSummaryToSummaryWithHighlights(resSummaries);
+      const newSummaries = generatedSummaries.length !== 0 ? generatedSummaries : getDefaultSummary();
       updateSummaries(newSummaries);
       setVisible(true);
       

@@ -1,4 +1,4 @@
-import { ISummaryType } from "../components/InformationTypeTabs";
+import { SummaryWithHighlights } from "../components/InformationTypeTabs";
 import { ModelInfoTypeSummary } from "../endpoints";
 import { Highlight } from "../types";
 import { v4 as uuidv4 } from "uuid";
@@ -28,9 +28,9 @@ export function guidGenerator() {
   );
 }
 
-export const modelSummaryToISummary = (
+export const modelSummaryToSummaryWithHighlights = (
   modelSummaries: ModelInfoTypeSummary[]
-): ISummaryType[] =>
+): SummaryWithHighlights[] =>
   modelSummaries.map((summary) => {
     const highlights: Highlight[] = summary.spans.map((span) => ({
       id: `h${uuidv4()}`,
@@ -39,8 +39,7 @@ export const modelSummaryToISummary = (
       infoType: summary.info_type,
     }));
     return {
-      infoType: summary.info_type,
-      content: summary.text,
+      summary,
       commentHighlights: highlights,
     };
   });

@@ -84,6 +84,14 @@ export const getInformationType = async (
   return res.json();
 };
 
+export interface ModelInfoTypeSummarySpan {
+  summary_id: number;
+  summary_span: { start: number; end: number };
+  comment_span: { start: number; end: number };
+  commented_on: string;
+  comment_id: string;
+}
+
 export interface ModelInfoTypeSummary {
   id: number;
   text: string;
@@ -91,15 +99,7 @@ export interface ModelInfoTypeSummary {
   issue: string;
   posted_on: string;
   author: string;
-  spans: [
-    {
-      summaryId: number;
-      summary_span: { start: number; end: number };
-      comment_span: { start: number; end: number };
-      commented_on: string;
-      comment_id: string;
-    }
-  ];
+  spans: ModelInfoTypeSummarySpan[];
 }
 
 export const generateTopLevelSummary = async (
@@ -124,6 +124,20 @@ export const getTopLevelSummary = async (
   const extension = `/${gh_user}/${repo}/${issue_number}/top-level-summary`;
   const input = makeRequestURL(extension);
   const init = makeRequestArguments("GET");
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.json();
+};
+
+export const editTopLevelSummary = async (
+  gh_user: string,
+  repo: string,
+  issue_number: number,
+  newSummary: ModelInfoTypeSummary
+): Promise<ModelInfoTypeSummary> => {
+  const extension = `/${gh_user}/${repo}/${issue_number}/top-level-summary`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("POST", newSummary);
   const res = await fetch(input, init);
   throwErrorsForResponse(res);
   return res.json();

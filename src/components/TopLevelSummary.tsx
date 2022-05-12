@@ -4,11 +4,11 @@ import { Highlight, InformationType, IssueComment, Summary } from "../types";
 import { CommentNavBox } from "./highlight-nav/CommentNavBox";
 import { highlightComment } from "./HighlightedComment";
 import TopLevelSummaryBox from "./TopLevelSummaryBox";
-import { ISummaryType } from "./InformationTypeTabs";
 import { commentParser, getAllCommentsOnIssue } from "../utils/comment_parser";
 import octicons from "@primer/octicons"
+import { SummaryWithHighlights } from "./InformationTypeTabs";
 
-const getAllHighlightsFromSummaries = (summaries: ISummaryType[], allComments: IssueComment[]): Highlight[] => {
+const getAllHighlightsFromSummaries = (summaries: SummaryWithHighlights[], allComments: IssueComment[]): Highlight[] => {
     const allHighlights = summaries.flatMap((summary) => summary.commentHighlights);
     const commentIdToClientHeight = {}
     allComments.forEach((comment) => {
@@ -40,9 +40,9 @@ const cleanupComments = (comments: IssueComment[], originalCommentHTML: string[]
     })
 }
 
-const modifySummaryFromHighlightEdit = (summary: ISummaryType, newHighlight: Highlight): ISummaryType => {
+const modifySummaryFromHighlightEdit = (summary: SummaryWithHighlights, newHighlight: Highlight): SummaryWithHighlights => {
     const editedHighlightIndex = summary.commentHighlights.findIndex((highlight) => highlight.id === newHighlight.id);
-    const sameInfoType = summary.infoType === newHighlight.infoType;
+    const sameInfoType = summary.summary.info_type === newHighlight.infoType;
     if (editedHighlightIndex < 0 && !sameInfoType){
         return summary;
     }
@@ -57,13 +57,13 @@ const modifySummaryFromHighlightEdit = (summary: ISummaryType, newHighlight: Hig
 }
 
 interface TopLevelSummaryProps {
-    initSummaries: ISummaryType[];
+    initSummaries: SummaryWithHighlights[];
 }
 
 export default function TopLevelSummary(props: TopLevelSummaryProps): JSX.Element {
     const {initSummaries} = props;
     const [comments, setComments] = React.useState<IssueComment[]>(Array.from(getAllCommentsOnIssue()).map((comment) => commentParser(comment)));
-    const [summaries, setSummaries] = React.useState<ISummaryType[]>(initSummaries);
+    const [summaries, setSummaries] = React.useState<SummaryWithHighlights[]>(initSummaries);
     const [selectedInfoType, setSelectedInfoType] = React.useState<InformationType | null>(null);
     const [selectedComment, setSelectedComment] = React.useState<IssueComment | null>(null);
     const [selectedCommentNavBox, setSelectedCommentNavBox] = React.useState<HTMLDivElement | null>(null);
@@ -156,7 +156,11 @@ export default function TopLevelSummary(props: TopLevelSummaryProps): JSX.Elemen
     }, [selectedComment, allHighlights])
 
     const onChangeSelectedHighlightIndexTopLevel = (newIndex) => {
+        console.log(newIndex);
         setSelectedHighlightIndex(newIndex)
+        if (newIndex < 0) {
+            return;
+        }
         const newSelectedHighlight = selectedHighlights[newIndex];
         if (!newSelectedHighlight) {
             return;
