@@ -198,7 +198,7 @@ export default class SummaryInputComponent extends React.Component<
             </div>
             <div className="Box-row p-1">
               <p className="text-normal">
-                  <div dangerouslySetInnerHTML={{ __html: e.text }} />
+                  <div className="pl-3" dangerouslySetInnerHTML={{ __html: e.text }} />
               </p>
             </div>
           </div>

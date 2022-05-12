@@ -72,7 +72,7 @@ export default class CommentComponent extends React.Component<
               </div>
             </div>
             <div className="Box-row p-1">
-              <div dangerouslySetInnerHTML={{ __html: e.text }} />
+              <div className="pl-3" dangerouslySetInnerHTML={{ __html: e.text }} />
             </div>
           </div>
         </div>

@@ -317,12 +317,11 @@ class SubSummaryComponent extends React.Component<
   };
 
   editExistingSummary = () => {
-    // this.resetBorderHighlights();
     this.setState({
       editing: this.state.viewing,
       viewing: "",
       visible: "input",
-      addState: false
+      addState: true
     });
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
@@ -330,7 +329,7 @@ class SubSummaryComponent extends React.Component<
 
     commentTags.forEach((tag) => {
       this.renderCommentPlus(tag, this.state.viewing);
-    })
+    });
   };
 
   deleteCommentFromExistingSummary = (summaryId, commentId) => {
@@ -398,22 +397,22 @@ class SubSummaryComponent extends React.Component<
       }
     });
     
-    // const commentTags = document.querySelectorAll(
-    //   "div.timeline-comment.unminimized-comment"
-    // );
-    // const deletedComments = this.state.subsummaries[deleteIndex].comments.map(c => c.id);
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    const deletedComments = this.state.subsummaries[deleteIndex].comments.map(c => c.id);
 
-    // commentTags.forEach((tag) => {
-    //   let deletedComment = commentParser(tag);
-    //   if (deletedComments.includes(deletedComment.id)) {
-    //     this.addedComments.splice(this.addedComments.indexOf(deletedComment.id), 1);
-    //     if (tag.classList.contains("color-border-success-emphasis")) {
-    //       const tagHeader = tag.querySelector(".timeline-comment-header");
-    //       tagHeader.removeAttribute("style");
-    //       tag.classList.remove("color-border-success-emphasis");
-    //     }
-    //   }
-    // });
+    commentTags.forEach((tag) => {
+      let deletedComment = commentParser(tag);
+      if (deletedComments.includes(deletedComment.id)) {
+        this.addedComments.splice(this.addedComments.indexOf(deletedComment.id), 1);
+        if (tag.classList.contains("color-border-success-emphasis")) {
+          const tagHeader = tag.querySelector(".timeline-comment-header");
+          tagHeader.removeAttribute("style");
+          tag.classList.remove("color-border-success-emphasis");
+        }
+      }
+    });
 
     this.state.subsummaries.splice(deleteIndex, 1);    
 
@@ -673,6 +672,7 @@ class SubSummaryComponent extends React.Component<
   toggleSummaryBoxComponent = (visiblePanel: string) => {
     this.setState({
       visible: visiblePanel,
+      addState: true
     });
   };
 
