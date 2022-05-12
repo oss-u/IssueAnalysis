@@ -7,7 +7,12 @@ import remarkGfm from 'remark-gfm';
 import TurndownService from 'turndown';
 
 export default class SummaryComponent extends React.Component<
-  { summaries: any; viewExistingSummary; viewing: string; editButtonHandler; deleteButtonHandler; },
+  { summaries: any; 
+    viewExistingSummary; 
+    viewing: string; 
+    editButtonHandler; 
+    deleteButtonHandler; 
+  },
   { turndownService }
 > {
 

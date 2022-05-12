@@ -61,9 +61,19 @@ export default class NavigationComponent extends React.Component<
       return <></>;
     }
 
+
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
+    
+    commentTags.forEach((tag) => {
+      if (tag.classList.contains("color-border-success-emphasis")) {
+        const tagHeader = tag.querySelector(".timeline-comment-header");    
+        tagHeader.removeAttribute("style");
+        tag.classList.remove("color-border-success-emphasis");
+      }
+    });
+
     this.props.navbarContent.forEach((c) => {
       commentTags.forEach((tag) => {
         if (commentParser(tag).id === c.id) {

@@ -107,6 +107,7 @@ const createSummaryPanel = () => {
   subSummaryComponent.id = "subsummary";
   subSummaryComponent.style.top = "110px"; // the top is fixed at 60px
   subSummaryComponent.style.position = "sticky";
+  subSummaryComponent.style.maxHeight = "95vh";
   summaryPanel.appendChild(subSummaryComponent);
   // subSummaryComponent.classList.add("summary-sticky");
 

@@ -3,7 +3,11 @@ import { IssueComment } from "../../types";
 import { commentParser } from "../../utils/comment_parser";
 
 export default class CommentComponent extends React.Component<
-  { comments: Array<IssueComment>; actionHandler; addCommentsToSummary },
+  { 
+    comments: Array<IssueComment>; 
+    actionHandler; 
+    addCommentsToSummary; 
+  },
   {}
 > {
   constructor(props) {
