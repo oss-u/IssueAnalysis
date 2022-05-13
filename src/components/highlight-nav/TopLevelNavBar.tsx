@@ -14,7 +14,7 @@ interface TopLevelNavBarProps {
 
 export function TopLevelNavBar(props: TopLevelNavBarProps): JSX.Element {
     const {highlights, selectedInfoType, summaryInfoTypes, onChangeSelectedHighlight, onChangeInfoType} = props;
-    const [selectedHighlightIndex, setSelectedHighlightIndex] = React.useState<number>(0);
+    const [selectedHighlightIndex, setSelectedHighlightIndex] = React.useState<number>(-1);
     const [onScreen, setOnScreen] = React.useState<boolean>(true);
     const [thisElement, setThisElement] = React.useState<HTMLDivElement | null>(null)
     const [iObserver, setIObserver] = React.useState<IntersectionObserver | null>(null);

@@ -4,20 +4,21 @@ import { getCurrentUserName } from "../utils";
 import { informationTypeMap } from "../utils/maps";
 import { Highlight, InformationType } from "../types";
 import { TopLevelNavBar } from "./highlight-nav/TopLevelNavBar";
+import { editTopLevelSummary, ModelInfoTypeSummary } from "../endpoints";
+import { parseURLForIssueDetails } from "../utils/scraping";
 
-export interface ISummaryType {
-  infoType: InformationType;
-  content: string;
+export interface SummaryWithHighlights {
+  summary: ModelInfoTypeSummary;
   commentHighlights: Highlight[];
 }
 
 interface IInformationTypeTabs {
-  summaries: ISummaryType[];
+  summaries: SummaryWithHighlights[];
   selectedInfoType: InformationType | null;
   highlights: Highlight[];
   updateSelectedInfoType: (newId: InformationType | null) => void;
   onChangeSelectedHighlight: (index: number) => void;
-  updateSummaries: (newSummaries: ISummaryType[]) => void;
+  updateSummaries: (newSummaries: SummaryWithHighlights[]) => void;
 }
 
 const EDIT_SUMMARY_FORM_ID = "editSummaryForm";
@@ -30,20 +31,38 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
   const [currentIndex, setCurrentIndex] = React.useState<number>(0);
 
   useEffect(() => {
-    updateSelectedInfoType(summaries.length > currentIndex ? summaries[currentIndex].infoType : null);
+    updateSelectedInfoType(summaries.length > currentIndex ? summaries[currentIndex].summary.info_type : null);
   }, [])
 
-  let curSummaryContent = summaries[currentIndex].content
+  useEffect(() => {
+    if (editing) {
+      onChangeSelectedHighlight(-1);
+    }
+  }, [editing])
+
+  let curSummaryText = summaries[currentIndex].summary.text
   const onSave = () => {
+    // Create the new summary with updated text
+    const summaryAuthor = getCurrentUserName();
     const selectedSummary = summaries[currentIndex];
     const newSelectedSummary = {...selectedSummary};
-    newSelectedSummary.content = curSummaryContent;
+    newSelectedSummary.summary.text = curSummaryText;
+    newSelectedSummary.summary.author = summaryAuthor;
+
+    // Update the local summaries
     const newSummaries = [...summaries];
     newSummaries[currentIndex] = newSelectedSummary
     updateSummaries(newSummaries);
 
+    // Update the backend summary
+    const issueDetails = parseURLForIssueDetails();
+    editTopLevelSummary(issueDetails.user, issueDetails.repository, issueDetails.issueNum, newSelectedSummary.summary).then((res) => {
+      console.log("Successful edited summary in DB");
+    })
+
+    // Update local authors
     const newAuthors = new Set(authors)
-    newAuthors.add(getCurrentUserName())
+    newAuthors.add(summaryAuthor);
     setAuthors(Array.from(newAuthors.values()));
     setEditing(false);
   };
@@ -52,7 +71,7 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
     setEditing(false);
   }
 
-  const summaryInfoTypes = summaries.map((summary) => summary.infoType);
+  const summaryInfoTypes = summaries.map((summaryWHighlights) => summaryWHighlights.summary.info_type);
   
   function InformationTypeJSX(): JSX.Element {
     if (editing) {
@@ -61,11 +80,11 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
         form={EDIT_SUMMARY_FORM_ID}
         className="form-control width-full p-4 mb-2"
         autoFocus={true} 
-        onChange={(e) => {curSummaryContent = e.target.value}}>
-          {summaries[currentIndex].content}
+        onChange={(e) => {curSummaryText = e.target.value}}>
+          {summaries[currentIndex].summary.text}
         </textarea>)
     } else
-    return (<div className="p-4" dangerouslySetInnerHTML={{__html: summaries[currentIndex].content}} />);
+    return (<div className="p-4" dangerouslySetInnerHTML={{__html: summaries[currentIndex].summary.text}} />);
   }
   return (
     <div className="Box-body">
@@ -76,12 +95,12 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
               return (<button className="UnderlineNav-item"
                 role="tab"
                 type="button"
-                aria-selected={(summary.infoType===summaries[currentIndex].infoType) ? true: false}
+                aria-selected={(summary.summary.info_type===summaries[currentIndex].summary.info_type) ? true: false}
                 onClick={() => {
                   setCurrentIndex(index);
-                  updateSelectedInfoType(summaries[index].infoType);
+                  updateSelectedInfoType(summaries[index].summary.info_type);
                 }}>
-                {informationTypeMap.get(summary.infoType).title}
+                {informationTypeMap.get(summary.summary.info_type).title}
               </button>);
             })
           }
