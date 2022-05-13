@@ -169,11 +169,11 @@ class SubSummaryComponent extends React.Component<
           visible: "comments",
         });
       }
-      // const tagHeader = tag.querySelector(".timeline-comment-header");
-      // tagHeader.setAttribute("style", "background:#9ed2a7");
-      // if (!tag.classList.contains("color-border-success-emphasis")) {
-      //   tag.classList.add("color-border-success-emphasis");
-      // }
+      const tagHeader = tag.querySelector(".timeline-comment-header");
+      tagHeader.setAttribute("style", "background:#ABF2BC");
+      if (!tag.classList.contains("color-border-success-emphasis")) {
+        tag.classList.add("color-border-success-emphasis");
+      }
       ReactDOM.render(<IconButton aria-label="add"
                         icon={XIcon} 
                         className="btn btn-sm btn-primary m-0 ml-md-2"
@@ -195,13 +195,18 @@ class SubSummaryComponent extends React.Component<
           subsummaries: items,
           visible: "input",
         });
+        const tagHeader = tag.querySelector(".timeline-comment-header");
+      tagHeader.setAttribute("style", "background:#ABF2BC");
+      if (!tag.classList.contains("color-border-success-emphasis")) {
+        tag.classList.add("color-border-success-emphasis");
       }
-      ReactDOM.render(<IconButton aria-label="add"
+        ReactDOM.render(<IconButton aria-label="add"
                         icon={XIcon} 
                         className="btn btn-sm btn-primary m-0 ml-md-2"
                         onClick={() => {
                           this.removeSpecificComment(tag, ibElement);
                         }} />, ibElement);
+      }
     }
   };
 
@@ -321,7 +326,7 @@ class SubSummaryComponent extends React.Component<
       editing: this.state.viewing,
       viewing: "",
       visible: "input",
-      addState: true
+      // addState: true
     });
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
@@ -335,21 +340,21 @@ class SubSummaryComponent extends React.Component<
   deleteCommentFromExistingSummary = (summaryId, commentId) => {
     let newS: Summary;
     let newSs: Array<Summary> = this.state.subsummaries;
-    // const commentTags = document.querySelectorAll(
-    //   "div.timeline-comment.unminimized-comment"
-    // );
-    // commentTags.forEach((tag) => {
-    //   let deletedComment = commentParser(tag);
-    //   if (commentId === deletedComment.id) {
-    //     // add comments to unsavedSummaryComments
-    //     this.addedComments.splice(this.addedComments.indexOf(deletedComment.id), 1);
-    //     if (tag.classList.contains("color-border-success-emphasis")) {
-    //       const tagHeader = tag.querySelector(".timeline-comment-header");
-    //       tagHeader.removeAttribute("style");
-    //       tag.classList.remove("color-border-success-emphasis");
-    //     }
-    //   }
-    // });
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    commentTags.forEach((tag) => {
+      let deletedComment = commentParser(tag);
+      if (commentId === deletedComment.id) {
+        // add comments to unsavedSummaryComments
+        this.addedComments.splice(this.addedComments.indexOf(deletedComment.id), 1);
+        if (tag.classList.contains("color-border-success-emphasis")) {
+          const tagHeader = tag.querySelector(".timeline-comment-header");
+          tagHeader.removeAttribute("style");
+          tag.classList.remove("color-border-success-emphasis");
+        }
+      }
+    });
     
     // find the summary from the list of summaries
     newSs.forEach(ss => {
@@ -370,19 +375,14 @@ class SubSummaryComponent extends React.Component<
     // update the original summary list
     this.setState({
       subsummaries: newSs,
+      addState: false
     });
-
-    console.log("Add state", this.state.addState);
 
     // remove from added comments
     const idx = this.addedComments.indexOf(commentId);
     if (idx > -1) {
       this.addedComments.splice(idx, 1);
     }
-
-    const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
-    );
 
     commentTags.forEach((tag) => {
       this.renderCommentPlus(tag, this.state.viewing);

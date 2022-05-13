@@ -258,7 +258,7 @@ export default class SummaryInputComponent extends React.Component<
             >
               Regenerate
             </button>
-            <button
+            {/* <button
               className="btn btn-sm m-1 float-right"
               type="button"
               onClick={() => {
@@ -266,7 +266,7 @@ export default class SummaryInputComponent extends React.Component<
               }}
             >
               Back
-            </button>
+            </button> */}
             </div>
           </div>
     );
