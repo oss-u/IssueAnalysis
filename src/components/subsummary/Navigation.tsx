@@ -34,13 +34,24 @@ export default class NavigationComponent extends React.Component<
         commentParser(tag).id ===
         this.props.navbarContent[this.state.currIndex].id
       ) {
-        tag
-          .closest("div.TimelineItem")
+        const commentHeader = tag.querySelector("div.timeline-comment-header");
+        if (commentHeader !== null)
+        {
+          commentHeader
           .scrollIntoView({
             behavior: "smooth",
             block: "center",
             inline: "nearest",
           });
+        } else {
+          tag
+          .closest("div.TimelineItem")
+          .scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+            inline: "nearest",
+          });
+        }
       }
     });
   };
@@ -50,14 +61,24 @@ export default class NavigationComponent extends React.Component<
       return <></>;
     }
 
+
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
     );
+    
+    commentTags.forEach((tag) => {
+      if (tag.classList.contains("color-border-success-emphasis")) {
+        const tagHeader = tag.querySelector(".timeline-comment-header");    
+        tagHeader.removeAttribute("style");
+        tag.classList.remove("color-border-success-emphasis");
+      }
+    });
+
     this.props.navbarContent.forEach((c) => {
       commentTags.forEach((tag) => {
         if (commentParser(tag).id === c.id) {
           const tagHeader = tag.querySelector(".timeline-comment-header");
-          tagHeader.setAttribute("style", "background:#1a7f37");
+          tagHeader.setAttribute("style", "background:#ABF2BC");
           tag.classList.add("color-border-success-emphasis");
         }
       });

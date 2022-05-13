@@ -16,7 +16,7 @@ function panelSetup(): HTMLDivElement {
   // The summary panel on the left
   summaryPanel.id = "summary-panel";
   summaryPanel.className = "Layout-sidebar";
-  summaryPanel.style.top = "10%";
+  summaryPanel.style.top = "110px"; // the top is fixed at 60px
   summaryPanel.style.position = "sticky";
   // summaryPanel.style.position = "relative";
   // summaryPanel.classList.add("summary-container");
@@ -105,8 +105,9 @@ const createSummaryPanel = () => {
   summaryPanel = panelSetup();
   let subSummaryComponent = document.createElement("div");
   subSummaryComponent.id = "subsummary";
-  subSummaryComponent.style.top = "10%";
+  subSummaryComponent.style.top = "110px"; // the top is fixed at 60px
   subSummaryComponent.style.position = "sticky";
+  subSummaryComponent.style.maxHeight = "95vh";
   summaryPanel.appendChild(subSummaryComponent);
   // subSummaryComponent.classList.add("summary-sticky");
 

@@ -7,6 +7,7 @@ import { TrashIcon } from '@primer/octicons-react';
 import remarkGfm from 'remark-gfm';
 import { generateSummary } from "../../endpoints";
 import { Button } from '@primer/react';
+import { commentParser } from "../../utils/comment_parser";
 
 export default class SummaryInputComponent extends React.Component<
   {
@@ -32,6 +33,45 @@ export default class SummaryInputComponent extends React.Component<
       content: turndownService.turndown(this.props.existingSummary),      
     };
   }
+
+
+  addCommentsToExisting = () => {
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+
+  }
+
+  scrollToComment = (commentId) => {
+    const commentTags = document.querySelectorAll(
+      "div.timeline-comment.unminimized-comment"
+    );
+    commentTags.forEach((tag) => {
+      if (
+        commentParser(tag).id === commentId
+      ) {
+        const commentHeader = tag.querySelector("div.timeline-comment-header");
+        if (commentHeader !== null)
+        {
+          commentHeader
+          .scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+            inline: "nearest",
+          });
+        } else {
+          tag
+          .closest("div.TimelineItem")
+          .scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+            inline: "nearest",
+          });
+        }
+      }
+    });
+  };
+
 
   subsummaryView = () => {
     if (this.state.popover) {
@@ -130,7 +170,7 @@ export default class SummaryInputComponent extends React.Component<
     this.props.subSummaryObject.comments.forEach((e) => {
       let dateFormatting = e.author.createdOn.split(",").slice(0, 2).join(", ");
       comments.push(
-        <div className="d-flex flex-row mb-1">
+        <div className="d-flex flex-row mb-1" onClick={() => {this.scrollToComment(e.id)}}>
           <div className="Box width-full">
             <div className="Box-row Box-row--gray p-1">
               <div className="clearfix">
@@ -158,7 +198,7 @@ export default class SummaryInputComponent extends React.Component<
             </div>
             <div className="Box-row p-1">
               <p className="text-normal">
-                  <div dangerouslySetInnerHTML={{ __html: e.text }} />
+                  <div className="pl-3" dangerouslySetInnerHTML={{ __html: e.text }} />
               </p>
             </div>
           </div>
@@ -218,7 +258,7 @@ export default class SummaryInputComponent extends React.Component<
             >
               Regenerate
             </button>
-            <button
+            {/* <button
               className="btn btn-sm m-1 float-right"
               type="button"
               onClick={() => {
@@ -226,7 +266,7 @@ export default class SummaryInputComponent extends React.Component<
               }}
             >
               Back
-            </button>
+            </button> */}
             </div>
           </div>
     );
