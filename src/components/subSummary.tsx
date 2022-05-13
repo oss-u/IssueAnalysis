@@ -478,6 +478,12 @@ class SubSummaryComponent extends React.Component<
     );
   };
 
+  updateGensumm = (summary) => {
+    this.setState({
+      genSumm: summary
+    });
+  }
+
   loadSummaryInputComponent = () => {
     let existing = false;
     if(this.summaryIdMapping.get(this.state.editing)) {
@@ -485,9 +491,11 @@ class SubSummaryComponent extends React.Component<
     }
     let concatenatedComments = this.concatCommentsOfSubsummary();
     if (!this.state.genSumm && !existing) {
-      generateSummary(concatenatedComments).then((summaryRes) => this.setState({
-        genSumm: summaryRes.summary
-      }));
+      generateSummary(concatenatedComments).then((summaryRes) => {
+        this.setState({
+          genSumm: summaryRes.summary
+        });
+      });
     }
 
     let editingSubsummary;
@@ -496,6 +504,7 @@ class SubSummaryComponent extends React.Component<
         editingSubsummary = value;
       }
     });
+
     let generatedSummary;
     if (this.state.genSumm && !existing) {
       generatedSummary = this.state.genSumm;
@@ -507,11 +516,13 @@ class SubSummaryComponent extends React.Component<
       let item = { ...items[modifiedSummary] };
       generatedSummary = item.summary;
     }
+
     if (generatedSummary) {
       // Also check if the number of elements have changed
       return (<SummaryInputComponent
           existingSummary={generatedSummary}
           subSummaryObject={editingSubsummary}
+          updateGensumm={this.updateGensumm}
           backButtonHandler={this.toggleSummaryBoxComponent}
           submitHandler={this.saveSummary}
           deleteCommentHandler={this.deleteCommentFromExistingSummary}

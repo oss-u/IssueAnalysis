@@ -2,12 +2,12 @@ import React from "react";
 import { Summary } from "../../types";
 import ReactMarkdown from 'react-markdown';
 import TurndownService from 'turndown';
-import { IconButton } from '@primer/react';
+import { IconButton, Button } from '@primer/react';
 import { TrashIcon } from '@primer/octicons-react';
 import remarkGfm from 'remark-gfm';
 import { generateSummary } from "../../endpoints";
-import { Button } from '@primer/react';
 import { commentParser } from "../../utils/comment_parser";
+import Modal from "react-modal";
 
 export default class SummaryInputComponent extends React.Component<
   {
@@ -16,6 +16,7 @@ export default class SummaryInputComponent extends React.Component<
     backButtonHandler;
     submitHandler;
     deleteCommentHandler;
+    updateGensumm;
   },
   {
     writing: boolean,
@@ -24,13 +25,17 @@ export default class SummaryInputComponent extends React.Component<
   }
 > {
 
+  turndownServiceMarkdown = (content) => {
+    let turndownService = new TurndownService();
+    return turndownService.turndown(content); 
+  }
+
   constructor(props) {
     super(props);
-    let turndownService = new TurndownService();
     this.state = {
       writing: true,
       popover: false,
-      content: turndownService.turndown(this.props.existingSummary),      
+      content: this.turndownServiceMarkdown(this.props.existingSummary),      
     };
   }
 
@@ -72,13 +77,34 @@ export default class SummaryInputComponent extends React.Component<
     });
   };
 
+  setModalState = () => {
+    this.setState({
+      popover: false
+    });
+  }
 
-  subsummaryView = () => {
-    if (this.state.popover) {
-      return (<div className="details">
-        <div className="details-reset details-overlay details-overlay-dark">
-          <div className = "details-dialog">
-            <div className="Box Box--overlay d-flex flex-column anim-fade-in fast">
+  modalView = () => {
+      const customStyles = {
+        content: {
+          top: "50%",
+          left: "50%",
+          right: "auto",
+          bottom: "auto",
+          marginRight: "-50%",
+          transform: "translate(-50%, -50%)",
+          border: "none",
+          padding: "0px",
+          zIndex: 1000
+        }
+      };
+      
+      return (<Modal
+        isOpen={this.state.popover}
+        style={customStyles}
+        closeTimeoutMS={300}
+        onRequestClose={this.setModalState}
+      >
+        <div className="Box Box--overlay d-flex flex-column anim-fade-in fast">
               <div className="Box-header">
                 <h3 className="Box-title">Warning</h3>
               </div>
@@ -90,16 +116,18 @@ export default class SummaryInputComponent extends React.Component<
               <div className="Box-footer">
               <Button 
                   className="btn btn-sm btn-primary m-1 float-right"
-                  ype="submit"
+                  type="button"
                   onClick={() => {
-                  let commentText = this.concatCommentsOfSubsummary();
-                  generateSummary(commentText).then((summaryRes) => this.setState({
-                    content: summaryRes.summary,
-                    popover: false
-                  })).catch(() => {
-
-                  });
-                }} data-close-dialog>Yes</Button>
+                    let concatenatedComments = this.concatCommentsOfSubsummary();
+                    generateSummary(concatenatedComments).then((summaryRes) => {
+                      this.setState({
+                        content: this.turndownServiceMarkdown(summaryRes.summary),
+                        popover: false
+                      });
+                      this.props.updateGensumm(summaryRes.summary);
+                    });
+                  }}
+                  >Yes</Button>
                 <Button 
                   className="btn btn-sm m-1 float-right"
                   type="button"
@@ -110,12 +138,11 @@ export default class SummaryInputComponent extends React.Component<
                 }} data-close-dialog>No</Button>
               </div>
             </div>
-          </div>
-        </div>
-      </div>)
-    }
+      </Modal>)
+  }
 
-    
+
+  subsummaryView = () => {
     if (this.state.writing) {
       return (<textarea rows={5}
                   className="form-control input-block textarea-vertical-resize-only"
@@ -208,7 +235,7 @@ export default class SummaryInputComponent extends React.Component<
 
 
     // This cannot be set as HTML because it is a text area
-    return (
+    return (<>
       <div className="Box flex-column m-1 p-1 color-border-success-emphasis">
         <h5>Edit Summary</h5>
           {comments}
@@ -236,9 +263,7 @@ export default class SummaryInputComponent extends React.Component<
                 Preview
               </button>
           </nav>
-
-          {this.subsummaryView()} 
-
+          {this.subsummaryView()}
           <div className="clearfix flex-row">
             <button
               className="btn btn-sm btn-primary m-1 float-right"
@@ -269,6 +294,8 @@ export default class SummaryInputComponent extends React.Component<
             </button> */}
             </div>
           </div>
+          {this.modalView()}
+          </>
     );
   }
 }
