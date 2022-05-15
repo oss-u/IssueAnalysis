@@ -97,6 +97,18 @@ def update_information_type(span_update: schemas.InformationTypeSpanUpdate, db: 
     return HTTPException(status_code=404, detail="Not found.")
   return crud.update_info_type(span_update, db)
 
+@app.post("/api/{gh_user}/{repo}/{issue_number}/get-segmented-comments/",
+          response_model=List[schemas.CommentInformationType])
+def get_segmented_comments(gh_user: str, repo: str, issue_number: int, db: Session = Depends(get_db_session)):
+  """
+  Returns all the comments in the issue thread with information type tagged sentences in it.
+  """
+  # TODO: Make it paginated
+  issue = utils.construct_issue_id(gh_user, repo, issue_number)
+  if db.query(models.CommentInformationType).filter(models.CommentInformationType.issue==issue).first() is None:
+    return HTTPException(status_code=404, detail="Issue not found.")
+  return crud.get_segmented_comments(issue, db)
+
 @app.post("/api/{gh_user}/{repo}/{issue_number}/comment-summary/", response_model=schemas.CommentSummaryWithId)
 def post_comments_summary(gh_user: str, repo: str, issue_number: int, comment_summary: schemas.CommentSummary,
                           db: Session = Depends(get_db_session)):

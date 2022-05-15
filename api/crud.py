@@ -209,6 +209,25 @@ def get_information_type_spans(issue_id: str, comment_id: str, db: Session):
     ) for span in comment_spans]
   )
 
+def get_segmented_comments(issue_id: str, db: Session):
+  info_type_sentences = db.query(models.CommentInformationType).filter(models.CommentInformationType.issue==issue_id).all()
+  info_type_map = {}
+  
+  for sentence in info_type_sentences:
+    if sentence.info_type not in info_type_map:
+      info_type_map[sentence.info_type] = schemas.CommentInformationType(
+        info_type=sentence.info_type,
+        issue=issue_id,
+        sentences=[]
+      )
+    
+    info_type_map[sentence.info_type].sentences.append(schemas.CommentInformationTypeSentences(
+      comment_id=sentence.comment_id,
+      text=sentence.text,
+      span=schemas.Span(start=sentence.span_start, end=sentence.span_end)
+    ))
+  
+  return list(info_type_map.values())
 
 # TOP LEVEL SUMMARY
 def generate_top_level_summary(issue_id: str, author: str, db: Session) -> List[schemas.TopLevelSummary]:

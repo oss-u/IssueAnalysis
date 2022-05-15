@@ -43,6 +43,18 @@ class InformationTypeIdentifiedCommentResponse(BaseModel):
 class InformationTypeSpanUpdate(BaseModel):
   span_id: int
   info_type: str
+  
+class CommentInformationTypeSentences(BaseModel):
+  # TODO: add datetime
+  comment_id: str
+  text: str
+  span: Span
+
+class CommentInformationType(BaseModel):
+  info_type: str
+  issue: str
+  sentences: List[CommentInformationTypeSentences]
+  
 
 class Author(BaseModel):
   user_id: str
