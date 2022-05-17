@@ -25,6 +25,7 @@
 
   "permissions": [
     "*://*.github.com/*",
+    "https://ossu-issue-analysis-backend.herokuapp.com/api/*",
     "storage",
     "webRequest",
     "webNavigation",
