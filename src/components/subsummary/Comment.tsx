@@ -81,7 +81,7 @@ export default class CommentComponent extends React.Component<
     return (
       <div className="Box flex-column m-1 ml-1 p-1 color-border-success-emphasis">
         <h5>Comments to Summarise</h5>
-        {comments}
+        <div className="sub-scroll border-top">{comments}</div>
         <div className="container-lg clearfix">
           <button
             className="btn btn-sm btn-primary float-right m-1"

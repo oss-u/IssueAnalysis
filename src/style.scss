@@ -43,7 +43,13 @@
 }
 
 .sub-scroll {
-  max-height: 80vh;
+  max-height: 65vh;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.sub-scroll-input {
+  max-height: 40vh;
   overflow-y: auto;
   overflow-x: auto;
 }
@@ -79,4 +85,19 @@
 
 .comment-action-float {
   float: right;
+}
+
+.modal-width-auto {
+  width: auto
+}
+
+.toast {
+  top: 20vh; 
+  position:fixed; 
+  left:1vw;
+  z-index: 999;
+}
+
+.toast-padding {
+  padding: 1
 }

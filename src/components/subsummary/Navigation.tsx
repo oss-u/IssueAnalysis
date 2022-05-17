@@ -26,34 +26,37 @@ export default class NavigationComponent extends React.Component<
   }
 
   scrollToComment = () => {
-    const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
-    );
-    commentTags.forEach((tag) => {
-      if (
-        commentParser(tag).id ===
-        this.props.navbarContent[this.state.currIndex].id
-      ) {
-        const commentHeader = tag.querySelector("div.timeline-comment-header");
-        if (commentHeader !== null)
-        {
-          commentHeader
-          .scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-            inline: "nearest",
-          });
-        } else {
-          tag
-          .closest("div.TimelineItem")
-          .scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-            inline: "nearest",
-          });
+
+    if (this.props.navbarContent[this.state.currIndex] !== undefined) {
+      const commentTags = document.querySelectorAll(
+        "div.timeline-comment.unminimized-comment"
+      );
+      commentTags.forEach((tag) => {
+        if (
+          commentParser(tag).id ===
+          this.props.navbarContent[this.state.currIndex].id
+        ) {
+          const commentHeader = tag.querySelector("div.timeline-comment-header");
+          if (commentHeader !== null)
+          {
+            commentHeader
+            .scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+              inline: "nearest",
+            });
+          } else {
+            tag
+            .closest("div.TimelineItem")
+            .scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+              inline: "nearest",
+            });
+          }
         }
-      }
-    });
+      });
+    }
   };
 
   render() {
