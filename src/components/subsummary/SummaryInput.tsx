@@ -77,7 +77,6 @@ export default class SummaryInputComponent extends React.Component<
   }
 
   getSummaryInputView = (comments) => {
-    console.log(this.props.subSummaryObject);
     if (this.state.popover) {
       // get the popover view
       return (<div className="Box Box--overlay d-flex flex-column anim-fade-in fast modal-width-auto mt-2">
@@ -150,7 +149,7 @@ export default class SummaryInputComponent extends React.Component<
             <button
               className="btn btn-sm btn-primary m-1 float-right"
               type="submit"
-              aria-disabled={this.state.doneState}
+              disabled={this.state.doneState}
               onClick={() => {
                 this.props.submitHandler(this.state.content)
               }}
@@ -236,6 +235,7 @@ export default class SummaryInputComponent extends React.Component<
 
   render() {
     let comments = [];
+    
     this.props.subSummaryObject.comments.forEach((e) => {
       let dateFormatting = e.author.createdOn.split(",").slice(0, 2).join(", ");
       comments.push(
@@ -275,6 +275,15 @@ export default class SummaryInputComponent extends React.Component<
       );
     });
 
+    if (comments.length === 0 && !this.state.doneState) {
+      this.setState({
+        doneState: true
+      });
+    } else if (comments.length > 0 && this.state.doneState) {
+      this.setState({
+        doneState: false
+      })
+    }
 
     // This cannot be set as HTML because it is a text area
     return (<>
