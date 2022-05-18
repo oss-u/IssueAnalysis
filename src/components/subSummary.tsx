@@ -106,42 +106,6 @@ class SubSummaryComponent extends React.Component<
     });
   }
 
-  // addBorderHighlights = () => {
-  //   const commentTags = document.querySelectorAll(
-  //     "div.timeline-comment.unminimized-comment"
-  //   );
-
-  //   commentTags.forEach((tag) => {
-  //     if (
-  //       this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])
-  //     ) {
-  //       if (!tag.classList.contains("color-border-success-emphasis")) {
-  //         const tagHeader = tag.querySelector(".timeline-comment-header");
-  //         // tagHeader.setAttribute("style", "background:#6cc644");
-  //         tag.classList.add("color-border-success-emphasis");
-  //       }
-  //     }
-  //   });
-  // };
-
-  // showSpecificHighlights = (c: Array<IssueComment>) => {
-  //   this.removeBorderHighlights();
-  //   const commentTags = document.querySelectorAll(
-  //     "div.timeline-comment.unminimized-comment"
-  //   );
-  //   let commentList = [];
-  //   if (c !== undefined)
-  //     commentList = c.map((e) => e.id);
-  //   commentTags.forEach((tag) => {
-  //     if (commentList.includes(tag.querySelector("a.js-timestamp")["href"])) {
-  //       if (!tag.classList.contains("color-border-success-emphasis")) {
-  //         const tagHeader = tag.querySelector(".timeline-comment-header");
-  //         tagHeader.setAttribute("style", "background:#1a7f37");
-  //         tag.classList.add("color-border-success-emphasis");
-  //       }
-  //     }
-  //   });
-  // };
 
   addCommentsOnClick = (tag: Element, ibElement: Element) => {
     let newComment = commentParser(tag);
@@ -353,6 +317,22 @@ class SubSummaryComponent extends React.Component<
           tagHeader.removeAttribute("style");
           tag.classList.remove("color-border-success-emphasis");
         }
+
+        const commentHeader = tag.querySelector(".timeline-comment-actions");
+        let ibElement = commentHeader.querySelector("#add-comment-to-summary");
+        if (!ibElement) {
+          ibElement = document.createElement("div");
+          ibElement.id = "add-comment-to-summary";
+          ibElement.className = "comment-action-float";
+          commentHeader.appendChild(ibElement);
+        }
+
+        ReactDOM.render(<IconButton aria-label="add"
+        icon={PlusIcon} 
+        className="btn btn-sm btn-primary m-0 ml-md-2"
+        onClick={() => {
+          this.addCommentsOnClick(tag, ibElement);
+        }} />, ibElement);
       }
     });
     
@@ -491,11 +471,15 @@ class SubSummaryComponent extends React.Component<
     }
     let concatenatedComments = this.concatCommentsOfSubsummary();
     if (!this.state.genSumm && !existing) {
-      generateSummary(concatenatedComments).then((summaryRes) => {
-        this.setState({
-          genSumm: summaryRes.summary
-        });
+  
+    generateSummary(concatenatedComments).then((summaryRes) => {
+      this.setState({
+        genSumm: summaryRes.summary
       });
+    }).catch((e) => {
+      console.log("Error in generating the summary.");
+      console.log(e);
+    });
     }
 
     let editingSubsummary;
@@ -647,7 +631,6 @@ class SubSummaryComponent extends React.Component<
             console.log(e);
           });
       }).catch((e) => {
-        // Might want to move this to a Toast
         console.log("Error in saving the summary.");
         console.log(e);
         this.setState({
@@ -656,17 +639,16 @@ class SubSummaryComponent extends React.Component<
       });
     } else {
       let edited = this.state.editing;
-      saveUserSummaries(issueDetails.user, issueDetails.repository, 
-        issueDetails.issueNum, subsummaries).then((response) => {
-          this.summaryIdMapping.set(edited, response.id.toString());
-      }).catch((e) => {
-        // Might want to move this to a Toast
-        console.log("Error in saving the summary.");
-        console.log(e);
-        this.setState({
-          saveError: true
+        saveUserSummaries(issueDetails.user, issueDetails.repository, 
+          issueDetails.issueNum, subsummaries).then((response) => {
+            this.summaryIdMapping.set(edited, response.id.toString());
+        }).catch((e) => {
+          console.log("Error in saving the summary.");
+          console.log(e);
+          this.setState({
+            saveError: true
+          });
         });
-      });
     }
 
     this.setState({
