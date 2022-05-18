@@ -21,7 +21,15 @@ export interface ModalSummary {
 export const generateSummary = async (text: string): Promise<ModalSummary> => {
   const input = makeRequestURL("/generate-summary/");
   const init = makeRequestArguments("POST", { text });
-  const res = await fetch(input, init);
+  let res;
+  try {
+    res = await fetch(input, init);
+  } catch (err) {
+    // always retry generate summary
+    // this isn't a good way but no need for extensive refactoring
+    console.log("Retrying...");
+    res = await fetch(input, init);
+  }
   throwErrorsForResponse(res);
   return res.json();
 };

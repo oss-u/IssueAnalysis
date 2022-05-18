@@ -2,12 +2,11 @@ import React from "react";
 import { Summary } from "../../types";
 import ReactMarkdown from 'react-markdown';
 import TurndownService from 'turndown';
-import { IconButton, Button } from '@primer/react';
+import { Popover, IconButton, Button, Heading, Text } from '@primer/react';
 import { TrashIcon } from '@primer/octicons-react';
 import remarkGfm from 'remark-gfm';
 import { generateSummary } from "../../endpoints";
 import { commentParser } from "../../utils/comment_parser";
-import Modal from "react-modal";
 
 export default class SummaryInputComponent extends React.Component<
   {
@@ -22,6 +21,7 @@ export default class SummaryInputComponent extends React.Component<
     writing: boolean,
     content: string,
     popover: boolean
+    doneState: boolean
   }
 > {
 
@@ -35,16 +35,9 @@ export default class SummaryInputComponent extends React.Component<
     this.state = {
       writing: true,
       popover: false,
+      doneState: false,
       content: this.turndownServiceMarkdown(this.props.existingSummary),      
     };
-  }
-
-
-  addCommentsToExisting = () => {
-    const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
-    );
-
   }
 
   scrollToComment = (commentId) => {
@@ -83,28 +76,10 @@ export default class SummaryInputComponent extends React.Component<
     });
   }
 
-  modalView = () => {
-      const customStyles = {
-        content: {
-          top: "50%",
-          left: "50%",
-          right: "auto",
-          bottom: "auto",
-          marginRight: "-50%",
-          transform: "translate(-50%, -50%)",
-          border: "none",
-          padding: "0px",
-          zIndex: 1000
-        }
-      };
-      
-      return (<Modal
-        isOpen={this.state.popover}
-        style={customStyles}
-        closeTimeoutMS={300}
-        onRequestClose={this.setModalState}
-      >
-        <div className="Box Box--overlay d-flex flex-column anim-fade-in fast">
+  getSummaryInputView = (comments) => {
+    if (this.state.popover) {
+      // get the popover view
+      return (<div className="Box Box--overlay d-flex flex-column anim-fade-in fast modal-width-auto mt-2">
               <div className="Box-header">
                 <h3 className="Box-title">Warning</h3>
               </div>
@@ -120,6 +95,8 @@ export default class SummaryInputComponent extends React.Component<
                   onClick={() => {
                     let concatenatedComments = this.concatCommentsOfSubsummary();
                     generateSummary(concatenatedComments).then((summaryRes) => {
+                      console.log(summaryRes.summary);
+                      console.log(concatenatedComments);
                       this.setState({
                         content: this.turndownServiceMarkdown(summaryRes.summary),
                         popover: false
@@ -137,10 +114,71 @@ export default class SummaryInputComponent extends React.Component<
                   });
                 }} data-close-dialog>No</Button>
               </div>
-            </div>
-      </Modal>)
+            </div>);
+    } else {
+      // get the edit summary view
+      return (<>
+      <div className="sub-scroll-input">
+              {comments}</div>
+              <nav className="tabnav-tabs pl-1 mt-1">
+              <button className="tabnav-tab" 
+                      role="tab" 
+                      type="button"
+                      aria-selected={this.state.writing?true:false}
+                      onClick={()=> {
+                        this.setState({
+                          writing: true
+                        });
+                      }}>
+                Write
+              </button>
+              <button className="tabnav-tab ml-1" 
+                      role="tab" 
+                      type="button"
+                      aria-selected={this.state.writing?false:true}
+                      onClick={()=> {
+                        this.setState({
+                          writing: false
+                        });
+                      }}>
+                Preview
+              </button>
+          </nav>
+          {this.subsummaryView()}
+          <div className="clearfix flex-row">
+            <button
+              className="btn btn-sm btn-primary m-1 float-right"
+              type="submit"
+              disabled={this.state.doneState}
+              onClick={() => {
+                this.props.submitHandler(this.state.content)
+              }}
+            >
+              Done
+            </button>
+            <button aria-haspopup="dialog"
+              className="btn btn-sm m-1 float-right"
+              type="button"
+              onClick={() => {
+                this.setState({
+                  popover: true
+                });
+              }}
+            >
+              Regenerate
+            </button>
+            {/* <button
+              className="btn btn-sm m-1 float-right"
+              type="button"
+              onClick={() => {
+                this.props.backButtonHandler("comments");
+              }}
+            >
+              Back
+            </button> */}
+            </div></>)
+    }
   }
-
 
   subsummaryView = () => {
     if (this.state.writing) {
@@ -170,11 +208,14 @@ export default class SummaryInputComponent extends React.Component<
   concatCommentsOfSubsummary = () => {
     // get the subsummary from the editing state
     let item = { ...this.props.subSummaryObject.comments };
+    console.log(item, this.props.subSummaryObject);
     let concatComments = "";
-    // merge all the summaries in concatComments
+    // merge all the summaries in concatComments change this TODO
     for (let i = 0; i < item.length; i++) {
+      console.log(i, item[i].text);
       concatComments = concatComments.concat(item[i].text, ' ');
     }
+    console.log("in concat", concatComments);
     concatComments = concatComments.trim();
     return concatComments;
   };
@@ -194,6 +235,7 @@ export default class SummaryInputComponent extends React.Component<
 
   render() {
     let comments = [];
+    
     this.props.subSummaryObject.comments.forEach((e) => {
       let dateFormatting = e.author.createdOn.split(",").slice(0, 2).join(", ");
       comments.push(
@@ -233,68 +275,22 @@ export default class SummaryInputComponent extends React.Component<
       );
     });
 
+    if (comments.length === 0 && !this.state.doneState) {
+      this.setState({
+        doneState: true
+      });
+    } else if (comments.length > 0 && this.state.doneState) {
+      this.setState({
+        doneState: false
+      })
+    }
 
     // This cannot be set as HTML because it is a text area
     return (<>
       <div className="Box flex-column m-1 p-1 color-border-success-emphasis">
         <h5>Edit Summary</h5>
-          {comments}
-          <nav className="tabnav-tabs pl-1">
-              <button className="tabnav-tab" 
-                      role="tab" 
-                      type="button"
-                      aria-selected={this.state.writing?true:false}
-                      onClick={()=> {
-                        this.setState({
-                          writing: true
-                        });
-                      }}>
-                Write
-              </button>
-              <button className="tabnav-tab ml-1" 
-                      role="tab" 
-                      type="button"
-                      aria-selected={this.state.writing?false:true}
-                      onClick={()=> {
-                        this.setState({
-                          writing: false
-                        });
-                      }}>
-                Preview
-              </button>
-          </nav>
-          {this.subsummaryView()}
-          <div className="clearfix flex-row">
-            <button
-              className="btn btn-sm btn-primary m-1 float-right"
-              type="submit"
-              onClick={() => {this.props.submitHandler(this.state.content)}}
-            >
-              Done
-            </button>
-            <button aria-haspopup="dialog"
-              className="btn btn-sm m-1 float-right"
-              type="button"
-              onClick={() => {
-                this.setState({
-                  popover: true
-                });
-              }}
-            >
-              Regenerate
-            </button>
-            {/* <button
-              className="btn btn-sm m-1 float-right"
-              type="button"
-              onClick={() => {
-                this.props.backButtonHandler("comments");
-              }}
-            >
-              Back
-            </button> */}
-            </div>
+          {this.getSummaryInputView(comments)}
           </div>
-          {this.modalView()}
           </>
     );
   }

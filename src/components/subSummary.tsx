@@ -6,10 +6,10 @@ import { generateSummary, saveUserSummaries, getUserSummaries, deleteUserSummari
 import "../style.scss";
 import { IssueComment, Summary } from "../types";
 import { commentParser } from "../utils/comment_parser";
-import { IconButton } from '@primer/react';
+import { IconButton, StyledOcticon } from '@primer/react';
 import { getCurrentUserName } from "../utils";
 import { parseURLForIssueDetails } from "../utils/scraping";
-import { PlusIcon, TriangleRightIcon, 
+import { PlusIcon, TriangleRightIcon, StopIcon,
           TriangleLeftIcon, Icon, XIcon } from '@primer/octicons-react';
 import SummaryComponent from './subsummary/Summary';
 import SummaryInputComponent from "./subsummary/SummaryInput";
@@ -26,6 +26,7 @@ class SubSummaryComponent extends React.Component<
     arrow: Icon;
     panelState: number;
     addState: boolean;
+    saveError: boolean;
   }
 > {
 
@@ -43,7 +44,8 @@ class SubSummaryComponent extends React.Component<
       genSumm: "",
       arrow: TriangleRightIcon,
       panelState: 1,
-      addState: false
+      addState: false,
+      saveError: false
     };
     this.loadCommentComponents = this.loadCommentComponents.bind(this);
     this.saveSummary == this.saveSummary.bind(this);
@@ -104,42 +106,6 @@ class SubSummaryComponent extends React.Component<
     });
   }
 
-  // addBorderHighlights = () => {
-  //   const commentTags = document.querySelectorAll(
-  //     "div.timeline-comment.unminimized-comment"
-  //   );
-
-  //   commentTags.forEach((tag) => {
-  //     if (
-  //       this.addedComments.includes(tag.querySelector("a.js-timestamp")["href"])
-  //     ) {
-  //       if (!tag.classList.contains("color-border-success-emphasis")) {
-  //         const tagHeader = tag.querySelector(".timeline-comment-header");
-  //         // tagHeader.setAttribute("style", "background:#6cc644");
-  //         tag.classList.add("color-border-success-emphasis");
-  //       }
-  //     }
-  //   });
-  // };
-
-  // showSpecificHighlights = (c: Array<IssueComment>) => {
-  //   this.removeBorderHighlights();
-  //   const commentTags = document.querySelectorAll(
-  //     "div.timeline-comment.unminimized-comment"
-  //   );
-  //   let commentList = [];
-  //   if (c !== undefined)
-  //     commentList = c.map((e) => e.id);
-  //   commentTags.forEach((tag) => {
-  //     if (commentList.includes(tag.querySelector("a.js-timestamp")["href"])) {
-  //       if (!tag.classList.contains("color-border-success-emphasis")) {
-  //         const tagHeader = tag.querySelector(".timeline-comment-header");
-  //         tagHeader.setAttribute("style", "background:#1a7f37");
-  //         tag.classList.add("color-border-success-emphasis");
-  //       }
-  //     }
-  //   });
-  // };
 
   addCommentsOnClick = (tag: Element, ibElement: Element) => {
     let newComment = commentParser(tag);
@@ -210,7 +176,6 @@ class SubSummaryComponent extends React.Component<
     }
   };
 
-
   removeSpecificComment = (tag: Element, ibElement: Element) => {
     this.deleteCommentFromExistingSummary(this.state.editing, commentParser(tag).id);
     ReactDOM.render(<IconButton aria-label="add"
@@ -273,7 +238,6 @@ class SubSummaryComponent extends React.Component<
       ReactDOM.render(<></>, ibElement);
     }
   }
-
 
   addCommentsToSummary = () => {
     // Change this code to add an explicit button 
@@ -353,6 +317,22 @@ class SubSummaryComponent extends React.Component<
           tagHeader.removeAttribute("style");
           tag.classList.remove("color-border-success-emphasis");
         }
+
+        const commentHeader = tag.querySelector(".timeline-comment-actions");
+        let ibElement = commentHeader.querySelector("#add-comment-to-summary");
+        if (!ibElement) {
+          ibElement = document.createElement("div");
+          ibElement.id = "add-comment-to-summary";
+          ibElement.className = "comment-action-float";
+          commentHeader.appendChild(ibElement);
+        }
+
+        ReactDOM.render(<IconButton aria-label="add"
+        icon={PlusIcon} 
+        className="btn btn-sm btn-primary m-0 ml-md-2"
+        onClick={() => {
+          this.addCommentsOnClick(tag, ibElement);
+        }} />, ibElement);
       }
     });
     
@@ -384,9 +364,9 @@ class SubSummaryComponent extends React.Component<
       this.addedComments.splice(idx, 1);
     }
 
-    commentTags.forEach((tag) => {
-      this.renderCommentPlus(tag, this.state.viewing);
-    })
+    // commentTags.forEach((tag) => {
+    //   this.renderCommentPlus(tag, this.state.viewing);
+    // })
   }
 
   deleteExistingSummary = (id: number) => {
@@ -460,14 +440,14 @@ class SubSummaryComponent extends React.Component<
     if (this.state.subsummaries.length) {
       const summaries = [...this.state.subsummaries];
       if (summaries.length > 0) {
-        return (
+        return (<div className="sub-scroll">
           <SummaryComponent
             summaries={summaries}
             viewExistingSummary={this.viewExistingSummary}
             viewing={this.state.viewing}
             editButtonHandler={this.editExistingSummary}
             deleteButtonHandler={this.deleteExistingSummary}
-          />
+          /></div>
         );
       }
     }
@@ -491,11 +471,15 @@ class SubSummaryComponent extends React.Component<
     }
     let concatenatedComments = this.concatCommentsOfSubsummary();
     if (!this.state.genSumm && !existing) {
-      generateSummary(concatenatedComments).then((summaryRes) => {
-        this.setState({
-          genSumm: summaryRes.summary
-        });
+  
+    generateSummary(concatenatedComments).then((summaryRes) => {
+      this.setState({
+        genSumm: summaryRes.summary
       });
+    }).catch((e) => {
+      console.log("Error in generating the summary.");
+      console.log(e);
+    });
     }
 
     let editingSubsummary;
@@ -561,11 +545,6 @@ class SubSummaryComponent extends React.Component<
     });
   };
 
-  // resetBorderHighlights = () => {
-    // this.removeBorderHighlights();
-  //   this.addBorderHighlights();
-  // };
-
   removeCommentIcons = () => {
     const commentTags = document.querySelectorAll(
       "div.timeline-comment.unminimized-comment"
@@ -581,7 +560,7 @@ class SubSummaryComponent extends React.Component<
       }
       ReactDOM.render(<></>, ibElement);
     });
-}
+  }
 
   resetSession = () => {
     if (!this.summaryIdMapping.get(this.state.editing)) {
@@ -652,20 +631,24 @@ class SubSummaryComponent extends React.Component<
             console.log(e);
           });
       }).catch((e) => {
-        // Might want to move this to a Toast
         console.log("Error in saving the summary.");
         console.log(e);
+        this.setState({
+          saveError: true
+        });
       });
     } else {
       let edited = this.state.editing;
-      saveUserSummaries(issueDetails.user, issueDetails.repository, 
-        issueDetails.issueNum, subsummaries).then((response) => {
-          this.summaryIdMapping.set(edited, response.id.toString());
-      }).catch((e) => {
-        // Might want to move this to a Toast
-        console.log("Error in saving the summary.");
-        console.log(e);
-      });
+        saveUserSummaries(issueDetails.user, issueDetails.repository, 
+          issueDetails.issueNum, subsummaries).then((response) => {
+            this.summaryIdMapping.set(edited, response.id.toString());
+        }).catch((e) => {
+          console.log("Error in saving the summary.");
+          console.log(e);
+          this.setState({
+            saveError: true
+          });
+        });
     }
 
     this.setState({
@@ -703,6 +686,19 @@ class SubSummaryComponent extends React.Component<
     }
   }
 
+  getErrorToast = () => {
+    if (this.state.saveError) {
+      return (<div className="p-1 toast">
+              <div className="Toast">
+                <span className="Toast-content toast-padding">Error in saving the summary.</span>
+                <button className="Toast-dismissButton toast-padding" onClick={() => {this.setState({saveError: false})}}>
+                <StyledOcticon icon={XIcon} size={16}/>
+                </button>
+              </div>
+            </div>);
+    }
+  }
+
   render() {    
     // This needs to be here because 
     // 1) Existing long threads can be unminimized
@@ -710,6 +706,8 @@ class SubSummaryComponent extends React.Component<
     // this.addCommentsToSummary();
     // this.resetBorderHighlights();
     return (
+      <>
+      {this.getErrorToast()}
       <div id="sub-summary" className="Box" >
         <div className="Box-header px-2 py-3">
           <div className="clearfix">
@@ -743,8 +741,8 @@ class SubSummaryComponent extends React.Component<
             </div>
           </div>
         </div>
-        <div id="summary-component" className="sub-scroll">{this.loadViewBasedOnState()}</div>
-      </div>
+        <div id="summary-component" >{this.loadViewBasedOnState()}</div>
+      </div></>
     );
   }
 }
