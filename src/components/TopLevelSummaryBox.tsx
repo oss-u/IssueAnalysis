@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom";
 import React, { useEffect } from "react";
 import "../style.scss";
-import { generateTopLevelSummary, ModelInfoTypeSpan, ModelInfoTypeSpanWithID, ModelInfoTypeSummary } from "../endpoints";
+import { generateTopLevelSummary, getTopLevelHighlights, ModelInfoTypeSpan, ModelInfoTypeSpanWithID, ModelInfoTypeSummary } from "../endpoints";
 import InformationTypeTabs, { SummaryWithHighlights } from "./InformationTypeTabs";
 import { getAuthorFromPage, parseURLForIssueDetails } from "../utils/scraping";
 import { scrapeAndAddCommentsToDB } from "../scripts/scrape-and-add-comments";
@@ -86,13 +86,14 @@ export default function TopLevelSummaryBox(props: TopLevelSummaryBoxProps): JSX.
     const issueDetails = parseURLForIssueDetails();
     const author = getAuthorFromPage();
     generateTopLevelSummary(issueDetails.user, issueDetails.repository, issueDetails.issueNum, author).then((resSummaries) => {
-      console.log(resSummaries);
-      const generatedSummaries: SummaryWithHighlights[] = modelSummaryToSummaryWithHighlights(resSummaries);
-      const newSummaries = generatedSummaries.length !== 0 ? generatedSummaries : getDefaultSummary();
-      updateSummaries(newSummaries);
-      setVisible(true);
-      
-      setGenerateStatus('complete');
+      getTopLevelHighlights(issueDetails.user, issueDetails.repository, issueDetails.issueNum).then((resHighlights) => {
+        console.log(resSummaries, resHighlights);
+        const generatedSummaries: SummaryWithHighlights[] = modelSummaryToSummaryWithHighlights(resSummaries, resHighlights);
+        const newSummaries = generatedSummaries.length !== 0 ? generatedSummaries : getDefaultSummary();
+        updateSummaries(newSummaries);
+        setVisible(true);
+        setGenerateStatus('complete');
+      })
     }).catch((error) => {
       console.error(`Failed to generate summary: ${error}`);
       setGenerateStatus('error');

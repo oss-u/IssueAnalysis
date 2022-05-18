@@ -14,7 +14,6 @@ const getAllHighlightsFromSummaries = (summaries: SummaryWithHighlights[], allCo
     allComments.forEach((comment) => {
         commentIdToClientHeight[comment.id] = comment.tag.getBoundingClientRect().top
     });
-    console.log(commentIdToClientHeight);
     const sortedHighlights = allHighlights.sort((h1, h2) => {
         const heightDiff = commentIdToClientHeight[h1.commentId] - commentIdToClientHeight[h2.commentId];
         if (heightDiff !== 0){
@@ -22,7 +21,6 @@ const getAllHighlightsFromSummaries = (summaries: SummaryWithHighlights[], allCo
         }
         return h1.span.start - h2.span.start;
     })
-    console.log(sortedHighlights);
     return sortedHighlights;
 }
 
@@ -156,7 +154,6 @@ export default function TopLevelSummary(props: TopLevelSummaryProps): JSX.Elemen
     }, [selectedComment, allHighlights])
 
     const onChangeSelectedHighlightIndexTopLevel = (newIndex) => {
-        console.log(newIndex);
         setSelectedHighlightIndex(newIndex)
         if (newIndex < 0) {
             return;

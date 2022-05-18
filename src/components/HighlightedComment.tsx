@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import ReactDOM from "react-dom";
 import "../style.scss";
 import {Highlight, InformationType} from "../types"
@@ -15,6 +15,9 @@ interface HighlightProps {
 //   1: "#00FF00",
 //   2: "#0000FF",
 // }
+
+const commentStartTag = '<p dir="auto">';
+const commentEndTag = '</p>';
 
 export default function Highlight(props: HighlightProps): JSX.Element {
     const {text, infoType, selected} = props
@@ -36,7 +39,11 @@ export function highlightComment(commentEl: Element, selectedHighlightId: string
     const highlightOpenTag = `<span id=${highlightId}>`;
     const highlightCloseTag = '</span>'
     const oldInnerHTML = newInnerHTML;
-    newInnerHTML = oldInnerHTML.slice(0, highlight.span.start + addedLength) + highlightOpenTag + oldInnerHTML.slice(highlight.span.start + addedLength, highlight.span.end + addedLength) + highlightCloseTag + oldInnerHTML.slice(highlight.span.end + addedLength);
+    let pseudoStart = highlight.span.start
+    if (pseudoStart === 0 && highlight.span.end != oldInnerHTML.length && oldInnerHTML.startsWith(commentStartTag)){
+      pseudoStart += commentStartTag.length;
+    }
+    newInnerHTML = oldInnerHTML.slice(0, pseudoStart + addedLength) + highlightOpenTag + oldInnerHTML.slice(pseudoStart + addedLength, highlight.span.end + addedLength) + highlightCloseTag + oldInnerHTML.slice(highlight.span.end + addedLength);
     addedLength += highlightOpenTag.length + highlightCloseTag.length;
     highlightIdsAndInfoTypes.push({id: highlightId, infoType: highlight.infoType});
   })

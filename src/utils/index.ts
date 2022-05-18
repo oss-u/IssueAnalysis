@@ -1,5 +1,5 @@
 import { SummaryWithHighlights } from "../components/InformationTypeTabs";
-import { ModelInfoTypeSummary } from "../endpoints";
+import { ModelInfoTypeHighlights, ModelInfoTypeSummary } from "../endpoints";
 import { Highlight } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -29,17 +29,25 @@ export function guidGenerator() {
 }
 
 export const modelSummaryToSummaryWithHighlights = (
-  modelSummaries: ModelInfoTypeSummary[]
-): SummaryWithHighlights[] =>
-  modelSummaries.map((summary) => {
-    const highlights: Highlight[] = summary.spans.map((span) => ({
+  modelSummaries: ModelInfoTypeSummary[],
+  modelHighlights: ModelInfoTypeHighlights[]
+): SummaryWithHighlights[] => {
+  // Create highlights list for each infoType
+  const summaryHighlightMap = {};
+  modelHighlights.forEach((infoTypeSpans) => {
+    const infoTypeHighlights = infoTypeSpans.sentences.map((sentence) => ({
       id: `h${uuidv4()}`,
-      commentId: span.comment_id,
-      span: span.comment_span,
-      infoType: summary.info_type,
+      commentId: sentence.comment_id,
+      span: sentence.span,
+      infoType: infoTypeSpans.info_type,
     }));
+    summaryHighlightMap[infoTypeSpans.info_type] = infoTypeHighlights;
+  });
+  // Combine summaries with their highlights
+  return modelSummaries.map((summary) => {
     return {
       summary,
-      commentHighlights: highlights,
+      commentHighlights: summaryHighlightMap[summary.info_type],
     };
   });
+};
