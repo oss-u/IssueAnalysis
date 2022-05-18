@@ -129,6 +129,34 @@ export const getTopLevelSummary = async (
   return res.json();
 };
 
+export interface ModelCommentSpan {
+  comment_id: string;
+  text: string;
+  span: {
+    start: number;
+    end: number;
+  };
+}
+
+export interface ModelInfoTypeHighlights {
+  info_type: InformationType;
+  issue: string;
+  sentences: ModelCommentSpan[];
+}
+
+export const getTopLevelHighlights = async (
+  gh_user: string,
+  repo: string,
+  issue_number: number
+): Promise<ModelInfoTypeHighlights[]> => {
+  const extension = `/${gh_user}/${repo}/${issue_number}/get-segmented-comments`;
+  const input = makeRequestURL(extension);
+  const init = makeRequestArguments("POST");
+  const res = await fetch(input, init);
+  throwErrorsForResponse(res);
+  return res.json();
+};
+
 export const editTopLevelSummary = async (
   gh_user: string,
   repo: string,

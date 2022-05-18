@@ -2,7 +2,7 @@ import ReactDOM from "react-dom";
 import React from "react";
 import "../style.scss";
 import TopLevelSummary from "../components/TopLevelSummary";
-import { getTopLevelSummary } from "../endpoints";
+import { getTopLevelHighlights, getTopLevelSummary } from "../endpoints";
 import { parseURLForIssueDetails } from "../utils/scraping";
 import { modelSummaryToSummaryWithHighlights } from "../utils";
 
@@ -16,9 +16,12 @@ const createTopLevelSummary = () => {
   const issueDetails = parseURLForIssueDetails();
 
   getTopLevelSummary(issueDetails.user, issueDetails.repository, issueDetails.issueNum).then((initSummariesRes) => {
-    console.log(initSummariesRes);
-    const initSummaries = modelSummaryToSummaryWithHighlights(initSummariesRes);
-    ReactDOM.render(<TopLevelSummary initSummaries={initSummaries}/>, topLevelSummary);
+    getTopLevelHighlights(issueDetails.user, issueDetails.repository, issueDetails.issueNum).then((initHighlightsRes) => {
+      console.log(initSummariesRes, initHighlightsRes);
+      const initSummaries = modelSummaryToSummaryWithHighlights(initSummariesRes, initHighlightsRes);
+      ReactDOM.render(<TopLevelSummary initSummaries={initSummaries}/>, topLevelSummary);
+    })
+    
   }).catch((error) => {
     console.error(error);
     ReactDOM.render(<TopLevelSummary initSummaries={[]}/>, topLevelSummary);
