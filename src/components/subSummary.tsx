@@ -51,6 +51,27 @@ class SubSummaryComponent extends React.Component<
     this.saveSummary == this.saveSummary.bind(this);
     // Get the comments and do the initialising
     this.getExistingUserSummaries();
+    // add listener to "Load More" items
+    const loadMore = document.getElementById("js-progressive-timeline-item-container");
+    const observer = new MutationObserver((mutationsList, observer) => {
+      for(const mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+            if (this.state.editing || this.state.addState) {
+              const commentTags = document.querySelectorAll(
+                "div.timeline-comment.unminimized-comment"
+              );
+
+              console.log("this", this.state.editing);
+          
+              commentTags.forEach((tag) => {
+                this.renderCommentPlus(tag, this.state.editing);
+              })
+            }
+            observer.disconnect();
+        }
+    }
+    });
+    observer.observe(loadMore, {childList: true});
   }
 
   getExistingUserSummaries = () => {
@@ -616,6 +637,8 @@ class SubSummaryComponent extends React.Component<
     // Generally the put method is distinguished at the backend
     // Just make do with the APIs provided for now
     // Bad design :/
+    console.log("subsummaries", this.state.subsummaries);
+    console.log("editing", this.state.editing);
     if (this.summaryIdMapping.get(this.state.editing)) {
       updateUserSummaries(issueDetails.user, issueDetails.repository, 
         issueDetails.issueNum, parseInt(this.summaryIdMapping.get(this.state.editing)), 
