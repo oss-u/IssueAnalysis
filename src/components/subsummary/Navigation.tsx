@@ -26,6 +26,23 @@ export default class NavigationComponent extends React.Component<
   }
 
   scrollToComment = () => {
+    if (this.props.navbarContent[this.state.currIndex]!== undefined 
+        && this.props.navbarContent[this.state.currIndex].tag === null) {
+      const loadMore = document.getElementById("js-progressive-timeline-item-container");
+      if (loadMore) {
+        loadMore.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+          inline: "nearest",
+        });
+        loadMore.classList.add("anim-pulse");
+      }
+    } else {
+      // stop pulsing
+      const loadMore = document.getElementById("js-progressive-timeline-item-container");
+      if (loadMore) 
+        loadMore.classList.remove("anim-pulse");
+    }
 
     if (this.props.navbarContent[this.state.currIndex] !== undefined) {
       const commentTags = document.querySelectorAll(
