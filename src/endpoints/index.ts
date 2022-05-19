@@ -240,10 +240,9 @@ export const updateUserSummaries = async (
   comment_summary_id: number,
   subsummaries: Subsummary
 ): Promise<UserSummaries> => {
-  console.log(subsummaries.summary);
   const extension = `/${gh_user}/${repo}/${issue_number}/comment-summary/${comment_summary_id}/update-summary`;
   const input = makeRequestURL(extension);
-  const init = makeRequestArguments("POST", { text: subsummaries.summary });
+  const init = makeRequestArguments("POST", { "text": subsummaries.summary });
   const res = await fetch(input, init);
   throwErrorsForResponse(res);
   return res.json();

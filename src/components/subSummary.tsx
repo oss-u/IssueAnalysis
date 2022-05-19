@@ -27,6 +27,7 @@ class SubSummaryComponent extends React.Component<
     panelState: number;
     addState: boolean;
     saveError: boolean;
+    editState: boolean;
   }
 > {
 
@@ -45,12 +46,134 @@ class SubSummaryComponent extends React.Component<
       arrow: TriangleRightIcon,
       panelState: 1,
       addState: false,
-      saveError: false
+      saveError: false,
+      editState: true
     };
     this.loadCommentComponents = this.loadCommentComponents.bind(this);
     this.saveSummary == this.saveSummary.bind(this);
     // Get the comments and do the initialising
     this.getExistingUserSummaries();
+    // add listener to "Load More" items
+    const loadMore = document.getElementById("js-progressive-timeline-item-container");
+    const observer = new MutationObserver((mutationsList, observer) => {
+      for(const mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+          loadMore.classList.remove("anim-pulse");
+          // add the tags to the existing subsummaries
+          const allCommentMap = new Map<string, IssueComment>();
+          document.querySelectorAll(
+            "div.timeline-comment.unminimized-comment"
+          ).forEach(ct => {
+            let parsed: IssueComment = commentParser(ct);
+            allCommentMap.set(parsed.id, parsed);
+          });
+          this.state.subsummaries.forEach(ss => {
+            ss.comments.forEach(c => {
+              if (c.tag === null) {
+                c.tag = allCommentMap.get(c.id)? allCommentMap.get(c.id).tag: null;
+              }
+              if (c.author.profile === null) {
+                c.author.profile = allCommentMap.get(c.id)? commentParser(allCommentMap.get(c.id).tag).author.profile: null;
+              }
+            })
+          })
+          // highlight the comments of the viewing subsummary if any subsummary is being viewed
+          if (this.state.viewing) {
+            let viewingSubsummary = this.state.subsummaries.find(o => o.id === this.state.viewing);
+            let allCommentsInViewingSS: string[] = viewingSubsummary.comments.map(c => {return c.id});
+
+            if (viewingSubsummary) {
+              const commentTags = document.querySelectorAll(
+                "div.timeline-comment.unminimized-comment"
+              );
+              commentTags.forEach((tag) => {
+                let tagId = commentParser(tag).id;
+                if (allCommentsInViewingSS.includes(tagId)) {
+                  const tagHeader = tag.querySelector(".timeline-comment-header");
+                  tagHeader.setAttribute("style", "background:#ABF2BC");
+                  tag.classList.add("color-border-success-emphasis");
+                }
+
+                if (
+                  tagId === viewingSubsummary.comments[0].id
+                ) {
+                  const commentHeader = tag.querySelector("div.timeline-comment-header");
+                  if (commentHeader !== null)
+                  {
+                    commentHeader
+                    .scrollIntoView({
+                      behavior: "smooth",
+                      block: "center",
+                      inline: "nearest",
+                    });
+                  } else {
+                    tag
+                    .closest("div.TimelineItem")
+                    .scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                      inline: "nearest",
+                    });
+                  }
+                }
+              });
+            }
+          }
+
+          // Add the plus icon if there is an edit going on
+            if (this.state.editing || this.state.addState) {
+              const commentTags = document.querySelectorAll(
+                "div.timeline-comment.unminimized-comment"
+              );
+
+              commentTags.forEach((tag) => {
+                const commentHeader = tag.querySelector(".timeline-comment-actions");
+                let ibElement = commentHeader.querySelector("#add-comment-to-summary");
+                if (!ibElement) {
+                  ibElement = document.createElement("div");
+                  ibElement.id = "add-comment-to-summary";
+                  ibElement.className = "comment-action-float";
+                  commentHeader.appendChild(ibElement);
+                }
+                let newComment = commentParser(tag);
+                let editingSubsummary;
+                let foundComment;
+                editingSubsummary = this.state.subsummaries.find(o => o.id === this.state.editing);
+                if (editingSubsummary)
+                  foundComment = editingSubsummary.comments.find(c => c.id === newComment.id);
+                if (foundComment !== undefined) {
+                  ReactDOM.render(<IconButton aria-label="add"
+                                  icon={XIcon} 
+                                  className="btn btn-sm btn-primary m-0 ml-md-2"
+                                  onClick={() => {
+                                    this.removeSpecificComment(tag, ibElement);
+                                  }} />, ibElement);
+                } else if (this.addedComments.includes(newComment.id)) {
+                  ReactDOM.render(<IconButton aria-label="add"
+                  icon={PlusIcon} 
+                  aria-disabled="true"
+                  className="btn btn-sm btn-primary m-0 ml-md-2"
+                  onClick={() => {
+                    this.addCommentsOnClick(tag, ibElement);
+                  }} />, ibElement);
+                } else {
+                  ReactDOM.render(<IconButton aria-label="add"
+                  icon={PlusIcon} 
+                  className="btn btn-sm btn-primary m-0 ml-md-2"
+                  onClick={() => {
+                    this.addCommentsOnClick(tag, ibElement);
+                  }} />, ibElement);
+                }
+              })
+            }
+            observer.disconnect();
+            this.setState({
+              editState: true
+            });
+        }
+    }
+    });
+    observer.observe(loadMore, {childList: true});
   }
 
   getExistingUserSummaries = () => {
@@ -73,11 +196,11 @@ class SubSummaryComponent extends React.Component<
               let auth = {
                 uname: c.author,
                 createdOn: createdOnDate,
-                profile: commentParser(allCommentMap.get(c.id).tag).author.profile,
+                profile: allCommentMap.get(c.id)? commentParser(allCommentMap.get(c.id).tag).author.profile: null,
               }
               let iComment: IssueComment = {
                 id: c.id,
-                tag: allCommentMap.get(c.id).tag,
+                tag: allCommentMap.get(c.id)? allCommentMap.get(c.id).tag: null,
                 author: auth,
                 text: c.text
               }
@@ -92,7 +215,7 @@ class SubSummaryComponent extends React.Component<
           existingSubsummaries.push(ess);
           existingSubsummaries.forEach(s => {
             this.summaryIdMapping.set(s.id, s.id);
-          })
+          });
           this.setState({
             subsummaries: existingSubsummaries
           });
@@ -440,11 +563,26 @@ class SubSummaryComponent extends React.Component<
     if (this.state.subsummaries.length) {
       const summaries = [...this.state.subsummaries];
       if (summaries.length > 0) {
+        let viewingS = summaries.find(o => o.id === this.state.viewing);
+        let flag = false;
+        if (viewingS) {
+          viewingS.comments.forEach(c => {
+            if (c.tag === null)
+              flag = true;
+          })
+        }
+        if (flag && this.state.editState) {
+          this.setState({
+            editState: false
+          });
+        }
+
         return (<div className="sub-scroll">
           <SummaryComponent
             summaries={summaries}
             viewExistingSummary={this.viewExistingSummary}
             viewing={this.state.viewing}
+            editState={this.state.editState}
             editButtonHandler={this.editExistingSummary}
             deleteButtonHandler={this.deleteExistingSummary}
           /></div>
@@ -620,6 +758,7 @@ class SubSummaryComponent extends React.Component<
       updateUserSummaries(issueDetails.user, issueDetails.repository, 
         issueDetails.issueNum, parseInt(this.summaryIdMapping.get(this.state.editing)), 
         subsummaries).then((response) => {
+          console.log("save summary response", response);
         // save the comments
         updateUserSummaryComments(issueDetails.user, issueDetails.repository, 
           issueDetails.issueNum, parseInt(this.summaryIdMapping.get(this.state.editing)), 
