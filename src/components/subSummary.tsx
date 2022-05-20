@@ -173,7 +173,8 @@ class SubSummaryComponent extends React.Component<
         }
     }
     });
-    observer.observe(loadMore, {childList: true});
+    if (loadMore)
+      observer.observe(loadMore, {childList: true});
   }
 
   getExistingUserSummaries = () => {
