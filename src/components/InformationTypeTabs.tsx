@@ -30,8 +30,14 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
   const [authors, setAuthors] = React.useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = React.useState<number>(0);
 
+  // Sort summaries: Edit: May 20, 2022 - Avinash
+  const sortedSummaries = summaries.sort((a, b) => {
+    return (b.commentHighlights.length - a.commentHighlights.length)
+  });
+
+
   useEffect(() => {
-    updateSelectedInfoType(summaries.length > currentIndex ? summaries[currentIndex].summary.info_type : null);
+    updateSelectedInfoType(sortedSummaries.length > currentIndex ? sortedSummaries[currentIndex].summary.info_type : null);
   }, [])
 
   useEffect(() => {
@@ -40,17 +46,17 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
     }
   }, [editing])
 
-  let curSummaryText = summaries[currentIndex].summary.text
+  let curSummaryText = sortedSummaries[currentIndex].summary.text
   const onSave = () => {
     // Create the new summary with updated text
     const summaryAuthor = getCurrentUserName();
-    const selectedSummary = summaries[currentIndex];
+    const selectedSummary = sortedSummaries[currentIndex];
     const newSelectedSummary = {...selectedSummary};
     newSelectedSummary.summary.text = curSummaryText;
     newSelectedSummary.summary.author = summaryAuthor;
 
-    // Update the local summaries
-    const newSummaries = [...summaries];
+    // Update the local sortedSummaries
+    const newSummaries = [...sortedSummaries];
     newSummaries[currentIndex] = newSelectedSummary
     updateSummaries(newSummaries);
 
@@ -71,7 +77,7 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
     setEditing(false);
   }
 
-  const summaryInfoTypes = summaries.map((summaryWHighlights) => summaryWHighlights.summary.info_type);
+  const summaryInfoTypes = sortedSummaries.map((summaryWHighlights) => summaryWHighlights.summary.info_type);
   
   function InformationTypeJSX(): JSX.Element {
     if (editing) {
@@ -81,24 +87,24 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
         className="form-control width-full p-4 mb-2"
         autoFocus={true} 
         onChange={(e) => {curSummaryText = e.target.value}}>
-          {summaries[currentIndex].summary.text}
+          {sortedSummaries[currentIndex].summary.text}
         </textarea>)
     } else
-    return (<div className="p-4" dangerouslySetInnerHTML={{__html: summaries[currentIndex].summary.text}} />);
+    return (<div className="p-4" dangerouslySetInnerHTML={{__html: sortedSummaries[currentIndex].summary.text}} />);
   }
   return (
     <div className="Box-body">
       <nav className="UnderlineNav" aria-label="infoTypeTabs">
         <div className="UnderlineNav-body" role="tablist">
           {
-            summaries.map((summary, index) => {
+            sortedSummaries.map((summary, index) => {
               return (<button className="UnderlineNav-item"
                 role="tab"
                 type="button"
-                aria-selected={(summary.summary.info_type===summaries[currentIndex].summary.info_type) ? true: false}
+                aria-selected={(summary.summary.info_type===sortedSummaries[currentIndex].summary.info_type) ? true: false}
                 onClick={() => {
                   setCurrentIndex(index);
-                  updateSelectedInfoType(summaries[index].summary.info_type);
+                  updateSelectedInfoType(sortedSummaries[index].summary.info_type);
                 }}>
                 {informationTypeMap.get(summary.summary.info_type).title}
               </button>);
