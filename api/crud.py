@@ -117,14 +117,25 @@ def update_comment_summary_summary(comment_summary_id: int, summary_text: str, d
   return db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).first()
 
 def update_comment_summary_comment(comment_summary_id: int, comments: List[schemas.Comment], db: Session) -> models.CommentSummary:
-  comments = {comment.id: comment for comment in comments}
+  comments = {comment.id: models.Comment(
+    id=comment.id,
+    author=comment.author,
+    commented_on=comment.commented_on,
+    text=comment.text
+  ) for comment in comments}
+  
+  # comments not required
+  db.query(models.CommentSummaryXComment)\
+    .filter(models.CommentSummaryXComment.commentSummaryId==comment_summary_id)\
+    .filter(models.CommentSummaryXComment.commentId.not_in(comments.keys()))\
+    .delete()
   
   # update comments
-  for comment in db.query(models.Comment).filter(models.Comment.in_(comment.id for comment in comments)).all():
-    db.merge(comments.pop(comment.id))
+  for _comment in db.query(models.Comment).filter(models.Comment.id.in_(comments.keys())).all():
+    db.merge(comments.pop(_comment.id))
   
-  db.add_all(comments.values())
-  db.commit()
+  db.bulk_save_objects(comments.values())
+  db.flush()
   
   # creating relation for new comments added
   new_comment_summary_relations = [models.CommentSummaryXComment(
@@ -132,6 +143,7 @@ def update_comment_summary_comment(comment_summary_id: int, comments: List[schem
     commentId=comment_id
   ) for comment_id in comments.keys()]
   db.bulk_save_objects(new_comment_summary_relations)
+  db.commit()
 
   return db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).first()
 
