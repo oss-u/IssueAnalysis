@@ -108,14 +108,15 @@ def delete_comment_summary(comment_summary_id, db: Session):
   db.commit()
 
 
-def update_comment_summary_summary(comment_summary_id: int, summary_text: str, db: Session):
+def update_comment_summary_summary(comment_summary_id: int, summary_text: str, db: Session) -> models.CommentSummary:
   db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).update({
     models.CommentSummary.summary: summary_text
   })
   db.commit()
 
+  return db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).first()
 
-def update_comment_summary_comment(comment_summary_id: int, comments: List[schemas.Comment], db: Session):
+def update_comment_summary_comment(comment_summary_id: int, comments: List[schemas.Comment], db: Session) -> models.CommentSummary:
   comments = {comment.id: comment for comment in comments}
   
   # update comments
@@ -131,6 +132,8 @@ def update_comment_summary_comment(comment_summary_id: int, comments: List[schem
     commentId=comment_id
   ) for comment_id in comments.keys()]
   db.bulk_save_objects(new_comment_summary_relations)
+
+  return db.query(models.CommentSummary).filter(models.CommentSummary.id == comment_summary_id).first()
 
 
 def generate_summary(text: str, sentencizer: Sentencizer) -> schemas.SummaryText:
