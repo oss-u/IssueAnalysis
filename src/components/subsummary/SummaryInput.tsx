@@ -193,7 +193,7 @@ export default class SummaryInputComponent extends React.Component<
       </textarea>)
     } else
     return (
-      <div className="Box">
+      <div className="Box preview-panel-height">
         <ReactMarkdown className="pt-2 pl-2" remarkPlugins={[remarkGfm]}>{this.state.content}</ReactMarkdown>
       </div>);
   }
