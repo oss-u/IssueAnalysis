@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
 
   "name": "SummIT",
   "author": "avinashbhat",
@@ -7,26 +7,27 @@
   "version": "0.0.1",
   "homepage_url": "https://github.com/avinashbhat/SummIT.git",
 
-  "browser_action": {
+  "action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html"
   },
 
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
 
   "content_scripts": [
     {
-      "matches": ["*://*.github.com/*/issues/*", "*://*.github.com/*/pull/*"],
+      "matches": ["*://*.github.com/*/issues/*"],
       "js": ["content_script.js"]
     }
   ],
 
-  "permissions": [
-    "*://*.github.com/*",
-    "https://ossu-issue-analysis-backend.herokuapp.com/api/*",
-    "storage",
+  "host_permissions": [
+    "*://*.github.com/*"
+  ],
+
+  "permissions": ["storage",
     "webRequest",
     "webNavigation",
     "activeTab"
