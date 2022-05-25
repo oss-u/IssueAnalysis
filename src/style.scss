@@ -83,6 +83,12 @@
   overflow-x: auto;
 }
 
+.preview-panel-height {
+  height: 120px;
+  overflow-y: auto;
+  resize: vertical;
+}
+
 .comment-action-float {
   float: right;
 }

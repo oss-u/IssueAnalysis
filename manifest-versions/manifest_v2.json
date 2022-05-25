@@ -18,8 +18,8 @@
   
     "content_scripts": [
       {
-        "matches": ["*://*.github.com/*/issues/*", "*://*.github.com/*/pull/*"],
-        "js": ["content_script.js"]
+        "matches": ["*://*.github.com/*/issues/*"],
+        "js": ["content_script.js", "popup.js"]
       }
     ],
   
