@@ -128,8 +128,8 @@ const initSummaryPanelComponent = () => {
   });
   
   observer.observe(document, {
-    childList: true,
-    subtree: true
+    childList: true, 
+    subtree: true 
   });
 };
 

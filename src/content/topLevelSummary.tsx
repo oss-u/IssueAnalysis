@@ -17,7 +17,6 @@ const createTopLevelSummary = () => {
 
   getTopLevelSummary(issueDetails.user, issueDetails.repository, issueDetails.issueNum).then((initSummariesRes) => {
     getTopLevelHighlights(issueDetails.user, issueDetails.repository, issueDetails.issueNum).then((initHighlightsRes) => {
-      console.log(initSummariesRes, initHighlightsRes);
       const initSummaries = modelSummaryToSummaryWithHighlights(initSummariesRes, initHighlightsRes);
       ReactDOM.render(<TopLevelSummary initSummaries={initSummaries}/>, topLevelSummary);
     })
@@ -40,8 +39,8 @@ const initTopLevelSummaryComponent = () => {
   });
   
   observer.observe(document, {
-    childList: true,
-    subtree: true
+    childList: true, 
+    subtree: true 
   });
 };
 
