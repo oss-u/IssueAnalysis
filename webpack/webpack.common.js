@@ -5,10 +5,10 @@ const srcDir = path.join(__dirname, "..", "src");
 
 module.exports = {
   entry: {
-    //   popup: path.join(srcDir, 'popup.tsx'),
+      popup: path.join(srcDir, 'popup.js'),
     //   options: path.join(srcDir, 'options.tsx'),
-    background: path.join(srcDir, "background.js"),
-    content_script: path.join(srcDir, "content_script.js"),
+      background: path.join(srcDir, "background.js"),
+      content_script: path.join(srcDir, "content_script.js"),
     // sub_summary: path.join(srcDir, "sub_summary.tsx"),
     // topLevelSummaryComponent: path.join(srcDir, "topLevelSummary.tsx"),
     // newCommentComponent: path.join(srcDir, "newComment.tsx"),
@@ -49,7 +49,7 @@ module.exports = {
       {
         test: /\.css$/,
         use: ["style-loader", "css-loader"],
-        exclude: /node_modules/,
+        // exclude: /node_modules/,
       },
       {
         test: /\.scss$/,
@@ -57,7 +57,6 @@ module.exports = {
           "style-loader",
           "css-loader",
           "sass-loader",
-          // "sass?includePaths[]=" + path.resolve(__dirname, "node_modules"),
         ],
       },
     ],

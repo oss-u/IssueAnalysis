@@ -7,8 +7,8 @@ import { parseURLForIssueDetails } from "../utils/scraping";
 import { modelSummaryToSummaryWithHighlights } from "../utils";
 
 const createTopLevelSummary = () => {
-  const discussion_header = document.querySelector(
-    "#partial-discussion-header"
+  const discussion_header = document.getElementById(
+    "partial-discussion-header"
   );
 
   let topLevelSummary = document.createElement("div");
@@ -31,7 +31,18 @@ const createTopLevelSummary = () => {
 };
 
 const initTopLevelSummaryComponent = () => {
-  createTopLevelSummary();
+  const observer = new MutationObserver(function (mutations, mutationInstance) {
+    const discussionBucket = document.getElementById('partial-discussion-header');
+    if (discussionBucket) {
+      createTopLevelSummary();
+      mutationInstance.disconnect();
+    }
+  });
+  
+  observer.observe(document, {
+    childList: true,
+    subtree: true
+  });
 };
 
 export default initTopLevelSummaryComponent;

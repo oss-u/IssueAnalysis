@@ -9,7 +9,7 @@ let summaryPanel: HTMLDivElement;
 function panelSetup(): HTMLDivElement {
   const summaryPanel = document.createElement("div");
   const discussionBucket = document.getElementById("discussion_bucket");
-  const layout = document.querySelector(".Layout");
+  const layout = discussionBucket.querySelector(".Layout");
   layout.classList.add("Layout--sidebar-narrow");
   layout.parentNode.removeChild(layout);
 
@@ -119,7 +119,18 @@ const createSummaryPanel = () => {
 };
 
 const initSummaryPanelComponent = () => {
-  createSummaryPanel();
+  const observer = new MutationObserver(function (mutations, mutationInstance) {
+    const discussionBucket = document.getElementById('discussion_bucket');
+    if (discussionBucket) {
+      createSummaryPanel();
+      mutationInstance.disconnect();
+    }
+  });
+  
+  observer.observe(document, {
+    childList: true,
+    subtree: true
+  });
 };
 
 export default initSummaryPanelComponent;
