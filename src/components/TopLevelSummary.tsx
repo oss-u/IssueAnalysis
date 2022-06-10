@@ -106,16 +106,29 @@ export default function TopLevelSummary(props: TopLevelSummaryProps): JSX.Elemen
         setSelectedHighlights(newFilteredHighlights);
     }, [selectedInfoType])
 
-    useEffect(() => {
+    const isId = (highlight, comment) => {
+        if (highlight.commentId.startsWith("http")) {
+            return highlight.commentId.split('/').at(-1).split('-').at(-1) === comment.id;
+        } else {
+            return highlight.commentId === comment.id;
+        }
+    }
+
+    useEffect(() => {   
         cleanupComments(comments, originalCommentHTML);
         if (selectedHighlights.length === 0){
             return;
         }
         const selectedSentence = selectedHighlights[selectedHighlightIndex];
         const selectedSentenceId = selectedSentence ? selectedSentence.id : "";
+        console.log(selectedHighlights);
         comments.forEach((comment) => {
-            const commentEl = comment.tag.querySelector("div.edit-comment-hide > task-lists > table > tbody > tr > td")
-            const commentHighlights = selectedHighlights.filter((highlight) => highlight.commentId === comment.id);
+            const commentEl = comment.tag.querySelector("div.edit-comment-hide > task-lists > table > tbody > tr > td");
+            // possible workaround to fix teh storing issue - Avinash - June 10th, 2022
+            const commentHighlights = selectedHighlights.filter((highlight) => {return isId(highlight, comment)});
+            if (commentHighlights) {
+                console.log("ch", commentHighlights, comment.id);
+            }
             highlightComment(commentEl, selectedSentenceId, commentHighlights);
         })
     }, [selectedHighlights, selectedHighlightIndex])
