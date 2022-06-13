@@ -26,7 +26,7 @@ const getAllHighlightsFromSummaries = (summaries: SummaryWithHighlights[], allCo
 
 const getOriginalCommentHTMLs = (allComments: IssueComment[]): string[] => {
     const commentHTMLs = allComments.map((comment) => comment.tag.querySelector("div.edit-comment-hide > task-lists > table > tbody > tr > td").innerHTML);
-    return commentHTMLs
+    return commentHTMLs;
 }
 
 const cleanupComments = (comments: IssueComment[], originalCommentHTML: string[]) => {
@@ -70,6 +70,26 @@ export default function TopLevelSummary(props: TopLevelSummaryProps): JSX.Elemen
     const [selectedHighlights, setSelectedHighlights] = React.useState<Highlight[]>([]);
     const [originalCommentHTML, setOriginalCommentHTML] = React.useState<string[]>(getOriginalCommentHTMLs(comments));
 
+    const createMutationObserver = (loadMore) => {
+        const observer = new MutationObserver((mutationsList, observer) => {
+            for(const mutation of mutationsList) {
+                if (mutation.type === 'childList') {
+                    setComments(Array.from(getAllCommentsOnIssue()).map((comment) => commentParser(comment)));
+                    observer.disconnect();
+                    const moreLoadMore = loadMore.querySelector("#js-progressive-timeline-item-container");
+                    if (moreLoadMore) {
+                        createMutationObserver(moreLoadMore);
+                    }
+                }
+            }
+        });
+        observer.observe(loadMore, {childList: true});
+    }
+
+    const loadMore = document.querySelector("#js-progressive-timeline-item-container");
+    createMutationObserver(loadMore);
+    
+
     const onEditHighlight = (newHighlight: Highlight) => {
         const newSummaries = summaries.map((summary) => modifySummaryFromHighlightEdit(summary, newHighlight));
         // TODO: Add DB call
@@ -78,16 +98,20 @@ export default function TopLevelSummary(props: TopLevelSummaryProps): JSX.Elemen
     }
 
     useEffect(() => {
+        setOriginalCommentHTML(getOriginalCommentHTMLs(comments));
         Array.from(getAllCommentsOnIssue()).forEach((comment) => {
             const commentDetails = commentParser(comment);
             const iconContainer = comment.querySelector("div.timeline-comment-header.clearfix.d-block.d-sm-flex > div.timeline-comment-actions.flex-shrink-0");
-            const newButton = document.createElement('button');
-            newButton.innerHTML = octicons.paintbrush.toSVG();
-            newButton.className = "btn-octicon";
-            newButton.onclick = (e) => {setSelectedComment(commentDetails)};
-            iconContainer.prepend(newButton);
-          })
-    }, [])
+            if (iconContainer.getElementsByClassName("btn-octicon").length <= 0) {
+                const newButton = document.createElement('button');
+                newButton.innerHTML = octicons.paintbrush.toSVG();
+                newButton.className = "btn-octicon";
+                newButton.onclick = (e) => {setSelectedComment(commentDetails)};
+                iconContainer.prepend(newButton);
+            }
+          });
+          console.log(comments);
+    }, [comments])
     
 
     useEffect(() => {
@@ -121,14 +145,10 @@ export default function TopLevelSummary(props: TopLevelSummaryProps): JSX.Elemen
         }
         const selectedSentence = selectedHighlights[selectedHighlightIndex];
         const selectedSentenceId = selectedSentence ? selectedSentence.id : "";
-        console.log(selectedHighlights);
         comments.forEach((comment) => {
             const commentEl = comment.tag.querySelector("div.edit-comment-hide > task-lists > table > tbody > tr > td");
-            // possible workaround to fix teh storing issue - Avinash - June 10th, 2022
+            // possible workaround to fix the ID issue - Avinash - June 10th, 2022
             const commentHighlights = selectedHighlights.filter((highlight) => {return isId(highlight, comment)});
-            if (commentHighlights) {
-                console.log("ch", commentHighlights, comment.id);
-            }
             highlightComment(commentEl, selectedSentenceId, commentHighlights);
         })
     }, [selectedHighlights, selectedHighlightIndex])

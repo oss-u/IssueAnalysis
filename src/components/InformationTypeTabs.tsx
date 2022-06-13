@@ -32,7 +32,10 @@ export default function InformationTypeTabs(props: IInformationTypeTabs): JSX.El
 
   // Sort summaries: Edit: May 20, 2022 - Avinash
   const sortedSummaries = summaries.sort((a, b) => {
-    return (b.commentHighlights.length - a.commentHighlights.length)
+    const aHas = typeof a.commentHighlights !== 'undefined';
+    const bHas = typeof b.commentHighlights !== 'undefined';
+    return (aHas && bHas)?(b.commentHighlights.length - a.commentHighlights.length): 0;
+    // return (b.commentHighlights.length - a.commentHighlights.length)
   });
 
 
