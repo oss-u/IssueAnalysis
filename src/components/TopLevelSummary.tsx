@@ -9,7 +9,7 @@ import octicons from "@primer/octicons"
 import { SummaryWithHighlights } from "./InformationTypeTabs";
 
 const getAllHighlightsFromSummaries = (summaries: SummaryWithHighlights[], allComments: IssueComment[]): Highlight[] => {
-    const allHighlights = summaries.flatMap((summary) => summary.commentHighlights);
+    const allHighlights = summaries.flatMap((summary) => summary.commentHighlights).filter(Boolean);
     const commentIdToClientHeight = {}
     allComments.forEach((comment) => {
         commentIdToClientHeight[comment.id] = comment.tag.getBoundingClientRect().top
