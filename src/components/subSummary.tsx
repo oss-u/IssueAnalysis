@@ -851,10 +851,10 @@ class SubSummaryComponent extends React.Component<
       <div id="sub-summary" className="Box" >
         <div className="Box-header px-2 py-3">
           <div className="clearfix">
-            <div className="float-left">
-              <h2 className="Box-title my-1 ml-2">User Summaries</h2>
+            <div className="float-left col-6">
+              <h2 className="Box-title my-1 ml-2">Conversation Summaries</h2>
             </div>
-            <div className="float-right">
+            <div className="float-right mt-2">
               <div className="float-right d-inline-flex">
               <button className="btn btn-sm btn-primary m-0" 
                       type="button"
