@@ -62,7 +62,7 @@ class SubSummaryComponent extends React.Component<
           // add the tags to the existing subsummaries
           const allCommentMap = new Map<string, IssueComment>();
           document.querySelectorAll(
-            "div.timeline-comment.unminimized-comment"
+            "div..js-comment-container"
           ).forEach(ct => {
             let parsed: IssueComment = commentParser(ct);
             allCommentMap.set(parsed.id, parsed);
@@ -84,7 +84,7 @@ class SubSummaryComponent extends React.Component<
 
             if (viewingSubsummary) {
               const commentTags = document.querySelectorAll(
-                "div.timeline-comment.unminimized-comment"
+                "div.TimelineItem.js-comment-container"
               );
               commentTags.forEach((tag) => {
                 let tagId = commentParser(tag).id;
@@ -108,7 +108,7 @@ class SubSummaryComponent extends React.Component<
                     });
                   } else {
                     tag
-                    .closest("div.TimelineItem")
+                    .closest("div.TimelineItem.js-comment-container")
                     .scrollIntoView({
                       behavior: "smooth",
                       block: "start",
@@ -123,7 +123,7 @@ class SubSummaryComponent extends React.Component<
           // Add the plus icon if there is an edit going on
             if (this.state.editing || this.state.addState) {
               const commentTags = document.querySelectorAll(
-                "div.timeline-comment.unminimized-comment"
+                "div.TimelineItem.js-comment-container"
               );
 
               commentTags.forEach((tag) => {
@@ -182,7 +182,7 @@ class SubSummaryComponent extends React.Component<
     const issueDetails = parseURLForIssueDetails();
     const allCommentMap = new Map<string, IssueComment>();
     document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
+      "div.TimelineItem.js-comment-container"
     ).forEach(ct => {
       let parsed: IssueComment = commentParser(ct);
       allCommentMap.set(parsed.id, parsed);
@@ -369,7 +369,7 @@ class SubSummaryComponent extends React.Component<
     this.removeBorderHighlights();
 
     const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
+      "div.TimelineItem.js-comment-container"
     );
 
     commentTags.forEach((tag) => {
@@ -417,7 +417,7 @@ class SubSummaryComponent extends React.Component<
       // addState: true
     });
     const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
+      "div.TimelineItem.js-comment-container"
     );
 
     commentTags.forEach((tag) => {
@@ -429,7 +429,7 @@ class SubSummaryComponent extends React.Component<
     let newS: Summary;
     let newSs: Array<Summary> = this.state.subsummaries;
     const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
+      "div.TimelineItem.js-comment-container"
     );
     commentTags.forEach((tag) => {
       let deletedComment = commentParser(tag);
@@ -502,7 +502,7 @@ class SubSummaryComponent extends React.Component<
     });
     
     const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
+      "div.TimelineItem.js-comment-container"
     );
     const deletedComments = this.state.subsummaries[deleteIndex].comments.map(c => c.id);
 
@@ -672,7 +672,7 @@ class SubSummaryComponent extends React.Component<
 
   removeBorderHighlights = () => {
     const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
+      "div.TimelineItem.js-comment-container"
     );
 
     commentTags.forEach((tag) => {
@@ -686,7 +686,7 @@ class SubSummaryComponent extends React.Component<
 
   removeCommentIcons = () => {
     const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
+      "div.TimelineItem.js-comment-container"
     );
     commentTags.forEach((tag) => {
       const commentHeader = tag.querySelector(".timeline-comment-actions");

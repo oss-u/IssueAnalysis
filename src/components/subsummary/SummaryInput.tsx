@@ -42,7 +42,7 @@ export default class SummaryInputComponent extends React.Component<
 
   scrollToComment = (commentId) => {
     const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
+      "div.TimelineItem.js-comment-container"
     );
     commentTags.forEach((tag) => {
       if (
@@ -59,7 +59,7 @@ export default class SummaryInputComponent extends React.Component<
           });
         } else {
           tag
-          .closest("div.TimelineItem")
+          .closest("div.TimelineItem.js-comment-container")
           .scrollIntoView({
             behavior: "smooth",
             block: "start",
