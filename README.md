@@ -1,11 +1,14 @@
-# IssueAnalysis
+# Installation Instructions
+There are three parts to this repo, the extension elements are located in the `extension` branch, the backend is located in the `backend` branch and the code and the model for the summarization engine is located in the `engine` branch. 
 
-### Conversation Disentanglement of GitHub issue thread data
+### To install the summarization engine
+Use the `engine` branch. We deployed the engine on GCP, and the code reflects this deployment. However, if you want to deploy the content locally, then use the function to deploy. 
 
-#### Evaluation of existing methods of issue disentanglement
- 1. [Online Pointer Network for Conversation Disentanglement](https://github.com/vode/onlinePtrNet_disentanglement)
- 2. [A Large-Scale Corpus for Conversation Disentanglement](https://github.com/jkkummerfeld/irc-disentanglement)
+### To run the backend
+Use the `backend` branch. 
 
-# Issue Analysis and Summarization
+### To install the extension
+Ensure that you have Node v18. run `npm run install` to install the necessary packages. Then run `npm run build` to build the extension. The extension should build in `dist` folder. Once the extension is built, go to the extension tab of Chrome or a Chromium based browse, and select the `load unpacked` option and select the `dist` folder. The extension should be loaded. Note that if the extension is loaded before the backend and the summarization engine, it is possible for the plugin to crash. 
 
-Workflow document: https://docs.google.com/document/d/1woU-rZdAkzUoJN3JxoqpijYXmlQweyoaSTOqeqH54HU
+### Troubleshooting
+Feel free to raise an issue, and tag (@avinashbhat) so that I receive a notification. Contributions are always welcome! 
