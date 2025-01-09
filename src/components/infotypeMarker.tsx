@@ -1,5 +1,5 @@
 import React from "react";
-import { Overlay, Box, Text, Button } from "@primer/components";
+import { Overlay, Box, Text, Button } from "@primer/react";
 
 // class InfotypeMarker extends React.Component<
 //     {},

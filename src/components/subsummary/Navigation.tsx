@@ -46,7 +46,7 @@ export default class NavigationComponent extends React.Component<
 
     if (this.props.navbarContent[this.state.currIndex] !== undefined) {
       const commentTags = document.querySelectorAll(
-        "div.timeline-comment.unminimized-comment"
+        "div.TimelineItem.js-comment-container"
       );
       commentTags.forEach((tag) => {
         if (
@@ -64,7 +64,7 @@ export default class NavigationComponent extends React.Component<
             });
           } else {
             tag
-            .closest("div.TimelineItem")
+            .closest("div.TimelineItem.js-comment-container")
             .scrollIntoView({
               behavior: "smooth",
               block: "start",
@@ -83,7 +83,7 @@ export default class NavigationComponent extends React.Component<
 
 
     const commentTags = document.querySelectorAll(
-      "div.timeline-comment.unminimized-comment"
+      "div.TimelineItem.js-comment-container"
     );
     
     commentTags.forEach((tag) => {

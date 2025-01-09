@@ -1,11 +1,11 @@
-export const API_BASE_ROUTE =
-  "https://ossu-issue-analysis-backend.herokuapp.com/api";
+// export const API_BASE_ROUTE =
+//   "https://ossu-issue-analysis-backend.herokuapp.com/api";
 
 export const makeRequestURL = (
   routeExtension: string,
   queryParams?: { [name: string]: string }
 ): RequestInfo => {
-  const baseURL: string = API_BASE_ROUTE + routeExtension;
+  const baseURL: string = process.env.API_BASE_ROUTE + routeExtension;
   const url = new URL(baseURL);
   if (queryParams) {
     Object.keys(queryParams).forEach((key) => {
