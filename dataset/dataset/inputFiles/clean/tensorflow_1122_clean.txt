@@ -1,0 +1,533 @@
+Many non experts are using the following code LINKLINK.
+
+It would be nice to have an official batch norm layer given its importance in training DNNs.
+I'm working on some parts of that.
+There is now a CODESCODES layer:
+ LINKLINK 
+I think some thing wrong with this layer. in training every thing is OK and loss decrease very good. but in testing I get zero accuracy.
+By the way in testing when I use is training False, I get zero acc.
+I know batch normalization behave different in train and test phase, as describe in LINKLINK. I think this implementation is unclear
+Same here, I have experienced some unexpected behavior with is training False. What is the correct way to change this flag? I am currently using a CODESCODES because it does not take CODESCODES by itself.
+ pawni You have to use a Python boolean for CODESCODES. It cannot be a CODESCODES.
+ ppwwyyxx well I am doing CODESCODES or is one just supposed to do a CODESCODES and change that outside of the graph when needed?
+Oh I thought you were doing CODESCODES, which is incorrect.
+Your current way might have problems as well. You'll need to double check that the two CODESCODES op you created share the same scope, otherwise they won't share the underlying mean variance statistics.
+
+To do this the CODESCODES argument might help, but I'm not sure because I use my own version of bn layer.
+I am using the same scope and CODESCODES. It seems to work sometimes but I am not too sure. It would be great if the layer could be added to the documentation with a short explanation how to best handle the change from training to test.
+ sguada FYI
+Currently batch norm requires a python boolean, but we are working in adding the option of passing a Tensor.
+ pawni If you don't want to worry about about updating moving mean and moving variance set updates collections None to make sure they are updated in place, otherwise you need to make sure the update ops added to tf. GraphKeys. UPDATE OPS are run during training.
+I think tensorflow need 2 hyper methods that change the model state, something like torch. LINKLINK. I think it is very straightforward. 
+is there a small script with a very simple NN that shows what is the proper way of using this official BN layer? I'd really appreciate it.
+sorry if this is a little repetitive, but it seems the API talks about BN in a different interface: LINKLINK 
+
+is that not the official way to use BN? I am confused on how to use it and the SO seems to be outdated and then there is a layer in a different link from the API, just how exactly does one do this? I am unclear if to go to SO or ask here.
+sorry for the spamming, but what is wrong with just using something like this:
+
+ CODELCODEL 
+
+then its simple to tell tensorflow which one to use with a feed dictionary as in:
+
+ CODELCODEL 
+
+since its unclear if the implementation will change, I wanted to give a suggestion note its easy to extend to convolutions and stuff I just didn't paste that code.
+ pawni ppwwyyxx did you guys decide if you had to use reuse to true to solve the scoping issue?
+ brando90 currently I am doing something like:
+
+ CODELCODEL 
+
+However, I think that 3265 would basically want to implement it like this. A reference could be the dropout implementation here: LINKLINK 
+
+I will try to get the first part in soon.
+ brando90 pawni he's code works good, but have to change like below
+
+ CODELCODEL 
+
+And when run in training or test time,
+
+ CODELCODEL 
+
+This code works, but like LINKLINK says it will be great if CODESCODES get CODESCODES variable as a CODESCODES.
+ nmhkahn pawni thanks for the code snippets. They were very useful in adding batch normalization to my convolution network. Training seems to work very well. Testing is not. In some versions of the code training accuracies are much higher than testing accuracies, which probably mean I am not sharing batch normalization parameters. In other versions of the code I get ValueError: Variable conv1 beta already exists, disallowed. Did you mean to set reuse True in VarScope? which seem to indicate that I am trying to relearn the parameter. when I was trying to reuse.
+
+Can someone provide an example of how to call the def BatchNorm function during training and testing so that variable sharing happen correctly.
+
+Thanks for any help.
+
+UPDATE July 25, 2016:
+
+ nmhkahn pawni thanks for your comments. After taking a closer look at the code in contrib I realized what my problem was. During training and testing we are either updating or reusing four variables beta, gamma, moving mean and moving variance. To make those unique I had to set a scope per layer. I did it like this:
+
+conv1 tf. nn. relu batch norm layer conv2d stride2 valid data, W conv1 + b conv1, train phase, scope conv1 
+
+where batch norm layer is similar to the examples from nmhkahn pawni, conv2d stride2 valid is just a def to define a convolutional layer, and W conv1 and b conv1 are variables holding the weights and biases. I could probably remove the bias term because we are using batch normalization.
+
+The net is working well now. I noticed after plotting accuracies in training and test mode that the testing accuracies start climbing after the training accuracies. In retrospect it make sense since we are collecting dataset statistics for testing. But it appeared as if I was doing something wrong during my initial tests. Thanks for your comments and making batch normalization available to the community.
+ nmhkahn how is it different from pawni's suggestion?
+ brando90 I had a small error in my version which was fixed by nmhkahn changing CODESCODES to CODESCODES 
+
+ diegoAtAlpine I found the same problems not sure why this is the case though. However, the ValueError should be resolved by the code snippet. Not sure what you want to see how to call it as nmhkahn's examples seems to do the job?
+ nmhkahn pawni when you do:
+
+ CODESCODES 
+
+doesn't that mean that your using CODESCODES as a placeholder? People have commented that they want CODESCODES to be a placer holder but thats what I had for my version of it:
+
+ CODELCODEL 
+
+is that not correct?
+I have already extended tf. contrib. layers. batch norm to allow passing a Tensor or a Placeholder for is training. It will be merged in TF contrib soon.
+
+Now available in
+ LINKLINK 
+is it just me or does adding this BN layer noticeably slows down training of a single epoch?
+ brando90 It slows down training for me as well but I think that this is expected as it needs to calculate some statistics. And your version looks good to me.
+BatchNorm is currently very slow because of all the statistics computed, but they are working on adding a cudnn batchnorm op as said LINKLINK.
+ nmhkahn quick question. When you wrote for testing:
+
+ CODESCODES 
+
+in theory, can bx and by be any data set? for example it can still be the training set even though we are not training? for example just to track the train error 
+ brando90 you're right.
+I am also confused regarding is training and reuse flags. I have created a program following the CIFAR example, where my code is structured as in CIFAR:
+ Inference
+ Loss
+ Train
+
+And I am running it in a multi gpu fashion for training.
+So I have one script for training similar to cifar10 multigpu. py and one for testing similar to cifar10 eval. py. 
+So 
+
+ CODELCODEL 
+
+The inference happens with the function MyModel. below is an example of the function, in reality i use more layers and neurons. 
+
+ CODELCODEL 
+
+I want to perform batch nomalization. So when I did:
+
+ CODELCODEL 
+
+I got the following error in the training phase:
+Variable bnormalization beta does not exist, disallowed. Did you mean to set reuse None in VarScope?
+
+
+
+Finally, in the testing phase, should I have is training False and reuse True?
+
+Any help is greatly appreciated. 
+Now tf. contrib. layers. batch norm accepts a Tensor, Variable or Placeholder as is training 
+
+ LINKLINK 
+Is it normal that Batch Normalization makes my experiments worse? I tried it on a 2 layered NN network based on the MNIST beginner tutorial and I consistently get worse results when BN is present: with BN one with scale and center trained and the other not accuracy is 0.8423, 0.8221 and without BN accuracy is 0.9477.
+
+My script is present here LINKLINK 
+
+anyone has experienced these problems or is BN just like this and I need to do something else to make it work?
+The latest version of LINKLINK now accepts a placeholder for is training so not need to do it yourself.
+
+But what it is important is that either you pass LINKLINK so the moving mean and moving variance are updated in place, otherwise you will need gather the update ops and make sure they are run.
+
+I would like to encourage you to use LINKLINK or LINKLINK to build your model.
+
+ CODELCODEL 
+ sguada I changed my old one where I manually tell it to train or not based on a tf. cond and now it seems the accuracy is up to 95's again. Why was it that I needed to change updates collections to be None? Do you mind explaining me why that gave such a big accuracy difference? Its seems like a non trivial change should it None be its default value then if it matters so much? Thanks! thumbs up 
+
+Also, I noticed you said it was a placeholder and I didn't need to do it manually. However, when I passed a placeholder for is training it said 
+
+ CODESCODES tf. Tensor CODESCODES bool CODESCODES if t is not None: CODESCODES if t: CODESCODES 
+
+and pointed to batch norm code. Maybe It could be nice to show how this placeholder thing should be used because it seems I don't understand how its suppose to be used. Thanks! thumbs up 
+ brando90 
+The relevant part of the code is here LINKLINK.
+
+As you will notice is there is a CODESCODES statement that forces the updates. I believe that for the code to be used right out of the box the default should be None. 
+
+
+Use of batch norm with tf. placeholder
+
+ CODELCODEL 
+The problem before was that you were not updating the CODESCODES and CODESCODES after each step, when updates collections is None it forces the updates as part of the computation.
+However when a network has many batch norm layers it is more efficient to collect all the update ops and run them together, so each layer don't need to wait for the update to finish.
+
+ CODELCODEL 
+Has there been any progress made with speeding up batch norm?
+I was trying to use batch norm with a 2 layered densely connected NN with the flatten MNIST and relu units data set for the task of auto encoding and I keep getting a NaN error. Anyone know why might this be? Is this ever possible with BN? seem fishy, but it couldn't be my learning set up, rate etc. but I'd assume it shouldn't because BN should be sort of rubust to this 
+ sguada I am not understanding the right way of using CODESCODES specially concerning the flag CODESCODES. If I understood correctly if the flag is CODESCODES the network is not efficient, so I should let CODESCODES and then I should collect all the batch norm updates and run them together.
+
+You collect the batch norms updates by doing: CODESCODES.
+
+I have many different models that use different batch norm layers, this wouldn't work right?
+
+ CODELCODEL 
+
+Could you explain this part with a bit more details? Thank you very much.
+Just put it in seperate collection keys:
+
+ CODELCODEL 
+
+ CODELCODEL 
+Nevertheless, the documentation seams to be out dated. It tells to do the following:
+
+ CODELCODEL 
+
+But:
+
+
+
+ EDIT: 
+
+The documentation should be updated to s. th. like this:
+
+ CODELCODEL 
+
+ EDIT 2: 
+
+After doing some runs on my network, I have to say that I can not see any performance difference between using updates collections None in contrast to manually fetching tf. GraphKeys. UPDATE OPS while graph construction. Even with heavy use of batch normalization in total, my tf. get collection tf. GraphKeys. UPDATE OPS returns 140 Update Ops, all of them are BN ops only 
+
+Edit: Hard to say, if my results are correct, but the whole network indeed seams to be 1.5x faster. As far as I know, BN statistics are calculated on CPU, not GPU so far.
+
+Can anyone of you see any performance benefits as well? Please share your results thumbs up 
+Coming back to the performance issue, does the current batch norm layer benfit at all from GPU usage? Anyone has experienced benefits from GPUs with this batch norm implementation?
+You can test for yourself:
+ LINKLINK 
+Sorry for the spam, but the documentation doesn't really explain how to use this BN with convolution maybe should be provided somewhere? In short how does it figure out that it should apply and learn the same parameters per feature rather than per activation?
+
+ Is there at least a code snippet to do this? 
+The slim batch norm wrapper normalizes over the last dimension of your input tensor. So if it's a 2D input tensor coming from a fully connected layer, it normalizes over batch, and thus performs per activation normalization. If it's a 4D tensor coming from a convolution, it will normalize over the three first dimensions batch, width, depth, and thus perform per feature normalization. sguada maybe forth being a bit more descriptive about this.
+ nmhkahn Regarding your code snippet, may I ask why is CODESCODES set to be CODESCODES when CODESCODES? Wouldn't that trigger the scaling parameter CODESCODES and the offset parameter CODESCODES be re initialized in every training step? I thought in the original paper, CODESCODES and CODESCODES are learned along with the original model parameters. To do that, shouldn't they be only initialized once and then reused in all training steps?
+
+ tf. cond is training, 
+ lambda: batch norm inputT, is training True, updates collections None, scope scope, 
+ lambda: batch norm inputT, is training False, updates collections None, scope scope, reuse True 
+I greatly appreciate the work that the TF team has put in here to make batch norm available and effective. From my searching, this thread is the best resource for how to use it. There are many different problems and ideas flying around here, and it's difficult to figure out the consensus advice for the simplest standard case of how to use the batch norm layer. I think there'd be a lot of value in expanding the documentation to specify the exact recommended usage.
+
+My best attempt to figure that out brought me to the following code:
+
+ CODELCODEL 
+
+Then I set is training ph to True for training and False for testing. This doesn't work for me. The model trains fine, but the test performance is terrible. In contrast, if I maintain is training ph True for test time, it works great. Thus, I'm guessing I still have a scope issue so that it's not finding the proper existing variables. 
+ davek44 I'm using the same code framework that you are using and I observed the same thing: when turns on CODESCODES during training phase and turns off CODESCODES for validation and or testing phase, the model trains well like the paper described model converges faster and I was able to use a larger learning rate, however the testing performance is terrible. If I turns on CODESCODES all the time, the model trains the same as without inserting batch norm layer. I haven't figured out what I did wrong, I'm planning to use TensorBoard to monitor the parameters. Would you please update if you diagnose the cause of this behavior? 
+tf. contrib. layers. batch norm can take tensor as is training, so not need to do anything especial.
+
+ CODELCODEL 
+I see the same poor test performance with that code.
+Without more details is impossible to know, my guesses are that you only train for a few iterations, so the moving mean and moving average haven't converge yet.
+
+You can change the batch size during test to see how the performance degrades as you make your batch smaller.
+
+
+I had exactly the same problem either with tf. slim batchnorm or with tf. cond and input is training as a placeholder.
+In the former case, when investigating the trained model, I found out that the moving mean and moving variance consist of all zeros. 
+In the latter case, the moving mean and variance look more reasonable with different values, but if I use is training False in test time, the performance is also really bad. Using is training True, it works better but I think it only uses the moving mean and variance inside the test batch.
+ nmduc davek44 I wrote some code to track the moving mean and moving variance computed in CODESCODES during training and testing. I found out that the value of CODESCODES matters a lot they use exponential decay to compute moving average and moving variance, with a CODESCODES setting closer to 1.0 for example CODESCODES, moving mean drops to a value closer to I did 2 test runs with the exact same code but different CODESCODES settings in the CODESCODES, and my validation test accuracies seemed more reasonable.
+
+The test run results with CODESCODES 
+ 
+
+The test run results with CODESCODES CODESCODES is the default setting in CODESCODES 
+ 
+
+ also seems like larger decay value would require the model to train longer to see validation accuracy change 
+Yup that fixed it. Thanks for sharing your analysis zhongyuk!
+
+I encourage the developers to consider making decay 0.9 the default. Even 0.99 doesn't work well for me. That's the default value in Torch's implementation, too; see the momentum parameter in LINKLINK 
+ zhongyuk Thanks a lot for sharing. It works for me now. 
+This seems important. sguada we should consider the right course of action here before 1. In the short term, can one of the interested parties send me a PR documenting the fact that CODESCODES might have to be significantly lowered when experiencing poor eval performance? I am pretty sure I've never had to tweak that parameter, but it might be a side effect of the distributed setting.
+We could change the default to 0.9 or document better its impact in smaller datasets or few updates.
+ vincentvanhoucke in our distributed setting we usually do millions of updates so it is ok, however in other cases like the one here which does only a few hundreds of updates it makes a big difference:
+For example using decay 0.999 has a 0.36 bias after 1000 updates, but that bias goes down to 0.000045 after 10000 updates and to 0.0 after 50000 updates.
+Just wanted to note that I also have the problem of poor test performance, specifically using small batch sizes anything smaller than 10 instead of the 200 I used for training diminishes test accuracy. I've used a tf. placeholder to switch between testing training mode.
+
+It's great that this batch normalization layer works for better training convergence, but if you can't apply the model in production, there isn't much of a point in using it. Can anyone confirm good test performance with small or single data samples using this batch norm layer? I can confirm that test performance is good when using is training False with small batches and even with batch size 1, since it is not using statistic from the batch, but the statistic learnt during training. Just need to make sure that the statistics have converged with default decay 0.999 that implies at least 50k updates. To follow up with TF developer's confirmation, I track the convergence of the statistics with two different CODESCODES settings and training batch size 1. With CODESCODES, the statistics converge bias 0.001 after 550 600 steps of learning updates. With CODESCODES, the statistics converge biase 0.001 within within 100 steps of learning updates. sguada thanks, does that also mean the output is actually independent of the batch size? because I'm noticing very slight changes with big impact on my accuracy maybe my definition of performance is just more easily affected by this slight change. To be precise, all values in my 128 dimensional output tensor increase such that the total vector length scales almost linearly with the batch size. Per value this isn't that much of a difference, but has a big impact when computing vector distances in latent spaces. 
+
+ zhongyuk thanks, I've run about 5k updates with CODESCODES, so it should've converged and testing performance using large batch sizes is fine. But even if it didn't, would it result in a difference between training a testing? I'd be seeing bad performance during training and testing if it hadn't converged, right?
+
+I will investigate some more and see if I can reproduce the issue on another task. Thanks for the quick feed back so far! dominikandreas If your poor testing performance is caused by statistics not converging, you'd see reasonably good training performance but bad testing performance. Because during training, the batch normalization is done using the training batch statistics only. However, during testing time, it's using the moving average statistics of all the training batches to normalize the input tensor.I found and error in my code, batch normalization is working fine now: thanks for your supportHi zhongyuk, how did you keep track of the moving mean and variance? 
+Thanks! rogertrullo Generally I setup TensorBoard to track moving mean and variance. Other than that, I also tried fetching statistics through CODESCODES within scope during training and reference to monitor the bias.hi,
+I have same problem as other described that I have good training results but validation testing is bad after using batch norm.
+I use the function like this:
+conv normed1 tf. contrib. layers. batch norm conv1 + block1 layer3 1 biases, updates collections None, scale True, decay batch norm decay, center True, is training is training 
+decay value is 0.9
+do I need to set the reuse flag?
+I will glad for any help.I have been using batch norm as described in this thread with a tf. bool for training; and ops. GraphKeys. UPDATE OPS and everything works.
+
+When saving and restoring using:
+
+it works,
+
+but when saving using:
+
+so that I can save storage space by not saving the gradients etc 
+on restore there is an error:
+ uninitialized value unpool4 convc bn moving mean 
+
+Obviously this is because moving mean and I suppose moving variance hasn't been saved for any of the layers. As I have lots of them nested in many layers what is the most efficient way of adding them to the list of values to be saved? Also, given that these are trainable variables, why are they not addded to the trainable variables collection?
+ mshunshin moving mean and variance are not trainable variables: there are no gradients coming to them, they are just accumulating statistics across minibatches of examples. 
+for me things started to work when I used this wrapper:
+ def batch norm wrapper x, phase, decay, scope, reuse:
+ with tf. variable scope scope, reuse reuse:
+ normed tf. contrib. layers. batch norm x, center True, scale True, decay decay, is training phase, scope 'bn', updates collections None, reuse reuse 
+ return normed 
+the whole using of scopes and reuse is not clear in this thread for my opinion.
+ 
+
+
+saver tf. train. Saver 
+
+and because the session manager init doesn't initialise them properly:
+
+sess. run tf. variables initializer 
+
+ Using tf. train. AdamOptimizer  sguada Sorry for trouble you, but is it possible to make an example on how to use slim. batch norm when combined with slim. conv2d slim. fully connect in readme. md? 
+
+I'm using slim. batch norm, but get good training performance and poor validation test performance. I think it must be due to improper use of CODESCODES or CODESCODES or some other parameters. Though there are many issues on batch normalization, it's hard to find a complete code snippet on how to use it, esp. for how to pass different parameters in different phase.
+
+Say, in my LINKLINK code, I controlled dependencies using CODESCODES and set up CODESCODES as a placeholder. But validation performance still is poor if I feed is training: False.
+
+I would greatly appreciate it if there's an official and complete which means training, validating, testing are all included batch normalization example.
+
+Thank you in advance!hi,
+you need to set different scope for every time you use batch norm and give it the reuse input according to the training test phase TRUE when test FALSE when train that works for me. ishaybee Thanks for you help. I've found my problem It's due to the cold start of moving mean moving variance. 
+
+Since I haven't trained enough steps, the estimated moving mean variance is not that stable. The result turns out to be: the model performs pretty well on training mini batches you know at the beginning loss goes down quickly, but validation performance is erratic because the estimated population mean variance are not stable enough.
+
+When I trained the model longer, validation accuracy becomes prettier, too.
+
+ Another important thing is, be sure to use CODESCODES to create train op. Do not use tf native CODESCODES.
+
+So the answer is, I'm using batch normalization correctly, but I haven't fully understood its dynamics during training.
+
+ 
+What's more: LINKLINK on how to use BN layer on MNIST dataset. Use a smaller decay value will accelerate the warm up phase. The default decay is 0.999, for small datasets such like MNIST, you can choose 0.99 or 0.95, and it warms up in a short time. soloice, notice, how in about LINKLINK the following parameter is passed inside to the layer for calling batch norm:
+
+
+
+Without CODESCODES set to None so mean updates are done in place inside BatchNorm, I won't expect surrounding layer for example conv2d to somehow execute tf. GraphKeys. UPDATE OPS needed for BatchNorm layer to update running mean and therefore be able to do run on test data later.
+
+Or you may try to run UPDATE OPS yourself explicitly as one LINKLINK 
+ CODELCODEL 
+
+Update I found that I quoted exactly your code and you do use UPDATE OPS. 
+
+As for cold start, as you see above in discussiion, decreasing BatchNorm running average decay input param from default 0.999 to something like 0.95 can speed up start up pavelbulanov It's very kind of you to help me with this! I'll try a smaller value of CODESCODES to see how this helps.
+
+ 
+Update: use a small decay say, 0.9 or 0.95 does help a lot. Validation loss goes down very quickly when I set CODESCODES to 0. However, the drawback of small decay is that its effective range is small: The result is dominated by a few recent samples thus it's not a good estimation of population mean variance. One needs to balance between quick start small decay and a longer effective range large decay.Hi,
+I tried to implement a batch normalisation layer with the help of the suggestions in this issue, but I still have a 70 error in validation and testing. I do have a lower decay for non training calls. 
+
+Here is my code:
+ CODELCODEL 
+
+Thank you in advance. Alexivia It seems that you are using two different batch normalization layers? You should use only one BN layer of course, with different CODESCODES parameter.Thank you for your advice soloice.
+I tried now with just different CODESCODES and CODESCODES parameters:
+ CODELCODEL 
+still don't get good validation and testing results. 70. hi,
+please see my wrapper above.
+you should use with tf. variable scope scope, reuse reuse: I think.Hi ishaybee,
+I followed your advice, now my code is:
+ CODELCODEL 
+and I feed CODESCODES and CODESCODES through the feed dict, but now I get the error CODESCODES try to feed reuse as a python variable input of the model and as placeholder.I tried that, and now it stopped complaining about the value. but I think that the placeholder value is not being used, because I see no change if I force values to CODESCODES function, and in TensorBoard it's not connected to the graph. see attached image 
+ LINKLINK 
+My code is like this now:
+ Batch Normalisation wrapper 
+ CODELCODEL 
+ Model definition 
+ CODELCODEL 
+ Training 
+ CODELCODEL 
+ Validation 
+ CODELCODEL Although is traning can a placeholder reuse has to be a bool, and it cannot be a tensor nor a placeholder.
+
+I'm not sure what are you trying to do, in most cases using static values solve the problem. For example this pattern works well:
+
+ CODELCODEL 
+Unless you need to change the behavior of the model dynamically, you don't need to use a placeholder for is training. The trick is to build the model twice, but sharing the variables the second time. 
+
+Thank you sguada! After applying your suggestions, I finally made it to work!It would be helpful if the API 1.0 documentation reflected that you need to manually add update ops to the graph. Being a newer tf user, I found that my test error was crazy and then had to spend a fair amount of time debugging my graph until I realized that batch normalization was the problem. Then I had to spend more time figuring out that by default the variables tracking the moments don't update unless you use a contrib function for optimization. Since in 1.0 there is no option to set the update collections to None, there is no indicator from the documentation that this might even be an issue. Additionally, it seems like it might make sense to have a parameter to add the control flow dependencies to the op that runs in the training case. danrsc Exactly. The usage of BN layer is quite confusing. I suggested to add documents or a complete official tutorial on batch normalization, but unfortunately got no response Completely agree. I think BN usage is very tricky and the documentation is currently beyond inadequate. This ought to be fixed for such a commonly used layer.Reopening for visibility of the documentation issues. sguada assigning to you for triaging. Might be worth getting a tech writer on the case.Just got confused by this problem last week and wasted 3 days of training. Hope the docs can be fixed soon, and an official batch normalization example can be added in the API docs. sguada I have noticed that you said tf. contrib. layers. batch norm can take tensor as is training, so not need to do anything especial.
+Howerver, the comment in the code is
+ If CODESCODES doesn't have a constant value, because it is a CODESCODES,
+ a CODESCODES or CODESCODES then is training value will be None and
+ CODESCODES will be true.
+Does it mean that nees moments will be true even in test phase if i set is training as a placeholder?
+As far as I know, the moments is not needed while testing.So if CODESCODES is a CODESCODES or a CODESCODES, it means it can change, so the graph to compute the moments is needed, so the layer builds it.
+Then in running time depending on the value being CODESCODES or CODESCODES would use the batch CODESCODES or the CODESCODES and CODESCODES.
+
+So during testing you would set the value to CODESCODES and the CODESCODES won't be used. sguada brando90 
+ CODELCODEL 
+
+
+I build batchnorm like this, however, the moving mean and moving variable are updated during test, I can not find the reason.I tried creating two models like sguada said, however, my model where is training False just crashes.
+
+ CODELCODEL 
+
+I feel like maybe there should be a concrete example of how to do a batch norm with a fully connected net, as well as with CNNs. Sucks that I've trained models for days expecting things to work before seeing that everyone trying to use this feature going crazy.
+
+Interestingly enough, it takes a zillion years to get the model restored after training with batch norm as well. Will most likely wait until TF 2.0 to try something like this again. MisayaZ you don't need to create two batch norm layers you can just pass train phase assuming it is a tf. bool to batch norm. Also you are passing UPDATE OPS COLLECTION variables collections, which changes which collections are the variables added to.
+
+The following should work:
+
+ CODELCODEL 
+ OktayGardener not sure what model are you trying to create, it seems that the variables are not saved in your checkpoint.
+
+batch norm also works with fully connected layers.
+
+ CODELCODEL 
+
+
+ sguada Thanks, I build a network with bathnorm which is implemented as you mentioned above
+ CODELCODEL 
+the speed is slow, I use tensorflow benchmark to get the computation time as below:
+I tensorflow core util stat summarizer. cc:392 Top by Computation Time 
+I tensorflow core util stat summarizer. cc:392 	 	 	 	 	 	 	 	 
+I tensorflow core util stat summarizer. cc:392 	 Conv2D	 106.164	 51.354	 51.004	 23.145 	 23.145 	 692.224	conv8 Conv2D
+I tensorflow core util stat summarizer. cc:392 	 Conv2D	 85.187	 19.115	 19.283	 8.750 	 31.896 	 692.224	conv7 Conv2D
+I tensorflow core util stat summarizer. cc:392 	 SquaredDifference	 11.967	 15.105	 14.331	 6.503 	 38.399 	 11075.584	conv1 batch norm moments sufficient statistics SquaredDifference
+I tensorflow core util stat summarizer. cc:392 	 Mul	 11.970	 14.162	 13.495	 6.124 	 44.523 	 11075.584	conv1 batch norm batchnorm mul 1
+I tensorflow core util stat summarizer. cc:392 	 Conv2D	 3.948	 8.170	 7.986	 3.624 	 48.146 	 11075.584	conv1 Conv2D
+I tensorflow core util stat summarizer. cc:392 	 Sub	 11.960	 10.176	 7.943	 3.604 	 51.751 	 11075.584	conv1 batch norm moments sufficient statistics Sub
+I tensorflow core util stat summarizer. cc:392 	 SquaredDifference	 45.570	 5.908	 7.177	 3.257 	 55.007 	 5537.792	conv2 batch norm moments sufficient statistics SquaredDifference
+I tensorflow core util stat summarizer. cc:392 	 Mul	 45.574	 7.755	 6.902	 3.132 	 58.140 	 5537.792	conv2 batch norm batchnorm mul 1
+I tensorflow core util stat summarizer. cc:392 	 Conv2D	 40.692	 5.408	 4.845	 2.199 	 60.338 	 5537.792	conv2 Conv2D
+I tensorflow core util stat summarizer. cc:392 	 Sub	 45.563	 6.067	 4.784	 2.171 	 62.509 	 5537.792	con
+
+I don't understand why some op in moment are executed during test and it cost a lot of time, such as conv1 batch norm moments sufficient statistics SquaredDifference.
+
+The moment is not needed in test, why are some ops under moment executed?
+Hi,
+
+Using the above CODESCODES layer in CODESCODES, I'm getting CODESCODES as an output for validation graph while the train graph runs seamlessly. Is there anything that I might be missing?
+
+I'm using:
+ CODELCODEL 
+Thanks As a follow up, I'm reusing 16 layers of batch norm.
+However, I found that reusing 4 layers works.I've just been noticing that if I kill the tensorflow process and restart it, my error gets worse for a few epochs for example worse than it should be at the last checkpoint. I also observe that if I remove batch norm, this problem goes away. After looking at the code for a while, I think this may be because the values of the variables are not restored from the shadow variables as they would be if the ExponentialMovingAverages class were used to manage the moving averages. This also means that if I use a separate process to evaluate, I'm getting whatever the last value of the variable was and not the moving average. Am I interpreting this correctly and is this the intended behavior? It seems like you want the shadow variable values to be restored. I caught the problem, the moving variance in my case goes negative after some iterations.
+
+The output of the tensor: CODESCODES present in CODESCODES is 
+ CODELCODEL 
+As you can see, there's negative variance for one of the dimension. How is this even possible?
+P. S. The batch norm layer is used just after the last fully connected layer of the network and before softmax. raghavgoyal14 are you using it with fused True? Had a similar problem and it went away when I used the fused version abred: Yes, I used CODESCODES, same problem. sguada Hi, sguada, I have a problem.
+The definition of contrib. layers. batch norm in tensorflow:
+def batch norm inputs,
+decay 0.999,
+center True,
+scale False,
+epsilon 0.001,
+activation fn None,
+param initializers None,
+param regularizers None,
+updates collections ops. GraphKeys. UPDATE OPS,
+is training True,
+reuse None,
+variables collections None,
+outputs collections None,
+trainable True,
+batch weights None,
+fused False,
+data format DATA FORMAT NHWC,
+zero debias moving mean False,
+scope None,
+renorm False,
+renorm clipping None,
+renorm decay 0.99:
+scale: If True, multiply by gamma. If False, gamma is
+not used. When the next layer is linear also for example nn. relu, this can be
+disabled since the scaling can be done by the next layer.
+
+If I use tf. contrib. layers. batch norm input, scale False, the scale False means whether the gamma is zero in y gamma x+beta while training. Thank you very much.When scale False, gamma is a constant 1. ppwwyyxx Thank you very much for your help. I use tf. contrib. layers. batch norm input, scale False in Tensorflow, and now I am convering the batchnorm of Tensorflow to Caffe. How to set the param of BatchNormLayer and ScaleLayer in Caffe? 
+Thank you very much. MisayaZ I was having the same behavior using Batchnorm with a placeholder for is training. I see in the trace that the moments are being calculated even at test time, so I decided to go into the source code and I found this:
+
+ CODELCODEL 
+It looks like when is training is a variable or a placeholder the moments get defined and also get calculates them at runtime, even when you set the placeholder to False. I would have preferred to leave it as a placeholder because this way I can do periodic testing during training without redefining the graph, but I decided to use it as a constant and define different behaviors for train vs test, and now the moments are not calculated at test time.  tano297 Thank you. I now also use 'is training' as a constant. Leave it as a placeholder and do periodic testing will change the value of moving mean and moving variance. And the inference time will be longer for it will calculate the mean and variance of the inputs and update the moving mean and moving variance. The right way to do testing is to define different behaviors for train and test as you mentioned. tano297 MisayaZ 
+but doesn't the smart cond in
+ CODELCODEL 
+make sure that the updates are only calculated and applied if is training evaluates to True?
+
+ CODELCODEL 
+
+
+
+ CODELCODEL 
+The smart condition in that case as far as I am concerned decides wether or not to update the moving averages, but the moments still get calculated. tano297 you right about that, I was in the wrong place, but still:
+line 755 770 calculate the moments, but the moments are only used in force updates which is only executed if is training evaluates to True, aren't they?
+And thus 
+ CODELCODEL 
+should be equivalent to line 804:
+ CODELCODEL 
+if is training evalutes to False and thus the moments part of the graph is never used and thus shouldn't be executed
+
+but I haven't tested, so I might be wrong about that thumbs up  tano297 abred you right. The moving mean and moving variance are changed when I used batchnorm like this:
+
+ def batch norm layer self, x, train phase, scope bn:
+ bn train batch norm x, decay 0. center False, scale True,
+ updates collections None,
+ is training True,
+ reuse None,
+ variables collections,
+ trainable True,
+ scope scope bn 
+ bn inference batch norm x, decay 0. center False, scale True,
+ updates collections None,
+ is training False,
+ reuse True,
+ variables collections,
+ trainable True,
+ scope scope bn 
+ z tf. cond train phase, lambda: bn train, lambda: bn inference 
+ return z
+
+If you use like following:
+
+ z batch norm x, decay 0. center False, scale True, updates collections None, 
+ is training train phase, scope scope bn 
+
+
+The moving mean and moving variance will not be changed during test, but the speed is very slow.Hi zhongyuk,
+
+I also met the problem that I could get good results when using is training True for both training and inference, but get bad results when setting is training False during inference worse than the case using is training True. According to your analysis, If I understand correctly, by simply setting decay 0.9 in BN can solve this problem. Am I right? 
+
+BTW, do I need to retrain the model using decay 0.9 from scratch? Or resuming training from the checkpoint for example, trained when decay 0.999 is also ok?
+
+Thanks! nmduc davek44 
+
+Hi, I also met the problem that I could get good results when using is training True for both training and inference, but get bad results when setting is training False during inference worse than the case using is training True. Have you guys solved this problem? Thanks! tyshiwo I just set decay 0.9 for batch norm and it works well so far.I was confused after all these comments on how to properly use Batch Norm: So here is what I have. Please correct me if I'm wrong.
+
+ batch norm tf. contrib. layers. batch norm conv,
+ center True,
+ scale True,
+ reuse phase train py,
+ scope 'bn',
+ is training is training 
+
+where phase train py is a python boolean variable and is training is a placeholder taking a boolean variable. I guess using tf. cond is wrong, otherwise would did the function came with a boolean parameters. In other words, if CODESCODES is true, then we should a CODESCODES function for training and another one for testing. So, developers allow us to change these boolean variables in order to change the behavior of the function. So What I am doing is: setting CODESCODES to False while training while CODESCODES to True. And the opposite while Testing. Since we can only change tensors or placeholders with CODESCODES, I changed CODESCODES intentionally before running the graph. Ex: 
+
+ if condition:
+ phase train py False
+ sess. run to run list, feed dict phase train: True 
+ else:
+ phase train py True
+ sess. run to run list, feed dict phase train: False +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ MAYBE YOU NEED READ THIS
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+It seems there are still problems with TF v1. I'm sure I note the following details, but still failed to use the official CODESCODES, with CODESCODES during evaluation but when I keep CODESCODES unchanged during evaluation, it is ok: CODESCODES, exponential moving average is actually alpha filter in signal processing, the time to converge is approximately 1 1 decay steps of train. For decay 0.999, you need 1 0.001 1000 steps to converge. So set the appropriate decay for your training step numbers. using placeholder to switch between train and test evaluation use CODESCODES if you don't want to add control dependencies of update op to train op set CODESCODES to appropriate value.
+
+It seems the only way to use the official batch norm is to build two graphs, one for train and one for evaluation, with CODESCODES and CODESCODES, respectively. In this way, you don't need to switch dynamically between train and evaluation. But this is a stupid way since you need to build more than one graph.
+
+Finally, I write a moving average by myself, and I find it worked! It's as follows based on code on the web and modified by myself 
+
+ CODELCODEL 
+ 
+Just use the CODESCODES function during building a graph, the is training parameter is a CODESCODES . Then you are free to switch the placeholder to True during train and False during evaluation, with CODESCODES.
+
+Hope it helps the community. When you use slim. batch norm, be sure to use slim. learning. create train op instead of tf. train. GradientDecentOptimizer lr. minimize loss or other optimizer. Try it to see if it works!  vincentvanhoucke You wrote in another post in this thread: 
+
+
+
+Do you mean with slim batch norm wrapper the function CODESCODES? If so, I would suggest to add this information to the documentation text of this function. Thus it gets very clear, that this function performs the batch normalization exactly like described in the paper. for both FC Layer and Conv2D Layer. At the moment there is only the text Can be used as a normalizer function for conv2d and fully connected. where it is not clear if this is related to the normalization axis topic. ZahlGraf I'll happily consider a PR that clarifies the documentation. We've been at this for so long that I no longer have a good sense of what's obvious or not, and would welcome clarifying documentation for someone with a fresh perspective on the topic. vincentvanhoucke 
+I created a PR with a more detailed description, mainly based on your statement in this thread:
+ LINKLINK Please remove the assignee, as this issue is inviting external contributions. Otherwise, remove the CODESCODES label. Thank you.Please remove the assignee, as this issue is inviting external contributions. Otherwise, remove the CODESCODES label. Thank you.Closing this bug since the original request to add a batch norm layer has been addressed. Some of the more recent issues with documentation seem to have their own PRs
+If you see any issue with batch norm, please either ask a question on StackOverflow or open another issue.

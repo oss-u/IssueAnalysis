@@ -1,0 +1,572 @@
+I have been searching hours on this problem and can consistently replicate it:
+
+ CODELCODEL 
+
+This snippet crashes because of scoring metrics. make scorer metrics. scorer. f1 score, average macro where metrics refers to sklearn. metrics module. If I cancel out the scoring. line, the parallel execution works. If I want to use the f1 score as evaluation method, I have to cancel out the parallel execution by setting n jobs 
+
+Is there a way I can define another score method without losing the parallel execution possibility?
+
+Thanks
+This is surprising, so we'll have to work out what the problem is and make sure it works!
+
+Can you please provide a little more detail:
+ What do you mean by crashes?
+ What version of scikit learn is this? If it's 0.14, does it still happen in the current development version?
+ Multiprocessing has platform specific issues. What platform are you on? for example CODESCODES 
+ Have you tried it on different datasets?
+
+FWIW, my machine has no problem fitting iris with this snippet on the development version of sklearn.
+Thank you for your fast reply.
+
+With crashing I actually mean freezing. It doesn't continue anymore and there is also no more activity to be monitored in the python process of task manager of windows. The processes are still there and consume a constant amount of RAM but require no processing time. 
+
+This is scikit learn version 0.14, last updated and run using Enthought Canopy.
+
+I am on platform Windows 7 6.7601 SP1.
+
+
+
+ Code:
+
+ CODELCODEL 
+
+Once again, this code works on my computer only when I change n jobs to 1 or when I don't define a scoring argument.
+Generally multiprocessing in Windows encounters a lot of problems. But I
+don't know why this should be correlated with a custom metric. There's
+nothing about the average macro option in 0.14 that suggests it should be
+more likely to hang than the default average weighted. At the development
+head, this completes in 11s on my macbook, and in 7s at version 0.14
+ that's something to look into! 
+
+Are you able to try this out in the current development version, to see if
+it's still an issue?
+
+On 25 February 2014 20:40, adverley wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ As a side point, ogrisel, I note there seems to be a lot more joblib
+parallelisation overhead in master on OS X at least that wasn't there
+in 0.14. 
+
+On 25 February 2014 21:52, Joel Nothman d. edu. auwrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This has nothing to do with custom scorers. This is a LINKLINK of Python multiprocessing on Windows: you have to run everything that uses CODESCODES in an CODESCODES block or you'll get freezes crashes. Maybe we should document this somewhere prominently, for example in the README?
+
+
+
+Well, the good news is that nowadays joblib gives a meaningful error
+message on such crash, rather than a fork bomb.
+ GaelVaroquaux does current scikit learn give that error message? If so, the issue can be considered fixed, IMHO.
+
+
+
+It should do. The only way to be sure is to check. I am on the move right
+now, and I cannot boot up a Windows VM to do that.
+I'm not going to install a C compiler on Windows just for this. Sorry, but I really don't do Windows thumbs up 
+
+
+
+I have a Windows VM. I can check. It's just a question of finding a
+little be of time to do it.
+ larsmans, you are completely right. The custom scorer object was a mistake of me, the problem lies indeed in the multiprocessing on windows. I tried this same code on a Linux and it runs well. 
+
+I don't get any error messages because it doesn't crash, it just stops doing any meaningful. 
+ adverley Could you try the most recent version from GitHub on your Windows box?
+Closing because of lack of feeback and it is probably a known issue that is fixed in newer joblib.
+Not sure if related, does seem to be.
+
+In windows, custom scorer still freezes. I encountered this thread on google removed the scorer, and the grid search works.
+
+When it freezes, it shows no error message. There are 3 python processes spawned too because I set n jobs 3. However, the CPU utilization remains 0 for all python processes. I am using IPython Notebook.
+Can you share the code of the scorer? It seems a bit unlikely.
+Does your scorer use joblib n jobs anywhere? It shouldn't, and that could maybe cause problems though I think joblib should detect that.
+Sure here's the full code LINKLINK 
+
+The scorer function is score model, it doesn't use joblib.
+
+This runs from command prompt, but not from IPython Notebook. The error message is 
+ CODESCODES 
+
+Then the IPython and all the spawned python instances become idle silently and don't respond to any python code anymore till I restart it.
+Fix the attribute error, then it'll work.
+Do you do pylab imports in IPython notebook? Otherwise everything should be the same.
+Well I do not know what causes the AttributeError. Though it is most likely related to joblibs, since it happens only when n jobs is more than 1, runs fine with CODESCODES.
+
+The error talks about attribute CODESCODES missing from CODESCODES, whether or not I have a CODESCODES in the IPython Notebook or not.
+
+ I realized that the error line was pasted incorrectly above I edited in the post above. 
+
+I don't use pylab.
+
+Here's the full extended error message LINKLINK 
+Hum, that is likely related to issues of multiprocessing on windows. Maybe GaelVaroquaux or ogrisel can help.
+I don't know what the notebook makes of the CODESCODES.
+Try not defining the metric in the notebook, but in a separate file and import it. I'd think that would fix it.
+This is not really related to GridSearchCV, but some interesting interaction between windows multiprocessing, IPython notebook and joblib.
+guys. thanks for the thread. Anyway i should have checked this thread before, wasted 5 hours of my time on this. Trying to run in parallel processing. Thanks a lot thumbs up 
+TO ADD A FEEDBACK: its still freezing. I faced the same issue when in presence of my own make Score cost function. my system starts freezing. When i did not use custom cost function, i did not face these freezes in parallel processing
+The best way of turning these 5 hours into something useful for the project, would be to provide us with a stand alone example reproducing the problem.
+I was experiencing the same issue on Windows 10 working in Jupyter notebook trying to use a custom scorer within a nested cross validation and n jobs thumbs down. I was getting the CODESCODES message. 
+As amueller suggested, importing the custom scorer instead of defining it in the notebook works.I have the exact same problem on OSX 10.10.5Same here.
+OSX 10.12.5Please give a reproducible code snippet. We'd love to get to the bottom of this. It is hard to understand without code, including data, that shows us the issue.Just run these lines in a python shell
+
+ CODELCODEL 
+
+Note that removing the PCA step from the pipeline solves the issue.
+
+More info:
+
+Darwin thumbs down 6.0 x86 64 i386 64bit
+
+ 'NumPy', '1.12.1' 
+ 'SciPy', '0.19.1' 
+ 'Scikit Learn', '0.18.2' seeing as you don't use a custom scorer, should we assume that is a
+separate issue?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+When I first faced this issue I was using custom scorer, but while trying to simplify the example code as much as possible, I found that it is not necessarily have to contain custom scorer. At least on my machine. Importing the scorer also didn't help in my case. Anyway, the symptoms looks similar. The script hangs forever and the CPU utilization is low. boazsh thanks a lot for the snippet, it is not deterministic though, can you edit it and use a CODESCODES to make sure the random numbers are always the same on each run.
+
+Also there is a work around if you are using Python 3 suggested for example in LINKLINK.
+
+I don't have a way to test this on OSX at the moment but I may be able to try in the upcoming days.Some piece of information useful to have just add what is missing to your earlier comment LINKLINK:
+
+ CODELCODEL 
+
+Also how did you install scikit learn, with pip, with conda, with one of the OSX package managers brew, etc.Updated the snippet used np. random. seed 
+
+Darwin thumbs down 6.0 x86 64 i386 64bit
+
+ 'NumPy', '1.12.1' 
+ 'SciPy', '0.19.1' 
+ 'Scikit Learn', '0.18.2' 
+
+Great thanks a lot!
+
+
+
+Have you answered this one, I can't find your answer. Sorry, missed it pip.FWIW, I have no problem running that snippet with:
+
+
+Darwin thumbs down 6.0 x86 64 i386 64bit
+
+Python 2.12 Continuum Analytics, Inc. default, Jul 2 2016, 17:43:17 
+ 
+
+NumPy 1.13.1
+
+SciPy 0.19.1
+
+Scikit Learn 0.18.2
+
+Could you put verbose 10 in cross val predict, too, so that we can perhaps
+see where it breaks for you?
+
+
+
+
+
+
+
+
+
+
+
+
+
+ jnothman I am guessing that your conda environment uses MKL and not Accelerate. This freezing problem is specific to Accelerate and Python multiprocessing. LINKLINK for more details.
+
+pip on the other hand will use wheels that are shipped with Accelerate at the time of writing.
+
+A work around other than the JOBLIB START METHOD to avoid this particular bug is to use MKL for example via conda or OpenBLAS for example via the conda forge channel.Nothing is being printed. 
+
+ LINKLINK 
+
+
+
+ jnothman in case you want to reproduce the problem, IIRC you can create an environment with Accelerate on OSX with something like:
+ CODELCODEL FWIW I can not reproduce the problem on my OS X VM. I tried to mimic as close as possible boazsh's versions:
+
+ CODELCODEL Hmm actually I can reproduce but your snippet was not a complete reproducer. Here is an updated snippet:
+
+ CODELCODEL 
+
+In any case, this is a known problem with Accelerate and Python multiprocessing. Work arounds exist and have been listed in earlier posts. The easiest one is probably to use conda and make sure that you use MKL and not Accelerate.On the longer term probably scikit learn 0.20 this problem will be universally solved by the new loky backend for joblib: LINKLINK Having a fix to multiprocessing be dependent on the scikit learn version is symptomatic of the problems of vendoring.
+
+I recently read the following, which I found interesting:
+ LINKLINK 
+
+I have a similar issue with RandomizedSearchCV; it hangs indefinitely. I am using a 3 year old macbook pro, 16GB ram and core i7 and my scikit learn version is 0.19. 
+
+Puzzling part is that it was working last Friday! Monday morning, I go back and try to run and it just freezes. I know from previous runs that it take about 60 min to finish, but I waited a lot longer than that and nothing happens, it just hangs, no error msgs, nothing and my computer heats up and sucks power like there's no tomorrow. Code below. I tried changing n iter to 2 and n jobs 1 after reading some comments here and that worked. So it may have something to do with n jobs thumbs down. Still, this code worked fine last Friday! it just hates Mondays. My dataset size is less that 20k examples with dimensionality 100. 
+ 
+
+ CODELCODEL 
+what is crf? just to eliminate the possibility, could you try using
+return train score False?
+It is very likely that this KaisJM's problem is due to the well known limitation on Accelerate with multiprocessing, see our LINKLINK.
+
+How did you install scikit learn?
+
+Also for future reference, can you paste the output of:
+ CODELCODEL 
+
+this was working last Friday! I done nothing since. I think scikit learn is part of anaconda, but I did upgrade with pip pip install upgrade sklearn, but thats before I got this problem. I ran the code fine after upgrading to 0.19.
+
+here's the output of the above prints:
+
+ CODELCODEL  jnothman: I am using RandomizedSearchCV from sklearn. grid search which does not have the return train score parameter. I know sklearn. grid search is depricated. I will try the one from sklearn. model selection, but something tells me I will have the same exact issue. Updated original comment with more info and code.Can you post the output of CODESCODES. I would wild guess that by updating scikit learn with pip you updated numpy with pip too and you got the numpy wheels which uses Accelerate and has the limitation mentioned above.
+
+Small word of advice:
+ post a fully stand alone snippet for your next issue. That means anyone can copy and paste it in a IPython session and easily try to reproduce. This will give you the best chance of getting good feed back.
+ if you are using conda, stick to conda to manage packages that are available through conda. Only use pip when you have to.
+ If you insist you want to use CODESCODES, I would strongly recommend you use CODESCODES. Otherwise if a package dependends, say on numpy, and you happen not to have the latest numpy, numpy will be upgraded with pip, which you do not want.Oh yeah and BTW, sklearn. grid search is deprecated you probably want to use sklearn. model selection at one point not too far down the road.Good advice, thank you. So is the workaround to downgrade numpy? what limitation are you referring to? the FAQ link above? I did read it, but I do not understand this stuff i'm just an algo guy thumbs up.
+
+output of CODESCODES 
+
+numpy 1.12.0 
+numpy 1.12.0 py27 0 
+numpy 1.13.1 
+numpydoc 0.0 Wow three numpy installed I saw two before but never three. anyway this seems indicative of the problem I was mentioning, for example that you have mixed pip and conda which is a bad idea for a given package.
+
+ CODELCODEL 
+
+Hopefully after that you will have a single numpy that uses MKL.
+
+If I were you I would double check that you don't have the same problem for other core scientific packages, for example scipy, etc. the reason I resort to pip for some packages is that conda does not have some packages, which actually is very frustrating because I know mixing pip with conda is a bad idea. Next time that happens I'll use the no deps option.one thing I should've mentioned is that I installed Spyder within the python env I was working in. However, I was able to run the code after installing Spyder, both in Spyder and in Jupyter.
+
+ I did uninstall Spyder and the numpys above, re installed bumpy with conda which updated scikit to 0.19 and still get the same error. Something may have happened because of the Spyder install, but then why would it work for a day and then suddenly stop?ok, nothing is working! should I just create a new environment using conda and re install everything there? will that solve it or make it worse?Sounds worth a try!
+created a new env and installed everything with conda, still freezes indefinitely. only one copy of each package etc.
+
+n jobs 1 works, but takes forever of course it worked in the previous env as well. n jobs thumbs down is what freezes indefinitely.
+
+ CODELCODEL Then I don't know. The only way we can investigate, is that you post a fully standalone snippet which we can just copy and paste in an IPython sesion and see if we can reproduce the problem.will try to create a minimal example that reproduces the problem. I need to do that to debug more efficiently.
+
+Try this snippet taken from LINKLINK:
+ CODELCODEL 
+
+ If this freezes for example it does not finish within one second that means you are using Accelerate and the freeze is a known limitation with Python multiprocessing. The work around is to not use Accelerate. On OSX you can do that with conda which uses MKL by default. You can also use OpenBLAS using conda forge.
+ If it does not freeze then you are not using Accelerate, and we would need a stand alone snippet to investigate.will try to reproduce with minimal code.
+
+ CODELCODEL  GaelVaroquaux scikit learn is not an app but a library in a rich ecosystem. If everybody did what we do, everything would come crashing down. That's a pretty clear signal that we need to change. And there are many environments where the opposite is true from that comment.I used a ubuntu virtual instance in google cloud compute engine bumpy, spicy, scikit etc were not the most up to date. The code ran fine. Then I installed Gensim. This updated numpy and scipy to the latest versions and installed few other things it needs boto, bz2file and smart open. After that the code freezes. I hope this gives a useful clue as to what causes this freeze.
+
+ after installing Gensim 
+numpy 1.10.4 updated to numpy 1.13.3 
+scipy 0.16.1 updated to scipy 0.19.1 
+
+ more info: 
+Doing some research I found that libblas, liblapack and liblapack atlas were missing from my usr lib, also I did not see the directory usr lib atlas base. I don't know if they were there and installing gensim removed them since it updated numpy etc, but this is likely since the code worked before installing gensim. I installed them using CODESCODES and update alternatives according to the advanced scikit LINKLINK, but it did not help, the code still freezes with n jobs thumbs down. 
+I think the problem is that numpy is using OpenBlas. Will switch it to ATLAS and see what happens.
+ CODELCODEL Still the same problem. The following runs fine, unless I insert n jobs thumbs down. 
+
+ CODELCODEL  paulaceccon are your Numpy and Scipy installations using ATLAS or OpenBLAS?It is a bit hard to follow what you have done KaisJM. From a maintainer's point of view what we need is a fully stand alone python snippet to see if we can reproduce. If we can reproduce, only then can we investigate and try to understand what is happening. If that only happens when you install gensim and you manage to reproduce this behaviour consistently, then we would need full instructions how to create a Python environment that has the problem vs a Python environment that doesn't have the problem.
+
+This requires a non negligible amount of time and effort, I completely agree, but without it, I am afraid that there is not much we can do to investigate the problem you are facing.
+
+ KaisJM by the way, this page is out of date, since nowadays wheels are available on Linux and contain their own OpenBLAS. If you install a released scikit learn with pip you will be using OpenBLAS. lesteve are you saying that Openblas does not cause a freeze anymore? lesteve paula has posted a snippet that also has the same problem. I can see it's not complete code, but I hope it gives some clue. I can make here snippet complete and post for you. However, it is clear that the out of date as you call it instructions page may not be so out of date. The highest likelihood is that OpenBLAS is causing the fees they are talking about in that page.These instructions are outdated believe me. If you read in details, it says but can freeze joblib multiprocessing prior to OpenBLAS version 0.8 4. I checked a recent numpy wheel and it contains OpenBLAS 0.8.18. The freeze they are referring to is the one in LINKLINK, which you don't seem to have.
+
+
+
+Not really no. We have reports of users that seems to indicate that freezing can still happen, none of which we have managed to reproduce AFAIK. That seems to indicate, that this problem happens in some very specific combination of factors. Unless someone that has the problem spends some time and figures out how to reproduce in a controlled way and we manage to reproduce, there is just no way we can do anything about it.
+
+
+
+That would be great. That would be great if you could check if such a snippet still cause the freeze in a separate conda environment or virtualenv depending on what you use. lesteve paulaceccon: I took Paula's excerpt code and made a complete run able code snippet. Just paste it into a Jupyter cell and run it. Paula: I could not get this snippet to freeze. Notice that n jobs thumbs down and runs fine. Would be great if you can take a look and post a version of it that freezes. Notice that you can switch between grid search module and model selection module, both ran fine for me.
+
+ CODELCODEL  KaisJM I think it is more useful if you start from your freezing script and manage to simplify and post a fully stand alone that freezes for you. lesteve Agreed. I created a new python2 environment like the one I had before installing Gensim. Code ran fine, NO freeze with n jobs thumbs down. What's more, Numpy is using OpenBLAS and has the same config as the environment that exhibits the freeze the one where Gensim was installed. So it seems that openblas is not the cause of this freeze.
+
+ CODELCODEL  KaisJM I'm running the same snippet here windows and it freezes. 
+
+ CODELCODEL 
+
+I know that it's awkward but it didn't froze when running with a custom metric.I have a similar problem. I have been running the same code and simply wanted to update the model with the new month data and it stopped running. i believe sklearn got updated in the meantime to 0.19Running GridSearchCV or RandomizedSearchCV in a loop and n jobs 1 would hang silently in Jupiter & IntelliJ:
+
+ CODELCODEL 
+
+Followed lesteve recommendation & checked environment & removed numpy installed with pip:
+
+Darwin thumbs down 6.0 x86 64 i386 64bit
+Python 3.1 Anaconda custom x86 64 default, May 11 2017, 13:04:09 
+ 
+NumPy 1.13.1
+SciPy 0.19.1
+Scikit Learn 0.19.0
+
+
+ conda list grep numpy
+gnumpy 0.2 pip
+numpy 1.13.1 py36 0
+numpy 1.13.3 pip
+numpydoc 0.0 py36 0
+
+ pip uninstall numpy
+
+ conda list grep numpy
+gnumpy 0.2 pip
+numpy 1.13.1 py36 0 
+numpydoc 0.0 py36 0
+
+ conda install numpy f most likely unnecessary
+
+ conda list grep numpy
+gnumpy 0.2 pip
+numpy 1.13.1 py36 0
+numpydoc 0.0 py36 0
+
+Fixed my problem. paulaceccon your problem is related to 
+
+
+
+
+The following will run your code:
+ CODELCODEL 
+with external. py 
+
+ CODELCODEL 
+Results running on 8 cores
+
+Fitting 3 folds for each of 54 candidates, totalling 162 fits
+: Done 34 tasks elapsed: 7.1s
+: Done 162 out of 162 elapsed: 30.5s finished
+ 'class weight': 0: 0.51891309, 1: 13.71835531, 'criterion': 'gini', 'min samples leaf': 10, 'min samples split': 20, 'n estimators': 400 
+
+
+Issue is still there guys. I am using a custom scorer and it keeps going on forever when I set n jobs to anything. When I don't specify n jobs at all it works fine but otherwise it freezes.Can you provide a stand alone snippet to reproduce the problem? Please read LINKLINK for more details.Still facing this problem with the same sample code.
+
+Windows thumbs down 0 thumbs down 0.15063 SP0
+Python 3.4 Anaconda custom 64 bit default, Jan 16 2018, 10:22:32 
+NumPy 1.14.1
+SciPy 1.0
+Scikit Learn 0.19.1
+Can you provide a stand alone snippet to reproduce the problem? Please read LINKLINK for more details.I suspect this is the same old multiprocessing in windows issue. see our FAQ
+I tested the code in thomberg1's LINKLINK.
+
+OS: Windows 10 x64 10.16299.309
+Python package: WinPython 64bit 3.1
+numpy 1.14.2 
+scikit learn 0.19.1 
+scipy 1.0 
+
+It worked fine in Jupyter Notebook and command line.
+HI, i m having the same issue, so i did not want to open new one which could lead to almost identical thread.
+
+ Macos
+ Anaconda
+ scikit learn 0.19.1
+ scipy 1.1
+ numpy 1.14.2
+ CODELCODEL 
+Code is from a tutorial: LINKLINK 
+I tried changing the n jobs parameter to 1, thumbs down, but neither of these worked. Any hint?it runs if I add the multiprocessing import and the if statement as show below I don't work with keras so I don't have more insight
+
+ CODELCODEL 
+
+ Fitting 3 folds for each of 18 candidates, totalling 54 fits
+: Done 26 tasks elapsed: 18.4s
+: Done 54 out of 54 elapsed: 23.7s finished
+Best: 0.675781 using 'batch size': 5, 'epochs': 5, 'init': 'glorot uniform', 'optimizer': 'adam' 
+0.621094 0.036225 with: 'batch size': 5, 'epochs': 5, 'init': 'glorot uniform', 'optimizer': 'rmsprop' 
+0.675781 0.006379 with: 'batch size': 5, 'epochs': 5, 'init': 'glorot uniform', 'optimizer': 'adam' . 
+0.651042 0.025780 with: 'batch size': 20, 'epochs': 5, 'init': 'uniform', 'optimizer': 'adam' 
+
+ 
+version info if needed
+sys 3.4 Anaconda custom 64 bit default, Jan 16 2018, 12:04:33 
+ 
+numpy 1.14.2
+pandas 0.22.0
+sklearn 0.19.1
+torch 0.0a0+9692519
+IPython 6.1
+keras 2.5
+
+compiler: GCC 4.1 Compatible Clang 4.1 tags RELEASE 401 final 
+system: Darwin
+release: 17.0
+machine: x86 64
+processor: i386
+CPU cores: 24
+interpreter: 64bitThank you thomberg1, but adding
+ CODELCODEL 
+did not help. The problem is still the sameSame problem on my machine when using customized scoring function in CODESCODES.
+python 3.4, 
+scikit learn 0.19. 
+windows 10.
+CPU cores: 24 byrony can you provide code to reproduce? did you use CODESCODES if name main CODESCODES?I've experienced a similar problem multiple times on my machine when using CODESCODES or CODESCODES as an argument for CODESCODES but using the default scorer argument.
+
+ Python 3.5,
+ scikit learn 0.19.
+ Arch Linux,
+ CPU cores: 
+
+Here is the code I used:
+ CODELCODEL 
+I know is a big dataset so I expected it would take some time to get results but then after 2 days running, it just stopped working the script keeps executing but is not using any resource apart from RAM and swap.
+
+ LINKLINK 
+
+ LINKLINK 
+
+
+Thanks in advance!
+ amueller I didn't use the CODESCODES. Below is my code, it only works when CODESCODES 
+
+ CODELCODEL You're using XGBoost. I don't know what they do internally, it's very possible that's the issue. Can you try to see if adding the CODESCODES if name CODESCODES helps?
+Otherwise I don't think there's a fix for that yet. Pazitos10 can you reproduce with synthetic data and or smaller data? I can't reproduce without your data and it would be good to reproduce in shorter time. amueller Ok, I will run it again with 500k rows and will post the results. Thanks! amueller, running the script with 50k rows works as expected. The script ends correctly, showing the results as follows sorry, I meant 50k not 500k:
+
+ LINKLINK 
+
+ LINKLINK 
+
+The problem is that I don't know if these results are going to be the best for my whole dataset. Any advice? Seems like you're running out of ram. Maybe try using Keras instead, it's likely a better solution for large scale neural nets. amueller Oh, ok. I will try using Keras instead. Thank you again!
+
+
+
+Is it perhaps an idea for scikit, that in case of Windows to alter the function
+And use queues to feed tasks to a collection of worker processes and collect the results
+As described here: LINKLINK 
+and for 3.6 here: LINKLINK  PGTBoos this is fixed in scikit learn 0.20.0

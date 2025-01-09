@@ -1,0 +1,260 @@
+Python2 kernel died when I ran CODESCODES from LINKLINK.
+
+How can I help fix this?
+If there is something that I should report dependent package versions, etc. please tell me.
+
+ CODELCODEL 
+This is the key:
+
+
+
+which is a C level error in zeromq when starting the kernel, possibly related to funkiness in the Ubuntu+Windows environment. How did you install your Python packages, specifically pyzmq?
+I installed the jupyter dependent packages including pyzmq with the following commands.
+
+ CODELCODEL 
+ minrk I wonder if unicode characters are getting in the way as well here with Python:
+
+ CODESCODES 
+ kozo2 can you install zeromq with apt, and then reinstall pyzmq:
+
+ CODELCODEL 
+ minrk I installed zeromq with apt, and reinstalled pyzmq with pip CODESCODES option, but still fails like this
+
+ CODELCODEL 
+I suspect that libzmq has some issues in the pseudo linux context. Getting to the bottom of that is probably the key. For instance, can you run the pyzmq tests:
+
+ CODELCODEL 
+
+and see what you get?
+
+It's possible that you will need to build libzmq from source to get it to properly detect its environment, and also possible that it will need patches to run.
+I got
+
+ CODELCODEL 
+
+Next, I will try to build libzmq from source.
+Thanks.
+ minrk kozo2 You may already be aware of this resource, but I'll pass it along as an FYI. There is an LINKLINK maintained by Christoph Gohlke, Laboratory for Fluorescence Dynamics, University of California, Irvine. I don't know if this resource will be helpful for Ubuntu on Windows, but may be helpful when working with Windows. There's a ZeroMQ binary towards the end of the home page.
+ willingc thanks, yes, that's useful for the Windows side, but here I think we want linux binaries, which we are currently getting from CODESCODES. These are meant to Just Work™, but apparently don't, so I'm guessing that perhaps running the zeromq configure & build on the machine may detect something that the binary assumed incorrectly at build time.
+ minrk I agree. FYI. I did a quick scan of the Microsoft blog post comments and the LINKLINK. It looks like socket support is a known issue area that needs improvement.
+Thanks for finding that, willingc!
+Hi all. I just built Libzmq in this context to get to the meat of the error. I've attached my test suite log:
+ LINKLINK 
+
+It appears that line 186 of src tcp address. cpp is causing the error. 
+In particular, this is the code which is causing an invalid argument error. See LINKLINK.
+
+ CODELCODEL 
+ MadcowD Great job tracking the error down.
+For what it's worth, Bash on Windows does not currently expose any network interfaces. Networking is available, but no information is exposed about the underlying physical or virtual hardware; not even a loopback device.
+ willingc How do I get Bash to recognize pyzmq?
+
+I've the same problem. Have any one of you solved it yet?
+ adonese If you could provide a bit more detail, it will assist us in helping you.
+ What is your operating system? 
+ How have you tried to install pyzmq?
+ What version of the notebook are you trying to install?
+ Any additional information that you think we may find useful.
+
+Thanks!
+Sorry I thought this issue is in Bash on Ubuntu on Windows page thumbs up 
+I'm using Bash on Ubuntu on Windows.
+I've tried:
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+
+None of them have actually helped me. Regarding the unofficial Python packages, I just didn't how do I get Bash to recognize Windows' CODESCODES. I'm using Jupyter notebook 4.1, the latest version I believe.
+Hi adonese, Hmm. I've checked around a bit since I actually don't have access to a Bash on Ubuntu on Windows system. It looks like this issue on the Bash on Windows issue tracker has some promise LINKLINK 
+
+If you find one of those work for you, please drop us a note here. Good luck!
+ adonese take a look at the link willingc posted; a bunch of us have worked out the fix there.
+
+ willingc FYI: If you're interested in trying out Bash on Ubuntu on Windows aka WSL, I believe you can get a free VM from modern. ie:
+
+ LINKLINK 
+
+Download the latest Preview VM; older ones don't support WSL yet. Its license expires after a month or a few months or so, but you're allowed to download a new VM when your current one expires. It doesn't come with WSL preinstalled; you have to run through its install process. Maybe not worth it, but FYI it's an option.
+ aseering Thanks for passing along the info and for finding the solution: cake:
+
+Closing issue.
+
+ Resolution
+
+See Bash on Windows issue tracker LINKLINK 
+In case people are wondering how to get it working using CODESCODES installed via CODESCODES, here's a fix crossposted from
+ LINKLINK 
+
+ CODELCODEL 
+ gglanzani Thanks for telling me that information, but it core dumped like
+
+ CODELCODEL 
+ kozo2 Are you sure it has nothing to do with the missing CODESCODES? the 404 at the end? 
+
+It's working properly for me + 2 other that commented on the BOW repo see link above 
+I don't think there's any way that a missing nbextension could lead to a segfault. I won't say it's impossible, but it would be a really bizarre cause.
+ takluyver I can't argue with you thumbs up 
+ kozo2 How did you install CODESCODES? Simply CODESCODES? I'm running off a virtual env and as an unpriviled user you are running under CODESCODES, probably as CODESCODES, so that might contribute
+ gglanzani 
+Thanks for telling me that virtualenv.
+By following your virtualenv advice after adding a user, I succeeded running Jupyter in Ubuntu on Windows from Windows.
+
+It seems CODESCODES is irrelevant to the segmentation fault.
+ gglanzani aseering, I am also having problems with running Jupyter notebook from my bash shell on WSL. I'd prefer to get it working in WSL bash rather than trying to use virtualbox vagrant, etc. Please help!
+
+I am able to bring up my Jupyter notebook, but as soon as I tried to run even the most basic notebook, my connection fails. Looks like something to do with zeromq or the Python versions.
+
+ Error message from the Jupyter console: 
+ KernelRestarter: restarting kernel 1 5 
+WARNING: root: kernel 5c0f6900 thumbs down bcc 40bd bcd6 a60efd458664 restarted
+Invalid argument bundled zeromq src tcp address. cpp:190 
+ KernelRestarter: restarting kernel 1 5 
+WARNING: root: kernel 5c0f6900 thumbs down bcc 40bd bcd6 a60efd458664 restarted
+Invalid argument bundled zeromq src tcp address. cpp:190 
+
+Surface Pro Using Windows Subsystem for Linux WSL. Windows 10
+
+root mypc: mnt c Users myid mylinux python version Python 2.6
+root mypc: mnt c Users myid mylinux pip version pip 1.4 from usr lib python2.7 dist packages python 2.7 
+root mypc: mnt c Users myid mylinux jupyter version 4.0
+root mypc: mnt c Users myid mylinux python
+Python 2.6 default, Jun 22 2015, 17:58:13 
+ on linux2
+
+
+
+
+
+I did execute the below code, but even after that I am getting the same issues:
+pip uninstall pyzmq didn't find this
+sudo add apt repository ppa: aseering wsl
+sudo apt get update
+sudo apt get install libzmq3 libzmq3 dev
+export LD LIBRARY PATH usr lib x86 64 linux gnu
+pip install no use wheel v pyzmq
+pip install jupyter
+
+
+sudo apt get install python pip python dev python matplotlib
+export TF BINARY URL LINKLINK 
+sudo pip install upgrade TF BINARY URL
+sudo pip install jupyter Pillow
+
+Thanks!
+Hi HemanK it sounds like the CODESCODES Python library must be using a version of CODESCODES other than the one in my PPA. I'm not on an Ubuntu or WSL machine right at the moment, but in order to track down what's going wrong the first step would be to find where pyzmq got installed on your computer's filesystem usually in a Python CODESCODES directory somewhere. Then, look in that directory for all CODESCODES files. Then run CODESCODES on each of the CODESCODES files; that will print out the list of libraries that the specified file is linking against. One or more of them will be linking against some version of libzmq; the question is, what version of libzmq? My assumption is that it's not the version of libzmq that's in the PPA, but, why not? The answer to that should become apparent given the location of the libzmq library that is actually being used by pyzmq on your machine. 
+Hio aseeing, Thanks for your quick response. For some reason I was having problems posting to GitHub yesterday. Not sure what was going on. It doesn't look like I have pyzmq Python library, at least not that I can locate. In fact here are all the files of the pattern mq. and there are very few of those:
+ 
+Hi aseering, root mypc: mnt c Users myid mylinux tf tutorial find usr HOME name mq. 
+ usr include zmq. h
+ usr include zmq. hpp
+ usr lib x86 64 linux gnu libzmq. a
+ usr lib x86 64 linux gnu libzmq. so
+ usr lib x86 64 linux gnu libzmq. so.3
+ usr lib x86 64 linux gnu libzmq. so.1.0
+ usr lib x86 64 linux gnu pkgconfig libzmq. pc
+ usr local lib python2.7 dist packages zmq backend cython libzmq. pxd
+ usr local lib python2.7 dist packages zmq include zmq. h
+ usr local lib python2.7 dist packages zmq libzmq. so
+ usr share man man7 zmq. gz. 
+root mypc: mnt c Users myid mylinux tf tutorial ou
+ 
+ usr lib x86 64 linux gnu libzmq. so
+ usr local lib python2.7 dist packages zmq libzmq. so
+root mypc: mnt c Users myid mylinux tf tutorial 
+
+and here is the result of ldd 
+ 
+ linux vdso. so.1 0x00007fffdf564000 
+ librt. so.1 lib x86 64 linux gnu librt. so.1 0x00007f87108d0000 
+ libstdc++. so.6 usr lib x86 64 linux gnu libstdc++. so.6 0x00007f87105c0000 
+ libgcc s. so.1 lib x86 64 linux gnu libgcc s. so.1 0x00007f8710390000 
+ libpthread. so.0 lib x86 64 linux gnu libpthread. so.0 0x00007f8710170000 
+ libc. so.6 lib x86 64 linux gnu libc. so.6 0x00007f870fda0000 
+ libm. so.6 lib x86 64 linux gnu libm. so.6 0x00007f870fa80
+ lib64 ld linux x86 64. so.2 0x00007f8710e00000 
+root mypc: mnt c Users myid mylinux tf tutorial 
+ 
+ linux vdso. so.1 0x00007fffc5c4e000 
+ libpgm 5. so.0 usr lib x86 64 linux gnu libpgm 5. so.0 0x00007faff62b0000 
+ librt. so.1 lib x86 64 linux gnu librt. so.1 0x00007faff60a0000 
+ libpthread. so.0 lib x86 64 linux gnu libpthread. so.0 0x00007faff5e70000 
+ libstdc++. so.6 usr lib x86 64 linux gnu libstdc++. so.6 0x00007faff5b60000 
+ libc. so.6 lib x86 64 linux gnu libc. so.6 0x00007faff5790000 
+ libgcc s. so.1 lib x86 64 linux gnu libgcc s. so.1 0x00007faff5560000 
+ libm. so.6 
+ lib x86 64 linux gnu libm. so.6 0x00007faff5250000 
+ lib64 ld linux x86 64. so.2 0x00007faff6800000 
+
+So the libzmq. so files are in usr lib x86 64 linux gnu and usr local python2.7 deist packages zmq. I wonder if I am missing some packages and whether I should try to reinstall bash on Windows
+and Tensorflow. Also, when I installed Windows Subsystem for Linux WSL, I used default user root, rather than creating a userid. Not sure if that would have installed some python packages in some path that is not visible from within Jupyter.
+
+Any suggestions?
+
+Thanks!
+Hi HemanK you said that you ran CODESCODES. That installs CODESCODES. So you do have it somewhere. I assume it's the CODESCODES directory inside CODESCODES that you've located above Python packages sometimes omit the py prefix when they install on disk because, well, it's in the Python packages directory; labeling it as py something is somewhat redundant. 
+
+Anyway, I do see something interesting in the list of files above: There's a CODESCODES in the system library directory CODESCODES ; that's the one that my package is supposed to override. However, there's also one inside the Python zmq package CODESCODES. I don't know exactly where that version of the file is coming from but I bet it still has this bug.
+
+Perhaps someone from the Jupyter project minrk willingc? could comment are y'all now bundling your own version of libzmq? If so, would you consider pulling in a newer version from the libzmq project that contains the fix to this issue? Or, if you don't want to upgrade, you could backport LINKLINK ; as patches go, this one is very simple.
+Hi aseering, I can see only object that starts with pyz. It is the pyzmq egg info: I am not very familiar with how that works. Will wait for feedback from you or minrk or willingc 
+
+root mypc: mnt c Users myid mylinux tf tutorial find usr HOME name pyz 
+
+ usr local lib python2.7 dist packages pyzmq thumbs down 6.0 py2. egg info
+
+root mypc: mnt c Users myid mylinux tf tutorial cd usr local lib python2.7 dist packages pyzmq 
+
+ info ls ltr
+total 20
+
+ rw r r 1 root staff 4 Oct 20 19:18 top level. txt
+ rw r r 1 root staff 1 Oct 20 19:18 not zip safe
+ rw r r 1 root staff 1 Oct 20 19:18 dependency links. txt
+ rw r r 1 root staff 14265 Oct 20 19:18 SOURCES. txt
+
+ info view SOURCES. txt
+
+Thanks!
+Same issue described; error is as follows:
+
+ CODELCODEL 
+
+System Information:
+
+ CODELCODEL 
+
+I am running jupyter notebook on Ubuntu on Windows. Python installation is the default from Anaconda2 4.0 Linux x86 64. sh, and I am using the jupyter notebook app that comes preinstalled with anaconda2. 
+Hi aseering HemanK ebridge2,
+
+I'm traveling at the moment so I don't have access to a Windows system. I will have access over the weekend and will try to replicate or troubleshoot. 
+
+Thanks.
+
+cc minrk takluyver
+Can you try a manual download and install of pyzmq:
+
+ CODELCODEL 
+
+and share the complete output?
+Hi minrk, I had some issues with my laptop and have to get a replacement laptop from my office this week, so I it may take me sometime to get everything setup again and to resume my testing. In the meanwhile I installed CNTK Microsoft Cognitive Toolkit for Deep Learning, which is similar to Tensorflow and got it working quickly on my Windows laptop. That installation was using Anaconda, Python 3.4 and Jupyter. Hope to compare Tensorflow and CNTK once I get Tensor flow also working later. So look forward to getting Tensor Flow installed and working within the next couple of weeks.
+
+Thanks!
+ aseering HemanK: FWIW, RE:
+
+
+
+This will happen if CODESCODES can't find the system CODESCODES it will build it's own.
+ tildebyte what you describe would be correct for a source package, but pyzmq is distributed on PyPI as a binary package by default.
+ aseering I hear you, but CODESCODES built it's own lib when I ran CODESCODES. Maybe something wierd on my system?
+ minrk I followed your instructions from LINKLINK and I'm seeing the exact same result as the OP although with the slightly different line number of CODESCODES Invalid argument bundled zeromq src tcp address. cpp:190 CODESCODES, so it is using the installed pyzmq, I presume. Or did you want the output of the pyzmq build process?
+
+EDIT: I eventually got this to work by manually building a patched version of pyzmq with a fix from Microsoft BashOnWindows 185For what it's worth, I'm guessing haven't checked recently that WSL has worked around this issue in the latest LINKLINK. aseering Do you have confirmation that this is the case? My situation is identical to HemanK 's and I've thought about switching over to the Insider channel to see if the updates to WSL resolve issues like this, but value the reliability of a more stable build for my main machine. A quick verification that this works better on the latest Insider Build would be all the push I need to switch. Thanks for all the support that you've been providing on this issue! TheNathanielWatkins glad I could help! I can confirm that Ubuntu's stock Notebook package now works properly without my patch. I tested on what is currently the latest Insider build 14986.
+
+We're told that the relevant change will be released to stable Windows as part of the Creators release in a few months.
+
+I haven't tested with other Jupyter Notebook versions, but I would expect them to work as well. If you want to test yourself, you could download the Preview VM LINKLINK and test there. The VM is based on a slightly older Insider build; you might need to update it. Which you can probably do through Windows Update, but I haven't actually tried. Wow! Thank you aseering. You're definitely my internet hero of 01 05 17. Took a while to get switched over to the Insider Preview why do they make us wait 24 hours to switch? and re setup, but now that it's up, everything seems to be working perfectly now. Combined with a BROWSER hack detailed LINKLINK, I can now seemlessly run Jupyter in my Windows native Chrome.Hi,
+Does anybody know how we can use matplotlib inline on Jupyter? My kernel dies when I am using this package. I am using WSL. I know it does not support graphical applications officially. But I was able to use Xming. Now, my problem is I can have anaconda and Jupyter on my chrome to run my codes, but when I am trying to plot something, my python kernel dies.
+
+NimaHi nimasasa for what it's worth, matplotlib works fine for me. That said, I'm using a recent LINKLINK of Windows despite its potential bugs, because its support for Linux features is so much better. nimasasa Check that your versions are up to date too.
+
+ CODESCODES will give additional output.  aseering and willingc thanks for your responses. I am currently using the updated windows but not the insider build unfortunately cant use it on my work PC and my notebook is 4.3.If you haven't already done this, try running CODESCODES in a cell before plotting.

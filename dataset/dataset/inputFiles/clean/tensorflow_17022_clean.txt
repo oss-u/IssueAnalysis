@@ -1,0 +1,765 @@
+Ive been trying to install Tensorflow on my computer which currently runs python 3. however I keep running into some common issues. And each time i try to use the solutions provided, nothing works. 
+
+Im not sure, but Im guessing python 3.7 might not be supported considering the official Tensorflow page has no link to python 3. that maybe this is the reason I havent been able to correctly install Tensorflow.Python 3.7 isn't eventually officially supported by Python. It's still in beta testing, and very much under active development.
+
+For now, stick with Python 3.now，it's ok.Python 3.7 appears to be official now, final release on June 27th.I don't think Python 3.7 support is ready yet. For homebrew users landing on this page, simply point to an older Formula file for Python.
+
+ CODELCODEL 
+
+I found this from LINKLINK.I sill get
+ CODELCODEL I am getting the same I am trying to use tensorflow to differentiate cats and dogs images following this LINKLINK on python 3. but i get the following error.
+ CODELCODEL 
+
+ CODESCODES:
+
+
+ import pywrap tensorflow
+ModuleNotFoundError: No module named ' pywrap tensorflow'
+
+
+
+Traceback most recent call last:
+ File, line 1, in 
+
+ from tensorflow. python import 
+
+ raise ImportError msg 
+ImportError: Traceback most recent call last:
+
+ fp, pathname, description imp. find module ' pywrap tensorflow', 
+
+ raise ImportError ERR MSG. format name, name name 
+ImportError: No module named ' pywrap tensorflow'
+
+
+
+Traceback most recent call last:
+
+ from tensorflow. python import pywrap tensorflow
+
+
+
+ import pywrap tensorflow
+ModuleNotFoundError: No module named ' pywrap tensorflow'
+
+
+Error importing tensorflow. Unless you are using bazel,
+you should not try to import tensorflow from its source directory;
+please exit the tensorflow source tree, and relaunch your python interpreter
+from there. 
+
+Is this regard to the compatibility of 3.7python version with tensorflow. plz helpI changed my python interpreter to Python 3.6 64 bit rather than 3.7 and it now works, no longer getting import errors or:
+
+ CODELCODEL You can install tensorflow on mac with pre built wheel, LINKLINK. However, it gives syntax error when you import. guys need help, i am unable to install tensorflow on python 3.
+
+should be re consider to downgrade it?  ramaakkantvdas try downgrading to python 3.6 as suggested by jaiken06. This worked for me as well. toby w, thanks, but it worked using this line: python m pip install upgrade LINKLINK 
+
+
+TensorFlow works on Python 3.7what version of tensorflow is this link? 0.12? 
+seems to not work with Keras, am I alone?Trying to install the Tensorflow API through pip in a virtual environment results in this:
+
+ Collecting tensorflow
+ Could not find a version that satisfies the requirement tensorflow from versions: 
+No matching distribution found for tensorflow 
+
+Has tensorflow not officially been released yet?Thanks ramaakkantvdas, I successfully installed the Tensorflow on my python 3.7 using the line you recommended but when I tried to import it, I got the following error, anyone know how to solve it, please?
+
+Traceback most recent call last:
+
+ fp, pathname, description imp. find module ' pywrap tensorflow', 
+
+ raise ImportError ERR MSG. format name, name name 
+ImportError: No module named ' pywrap tensorflow'
+
+
+
+Traceback most recent call last:
+
+ from tensorflow. python import pywrap tensorflow
+
+
+
+ import pywrap tensorflow
+ModuleNotFoundError: No module named ' pywrap tensorflow'
+
+
+
+Traceback most recent call last:
+ File, line 1, in 
+ import tensorflow
+
+ from tensorflow. python import 
+
+ raise ImportError msg 
+ImportError: Traceback most recent call last:
+
+ fp, pathname, description imp. find module ' pywrap tensorflow', 
+
+ raise ImportError ERR MSG. format name, name name 
+ImportError: No module named ' pywrap tensorflow'
+
+
+
+Traceback most recent call last:
+
+ from tensorflow. python import pywrap tensorflow
+
+
+
+ import pywrap tensorflow
+ModuleNotFoundError: No module named ' pywrap tensorflow'
+
+
+Error importing tensorflow. Unless you are using bazel,
+you should not try to import tensorflow from its source directory;
+please exit the tensorflow source tree, and relaunch your python interpreter
+from there.
+
+hey guys i managed to install, 
+
+but when i import tensorflow i got the following error.
+
+import tensorflow as tf
+Traceback most recent call last:
+
+ fp, pathname, description imp. find module ' pywrap tensorflow', 
+
+ raise ImportError ERR MSG. format name, name name 
+ImportError: No module named ' pywrap tensorflow'
+
+
+
+Traceback most recent call last:
+
+ from tensorflow. python import pywrap tensorflow
+
+
+
+ import pywrap tensorflow
+ModuleNotFoundError: No module named ' pywrap tensorflow'
+
+
+
+Traceback most recent call last:
+ File, line 1, in 
+
+ from tensorflow. python import 
+
+ raise ImportError msg 
+ImportError: Traceback most recent call last:
+
+ fp, pathname, description imp. find module ' pywrap tensorflow', 
+
+ raise ImportError ERR MSG. format name, name name 
+ImportError: No module named ' pywrap tensorflow'
+
+
+
+Traceback most recent call last:
+
+ from tensorflow. python import pywrap tensorflow
+
+
+
+ import pywrap tensorflow
+ModuleNotFoundError: No module named ' pywrap tensorflow'
+
+
+Error importing tensorflow. Unless you are using bazel,
+you should not try to import tensorflow from its source directory;
+please exit the tensorflow source tree, and relaunch your python interpreter
+from there.i am not sure how to go about from here, can someone throw some light here,
+
+Error is: No module named ' pywrap tensorflow'
+
+I think I solve my problem. I deleted the tensorflow folder in Lib site packages path and downloaded new tensor Zip file from this link LINKLINK, then extracted it and put it instead of the older tensorflow
+great Fatima, i need to check and try i will get back and let you all know yeah, i am facing the same issues with python 3.7I am also facing same issues. I need a whl file of tensorflow gpu. If anyone built it please mmail me to Is there an ETA for Python 3.7 support?Hello FatimaShahad, witch file did you get on the github? I found this list, but I don´t know witch file I have to download to follow your instruction. Can you help me?
+By the way, I alread download the TensorFlow 0.12, that ramaakkantvdas recomended. 
+
+Thanks
+
+c	fix C++ header guards.	5 days ago
+cc	Replaced calls to tensorflow: StringPiece: ToString with string conve…	4 days ago
+compiler	Run AddSpecialCaseCopies in HloRematerialization.	2 days ago
+contrib	Expose the RegAdagradOptimizer which allows the user to specify whet…	14 hours ago
+core	Make registration macro namespace agnostic	2 days ago
+docs src	Update TensorFlow. js roadmap	2 days ago
+examples	Replaced calls to tensorflow: StringPiece: ToString with string conve…	4 days ago
+g3doc	Remove usage of magic api link syntax from source files.	17 days ago
+go	Go: Update generated wrapper functions for TensorFlow ops.	2 days ago
+java	Merge pull request 21770 from skavulya: rename ecosystem jars	4 days ago
+js	Generate TypeScript Op attribute values for type and int OpDef at…	2 days ago
+python	compat: Update forward compatibility horizon to 2018 08 26	8 hours ago
+security	Merge pull request 20725 from yongtang:20722 TFSA 2018 001	a month ago
+stream executor	Removed redundant std: string string conversions.	2 days ago
+tools	Upgrade Keras applications and Keras preprocessing.	2 days ago. clang format	Add a. clang format file for automatically formatting. cc. h files.	2 years ago
+BUILD	Merge pull request 21122 from NervanaSystems: master	5 days ago
+ init. py	fix cmake python 2.7 test import fail	2 months ago
+api template. init. py	Internal Change.	2 months ago
+tensorflow. bzl	Merge pull request 21122 from NervanaSystems: master	5 days ago
+tf exported symbols. lds	Python library and C++ bindings for creating and compiling local XLA …	8 months ago
+tf framework version script. lds	Merge changes from github.	2 months ago
+tf version script. lds	Python library and C++ bindings for creating and compiling local XLA …	8 months ago
+version check. bzl	Rolling back tensorflow. bzl file changes	2 months ago
+workspace. bzl	 Bump open source llvm revision to r340606	2 days agosorry: 
+I meant which and not witch 
+
+Now i´m with this problem:
+Error importing tensorflow. Unless you are using bazel,
+you should not try to import tensorflow from its source directory;
+please exit the tensorflow source tree, and relaunch your python interpreter
+from there.Hello ciribellialvaro, I couldn't import tensorflow too so I download python 3.6 and everything is fine now jaiken06 or anyone, how did you downgrade to python 3. I installed python with yum on an ec2 instance and couldn't figure out how to downgrade correctly please try using this link LINKLINK 
+
+or you might have to search it via google. i already had the installer file so hence i was saved of some worries. 
+
+Tensorflow works fine in python 3. i had issues in 3.7 hence downgraded.  ramaakkantvdas I'm running on an EC2 instance, so I can't use a download link:  AlexFine: i have no idea about AWS instances, please check with the support. i am working on windows. so i have installed on it. so yours must be Linux instances. you might have to check with python community forums as there you might be getting some answers. Hello Alex,
+
+You can try unistall the python 3.7 on the control panel, then, download
+the python 3.6 and install.
+
+But, the lesson 234 of the course Machine Learng, I only did on the Visual
+Studio Code. 
+
+Tks
+
+ Álvaro Ciribelli Borges 
+
+
+
+
+escreveu:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I found this to work after searching for a while. I will leave this here as it might be useful for someone and save some time.
+
+Tensorflow only supports Python 3.6 as of today. You can install a different version of python alongside your standard one. You need to:
+ Download the Python3.6 tgz file from the official website eg. Python 3.6. tgz 
+ Unpack it with CODESCODES 
+ CODESCODES 
+ run CODESCODES 
+ run CODESCODES to install it CODESCODES vs CODESCODES explanation here LINKLINK 
+
+You'll normally find your new python install under CODESCODES. Now you can create a new virtualenv specifying the python version with:
+ CODESCODES 
+ Get into the virtualenv running the command CODESCODES.
+ Install tensorflow with the classic CODESCODES 
+ ProfitIs there a timeline yet for when TensorFlow will support 3.7 or if they are working towards it, or are we still in the dark?
+
+Sean, we found an work around for time being, Dont know when it would be supported or start working. For installation part this works: CODESCODES 
+
+But on 3. post installaion you will face other issues, 
+solved this one LINKLINK 
+but still stuck on this LINKLINK 
+Will wait till tensorflow is installed via pip install tensorflow. Someone have to build it for linux as a wheel and udpate to pypi. org.For me worked to install Python3.4 and no later. even 3.5 fails and later of course.
+Install Python3.6 from here:
+ LINKLINK 
+Works I have tried several ways finally downgraded to Python 3.6. Thank God, finally, tensorflow and keras installed successfully without any issues just by pip itself.
+
+
+
+
+Thanks for your info and comments regarding this issue guys. They were really helpful. Keep posting, Thanks once again.Perfect! 
+I was frustrated as well till I found the solution.
+
+please upvote.
+And LINKLINK as well just look for Finally Worked for me! 
+Thanks! nathaniel lemonade The link you provided shows 3. 
+I can't downgrade cos I'm already using some features of 3.7 on my project. 
+
+Any solution yet on this?I got the same issue with Python 3. I just use conda to reinstall tensorflow and keras dependencies. 
+ url 
+
+And it fix the problem: 
+
+ CODESCODES  Its python and tensorflow version compatibily issue on Windows 10
+
+i have Uninstall existing tensorflow 
+
+Use commnad:
+conda install tensorflow keras
+
+This itself degrade installed python version from 3.7 to 3.6 and tensorflow version 1.11.0
+
+Now tensorflow works perfectly! thumbs up 
+
+
+
+Python 3.6. 
+Type help, copyright, credits or license for more information.
+
+
+1.11.0
+
+
+
+
+
+
+
+
+
+It seems that this works on my system:
+ Windows 10
+ Python 3.7
+
+Launching conda install tensorflow keras downgrade from python 3.7 to 3.6 and then install tensorflow.
+
+Thanks!Hi everyone,
+
+I solve the problem unistalling everything: Anaconda, Ptyhon, Spyder. 
+Restarted the laptop, installed the anaconda again, opened it, and then I
+clicked on environments to install Theano, tensorflow, and Keras, in this
+order.
+After that, I restarted the lap top again, and everything worked.
+but unfortunately, I recently changed my normal HD for an SSD, and my
+windows is not accepting to install Anaconda!
+
+ Álvaro Ciribelli Borges 
+ +55 31 98822 9972 
+
+
+Em qua, 24 de out de 2018 às 11:33, nidhibansal1902 
+ escreveu:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ CODELCODEL I had same problems as you guys, trying to install tensorflow with the pip install command and I had the same error could not find. Now, reading the comments, I'm understanding that there are two solutions to the problem. 1 downgrade python 3.7 to 3.6 and repeat the pip install command. 2 download anaconda package and do everything through anaconda, that' right? no other solutions?
+
+
+
+In my case I created a new environment and then launch conda install tensorflow keras. Then everything worked fine. lemillos thank you for answering me. Please, could you be more precise? What I have to do step by step? Install Conda package and then simply type on my cmd conda install tensorflow keras? What are you meaning for create a new environment? Do you mean a virtual environment? You would help me a lot, thank you anywayIm using Anaconda 5.1 released on 19th Nov, 2018 which by default installs python 3.0. 
+But when i try to install keras, using conda install c conda forge keras,
+ it is taking eternity to respond.
+Also pip install keras aslo not working with python 3.0
+conda install tensorflow not working
+pip install tensorflow not working!
+
+
+Downgrading to py3.6
+
+Im using Anaconda 5.1 released on 19th Nov, 2018 which by default installs python 3.0. 
+But when i try to install keras, using conda install c conda forge keras,
+ it is taking eternity to respond.
+Also pip install keras aslo not working with python 3.0
+conda install tensorflow not working
+pip install tensorflow not working!
+
+
+Downgrading to py3.6
+
+on win 10 python 3.7 I ran
+
+conda install tensorflow gpu dry run 
+
+
+after about 5minutes it provided a remedy which included downgrading to py 3.7
+
+
+This suggest to me you can create an enviorment within or in addition to your base install loading it with python 36. Check the docs its not that complicated. I did this with pyhon 2.7 a long time ago.
+
+After re vist If you have a mac system, the following command will help you install tensorflow on your machine.
+P. S. It does work with Python 3.7
+
+python3 m pip install upgrade LINKLINK 
+Thanks!
+
+Sure, but i am assuming that: You've installed Anaconda and conda command on cmd works fine. Your system is a Windows one
+
+So: 
+ Create a new environment: conda create n tensorflow or conda create name tensorflow 
+ Go into your new environment: source activate tensorflow or conda activate tensorflow 
+ Install tensorflow keras: conda install tensorflow keras 
+
+Regards. 
+
+No, It may be official, but it still isn't installable, unless of course, the name has changed. the error I got was 
+
+Collecting Tensorflow from r pythonEnv. txt line 26 
+ Could not find a version that satisfies the requirement Tensorflow from r pythonEnv. txt line 26 from versions: 
+No matching distribution found for Tensorflow from r pythonEnv. txt line 26 
+
+ on Python 3.7 
+ MaximusIndus That was about Python 3. not Tensorflow. LINKLINK True, 
+I think Python is expendable none use whatsoever as it just survives on Open source Undependable Open Source at that. Better to move to motivated, money driven Sucker.
+
+
+
+
+
+
+Great it works on centosPython 3.7 didn't support TensoFlow.
+I can use TensorFlow by using Python 3.
+If you want to use TensorFlow, install python3.6 and use it.diagressing a bit from OP. 
+BERT NLP needs Tensorflow 1.10.0 or higher and the same is available only if I have Python 3.5 on Windows PC x64  I got the same issue with Python 3. I tried running reinstall tensorflow and keras dependencies. this didnt work, error log below, need help to resolve this please 
+
+
+Solving environment: failed
+
+UnsatisfiableError: The following specifications were found to be in conflict:
+ anaconda 2018.12 py37 0 bleach 3.2 py37 0
+ anaconda 2018.12 py37 0 mkl service 1.2 py37hb782905 5
+ anaconda 2018.12 py37 0 numexpr 2.8 py37hdce8814 0
+ anaconda 2018.12 py37 0 scikit learn 0.20.1 py37h343c172 0
+ tensorflow
+Use conda info to see the dependencies for each package.
+create an environment and use python 36. install spyder and pandas with conda. Install tensorflow gpu with pip. I suggested this before on an earlier post. Tensorflow recommends pip not conda. 
+
+
+
+
+
+
+thats tf thumbs down.3 while tf thumbs down.12 is outIt's stupid to me that python 3.7 is still not support yet.Why is this issue closed? Tensorflow doesn't support Python 3.7 yet. Or is there a different issue that tracks Python 3.7 support? 
+May I humbly suggest that someone with permissions lock this issue, to limit comments to collaborators? That'd prevent spam for those of us watching this issue to get notified about when 3.7 support lands. Thanks.below works for Windows 8. python 3.1 installed via Miniconda 
+then install the below wheel files:
+numpy‑1.16.0+mkl‑cp37‑cp37m‑win amd64. whl
+protobuf‑3.1‑cp37‑cp37m‑win amd64. whl
+tensorflow‑1.0‑cp37‑cp37m‑win amd64. whl
+from Christoph Gohlke's Unofficial Windows Binaries for Python Extension Packages site.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+now is support python3. x+win10+tensorflow?From LINKLINK or LINKLINK, I see no python3.7 support now.I have built the. whl for tensorflow 1.12.0 with python 3.2
+pip3 install tensorflow thumbs down.12.0 cp37 cp37m linux x86 64. whl
+ensure pip3 is pointing to 3.2
+file is here LINKLINK 
+right now only cpu build is availableSo Python 3.7 is still not supported even if it is 2019 now.quite amazing that Google didnt make any move for this long time. I was stuck on installing.
+
+All websites for tensorflow don't work with regular tensorflow install instructions.
+Using tf nightly does let me install without a problem on Python 3.2 x64.
+
+
+
+
+I switched back to Python 3. Do not use the latest Anaconda since it comes with Python 3.After everything I tried, I finally decided to switch back on Python 3.8: Anaconda.
+And now tensorflow is working for me!
+Here is the command for it!
+
+ conda install tensorflow keras As of now, tensorflow does not work with Python 3. 
+
+If you are using Anaconda, do the following: 
+ CODESCODES 
+Then
+ CODESCODES 
+
+Done and save yourself the headaches.  25429 On Windows, this distribution works for me:
+ LINKLINK  CODESCODES 
+
+This works for me: D
+
+
+
+
+
+
+
+
+the ONLY perfect option. ThanksI was just able to successfully install tensorflow on default python 3.2
+built from scratch under Fedora 29.
+
+ pip3 install tensorflow
+Collecting tensorflow
+ Downloading
+ LINKLINK 
+ 92.7MB 
+ 100 ████████████████████████████████ 92.7MB 697kB s
+
+Installing collected packages: tensorflow
+Successfully installed. tensorflow thumbs down.13.0rc1
+tensorflow estimator thumbs down.13.0rc0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Hope dies last, the saying goes; expectations, though, may outlive hope.
+Also can confirm Python 3.2 on macOS Mojave is able to install tensorflow.
+ CODELCODEL Hello,
+Anyone was able to compile tensorflow gpu for Python 3. x? Thanksworks fire for me as well. latest nvidia driver on Fedora 29 
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+TF v1.13.0 rc1 cpu version now works for me on python 3.2 high sierra. Installs and imports just fine.
+
+edit: According to LINKLINK, both cpu and gpu versions should be available on all OSes.TensorFlow v1.13.0rc1 is now working for me on python 3.0 on windows 10. i had to upgrade my numpy package to v1.16.1 to overcome some few errors.Yes, to reiterate: The 1.13.0rc1 release includes Python3.7 binaries for all OS es for LINKLINK and LINKLINK. 
+
+
+
+May I get the CUDA CUDNN versions that was tested with Windows 10 x64 and Python 3. x?
+
+
+You may check the release notes for at least some info:
+
+
+ LINKLINK 
+
+And for CUDA 10, there is only CuDNN 7 namely, 7.0, 7.1, 7.1, 7.2 as far as I can see.Hello,
+I can confirm now TensorFlow Nightly Build GPU works with 
+
+ Windows 10 x64
+ NVIDIA CUDA 10.130 411.31
+ CuDNN 7.2.24
+ Python 3.2
+ tf nightly gpu 1.13. dev20190211
+
+ LINKLINK 
+Tensorflow works with python 3. 
+
+pip install tensorflow 1.13.1 LINKLINK 
+ LINKLINK 
+I installded the tensorflow, but can't import it.
+Anyone know how to fix it?I would recommend using nightly build and check if it is solved.Thanks, it worked.
+
+
+
+Hi please can you let me know how I can change interpreter and install with 3.6 pls? LINKLINK now supports Python 3.
+
+
+
+
+
+You should try the nigthly build.
+Great that TensorFlow 1 finally supports Python 3. This page should probably be updated to reflect that: LINKLINK currently, it says that for Python 3, only 3. 3.5 and 3.6 are suported 
+
+Does this mean that Python 3.7 is also supported by the preview release of LINKLINK? lamberta who can update that in the appropriate places.
+
+ LINKLINK it is.Currently Python 3.7 pip install tensorflow still doesn't work
+ LINKLINK shows
+ LINKLINK 
+ LINKLINK  
+Works for me, both tensorflow 2.0 and 1.13 could be found PathToLife this seems like a configuration issue. Can you please open a new GitHub issue with additional information. I can confirm the binaries for all three OS's for Python3.7 are there.Can confirm the URLs here for the 3.7 package: 
+ LINKLINK There still seems to be no LINKLINK for Python 3.7 and Windows, which is what the installation instructions tells you to use when using Conda. I. e. accordingly, Python 3.7 is still off limits for Conda on Windows.Actually, I don't know whether this intuition is correct or not. I was using pip install keras in a virtual environment of Python 2.7 but it was of no use and when I did import keras, it didn't work. Later I did pip install Keras. A capital 'K' and then it worked. Maybe, try it. tensorflow gpu works well on Python 3.2 
+ OS: Windows 10 x64
+ Python: 3.2
+ CUDA: 10
+ CUDNN: 7.5
+
+
+ LINKLINK 
+Seems like 3.7 been added to the package index now.
+ LINKLINK 
+
+
+
+
+
+
+tensorflow gpu works well on Python 3.3
+OS: Windows 10 x64
+Python: 3.3
+CUDA: 10.0
+CUDNN: 7.1.34It has been a year. Is TensorFlow ever going to update to the supported version of Python or are we forever stuck in 2018?Hey StevenGann can you please clarify? Which version would you like supported on which OS? I believe TF supports Python3.7 on both CPU and GPU on all our supported OS es which is why this issue was opened.pip install tensorflow 1.13.1
+it works for me on Python 3.7
+Good Luck.
+
+
+
+
+
+for me still not i think google team fix this patch otherwise you guys told me hi
+conda install c hesi m tensorflow
+ok:  ali289 now problem is solved for tensorflow and python 3.7 you can access that thank you team Yes, python 3.3 with tensorflow 1.14.0 and keras 2.5, keras sequential model working perfect in Tornado APIHi, I am still facing the problem of installing tensorflow in python 3. Can anyone help me to solve or any clarification?this may help you
+
+ LINKLINK 
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+this may help you
+ LINKLINK 
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+ kalanka29 thanks for your information. is there a way to install tensorflow without anaconda? It works fine on anaconda and I need it without anaconda.
+ LINKLINK 
+Still having issues here, I believe we should be able to install tf on python 3.7 without anaconda.
+
+
+
+
+Yeah! try python 64 bit version. tensorflow 2.0 is working fine for me in there!
+
+
+
+
+Thanks that worked! I wonder why I didn't have installed the x64 versionOS: Windows 10 Pro
+Python 3.6
+Still not able to install Tensorflow in 2020.
+
+ LINKLINK 
+
+Your log says CODESCODES 
+
+ CODESCODES Ahh got it. stupid typo!For those still experiencing issues with installing Tensorflow with Python 3. here is a proposed solution, especially if you are using Intel CPUs to run your workloads. In an activated conda environment with Python 3. x:
+
+ CODELCODEL 
+
+Execute: 
+ CODESCODES 
+
+In the list of packages to be installed, you should see:
+ CODESCODES 
+
+
+This should install Tensorflow version 1.15 with the latest Intel MKL DNN optimizations for best performance on Intel CPUs. 
+
+As mentioned in the LINKLINK, Conda is not officially supported and is provided by the Conda community. And the LINKLINK looks like it was 4 months ago
+
+Good point and good catch. Then, let's rephrase it differently: If the official pip method does not work for you, the community supported method could help. Traceback most recent call last:
+
+ from tensorflow. python. pywrap tensorflow internal import 
+
+
+
+ mod imp. load module ' pywrap tensorflow internal', fp, pathname, description 
+
+ return load dynamic name, filename, file 
+
+ return load spec 
+ImportError: DLL load failed: The specified module could not be found.
+
+Hi all,
+pip install tensorflow 1.13.1
+Its work for me, but when i create new project then there is tensorflow 2.1 avaliable, that doesnot work. How can i make tensorflow 1.13.1 for every project same. 
+Please need help taye1 
+
+Please see: LINKLINK  Hello guys! I have a problem with installing Tensorflow! 
+ Python 3.3 v3.3: ef4ec6ed12, Mar 25 2019, 21:26:53 on win32 
+
+ How to install it? TF does not work on 32 bits.Is there an alternative to Tensorflow for 32 bit users?You can use Google Colab notebooks, just like other Google Drive files and have your code run in the cloud.
+
+GCP also offers VMs suited for deep learning that could be used in the cloud
+
+
+
+
+
+it's released but, not supported yet, Downgrade it

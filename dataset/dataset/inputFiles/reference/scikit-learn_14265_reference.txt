@@ -1,0 +1,18 @@
+Before adding OpenMP based parallelism we need to decide how to control the number of threads and how to expose it in the public API.
+
+I've seen several proposition from different people:
+
+&nbsp;&nbsp; 1 Use the existing CODESCODES public parameter with CODESCODES means 1 same a for joblib parallelism 
+
+&nbsp;&nbsp; 2 Use the existing CODESCODES public parameter with CODESCODES means thumbs down like numpy lets BLAS use as many threads as possible 
+
+&nbsp;&nbsp; 3 Add a new public parameter CODESCODES when underlying parallelism is handled by OpenMP, with CODESCODES means 
+
+&nbsp;&nbsp; 4 Add a new public parameter CODESCODES when underlying parallelism is handled by OpenMP, with CODESCODES means thumbs down.
+
+&nbsp;&nbsp; 5 Do not expose that in the public API. Use as many threads as possible. The user can still have some control with CODESCODES before runtime or using threadpoolctl at runtime.
+
+ 1 or 2 will require improving documentation of CODESCODES for each estimator: what's the default, what kind of parallelism, what is done in parallel. see 14228 
+
+ scikit learn core devs, which solution do you prefer?
+If it's none of the previous ones, what's your solution?

@@ -1,0 +1,809 @@
+hey guys, i have this problem when i try to launch jupyter, the i got kernel error in the top right corner, 
+i do tried to make python 2 kernel in jupyter so i followed some toturials about make environments then things start to get missy and errors showed up so i deleted them envs and kernel error is ON.
+and when i click it i got this: 
+
+
+
+ result yield gen. maybe future method self, args, kwargs 
+
+
+
+ raise exc info self. exc info 
+ File, line 3, in raise exc info
+
+ yielded self. gen. throw exc info 
+
+ type mtype 
+
+
+
+ raise exc info self. exc info 
+ File, line 3, in raise exc info
+
+ yielded self. gen. throw exc info 
+
+ kernel id yield self. start kernel for session session id, path, name, type, kernel name 
+
+
+
+ raise exc info self. exc info 
+ File, line 3, in raise exc info
+
+ yielded self. gen. throw exc info 
+
+ self. kernel manager. start kernel path kernel path, kernel name kernel name 
+
+
+
+ raise exc info self. exc info 
+ File, line 3, in raise exc info
+
+ yielded next result 
+
+ super MappingKernelManager, self. start kernel kwargs 
+
+ km. start kernel kwargs 
+
+ kw 
+
+ return launch kernel kernel cmd, kw 
+
+ proc Popen cmd, kwargs 
+
+ restore signals, start new session 
+
+ startupinfo 
+FileNotFoundError: The system cannot find the file specified
+
+thanks in advance and please help me, i reinstalled anacodna btw and still same error. takluyver i found the soultion, the problem was, i made an environments then i deleted them, there were refrences for those envs,
+soultion: used this in cmd: python m ipykernel install user Yup, that's what I would have suggested. Thanks for working it out yourself!
+
+For other people who might read this: you can see kernelspecs which may contain references to deleted envs by running:
+
+ CODELCODEL brother takluyver can you give me a complete steps to install python 2 kernel in notebook beside the python 3, because the start of the problem got from doing wrong steps, thank you very much and by the way, my solution brought up from YOU, so thank you very much thumbs up Have a look at the instructions here:
+ LINKLINK I know you closed this, but I've tried literally all day and all recommendations on all the threads I could find. 
+
+Kernels:
+ CODELCODEL 
+
+The kernel error is:
+ CODESCODES 
+
+I even uninstalled all Anaconda distributions and Python distributions, re installed them, and still same issue. At a loss at this point. Any guidance? Thanks in advance!
+Try deleting that kernelspec path the CODESCODES one, assuming that's what is failing to launch. It should fall back on running the kernel in the same Python as the notebook server.Thank you that worked. Now I need to reinstall all the libraries. Appreciated.How to delete kernelspec pathFind the path using CODESCODES. Then you can navigate to that in your file manager and delete it, or do it from the terminal CODESCODES on Unix; if you're on Windows, you'll have to look it up 
+
+
+Thank you: That worked for me abdolrhman you're a wizard! abdolrhman takluyver: you solved my problem error log attached. 
+ LINKLINK 
+ peoplecure The problem source as you define it seems to undermine the benefits of creating sandbox environments. Don't know why deleting one environment would affect the kernel operation.
+
+
+Thank you, it worked for me.Problem persists for me 
+
+ jupyter kernelspec list
+Available kernels:
+ python3 home miracode2033 anaconda3 share jupyter kernels python3
+ rm r home miracode2033 anaconda3 share jupyter kernels python3
+ jupyter kernelspec list
+Available kernels:
+ python3 home miracode2033 anaconda3 lib python3.6 site packages ipykernel resources
+ python m ipykernel install user
+Installed kernelspec python3 in home miracode2033. local share jupyter kernels python3
+ 
+Thanks! I also get this problem for my envs. The cmd solve the problem and Kernal work now.I am getting error as
+ImportError: cannot import name 'create prompt application'.
+please suggest Sivananda Panda LINKLINK Thank you so much! it worked!
+thanks abdolrhman it really worked just fine! My kernel when running python3 was pointing to this error from Anaconda in Python2, so I was confused at the beginning, but it did work: DIf you would like to manage virtual environment for each notebook, install the following package:
+
+ conda install nb conda
+
+After that restart you environment, then you will be able to see different version of kernels based on their respective virtual enviornment.
+
+More info LINKLINK 
+
+
+If you got an error running this, try to edit the command to: python3 m ipykernel install user. for those who are using python3 version Thought this might help.When doing a fresh install you need to delete the Jupyter library directory to clear leftovers. 
+
+On MacOS it is at:
+
+ CODELCODEL 
+Hi,
+I am having same problem, But my condition is that, I have installed python2 then installed python3, that was working fine. But then I uninstalled conda for 2, and conda for 3, then installed conda for python3, It was working but problem is that it runs with python2. Then I found that conda 2 was not deleted completely, because of that it was using python 2 when I try to install conda whatever version.
+
+Then I deleted the conda for python 2 folder. Then I installed conda for python3 now. Its showing the same problem as above. It was trying to load some file from deleted folder. 
+
+I have checked with 
+jupyter kernelspec list
+showing new folder. 
+
+then installed this
+python m ipykernel install 
+Till its showing kernel problem. 
+
+Please, Help me anyway.Traceback most recent call last:
+
+ result await result
+
+ yielded self. gen. throw exc info type: ignore
+
+ type mtype 
+
+
+
+ yielded self. gen. throw exc info type: ignore
+
+ kernel id yield self. start kernel for session session id, path, name, type, kernel name 
+
+
+
+ yielded self. gen. throw exc info type: ignore
+
+ self. kernel manager. start kernel path kernel path, kernel name kernel name 
+
+
+
+ yielded next result 
+
+ super MappingKernelManager, self. start kernel kwargs 
+
+ km. start kernel kwargs 
+
+
+
+ kernel name self. kernel name
+
+ with secure write fname as f:
+
+ return next self. gen 
+
+ win32 restrict file to user fname 
+
+ import win32api
+ModuleNotFoundError: No module named 'win32api'
+please any one to what the problem was hit me a commentwell I forgot to mention what the yml environment requirment,
+name: gluon dan
+dependencies:
+ python 3.6
+ jupyter 1.0
+ matplotlib 2.2
+ pandas 0.23.4
+ pip:
+ mxnet 1.0
+
+it get installed successfully but when I run jupyter notebook I have got the following error and the kernel became dead 
+
+so this is the issue I encountered
+
+ 
+Traceback most recent call last:
+
+result await result
+
+yielded self. gen. throw exc info type: ignore
+
+type mtype 
+
+
+
+yielded self. gen. throw exc info type: ignore
+
+kernel id yield self. start kernel for session session id, path, name, type, kernel name 
+
+
+
+yielded self. gen. throw exc info type: ignore
+
+self. kernel manager. start kernel path kernel path, kernel name kernel name 
+
+
+
+yielded next result 
+
+super MappingKernelManager, self. start kernel kwargs 
+
+km. start kernel kwargs 
+
+
+
+kernel name self. kernel name
+
+with secure write fname as f:
+
+return next self. gen 
+
+win32 restrict file to user fname 
+
+import win32api
+ModuleNotFoundError: No module named 'win32api'
+ 
+There was a bit of a snafu with the jupyter client 5.3 release on conda where the dependencies were not properly adjusted. That issue is unrelated to the original issue opened here. Your issue is a duplicate of LINKLINK and LINKLINK.This worked for me. 
+
+ LINKLINK Am also facing the same issue. can some one help me some one help me with this error
+
+Traceback most recent call last:
+
+ result await result
+
+ yielded self. gen. throw exc info type: ignore
+
+ type mtype 
+
+
+
+ yielded self. gen. throw exc info type: ignore
+
+ kernel id yield self. start kernel for session session id, path, name, type, kernel name 
+
+
+
+ yielded self. gen. throw exc info type: ignore
+
+ self. kernel manager. start kernel path kernel path, kernel name kernel name 
+
+
+
+ yielded next result 
+
+ super MappingKernelManager, self. start kernel kwargs 
+
+ km. start kernel kwargs 
+
+
+
+ kernel name self. kernel name
+
+ with secure write fname as f:
+
+ return next self. gen 
+
+ with os. fdopen os. open fname, open flag, 0o600, mode as f:
+Just right click the anaconda navigator. and run as an administrator
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+failed to start kernel 
+ help me 
+
+
+
+Traceback most recent call last:
+
+ result await result
+
+ yielded self. gen. throw exc info type: ignore
+
+ type mtype 
+
+
+
+ yielded self. gen. throw exc info type: ignore
+
+ kernel id yield self. start kernel for session session id, path, name, type, kernel name 
+
+
+
+ yielded self. gen. throw exc info type: ignore
+
+ self. kernel manager. start kernel path kernel path, kernel name kernel name 
+
+
+
+ yielded next result 
+
+ super MappingKernelManager, self. start kernel kwargs 
+
+ km. start kernel kwargs 
+
+
+
+ kernel name self. kernel name
+
+ with secure write fname as f:
+
+ return next self. gen 
+
+ with os. fdopen os. open fname, open flag, 0o600, mode as f:
+Are you on whatsap. send me message hi on this number 0205593874
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hi
+Please help. I have these errors 
+
+Traceback most recent call last:
+
+ result await result
+
+ yielded self. gen. throw exc info type: ignore
+
+ type mtype 
+
+
+
+ yielded self. gen. throw exc info type: ignore
+
+ kernel id yield self. start kernel for session session id, path, name, type, kernel name 
+
+
+
+ yielded self. gen. throw exc info type: ignore
+
+ self. kernel manager. start kernel path kernel path, kernel name kernel name 
+
+
+
+ yielded next result 
+
+ super MappingKernelManager, self. start kernel kwargs 
+
+ km. start kernel kwargs 
+
+
+
+ kernel name self. kernel name
+
+ with secure write fname as f:
+
+ return next self. gen 
+
+ with os. fdopen os. open fname, open flag, 0o600, mode as f:
+
+Now that notebook 6.3 is available, please upgrade notebook. 
+
+ CODESCODES 
+
+or, for conda envs,
+
+ CODESCODES 
+
+Once completed, ensure that CODESCODES and CODESCODES have versions CODESCODES and CODESCODES, respectively.conda update c conda forge notebook
+
+ thumbs up 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Thank you for your reply.Run as administrator
+
+
+
+
+
+
+
+
+
+
+
+
+
+if you are still facing the kernel issue. Type these in your Anaconda prompt.
+python m ipykernel install usersimply jupyter notebook run as administrator
+
+
+
+
+
+
+
+
+
+
+I'm just curious how to delete all the anaconda distributions? As I have re installed Anaconda several times, seems a lot of previous files are still there.
+
+
+thanks this worked for me, straight and easy solution.
+
+
+
+
+
+
+
+
+
+
+Open anaconda Prompt in Administrator mode and run the command
+python m ipykernel install user
+
+Worked like a charm
+
+
+
+
+
+
+
+Thanks for thisTraceback most recent call last:
+
+ result yield result
+
+
+
+ raise self. exception
+
+ yielded self. gen. throw exc info 
+
+ type mtype 
+
+
+
+ raise self. exception
+
+ yielded self. gen. throw exc info 
+
+ kernel id yield self. start kernel for session session id, path, name, type, kernel name 
+
+
+
+ raise self. exception
+
+ yielded self. gen. throw exc info 
+
+ self. kernel manager. start kernel path kernel path, kernel name kernel name 
+
+
+
+ raise self. exception
+
+ yielded next result 
+
+ super MappingKernelManager, self. start kernel kwargs 
+
+ km. start kernel kwargs 
+
+
+
+ kernel name self. kernel name
+
+ with secure write fname as f:
+
+ return next self. gen 
+
+ win32 restrict file to user fname 
+
+ import win32api
+ImportError: No module named 'win32api'
+
+
+If anyone can help
+
+
+
+
+this works for me! thx
+
+
+
+
+Work for me too. Thank you
+
+
+Worked for me. Thanks a lotuninstall all package and folder of python + remove envirnment then install anaconda! its work for me
+For me, I did below steps from several opinions 
+1. Upgraded conda
+ conda update n base c default conda
+2. Created new environment
+ conda create n myenv python 3.5 jupyter
+here I had verified that my installed python version is 3.5.Hi, I installed anaconda and have been using python3 fine. Then, I tried to install Julia so I could use it too. However, I get a kernel error when I open a jupyter notebook. As suggested way above, I tried from the terminal:
+jupyter kernelspec list
+Available kernels:
+ julia thumbs down.5 Users colehl Library Jupyter kernels julia thumbs down.5
+ python3 Users colehl opt anaconda3 share jupyter kernels python3
+
+The paths are clearly different here. Is that the problem? What should I do to fix this? Hi colehl. The paths look okay. Kernels are found in different locations, but generally following the output of CODESCODES relative to the CODESCODES locations.
+
+
+
+What is the complete error you see in the notebook and console window if different?
+
+Do you know if you're using CODESCODES?So, after looking at what you said, I started over and went ahead and updated Anaconda, and then downloaded Julia and that seemed to have worked. I’ll try that sequence on my fancier notebook and hopefully that cleans everything up. 
+
+Thanks,
+
+Hal.
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This issue has been mentioned on Jupyter Community Forum. There might be relevant details there:
+
+ LINKLINK 
+
+
+
+It works! Thank you so muchThanks. It worked for displaced envs.Traceback most recent call last:
+
+ result await result
+
+ yielded self. gen. throw exc info type: ignore
+
+ type mtype 
+
+
+
+ yielded self. gen. throw exc info type: ignore
+
+ kernel id yield self. start kernel for session session id, path, name, type, kernel name 
+
+
+
+ yielded self. gen. throw exc info type: ignore
+
+ self. kernel manager. start kernel path kernel path, kernel name kernel name 
+
+
+
+ yielded next result 
+
+ super MappingKernelManager, self. start kernel kwargs 
+
+ km. start kernel kwargs 
+
+
+
+ kernel name self. kernel name
+
+ with secure write fname as f:
+
+ return next self. gen 
+
+ with os. fdopen os. open fname, open flag, 0o600, mode as f:
+
+ shrikantpardhi please see LINKLINK 
+
+How to delete the kernelspec path? I deleted it, but he moved to another path. And when I deleted another path, he is still there. Although the path does not exist now.
+
+
+
+did you check if you just deleted a symlink instead of the actual path? Are you working with a virtual environment or using the native Python?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ uninstall all previous python version from system uninstall anaconda reinstall anaconda 
+
+how did you remove environment and unstill all package and folder of python? Can you please specify in steps?

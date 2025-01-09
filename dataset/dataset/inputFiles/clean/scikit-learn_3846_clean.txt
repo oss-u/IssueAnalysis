@@ -1,0 +1,270 @@
+ UPDATE May 23 202 
+
+Here's a list of the remaining classes:
+
+ feature selection. SelectorMixin
+ calibration. CalibratedClassifierCV LINKLINK 
+ decomposition. DictionaryLearning LINKLINK 
+ decomposition. MiniBatchDictionaryLearning LINKLINK 
+ decomposition. SparseCoder LINKLINK 
+ ensemble. GradientBoostingClassifier
+ gaussian process. kernels. CompoundKernel
+ gaussian process. kernels. Hyperparameter
+ gaussian process. kernels. Kernel
+ gaussian process. kernels. PairwiseKernel
+ inspection. PartialDependenceDisplay
+ linear model. PoissonRegressor
+ linear model. TweedieRegressor
+ linear model. GammaRegressor
+ metrics. ConfusionMatrixDisplay
+ metrics. PrecisionRecallDisplay
+ mixture. BayesianGaussianMixture
+ mixture. GaussianMixture
+ multioutput. ClassifierChain LINKLINK 
+ multioutput. RegressorChain LINKLINK 
+ neighbors. BallTree
+ neighbors. DistanceMetric
+ neighbors. KDTree
+
+
+ 
+Most of the docs in classes lack examples. It would be great to add one or two examples similar to this, LINKLINK 
+ LINKLINK 
+I assume you mean a small code snippet doctest using each estimator.
+
+This is one of the reasons I added automatic links back to pertinent
+examples from the gallery when showing the compiled API reference, for example 
+ LINKLINK.
+Unfortunately, there was no straightforward way to have these render where
+the doctest examples do and hence they were relegated to the end of the
+page which is out of the numpydoc generation.
+
+On 12 November 2014 23:06, Manoj Kumar wrote:
+
+
+
+
+
+
+
+
+Yes, I had meant probably one or two liners for example LINKLINK just to show the API.
+
+
+
+This is awesome. I had not noticed it before!
+
+
+Only in dev. And hidden away at the bottom of the page thumbs down 
+Where else do you think it would be better?
+
+Below the class description and above the parameters? 
+Anywhere before the method description would be fine. Method descriptions can take up a lot of vertical space on the API reference page, so someone is unlikely to scroll past them looking for examples.
+Sorry for the late reply. I assume that it is not too easy to do? Else you would have done it yourself?
+No, it's even hackier than the current approach!
+
+On 19 November 2014 21:59, Manoj Kumar wrote:
+
+
+
+
+
+
+
+
+How about simply adding examples to the missing classes' docstring?
+
+These are the estimators 98 10 148 currently missing an CODESCODES section: 
+
+Done WIP
+
+ CODELCODEL 
+
+ 4498 
+
+ CODELCODEL 
+
+ CODELCODEL 
+
+Not needed
+
+ CODELCODEL 
+
+TODO
+
+ CODELCODEL 
+Of course, but don't you think that is slightly on the tedious side? Unless you have a script.
+I wanted to learn a little about all these estimators. I think this would be a good way to do that thumbs up Shall I start working on it?
+Sure! 
+I am working on this. ltcguthrie which part? There are many models to work on for this.I'll start with TfidfVectorizer.Working on RandomForestClassifier and RandomForestRegressorWorking on PassiveAggressiveClassifier, PassiveAggressiveRegressorWorking on LinearSVC, LinearSVRWorking on StandardScaler, MinMaxScalerWorking on ElasticNet, ElasticNetCVAlso, created google doc for list of done undone objects
+
+ LINKLINK  lodurality you can also create a list here with checkboxes
+
+ like
+ thisI'm going to mark it as 0.21 and good first issue since I believe it will be helpful to include a small example for every class. working on CODESCODES Hi, I'm working on adding an example for the Imputer as a first contribution.Taking up linear regression: LINKLINK Working on TfidfVectorizer and CountVectorizer.
+
+Looks like these were worked on in LINKLINK, LINKLINK, and LINKLINK but not yet finished or merged.Also working on HashingVectorizer in CODESCODES.Taking CODESCODES. depends on 11677 Taking CODESCODES I think you can still provide an example for OPTICS even with the bug thumbs up  qinhanmin2014 do you mean an example w o an outlier so that it doesn't show the bug? I guess it'd be nice to have an example which shoes how CODESCODES detects an outlier, and I suspect we'd forget about changing the example once that bug is fixed. I can write a note in the bug issue to fix the example once the problem is fixed, but then the initial example won't have the outlier. Should I do that?
+
+No, I mean one with outlier s, like DBSCAN
+
+I've not looked into the bug but I'd expect that OPTICS can detect correct outliers most of the time, so you can still construct an example. If this is not the case, I think we need to tag the bug as blocker.Fair enough, I'll try and see if I can find a simple example where it works fine.Taking on CODESCODES taking on CODESCODES taking CODESCODES taking CODESCODES classes.taking PerceptronI have added the example in the Perceptron class but for some unknown reasons it won't work.
+Help needed, I am a novice! ps I have already created a pull request.
+
+ LINKLINK taking CODESCODES  Perceptron examples in Perceptron. py to scikit learn scikit learn linear model perceptron. py 11798 Taking 'sklearn manifold I am working on sklearn. feature extraction. image. PatchExtractorAndrea and I will be working on sklearn. cluster. Ward and LedoitWolf example. We are updating the Excel tracker to ensure no one is putting on any duplicated efforts.I am working on sklearn. decomposition. DictionaryLearningWe just updated the google doc from lodurality here:
+ LINKLINK 
+
+Me and Shimeng will be working on the missing ones.  andreanr, that doc is kinda old and missing a whole bunch of new classes. A better idea would be to take a module or a folder, and cover all the public classes in it. adrinjalali Yes definitely, we will finish the outstanding ones in the current list and then we will update the list base on the updated modules.  andreanr are you working on the classes in CODESCODES, too? Otherwise, I'd like to work on that. daten kieker go ahead! Hi, 
+
+Is there anything left that I could contribute to?
+
+Thanks. srividhyaprakash I only added examples for estimators in CODESCODES. You could have a look at the other classes.  daten kieker, Thanks for your reply. This is my first time in a public well maintained repo. Could you please guide me on a possible starter guide to commit style and format for the example?
+Thanks. srividhyaprakash, you can start by going through what you find in the LINKLINK. You can also ask on LINKLINK if you have questions getting started. I wish you a joyful contribution journey here.
+
+Once you start on this particular issue, you can check some of the pull requests you see on this thread to get an idea of what it involves.Hello, is there anything left that I would be able to assist with?
+If it is still available, could I deal with the LinearRegression docstring? adrinjalali apologies, I just read through the different commits and I saw that you already finished the LinearRegression in 11975. May I deal with the LogisticRegression docstring?We've kinda lost track of what's left here. One contribution would be to actually check all public classes and list the ones which still need an example, and take it from there. adrinjalali, I can compile a list of what's left adrinjalali, I got so excited I forgot to ask, is there a specific branch of this project that has the latest updates?master has the latest updates. On the other hand, one approach might be to
+consider the generated API documentation for example at
+ LINKLINK 
+and grep for files not containing CODESCODES 
+ jnothman, thank you, the grepping advice was spot on. I will start compiling the list todayAny more help need here to either to update a existing doc or to create a new one.
+It would help me get started with open source too. so any directions or work would be appreciated.We still need an updated list of classes without examples. Ping Khayyon1? Khayyon1 have you completed the list or do you need some help. adrinjalali, I am going to have to drop it because school resumed shortly after I asked to assist and I have been unable to work on this, my apologies  adrinjalali so should i see which all are remaining from the list mentioned by raghavrv  coderop2 that's a 3 4 year old list, probably better to start a new one!Sry for the late reply. As soon as my college exams are over i will start compiling a new list while keeping the old list in mind. i hope that will be enough to act as a reference for everyone CODELCODEL 
+
+Not certain this is accurateThis may be a more accurate one, still has false positives. Also, assuming we don't need examples for Mixin and Warning classes.
+
+ CODELCODEL Yes, I had the wrong lookup, giving many false positives. This is better:
+ CODELCODEL 
+
+This is 76 while your list is 62: it excludes CODESCODES and CODESCODES which is fair enough, adrinjalali, while including strange things like CODESCODES. Sorry, we both include Sum. Silly.Taking on GroupShuffleSplitI would work on dummy DummyClassifier, DummyRegressor.This is the current list of classes that might need examples:
+ CODELCODEL Hi pspachtholz MechCoder, I would like to work on this. I am interested to contribute to scikit learn and think that this can be a good starting point.
+
+Thanks PyExtreme I think you can just go ahead, select one more classes from the list that you find interesting and add examples. I would then post what youre working on here to avoid duplicate work. For guidance you can take a look at previously merged pull requests. pspachtholz, I am picking up ExtraTreesClassifier initially and after making commit, I would like to pick up in batches.
+
+ThanksWorked on gradient boosting. Picking up CODESCODES & CODESCODES I'm on CODESCODES I'm working on CODESCODES Hi, I'll be working on CODESCODES and CODESCODES I'm on CODESCODES. Wish me good luck!
+
+also working on it Maybe we can share examples?picking up CODESCODES I'm picking the CODESCODES I'm working on CODESCODES I am picking neighbors. KernelDensityI'm on CODESCODES on CODESCODES Hey, I'll be working on the Gaussian Process kernels, starting with CODESCODES and then do the other kernels with thorbenjensen Working on CODESCODES Working on CODESCODES Working on CODESCODES Next up CODESCODES working on ensemble. GradientBoostingRegressortaking a look at CODESCODES Looking at CODESCODES.working on CODESCODES 
+
+
+Hi jorahn, I have already submitted a PR on that.
+Please feel free to pick another module.I suggest looking through the comments before to see if someone is already working on a class to avoid duplicated work.
+For some classes there are already some possibly stale mrg requests, where we could ask the authors whether they are still actively working on it.
+
+ flaviomorelli LBrummer mschaffenroth I did the ensemble gradient in this PR already 15151 Really cool btw to see that this is picking up speed: 
+
+
+
+
+oh, didn't see that on this issue. so we now have two PRs for thatPerceptron is already documented.working on CODESCODES working on CODESCODES 
+
+
+
+ jorahn, I had mentioned about it 1 week ago here only and had already been working on it since 1 week.Working on OneVsOneClassifier.I'm going for the CODESCODES working on CODELCODEL Working on CODESCODES.Working on multioutput. MultiOutputRegressor
+taking CODESCODES  CODESCODES is deprecated in version 0.21 and will be removed in version 0.23. Not working on this.Working on CODESCODES  CODESCODES already documented.working on CODESCODES 
+
+there are some examples for BallTree and CODESCODES already CODESCODES already documented.taking CODESCODES  CODESCODES already documented. CODESCODES already documentedWorking on CODESCODES 
+
+Hi zioalex, I already have a PR for this: 15205. Happy to take suggestions and comments: smiley: Working in CODESCODES.working on CODESCODES working on CODESCODES working on CODESCODES 
+
+After taking to adrinjalali, we concluded it is better not to work on this one since it is release dependent. And it probably will be moved somewhere else. 
+
+For your peace of mind be like us, do not work on CODESCODES Working on CODESCODES I would like to work on a few. I will start with optics.Hi! I have just raised a PR after adding an example code snippet to K means clustering. This is my first open source contribution, so it would be great if someone could look into this and see if it needs any more work! 
+Thanks and Regards,
+Smriti Singh I went through the list from last October and checked which classes already have merged PRs examples. I suppose that claims from last year or longer ago, on which nothing further has happened, can be ignored.
+So here comes an updated todo list:
+
+ don't work on this, it is release dependent: exceptions. ChangedBehaviorWarning
+
+ open PRs:
+
+decomposition. SparseCoder 		 15233
+
+ exceptions. DataDimensionalityWarning	 15246 
+mixture. BayesianGaussianMixture		 15193
+mixture. GaussianMixture			 15193
+multioutput. ClassifierChain		 15211
+multioutput. RegressorChain		 15215
+
+ new open prs: 
+decomposition. DictionaryLearning 16907
+ exceptions. EfficiencyWarning 16785 
+ exceptions. UndefinedMetricWarning 16784 
+
+ Free for the Taking:
+
+ EDIT: those in CODESCODES are better suited for the developer guide, let's ignore them for now 
+ base. BaseEstimator 
+ base. BiclusterMixin 
+ base. ClassifierMixin 
+ base. ClusterMixin 
+ base. DensityMixin 
+ base. RegressorMixin 
+ base. TransformerMixin 
+
+decomposition. MiniBatchDictionaryLearning
+
+ exceptions. NonBLASDotWarning 
+
+ feature selection. SelectFromModel 
+
+gaussian process. kernels. CompoundKernel
+gaussian process. kernels. Hyperparameter
+ gaussian process. kernels. Kernel 
+
+ inspection. PartialDependenceDisplay 
+
+ multiclass. OneVsOneClassifier 
+
+ multioutput. MultiOutputClassifier 
+
+ utils. Memory 
+ utils. Parallel 
+
+
+ Update. Now merged: 
+covariance. OAS 16681
+multioutput. MultiOutputRegressor 16698
+tree. ExtraTreeClassifier 16671
+
+neighbors. DistanceMetric
+neighbors. KDTree
+neighbors. LocalOutlierFactor
+
+exceptions. DataConversionWarning 16704 
+
+multiclass. OneVsOneClassifier 16700Do we want examples for the CODESCODES classes? I guess it makes more sense to have them better documented in the CODESCODES. WDYT jnothman NicolasHug?Agreed it's better for the developer guide. I'm editing the commentI think it was closed by accident. multioutput. MultiOutputClassifier already has examples. Should it be updated to include an example of the attribute or should it be taken off the TO DO list? I think it can be removed from the list. Thanks marenwestermann 
+
+Ok, then feature selection. SelectFromModel can also be removed because it has examples too. These were added in October last year. Regarding CODESCODES and CODESCODES: 
+on the scikit learn website they are said to be removed in version 0.23. I checked the CODESCODES file where these classes lived in and they have been removed. So these can be taken off the list, too.I'll try and tackle CODESCODES thumbs up Apart from the above DictionaryLearning MiniBatchDictionaryLearning PR, I also had a look at the neighbors. classes: They all already have at least one example. The ones for neighbors. KDTree and neighbors. BallTree are generated from the CLASS DOC format string which can be found in the binary tree. pxi include file.It is my first time contributing this project. I would like to look into neighbors. classes including:
+neighbors. DistanceMetric
+neighbors. KDTree
+neighbors. LocalOutlierFactorI had a look at CODESCODES. According to the documentation it is the Base class for all kernels. Therefore, all its attributes are read only property attributes methods with CODESCODES decorators. From my understanding it therefore doesn't make sense to add examples to this class because it can only be used in combination with another class. 
+However, if you scroll to the bottom of the webpage of CODESCODES there's a link to an example of how this class can be used. This was added in Nov 2019. In this example the class CODESCODES is created which inherits from the CODESCODES class. The CODESCODES class is not a feature of scikit learn but might be an interesting feature to add. 
+
+Please correct me if anything that I've written here is wrong.Yeah it'd make it too complicated to write an example for it. I'm happy for it to be removed from the list. Malesche CODESCODES is now closed and can therefore be taken off the TODO list.Regarding CODESCODES: 
+In the class description it is said, It is recommended to use CODESCODES to create a CODESCODES. I had a look at this function and inside it a CODESCODES object is created and its CODESCODES method is called. There are examples for how to use CODESCODES, and I therefore think that there's no need to add examples to CODESCODES. What do you think, adrinjalali?agreed marenwestermann  CODESCODES can also be taken off the TODO list because a decision against having examples in CODESCODES has been made see 17040.  NicolasHug, amueller just in case you want to use this issue as a sprint issue, you can find LINKLINK the list of the classes still missing examples thanks to Joel LINKLINK, amended by himself. thumbs up. I have already removed CODESCODES and CODESCODES classes. May I suggest to edit the issue with the list just at the beginning? This will make easier to identify available classes. PR still opened from previous sprints not only are linked into the list: I think it will be useful to finalize them before a new event thanks thomasjpfan for having started some reviews already. Thanks for the suggestion cmarmo, I updated the issue.HI, I will try to take on CODESCODES.Hi, I will take on CODESCODES.
+
+ linear model. PoissonRegressor
+ linear model. TweedieRegressor
+ linear model. GammaRegressorHi, We will take ensemble. GradientBoostingClassifier
+
+This one already has an example.
+
+Hey, We are now taking:
+
+ metrics. ConfusionMatrixDisplay
+ metrics. PrecisionRecallDisplayHey adrinjalali, Can you please check the PR? Thanks! emdupre and I will work on below as part of the data umbrella sprint. 
+
+ neighbors. BallTree
+ neighbors. DistanceMetric
+ neighbors. KDTree
+Hello adrinjalali, Seems like we can already see some examples for below. It's not updated in the todo list. Please suggest.
+
+ neighbors. BallTree
+ neighbors. DistanceMetric
+ neighbors. KDTreeHi I will work on:
+
+ decomposition. DictionaryLearning 16907 
+ decomposition. MiniBatchDictionaryLearning 16907 
+ decomposition. SparseCoder 15233 Hi, I will work on:
+ CODESCODES Closing this as all the PRs have been merged and there is no more relevant classes without examples.
+Thanks j2heng for helping in triaging during the sprint!Oh really. The list on the top is out of date?Oh yes I merged the other PR.Me and abdulelahsm are working on CODELCODEL  YasmeenAlsaedy abdulelahsm Since a user is not going to use the CODESCODES, we should add any example. This is a class used by developer instead.
+
+It seems that we close the issue as well. So I assume that we added examples for all public classes. In case, that you see any class for which we did not add an example, I can reopen the issue.

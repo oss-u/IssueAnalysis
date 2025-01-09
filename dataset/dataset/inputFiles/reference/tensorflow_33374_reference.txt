@@ -1,0 +1,33 @@
+ Please make sure that this is a build installation issue. As per our LINKLINK, we only address code doc bugs, performance issues, feature requests and build installation issues on GitHub. tag: build template 
+
+ System information 
+ OS Platform and Distribution for example, Linux Ubuntu 16.04: windows 10
+ Mobile device for example iPhone 8, Pixel 2, Samsung Galaxy if the issue happens on mobile device:
+ TensorFlow installed from source or binary: pip
+ TensorFlow version: 2
+ Python version: 3.8
+ Installed using virtualenv? pip? conda? venv
+ Bazel version if compiling from source: NA
+ GCC Compiler version if compiling from source: NA
+ CUDA cuDNN version: NA
+ GPU model and memory: NA
+
+
+
+ Describe the problem 
+ cant install tensorflow
+ Provide the exact sequence of commands steps that you executed before running into the problem 
+
+install python 3.8
+create a new venv
+ CODESCODES 
+fails with ERROR: Could not find a version that satisfies the requirement tensorflow from versions: none 
+ERROR: No matching distribution found for tensorflow 
+
+
+ Any other info logs 
+Include any logs or source code that would be helpful to diagnose the problem. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+
+
+EDIT: I guess you don't provide binaries for python 3.8 LINKLINK 
+is there another issue I can subscribe for about support for python 3. couldn't find one, so keeping this open for now 

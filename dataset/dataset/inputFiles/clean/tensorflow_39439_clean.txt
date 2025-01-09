@@ -1,0 +1,1074 @@
+ Please make sure that this is a bug. As per our
+ LINKLINK,
+we only address code doc bugs, performance issues, feature requests and
+build installation issues on GitHub. tag: bug template 
+
+ System information 
+ Have I written custom code as opposed to using a stock example script provided in TensorFlow: Yes
+ OS Platform and Distribution for example, Linux Ubuntu 16.04: Windows 10
+ Mobile device for example iPhone 8, Pixel 2, Samsung Galaxy if the issue happens on mobile device: NA
+ TensorFlow installed from source or binary: source
+ TensorFlow version use command below: 1.12.0 branched from 5b900cfe4b3b848f577315a0dde09a729f770e95
+ Python version: NA
+ Bazel version if compiling from source: 0.19.2 
+ GCC Compiler version if compiling from source: MSVC 2015
+ CUDA cuDNN version: 10.130, 9.148
+ GPU model and memory: NVIDIA GP100 16Gb
+
+You can collect some of this information using our environment capture
+ LINKLINK 
+You can also obtain the TensorFlow version with:
+NA
+
+ Describe the current behavior 
+
+I am creating as session as follows adapted from original code 
+
+ CODELCODEL 
+
+which results in 
+
+ CODELCODEL 
+
+ Describe the expected behavior 
+
+Session is created and runs on GPU 0 only using only 80 of available memory
+
+ Standalone code to reproduce the issue 
+
+ CODELCODEL 
+
+ Other info logs 
+
+Please see the following issues
+ LINKLINK 
+ LINKLINK 
+
+I have built my tensorflow. dll as follows:
+
+ ENV: USE BAZEL VERSION 0.19.2 
+
+
+
+
+
+
+
+ ENV: TF CUDA VERSION 9.2 
+
+ ENV: TF CUDNN VERSION 7 
+ ENV: TF NCCL VERSION 1 
+ ENV: TF CUDA COMPUTE CAPABILITIES 3.3.5.5.6.6.1 
+ ENV: TF CUDA CLANG 0 
+ ENV: TF NEED CUDA 1 
+ ENV: TF NEED ROCM 0 
+ ENV: TF NEED OPENCL SYCL 0 
+
+
+ params configure. py, 
+
+cmd c ECHO Y & python. exe params 
+bazel. exe clean expunge
+bazel. exe build copt nvcc options disable warnings test tag filters no oss, gpu, benchmark test, nomac, no mac announce rc test timeout 300,450,1200,3600 test size filters small, medium jobs 12 tensorflow: libtensorflow cc. so tensorflow: libtensorflow framework. so 
+
+edits have been made to the following files:
+
+within
+
+tensorflow BUILD
+
+ CODELCODEL 
+
+becomes
+ CODELCODEL 
+
+and within 
+ CODESCODES the function of CODESCODES 
+
+ CODELCODEL 
+
+becomes
+
+ CODELCODEL 
+
+The contents of CODESCODES are
+
+ CODELCODEL 
+
+As documented by
+ LINKLINK 
+
+
+My software is linked against CODESCODES from LINKLINK 
+
+
+built as 
+
+ CODELCODEL 
+
+I also tried editing CODESCODES to include
+
+ CODELCODEL 
+
+I also tried the CODESCODES macro from CODESCODES 
+
+in
+ CODESCODES 
+and
+ CODESCODES 
+
+as suggested by
+ LINKLINK 
+
+Do you have any suggestions about how to make sure that 
+
+the GPU options for allocator type and visible device list do not share the same memory but we still have a monolithic DLL under windows?So clearly it is a compilation and linking problem these attributes are part of the same protobuf message:
+
+ LINKLINK 
+
+So the symbol they address will have the same name.
+
+Which is
+? fixed address empty string internal protobuf google 3V? ExplicitlyConstructed V? basic string DU? char traits D std V? allocator D 2 std 123 A
+
+How is it possible for the compilation process to address different a memory address for the same protobuf symbol from the message in the. cc file above.Mentioning similar issue:
+ LINKLINK Where is the object file for this config. proto file mentioned above
+
+I could find
+
+ CODESCODES 
+
+I could try linking against that rather than exposing the symbol from CODESCODES 
+
+But I have yet to do a symbol dump from that file to see if 
+
+ CODESCODES is there.Here is another sign of hope:
+
+ LINKLINK Mentioning ttdd11 Steroes ZhuoranLyu brantl sitting duck who have been near this issue before.OK here it is
+
+From my continous integration test
+
+ CODELCODEL 
+
+Here is CODESCODES 
+
+ CODELCODEL 
+
+Now I will see if I can get it to work somehow so those two things are not on top of each other.Can anyone describe to me how
+
+ LINKLINK 
+
+Becomes those two CODESCODES on the same bit of memory?
+
+I do not understand the protobuf and bazel process particularly well.Here is the contents of CODESCODES CODESCODES 
+ LINKLINK 
+ LINKLINK 
+
+ found in CODESCODES 
+
+in the attached. zip filesHere are the CODESCODES and CODESCODES as. zip files also from CODESCODES 
+
+ LINKLINK 
+ LINKLINK 
+The same code on a static version of tensorflow with the same code under Linux does not share the same address. sanjoy if you need any additional information everything I do is triggered by repeatable scripts in a CI environment this is not a roulette process but a repeatable process. gunan Do you have anyone working on this?Does the issue occur on a newer version?
+1.12 is definitely outside our support window. I can try exploring this on 1.15, but realistically, master or 2.2 is the ones I will be able to help most with. gunan 
+
+I will have an attempt, but r1.12+ requires hardware instructions which are more modern than some legacy hardware which I wanted to support I think AVX, AVX2 and SSE4
+
+I will see if I can do the build on a cloud box I think others have reported on 1.15 I will see if I can find a reference to that first before spinning up a whole new build platform.
+
+SamI am surprised to hear that. If you are building from sources, you should be able to build without any advanced instruction sets. I would be happy to help resolve if that happens we can create another issue for it Even with r1.12 there is a workaround for nasm and OpenSSL that needs to be made. I will see if I can reproduce the error with r1.15 sometime in the next week.
+
+
+I'm experiencing the same thing on 1.15. As are others, such as: LINKLINK Sorry I never got time to do a build with 1.15 or 1.14 I will see if time permits today.I am currently building from
+
+ LINKLINK 
+
+To see if the problem exists there:
+
+Tool chain is bazelisk Win 64, Anaconda Python 3, MSYS2, for patch and bash, CUDA 9.1.148 CUDNN 7.5.56 MSVC 2015 Community on a T4 box on AWS running Windows 2019 Datacenter Edition.
+
+
+ CODELCODEL 
+
+Where the following are 
+
+ CODESCODES 
+
+ CODELCODEL 
+
+ CODESCODES 
+
+ CODELCODEL Build completed successfully now to build the driver and see if the problem exists.Six hours later the result is the same as r1.12 in r1.14 CODELCODEL also 
+
+ CODESCODES is called CODESCODES for some unknown reason.
+
+But I used protobuf 3.1 and the existing nsync and abseil cpp from beforeBuilding from
+
+ LINKLINK 
+
+Which is CODESCODES The compile failed
+
+ CODELCODEL 
+
+The only changes to 
+
+ LINKLINK 
+
+Were the following files mentioned above with CODESCODES 
+
+The bazel version to use is not mentioned for CODESCODES 
+
+see:
+
+ LINKLINK 
+
+I will spin the wheel one more time with CODESCODES and see if that improves.
+
+ gunan 
+
+Same with ‘bazel 0.26.1’
+
+I am happy to demonstrate the bug with r1.15 if you can give clear instructions on how to build the target
+
+tensorflow cc. dll
+
+The documents do not include this version as tested
+
+There is no recommendation about MSVC version to use of bazel version
+
+Sam sanjoy gunan 
+This was reported in February 2019 here
+
+ LINKLINK 
+
+It is still present in r1.14
+
+I can imagine that the bug will still be present in r2.2
+
+Can someone else confirm this for me?
+OK on with the show
+
+making tensorflow cc. dll as follows
+
+In a Powershell on a AWS T4 box with 48 cores and 4 T4 Turing cards
+
+With the following installed
+
+msys2 with patch via pacman
+MSVC 2015 Community Edition for C++
+Anaconda Python 3
+Baselisk for Win 64
+CUDA Toolkit 9.1.148
+CUDNN 7.5.56
+
+ CODELCODEL 
+
+Where build tf. ps1 is as follows
+
+ CODELCODEL 
+
+I will await the outcome and build the abseil, nsync and protobuf via CMake to build against the driver.
+
+ CODELCODEL 
+
+Which will be built similar to
+
+ CODELCODEL 
+
+Here is the location of protobuf from workspace. bzl
+
+ CODELCODEL 
+
+I will see if I can find the abseil cpp and nsync required if needed at all.That didnt end well
+
+ CODELCODEL 
+
+So I guess I install MSVC 2019 and try again. gunan Can you have someone look into this, does this project have enough resources for maintenance for Windows and C++?
+
+This is wasting my time
+
+ LINKLINK Trying again with master on MSVC 2015Here are the errors from master a7d8140e60d351d25ee3ba8236d8badf975dcada
+
+Using MSVC 2015
+
+ CODELCODEL Repeating with MSVC 2019 as follows
+
+AWS with 4 T4 Turing Cards and 48 virtual cores and 190Gb of RAM and MS Server 2019
+
+Anaconda based Python
+MSYS2 for patch, perl, and bash
+MSVC 2019 community edition
+Win64 Bazelisk
+
+ CODESCODES 
+
+ CODELCODEL 
+
+ CODESCODES 
+ CODELCODEL 
+
+Steps:
+ Open powershell Source CODESCODES  git clone tensorflow URL git checkout r2.2 source CODESCODES 
+
+ LINKLINK 
+
+bazel config attached, will report back sucess or failure.We definitely have a shortage of experts on windows.
+TF requires c+ thumbs up 4, so building with msvc 2015 will not work.
+
+I am still trying to parse what you mean by overlapping memory address between string gpu options for allocator type and visible device list 
+Do you mean you are setting one field, and the other gets inadvertently changed?
+
+If that is the case, the reproduction you have is pretty indirect. In your reproduction code, could you print the same field before and after you set the visible device list?
+Otherwise, one other cause may simply be your gpu may not have 80 of its memory available.
+
+Also, tensorflow: GpuOptions is a simple protocol buffer. I see that you build libprotobuf separately and try to use that. That workflow at the moment is strictly unsupported, and I highly suspect this may be causing corruption in your protocol buffers.Here is the result of CUDA 9.1.148 and MSVC 2019
+
+ CODELCODEL 
+
+So now for giggles I will put on MSVC 2017 and see if I get further, CUDA Toolkit 9.1.148 is a requirement for compatibility.
+
+
+
+Yes this is what I mean, sorry if this was not clear from the begging
+
+Could you modify the driver to better demonstrate what i think it makes clear?
+
+
+
+Yes I can do that in r1.14 right now.
+
+
+
+
+
+
+What is the supported workflow?
+
+There are no protobuf symbols in Tensorflow.
+
+Unfortunately, the only reliable way to make thing work on windows, as far as we could saw, was to statically link TF. Protobuf is indeed fully linked into TF, however many of the symbols are hidden because we keep hitting the 64K symbol limit on windows. We are working to refine our API, but as we added windows support later, and only exposed what we saw as needed in our limited experiments, many symbols are missing from the API surface. We can work together to expose some symbols, or propose some local modifications patches to make your project work on windows.
+
+As I said before, we have very limited experience on windows, thus lacking a lot of features. Also struggling to keep up with the incoming issues, as you clearly experienced on this issue. I am genuinely sorry about that. I am trying to set up a workspace to try out some of the issues you saw. I will start with a clean build of libtensorflow cc, then look into the protobuf issues you saw. 
+
+In the meantime, if you could share the output of the following code, that would be quite helpful for me. As I said, this is a protobuf symbol, and I will check with protobuf team to see if they have seen a similar issue on windows.
+
+ CODELCODEL OK thanks for being accommodating with your time.
+
+from CODESCODES 
+ CODELCODEL 
+
+I get the following output
+ CODELCODEL 
+
+Sorry for not explaining myself better.Here is your code's output
+
+ CODELCODEL So I know how to expose symbols at build time via a. lds file in r1.12
+
+How would I find the missing symbols for protobuf in CODESCODES 
+
+There seems to be a lot of stabbing around in the dark.I would be overjoyed to statically link to TF.
+
+How would I go about doing that?At the moment, the best way is using bazel.
+You can create a workspace, and add TF as a workspace dependency.
+Then you can depend on TF libraries as bazel dependencies.
+
+I will test your example on my machine as well. I also reached out to the protobuf team, and waiting on their response.Is there a way of using skylark to simply echo all of the. lib files required to link to the final binary to use as a plugin?
+
+Adding a dependency to bazel in the build chain might be incompatible with the rest of the build process.For that, I would need help from bazel experts.
+ hlopko r4nt meteorcloudy is there a way to have lib files accessible after building a dll, or maybe a cc library?
+
+Also, I just built locally, and I was able to build using MSVC 2019 professional, without cuda. Trying again with CUDA.By the way, I synced my client to the following commit at master branch: e19e2d29d562724ead9e60e1ba4c4ffd91a0eb7a
+
+For both of the following commands, I was able to build TF with MSVC 2019 professional, the latest available version. MSVC community should yield the same results.
+
+ CODELCODEL  gunan which CUDA and CUDNN did you use? I am locked to CUDA 9.1.148 and CUDNN 7.5.56 for Blackmagic Design Compatibility, as cudnn64 7. dll is in the path and I am a plugin to their system.
+
+
+Yes, you can get the LIB file import library via CODESCODES in the command line or in the BUILD file using a filegroup rule.
+Eg,
+ CODELCODEL 
+You can then later use this LIB file in a cc import rule.
+Please check this example: LINKLINK I will experiment with this tomorrow.
+
+Thanks for the explanation, it doesn't make sense to me yet, but my Star Sky lark is limited.
+
+But intent would be to sequester this into a document so that once a TF build exists I can pull in the artifact from bazel genfiles from a ZIP file and point to each of the. lib files to statically link into my TF plugin which is also linked against a few other libraries.
+
+There is no indirection at the moment via CMake or bazel just a MSVC project pointing at headers and. lib files.
+
+While bazel is wonderful, implementing in a non Google project from scratch can take a bit of a spin up hit, which I have yet to overcome.
+
+
+
+
+
+Were you able to test what happened with that driver you gave me? sanjoy gunan 
+
+Good morning from a bright blue sky morning in Adelaide.
+
+I have looked into the following docs:
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+
+So now my intent is to build a CODESCODES on Windows which will have all of my symbols for statically linking to my application's shared library CODESCODES, which means I will no longer need to link to CODESCODES and also CODESCODES and all of the 65K symbol limits will be a thing of the past.
+
+Do you see any roadblocks in my strategy?My latest failure
+
+Using CUDA 10.2 and CUDNN 7.5.32
+
+
+with 
+
+ CODESCODES 
+
+I will try again without this statement and see if it compiles.
+
+ CODELCODEL Edit: This behaviour is expected with CUDA Toolkit 10. 10.2 is a update to 9.2 because CUDA Toolkit 9.1.148 doesn't support nvcc for MSVC 2019. MSVC 2017 might support C+ thumbs up 4 required for TF 2.
+
+See:
+ LINKLINK 
+
+CUDA COMPUTE 3.5 and 3.7 are deprecated, so need to cancel the render and lock it to 7.0 for the T4 based Turing card but this wont be suitable for a wide range of end users without Turing based cards. 
+
+Now it is set to CUDA compute 3.7.0 only I will see if this compiles.MSVC 15 2017 and CUDA Toolkit 9.1.148 gives you up to compute capability 7.0 and down to 3.5 While giving C++ language support.7a7207f3b6 gives me
+
+ CODELCODEL 
+
+From
+ CODESCODES  CODESCODES  CODESCODES  CODESCODES  CODESCODES 
+
+Where I am on a 2019 t4 server with 48 cores
+
+With Anaconda Python, MSYS2 for patch and perl and bash, CUDA 10.2 CUDNN 7.5.32
+
+ CODESCODES is
+
+ CODELCODEL 
+
+ CODESCODES is
+
+ CODELCODEL 
+
+Is this expected behaviour?
+
+I will repeat with r2.2b96f3662b completed.Attached is the CODESCODES file from r2.2
+
+ LINKLINK 
+
+Which is being built as 
+ CODESCODES  CODESCODES 
+
+
+ CODESCODES 
+ CODELCODEL 
+
+ CODESCODES 
+
+ CODELCODEL 
+
+the edit to CODESCODES is
+
+adding five lines
+
+ CODELCODEL 
+ CODESCODES I had cuda 10.1 on my machine, so tried with that. So it may be caused by the difference in cuda versions.
+I see that some of your comments mention cuda 9. and some mention 10. 
+I am guessing the build with 10.2 succeeded?
+
+
+
+
+
+
+
+
+
+
+
+Yeah this just makes a file that was already there
+
+ CODELCODEL 
+
+It is only 39M whereas the CODESCODES file is 320Mb
+
+What is needed is a static version of tensorflow cc. lib where it has all the symbols to do inference or training or whatever CODESCODES has to offer 
+
+I think there was an error in communication, as the symbols for protobuf are not exposed, I need to be able to statically link to a static archive CODESCODES of all the symbols that are in the entity of CODESCODES so with the header files and the CODESCODES this will provide all the symbols.
+
+
+
+
+
+Yes it did suceed.Trying again with
+
+ CODELCODEL And we are going in circles here: meteorcloudy 
+
+ LINKLINK Here are the results of bulding CODESCODES 
+
+ CODELCODEL 
+
+ CODELCODEL 
+
+How do we get the the inputs into CODESCODES as captured by the file group above to be put into an archive?I am sneaking up on this
+
+ CODELCODEL 
+
+I think I might run into the transitive linking problem.The above is a no go
+
+
+Trying with
+
+ CODELCODEL I think I also need to pull in tensorflow framework for the above to work but I will let it bubble through and see what happens.I just also noticed there is a rule for CODESCODES if I did want to link dynamically, which gunan suggests is not the solution to this problem, but instead to get a static version of the CODESCODES from bazel but I think it will not work, I will keep trying for another hour.OK now I have a bunch of. a files
+
+ CODELCODEL 
+
+Which I assume I can link these in like CODESCODES files on Linux and my symbols will just be there 
+
+I was hoping for one big one, I will keep trying.maybe I am less stupid than I think
+ hlopko meteorcloudy
+
+ LINKLINK 
+
+If there anyway to make a wild card of the CODESCODES files that were copied to bazel bin in a CODESCODES I feels like adding this to the end of CODESCODES 
+
+ CODELCODEL 
+and building CODESCODES should work
+
+ oquenchil is our C++ expert! What's the way to collect all transitive object files or. a files in Starlark?I think using our C++ Starlark API, we can collect all transitive lib files.
+ LINKLINK 
+Related issue: LINKLINK I am not trying to throw shade on bazel it really does a pretty good job of most things. But in many CMake projects I have used you simply add DBUILD SHARED LIBS 0 and out pops a static archive. Given this feature was requested in 2016. I think I might just use Python glob and mash it through and see if static linking will fix this issue.Using Python I was able to assemble the CODESCODES files concerned
+
+the python was pretty simple
+
+ CODESCODES 
+ CODELCODEL 
+
+The result is an epic list of files
+
+ CODELCODEL 
+
+So without linking anything these are the missing symbols
+
+ CODELCODEL 
+
+After adding the following
+
+ CODELCODEL 
+
+The following symbols are missing
+
+ CODELCODEL 
+
+This is a result of compiling
+
+ CODELCODEL 
+
+With MSVC 2019
+
+the following Project.
+
+ CODELCODEL 
+ LINKLINK 
+
+ gunan 
+So my question is as follows:
+
+If you cannot link to CODESCODES to provide symbols for CODESCODES and you need to link statically, how do you do that?
+
+Can you compile the code CODESCODES and tell me what you get as a result with static linking?
+
+ CODESCODES 
+ CODELCODEL 
+I had a bit of a look earlier and it seems that config. proto In tensorflow core protobuf has the missing symbols and while the. o files can be found I could not follow the path within the bazel indirection to see if these object files end up in one of the. a object archives, clearly they don’t or the symbols would not be missing.
+
+But is this part of the problem?
+
+The. proto file makes a. cc file which in turn makes the object file, but the headers are also created, I am not sure if the headers declare the symbols as exposed or not.
+
+In the morning I will try adding the. o files to the additional libraries. But there is a character limit to the addition libraries and libraries so adding each object file may not be possible.
+
+Which leads to stuffing static. lib. a and. o files into one large static archive.
+
+Which should be done with bazel under Linux and macOS with a large word size on the shell using ar it can be done from the object files.
+
+ gunan 
+Can we please have static targets for C++ and Tensorflow?I think it is reasonable.
+ meteorcloudy how can we create a target that will be the combination of the individual. a files samhodge mined above? Can bazel merge these?Linking to the following
+Results in the following missing symbols
+
+see attached
+ LINKLINK 
+
+
+
+When compiling
+
+ CODELCODEL 
+
+With include files as
+
+ CODELCODEL 
+
+Compilation is sucessful, linking fails as above.Thank you, I will try later.
+
+
+
+
+ &nbsp;原始邮件&nbsp; 
+发件人:&nbsp; Sam &gt;;
+发送时间:&nbsp;2020年6月10日 星期三 上午8:55
+ hub. com&gt;;
+ hub. com&gt;;
+主题:&nbsp;Re: Windows C++ tensorflow cc. dll has overlapping memory address between string gpu options for allocator type and visible device list 39439 
+
+
+
+
+
+ 
+Linking to the following
+ Results in the following missing symbols
+ 
+see attached
+ output. zip
+ 
+When compiling
+
+With include files as
+
+Compilation is sucessful, linking fails as above.
+ 
+ 
+You are receiving this because you are subscribed to this thread.
+Reply to this email directly, view it on GitHub, or unsubscribe.I am baffled. I see that you are grabbing. a files under com google protobuf. I have no idea how you are seeing the symbol errors.
+
+Yeah it seems puzzling, if anybody else wants to attempt it themselves this essentially the artifacts created from CODESCODES and building the target CODESCODES with CUDA 10.2 defines with Visual Studio 2019.
+
+If you do not include the CODESCODES files created from the CODESCODES file the only missing symbols are 
+
+ CODELCODEL 
+
+Including the CODESCODES files of the C++ protobuf CODESCODES targets expands this list out to almost 200 missing symbols. meteorcloudy sanjoy gunan 
+
+A month has elapsed since this issue was raised.
+
+I have tried everything that has been asked of me but we are still at the point where we cannot run a under twenty line reproduction case.
+
+The journey has involved creating a complete and reproducible compile time and runtime environment.
+
+Now I am at a point that at linking there are two missing symbols GPUOptions C++ constructor and destructor as C declarations indicating they should be dynamically linked 
+
+But we are trying to statically link.
+
+My next step is to look into the. cc intermediate made from the. proto file in GitHub to see if the missing symbols are there in black and white.
+
+From there we can only see two outcomes
+
+The symbols are there and we follow the linking process 
+
+The symbols are missing and we look upstream to add the GPUOptions constructor and destructor to a DEF list in a. lds file to make sure the conversion of. proro to an executable is consistent with the intended behaviour of the software 
+
+But this is a dynamic linking solution and I have been told the best solution Is static linking to overcome the 65K symbol limits in Windows 
+
+As there are no design documents about how bazel intends this process to happen 
+
+I rely on the Tensorflow team to guide me.
+
+Or I just keep making assumptions and then test them with experiments, which is a poor use of my limited resources 
+
+Can I please ask for some guidance?
+
+SamLeaving this here for my latter reference 
+
+ LINKLINK Hi Sam,
+We appreciate your feedback.
+As I mentioned above, I am out of ideas, and we are at the point where we need bazel on windows expertise to help us explain some of these.
+
+Unfortunately, bazel team is located in Germany. They also have different vacation schedules, different constraints and processes for responding to issues from github. As you are, I am also waiting for some feedback and guidance from them.
+
+Thanks for the transparency it certainly helps the frustration levels
+
+I will conduct further experiments this morning if time permits 
+
+I am truely grateful for anything you can give
+
+Cheers!Please see the CODESCODES and CODESCODES resulting from CODESCODES in 
+
+ LINKLINK 
+
+ie
+
+ LINKLINK 
+
+
+ LINKLINK 
+
+I will paste the relevant piece of code:
+
+ CODELCODEL 
+
+We can see that these symbols are not wrapped in cdecl
+
+see
+ LINKLINK 
+
+So the symbols are missing.
+
+I will try editing:
+
+ LINKLINK 
+
+to add CODESCODES 
+
+Then see where things go from there.I am spending a little time on this today
+
+but there are two work arounds 
+
+see this comment LINKLINK 
+
+And on this thread the TF EXPORT macro while it exposes symbols, this is not through a layer of CODESCODES to CODESCODES and CODESCODES compilation.
+
+So we need a mechanism to expose symbols that are compiled through protobufOK I did get some progress
+
+from this program
+
+C++ driver as reccomended by gunan 
+
+ CODELCODEL 
+
+Output from MSVC 2019
+
+ CODELCODEL 
+
+The include directories are as follows:
+
+ CODELCODEL 
+
+it was linked to
+
+ CODELCODEL 
+
+Where these are artifacts created from
+
+ CODELCODEL 
+
+where script contains
+
+ CODESCODES 
+
+ CODELCODEL 
+
+ CODESCODES 
+
+ CODELCODEL 
+
+
+Additionally
+this C++ Driver
+
+ CODELCODEL 
+
+Produces
+
+ CODELCODEL So sanjoy gunan meteorcloudy you now how reproduction steps using CODESCODES CUDA 10.2 MSVC 2019 and the CUDNN versions listed above.
+
+here is my CODESCODES 
+
+ CODELCODEL Looking at this:
+
+ LINKLINK 
+
+ CODELCODEL 
+
+Would this cause the allocator type and the visible gpu list to be on the same string.
+ samhodge 
+
+I wrote a LINKLINK rule to build a static cc library linked to all given transitive deps on Windows. Please check if it helps.
+If time permits I will attempt that in about 7 hours from now
+
+So it would simply be a matter of having the same dependencies at the tensorflow: tensorflow cc. dll target and give it a name and magic will happen and I can link to the. a or. lib file without having to expose any extra symbols?
+
+Is this correct meteorcloudy?OK I found some time
+
+here is my method:
+
+clone r2.2
+add the CODESCODES file to the tensorflow directory
+
+ CODELCODEL 
+
+modify CODESCODES in tensorflow to additionally include
+
+ CODELCODEL 
+
+and
+
+ CODELCODEL 
+
+Then source the following CODESCODES as CODESCODES 
+
+ CODELCODEL 
+
+Then a source the bazel powershell script
+
+ CODELCODEL 
+
+That seems to be building then I will link against that only and see if symbols are missing.
+
+If they are I will add CODESCODES to the relevant CODESCODES files LINKLINK 
+After around 6 hours the files
+
+ CODELCODEL 
+
+Were not compiled, so I removed the. obj files and started again thinking it was a glitch in the file system and they would build quickly.
+
+I think I may leave the machine on overnight and see what passes.Almost two hours later on the 48 core machine and three target blocking another two downstream targets.
+
+ CODELCODEL That looks like LINKLINK 
+Do you have CODESCODES specified in the CODESCODES file?I am not sure but this is the latest
+
+ CODELCODEL The static library is TOO big, so where to from here?It's weird the total size of the static library will go over the 2GB limit while the DLL is only tens of MB? 
+Can you check CODESCODES to see what libraries it tries to link? Maybe we can first do some hack to the rule to filter some unwanted dependencies.It could also be a result of not having CODESCODES as a build option, which could cause the obj file to be very large. 
+Can you try to rebuild with CODESCODES?I can try that soon, I was just late at night when I checked so to save some resources I shut down the large cloud instance overnight.
+
+Thanks for you advice meteorcloudy you have been super helpful. The bazel macro worked a charm with the inline option we should be back in the gameOK repeating steps from LINKLINK except with
+
+ CODESCODES 
+
+
+
+
+
+
+that seems to have fixed it is building out much faster now, hopefully the file size will also be smaller.It has just ended ubruptly with the following message
+
+ CODELCODEL I am not surprised that the static library is so big. When creating a dynamic library, or an executable, the last linking step can prune out a lot of things. What happens when you feed the resulting static library to your final linker, and create a binary that is smaller.
+
+About that failure, I am not sure, as the files that are complained about are not headers.I am repeating with a fresh clone and see if it is repeatable.
+
+I did have a problem with the initial git clone, it got stuck and I started it again without deleting all the files, maybe there were some corrupted files.same problem
+
+but delivered a lot quicker with the inline option.
+
+ CODELCODEL Being a crafty devil this will not stop me
+
+I have this CODESCODES 
+
+ CODELCODEL 
+
+Which I can use to link to my driver.
+
+Wish me luck!OK so it is FIXED YAYAYAAYA!
+
+here is the output
+
+ CODELCODEL 
+
+The file CODESCODES 
+
+ CODELCODEL 
+
+Here is the Visual Studio. xml
+
+ CODELCODEL For the record the file is 1.3Mb in size.Thanks so much for your support, this was a curly problem, now I need to consider building against MSVC 2017 with CUDA 9.1.148 with the associated CUDNN I will open a fresh ticket if that turn out to be problematic.I will attempt an experiment with an old version of tensorflow and MSVC 2015 to see if the bazel fix still works.CcInfo is not known to bazel 0.19.2
+
+ meteorcloudy 
+Do you know which version of bazel introduces this feature and will still compile tensorflow r1.12?
+
+I am no longer able to use r1.12 with your solution this this issue I will have to come up with a new plan which involves using MSVC 2017 and r2.2 I think.
+
+Sorry for wasting your time.
+
+see:
+ LINKLINK  samhodge Glad it helped!
+If it's the list of static libraries for building the DLL that helped you fix the problem, you can also get the list from the parameter file of the DLL so that you don't need the cc static library rule at all.
+
+
+So that might be a good think, will that still need CcInfo?
+
+No, the parameter file is generated by native cc rule in Bazel written in Java code.Excellent so the. lib and. a and. lo and. obj files as inputs for the. dll will be OK for static linking will it be position independent code? Do you think the order in the. params file is critical?
+
+I believe so
+
+
+
+Not sure, but I would try to preserve the order of the libraries.I will try this with the r1.12 artifacts I already have and see if it works as expected.
+
+here is the CODESCODES file I am working with
+
+ CODESCODES 
+
+ CODELCODEL  Artem B in case he has any ideas about the original issue, which seems to be repeating with statically linked binary.
+Still working with the r1.12 artifacts as link targets for my binary. Just dealing with the search paths and the number of link targets means there are many opportunities for failure, I have discovered many of them so far. When I find the successful permutation I will let you know.wait, the protobuf fields seem to be acting sanely in the statically linked library, correct? I misread the outputs you posted.I also got a response from protobuf team. They suspect that the behaviour can be caused by double linking:
+
+
+
+So, looks like linking protobuf twice can cause this bug. looks like static linking can fix the problem.
+However, for TF, the issue with offering a library for statically linking against is the size of the binary. But it looks like you were able to hack together a solution.
+
+Yes and I had evidence of this behaviour with my macOS and Linux builds of my software that are already statically linked by making a paste our of all of my symbols and rearchiving them in a symbol smoothy. using CODESCODES as mentioned here:
+
+ LINKLINK 
+
+But CODESCODES doesn't exist on Windows 10 and using CODESCODES failed for computational expense.
+
+So having seen the detail in how CODESCODES works with CODESCODES files I can see which CODESCODES CODESCODES CODESCODES files to statically link under CODESCODES so we don't get CODESCODES and CODESCODES running into the symbols that are already present in CODESCODES and CODESCODES, which is what is causing the behaviour reported on this ticket.I am down to 36 missing symbols once that number is zero I can test.I forgot I also have a dependency on framework maybe that is the missing symbols I think I need static linking a little more out of the box 
+
+my hacked solution without linking to protocol buffers CODESCODES CODESCODES on tensorflow CODESCODES 
+
+leaves me with the following missing symbols
+
+Without betting property on it these all come from CODESCODES files
+ CODELCODEL 
+
+here are a list of my libs
+
+ CODELCODEL 
+
+
+based on
+
+ CODESCODES 
+ CODESCODES as search paths
+
+this is coming from the information in 
+
+ CODESCODES and CODESCODES It all becomes a can of worms using a CODESCODES file to set this up.
+
+The character limit comes into play over and over, with a 65K character limit you get stuffed at every turn. The 16bit history of the Windows Operating System has a lot to answer for.Maybe if I just add the CODESCODES files of the CODESCODES files directly that will heal the missing symbols. gunan meteorcloudy Artem B 
+
+Simply adding 
+
+ CODESCODES 
+
+The the objects being linked you go from 34 missing symbols to 164 missing symbols.
+
+I really need a expert's guide about how to run the following C++ code in Windows 10
+
+ CODELCODEL 
+
+Down to the operating system, compiler, bazel version, CUDA version, etc.
+
+The issue is not isolated to CODESCODES or CODESCODES it is systemic to how CODESCODES works with linking on Windows.
+
+We do not have a solution for static linking, but that is a requirement for the above code to run correctly.
+
+My hacked solution doesn't work beyond the simple driver version, under CODESCODES with CODESCODES 
+
+It was based around adding the inputs to the CODESCODES target under CODESCODES as recording the linking script CODESCODES file
+
+Thereby using the inputs for CODESCODES under CODESCODES should work the same, but they do not, the leave missing symbols for the CODESCODES based compiled files.
+
+I am unsure what causes this behaviour.As an example if the core platform windows port. cc file has the symbols for port: InitMain how can I find which artifact has the symbols for the compiled version of that code?
+
+This is one of the missing symbols that was in the list about, when dynamically linking. 
+
+So if the inputs to the. dll are there when statically linking. Why is this symbol missing?
+
+Maybe if I can work this out I can apply similar logic to the remaining 33 missing symbols 
+
+SamOK I followed this up with a recursive grep through the CODESCODES files looking for CODESCODES from the CODESCODES file and it was bundled first into CODESCODES and CODESCODES then which CODESCODES is linked against both to make a CODESCODES 
+
+So the symbols should be there twice!
+
+
+One curiosity I have is the CODESCODES vs CODESCODES 
+
+see:
+ LINKLINK 
+
+ CODESCODES which will make CODESCODES when linked to all the TF symbols and other Cool Stuff tm. is using CODESCODES whereas the CODESCODES was made using CODESCODES  LINKLINK 
+OK I followed this up with a recursive grep through the CODESCODES files looking for CODESCODES from the CODESCODES file and it was bundled first into CODESCODES and CODESCODES then which CODESCODES is linked against both to make a CODESCODES 
+
+So the symbols should be there twice!
+
+
+One curiosity I have is the CODESCODES vs CODESCODES 
+
+see:
+ LINKLINK 
+
+ CODESCODES which will make CODESCODES when linked to all the TF symbols and other Cool Stuff tm. is using CODESCODES whereas the CODESCODES was made using CODESCODES I don't think this is the cause of all of my hassles.
+
+But if we are in the situation where including CODESCODES symbols more than once the fact that CODESCODES includes CODESCODES via CODESCODES and via CODESCODES I know that CODESCODES is not a CODESCODES file but if it is happening with some source files it could be happening with others.
+
+This is before I started hacking.
+
+see file attached, CODESCODES 
+
+
+ meteorcloudy sanjoy gunan 
+
+We have established two things 
+
+Including of the same symbols twice when linking can cause unexpected behavior 
+
+Tensorflow includes the same port. o file with the same symbols at least twice
+
+Can we make sure the input into a bazel target have a directed acyclic graph representation?
+
+It seems my approach of getting the union set of all of the object files under Linux and MacOS achieves this outcome 
+
+But we will be faced with a. a file that is larger than 2Gb to say nothing of feeding the arguments via lists smaller than 65K characters 
+
+How do we proceed?
+
+SamIncluding the same symbol twice results in ODR LINKLINK and that is UB prone to errors.
+
+We have several ODR violations in TF, need to identify and fix them. Thanks for finding out that CODESCODES causes it!I guess the next conclusion would be to find the size of the Union of all the required object files by recursive search of. params files then make a linking strategy with a complexity less than n factorial which was my last attempt failing after a six hours time out
+
+Then see if the final linkage is under 2GB
+
+I am guessing that is a testable binary outcome the file will have a size greater or less than 2Gb
+
+SamSorry for maybe a stupid question, but what workaround is the final one?
+I have issues with device placement on Windows in C++ basically cannot reliably place anything on a particular GPU, if several are capable enough to run Tensorflow, which I tried to solve with CODESCODES to work with GPU 
+ 
+However, this leads to a crash: F tensorflow core framework op. cc:214 Non OK status: RegisterAlreadyLocked deferred status: Invalid argument: No attr with name '0' for input 'constants'; in OpDef: name: XlaLaunch input arg name: constants description: 0 type attr: 0 number attr: 0 type list attr: Tconstants input arg name: args description: 0 type attr: 0 number attr: 0 type list attr: Targs input arg name: resources description: 0 type: DT RESOURCE type attr: 0 number attr: Nresources type list attr: 0 output arg name: results description: 0 type attr: 0 number attr: 0 type list attr: Tresults attr name: Tconstants type: list type description: 0 has minimum: true attr name: Targs type: list type description: 0 has minimum: true attr name: Nresources type: int description: 0 has minimum: true attr name: Tresults type: list type description: 0 has minimum: true attr name: function type: func description: 0 summary: XLA Launch Op. For use by the XLA JIT only. description: 0 is stateful: true
+ 
+
+I thought that this error might have something to do with what is described in this thread, since for me the pointers for CODESCODES and for example CODESCODES are also identical, likely leading to the parsing errors later on.
+
+Any way to navigate around this is appreciated!I wish you well.
+
+The solution is blocked by two issues.
+
+The DLL cannot be dynamically linked because the symbols from lib protobuf will overlap with the symbols from Tensorflow 
+
+Statically linking leads to a object file symbol archive which is larger 2Gb
+
+So while there is this
+
+ LINKLINK 
+
+I think this may take several hours to accumulate all of symbols in the obj file to make a static archive.This might help
+
+ LINKLINK  kognat docs,
+Can you please confirm if your issue is resolved using above comments. Thanks! It is unclear to be how to apply the large archive option to the bazel build.
+
+If one of the bazel Windows team could point it out that would be great
+
+SamHow do I create a static archive in Windows 10 greater than 2Gb using bazel?How do I create a static archive in Windows 10 greater than 2Gb using bazel?If there were clear instructions on how to create a static archive in Windows 10 greater than 2Gb using bazel?
+
+Then this long overdue issue can be closed.I think we should ask this on Bazel repo?Sounds like a good idea!Hi There,
+
+ We are checking to see if you still need help on this, as you are using an older version of tensorflow which is officially considered end of life. We recommend that you upgrade to the latest 2. x version and let us know if the issue still persists in newer versions. Please open a new issue for any help you need against 2. x, and we will get you the right help. 
+
+ This issue will be closed automatically 7 days from now. If you still need help with this issue, please provide us with more information.So the underlying surprising feature in that protobuf doesn't make separate allocations for each empty std: string in its structures. Instead it tries to have a fixed empty string CODESCODES, which you get a pointer to with CODESCODES. Then on every CODESCODES there are checks against this magic default pointer, and a new string is allocated if the pointer matches. If it doesn't then it's assumed that this string is initialized and not shared and it gets written to.
+
+The bug is then that for unknown to me build reasons either there are multiple CODESCODES being generated, or the struct is being moved after some inlining has happened. In any event, the key point is that empty, un initialized strings exist in these structs at a common location that is not CODESCODES. So the run time checks say that these are actually initialized and unshared, the CODESCODES mutates this shared string, and many other structures become sad.
+
+There's an unsafe workaround the CODESCODES functions forcibly reset string pointers to CODESCODES, and if some nominally initialized string might have been about to leak it returns it to the caller to deal with. If we know that the field should be unset, then it points at some static string that protobuf will clean up, so we can just drop it without leaking. Then calling CODESCODES correctly allocates a new string and assigns it.I am grateful for your insight to this issue
+
+it seems that the creation of multiple definitions and thereby multiple symbols in the shared library are the cause of the incorrect behaviour. When it is possible to create a static library such as on Linux and OSX we are left with a single definition during the linking of the static archive.
+
+So the unsafe work around seems to be less work than fixing all of the multiple definition problems in such a large code base.
+
+but arena needs to error to prevent multiple definitions from squatting on the same memory address without ownership 
+
+sam LINKLINK Leaving for reference  LINKLINK Leaving for reference 

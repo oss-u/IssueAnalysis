@@ -1,0 +1,310 @@
+Installed Python 3.6 via brew, and the notebook version 5.0 via pip3.
+When I hit tab, say, after CODESCODES, nothing happens, then, when I manually complete CODESCODES, execution queued, and run after 30 seconds. At the same time, suggestion drop down menu appears.That sounds like it's taking a very long time to find the possible completions, and execution is getting held up behind the completion code. Can you check:
+
+ CODELCODEL 
+
+ Carreau if IPython 6 is involved, it sounds like the timeout for jedi completions might not be working.Exactly, it takes too long, and it is IPython 6.0.
+ CODELCODEL Is there a way to turn off autocomplete? It not only slows me down but often also crashes the kernel? And I wonder if I am the only one having this issue on the planet? Thanks.There isn't a way to turn off autocompletion altogether. If I'm right about jedi being the problem, it may be possible to turn off the part that uses jedi. But I'm confused about whether or not the kernel completions actually use jedi Carreau? You're not the only person having problems; see issues on ipython ipython for more info.Thank you. Adding the line CODESCODES to the IPython configuration file solved the issue so it appears that not only terminal completions but also kernel completions use Jedi. For future visitors having the same issue, setting configurable options is LINKLINK.
+i'm having the same issue once i updated all my packages with conda. tab seems to crash my kernal. bit of a hard habit to kill haha danieljoonlee over on ipython ipython 10560, there was a bug identified in the conda packages of CODESCODES. Apparently LINKLINK has a working version of the jedi package. If that doesn't fix things for you, please file a new issue on IPython with the details. takluyver ah thank you!My tab autocomplete intermittently stops working, not sure if this is the same issue it does not seem to be that it's simply taking too long, it just never appears nothing happens after hitting tab, but execution time remains the same. The problem continues until the kernel restarts. It might be related to significant amounts of data in active memory. but I'm not sure.
+
+Any recommendations to further diagnose issue?
+
+
+
+
+
+
+
+
+
+
+
+
+I'm having the same issue on a windows server running windows server 2012R2. Whenever I tab it takes a random amount of time for anything to happen. If I keep writing and commit the cell, nothing happens and it often just does not respond. 
+
+Manually typed selected output below like our forefathers did it 
+
+
+
+
+
+
+
+ '13:41:13 ' I am suddenly and inexplicably having a similar problem. I am used to using tab autocomplete a LOT. Now, when I try to autocomplete from within jupyter notebook or lab, the kernel activity button briefly flashes, but nothing happens. No autocomplete.
+
+I have no idea how to debug or fix this. It is extremely hard to use my notebooks without tab autocomplete.
+
+ CODELCODEL Have you tried shutting down the server and starting it again? Do you still have tab completions if you use IPython in a terminal?Thanks for your reply!
+
+
+
+Yes. No effect.
+
+
+
+Yes.
+I have also tried from a different browser Safari instead of Chrome.What about if you use one of the other Jupyter frontends, like CODESCODES?I resolved this by upgrading to ipython version 6.1.I've seen a similar problem with IPython 6.0. Using it with pandas 0.22 breaks auto completion for pandas column names. Rolling back to 6.2 returns the auto completion. I'm using jedi 0.11.1 but I think the behavior depends on IPython versions more. We switched off our own completions by default for 6.3 to better test the completions we get from Jedi, and there are still some problems with those. I may need to make 6.1 to switch back to our own completions.
+
+In the meantime, you can configure it with CODESCODES.I've made a 6.1 release.I am also now having this problem, particularly with pandas dataframes.
+
+Once I specify a column in a dataframe, autocomplete no longer gives me informative options attributes. E. g.
+
+ 
+
+IPython version is 6.0
+jedi version is 0.12.1
+
+Any help would be appreciated!
+
+
+
+I'm having exact same issue. IPython is v7.1 with jedi 0.13.1
+It just started happening w o any particular reason or changes made.
+Tried to reinstall Jupyter, Python3, removing all global packages and removing project venv, downgrading notebook up to 4.3, even tried using JupyterLab but unsuccessfully.
+
+Currently the only partial solution for me it doesn't fully solves the issue and tab auto completion doesn't auto complete function parameters is to use: 
+ CODESCODES 
+
+ 
+ 
+ 'ipython version': '7.1',
+ 'os name': 'posix',
+ 'platform': 'Linux 4.0 thumbs down 34 generic x86 64 with Ubuntu thumbs down 6.04 xenial',
+ 'sys platform': 'linux',
+
+ 
+ 
+
+Using notebook w o auto complete is extremely difficult. Does anyone works on this issue? Because it opened for years. There are some issues of same problem that are marked as solved but nothing fixed.
+Very frustrating.
+
+same issue here! I suspect that, for me, autocompletion in Jupyter stopped working after I updated IPython from 5.3 to 7. Curiously enough, Jupyter still autocompletes dictionary keys, but not variables or class members.After an upgrade from 5. x to 7.2 IPython tab completion also fails on some objects in my environment.
+Currently as workaround using CODELCODEL 
+
+ CODELCODEL thanks! disabling jedi helpedI've also had to disable jedi because the completions are too flaky, but I do miss the extra functionality; does anyone cc takluyver have a suggestion for how to track down the issue come up with a minimal example? Debuggers, etc. don't seem to work now that IPython is async and I'm not sure how to test this outside of the REPL.Just to let you know that I installed Jupyter recently and got victim of this TAB issue. 
+
+The workaround disabling Jedi autocompletion fixed the problem.
+
+Info shows the same CODESCODES and CODESCODES posted by lodagro:
+ CODELCODEL  bnaul a suggestion to setup a minimal example to try to reproduce your issue
+
+ clone LINKLINK locally in CODELCODEL 
+ have a look at CODELCODEL files, LINKLINK 
+ add your own test there in a file CODELCODEL 
+ run from CODELCODEL using CODELCODEL 
+
+Full test documentaion see LINKLINK 
+
+In my case this is 100 Jedi. I added a test to my local jedi clone and could reproduce the issue IPython is not involoved. Unfortunately i can not open an issue since code is proprietary.
+Just to chime in that after updating IPython to 7.0 from 7.2 via Anaconda, I also had some objects fail to autocomplete. Setting CODESCODES fixed the issue. Hi,
+Same issue here with my jupyter lab notebook inside a docker.
+
+I've this config inside my CODESCODES.
+ CODELCODEL 
+
+With:
+ CODELCODEL 
+
+Am I missing something?disabling Jedi also worked for me. Here is my test case where autocomplete was failing.
+
+ CODELCODEL 
+
+when trying to do autocomplete, with jedi disabled I am able to see the properties of Project with tab complete. Without it it just shows none.
+
+ CODELCODEL 
+starting ipython with
+
+ipython Completer. use jedi False
+
+worked.
+
+
+
+Also, adding a function that is called in the init of my class when it is instantiated, works as well
+
+ CODELCODEL  cdknorow Could you open an issue including your testcase in the davidhalter jedi project?For the case of autocompleting properties, please look at my comment here:
+
+ LINKLINK 
+
+TLDR; CODESCODES is not safe, but has more completions, Jedi is safe no side effects but currently doesn't return anything when completion on property results.
+
+
+ LINKLINK 
+Where are you exactly trying to complete?Sorry David. I don't understand your question. Where are you exactly trying to complete? 
+
+But I am working with a pandas Dataframe. practicing. When I noticed that when I typed in df. then attempt to call a method by hitting TAB. the notebook takes a while to load then ipynb checkpoints appears.It won't auto complete off an object like that. You should try, df. col2.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hi, thanks for the reply, the methods I get when I write the syntax like that are not the methods I expect to get. I expect to see methods like. unique or. value counts  AkiraCharles Yeah that won't work usually. There's just too much magic involved to get that working. If you want autocompletions just use CODESCODES. davidhalter Thanks for informing me! I've also only started learning Python my first programing language since January and this in my first time using Github. It's awesome to see that people actually try to help you out here. hope I can do the same for others one day. Much Appreciated.In addition to the autocomplete issue, I wasn't able to launch Jupyter Labs in Windows.
+
+Disabling jedi fixed both of these issues for me.
+
+Windows 10 Enterprise
+Python r3.8
+Jupyter Lab 0.35.5
+Jupyter Notebook 5.4
+I don't fully understand why there is such resistance to simply evaluating the expression. 90 of the time I would prefer the autocompleter to evaluate as much of the expression as it can so that it can provide more comprehensive completions. There's no reason that completing CODESCODES requires magic ; all it requires is to evaluate CODESCODES. Yes, sometimes I may not want that if the expression is expensive to evaluate, but far more often the expression is cheap to evaluate and I care more about getting good completions.
+
+Is there any way to tell Jedi IPython to just go ahead and evaluate as much as it needs to in order to autocomplete on whatever I've actually typed? It would be kind of cool if there were a way to switch this behavior on and off to handle the rare cases where the expression is expensive, or if there were alternative keyboard shortcuts for the two kinds of completion. BrenBarn concerning this resistance, see also LINKLINK There's no such switch as of now.
+
+The problem with evaluation is that if you do it you do it for all cases, you quickly get into very nasty scenarios. I think Jedi does evaluation for dicts, so it works most of the time, but just not in cases like this one, where it's not a dict.It seems tab completion for object attributes is broken again. For me, it's not systematic, is some times just VERY slow, and it seems if I just start working in a new cell, it will work. 
+
+I'm 
+ CODELCODEL 
+
+Any solutions to this slight, but still very annoying regression?I've checked with two colleagues one with a Mac, the other with Linux, and they both reported the same problem of tab completion not working all the time.If you want this to improve, please post what's not working. In your case I have NO idea what's working and what's not. CODESCODES could mean pretty much anything. lodagro: I saw that, but later in that issue it says that the safety feature was disabled to provide more complete completions. Yet Jupyter still doesn't complete properties correctly.
+
+ davidhalter: Here are some examples of what isn't working:
+ CODELCODEL 
+
+After this I should be able to do the following, none of which currently work right:
+
+ CODESCODES should offer me all DataFrame methods and the column It displays the autocompletions after hanging for about five seconds.
+ CODESCODES or CODESCODES should offer me all Series methods. Both hang for five seconds and offer no completions.
+ CODESCODES or CODESCODES should offer me all the string methods available under CODESCODES. Both hang for five seconds and offer no completions.Related Issues:
+
+
+
+ LINKLINK 
+
+
+
+I'm pretty sure this is LINKLINK 
+
+ 
+
+So I guess using pandas with Jedi is just a bit unfortunate and I currently don't really have a good solution for either problem. davidhalter: One solution is to provide an evaluation based completion method. Maybe this is the CODESCODES method you mentioned on davidhalter jedi 1378? You asked here for people to explain what isn't working, so I'm giving examples. My point is that if jedi doesn't complete pandas accessors as in the examples I gave, that is perceived as not working by users.
+
+I still don't fully understand why you think there's no solution. Isn't the solution to an evaluation based completion mechanism? The main reason I've seen on jedi issue threads is that you're concerned about safety, but as I mentioned on that issue, I think for many people that is at most a minor concern. You seem to realize this too as you mentioned in davidhalter jedi 1299 that you turned off a similar safety feature because people didn't want it.  BrenBarn I wrote this comment pretty much at the same time you wrote yours: LINKLINK 
+
+It's great that you gave examples, thanks for that. At this point it makes no more sense to discuss it here. The relevant issues are in the Jedi tracker.
+
+
+
+
+
+
+
+
+
+
+
+It seems that it goes beyond those problems in some reported cases above. Although I am not sure how the issues I am referring to below relate to nested dynamic entries, maybe they do and I apologize in advance if my comment appears as redundant here.
+
+But I was quite surprised by how much this feature failed while trying to start afresh did not have any issue beforehand, I just wanted to update my system. I just updated my Anaconda distribution from scratch, installing the default python 3. and current stable versions of ipython, jupyter, jedi, etc. from conda channels.
+I insist that this problem appeared as I just upgraded my python environment. The latter being:
+ CODELCODEL 
+Jedi itself is at version CODESCODES.
+
+What does not work:
+ completion after some modules name CODESCODES, CODESCODES, etc. gives nothing 
+ listing of functions right after module name and period character as in CODESCODES, nothing comes again. 
+
+What does work:
+ completion of variable names
+ listing of functions and completion for some modules or functions for example I can complete on CODESCODES to list for CODESCODES, CODESCODES and CODESCODES, but no other functions?; or a bit more strange, it works after CODESCODES but not after CODESCODES. 
+
+If I skip the use of Jedi for example with CODESCODES, all works perfectly fine.
+
+If the current state of things makes tab completion broken in ipython shells and hence in notebooks and jupyterlab, then maybe the default should be to not use CODESCODES in the default profile of ipython configuration?
+ Hugo W Dude you are using a Jedi version that is like 8 months old. Please just upgrade. I didn't even read your comment, so much has changed since then. davidhalter you're so right, I thought I missed something, updating jedi fixed it, thanks!Is it by design or not that if a cell has a variable assignment, it won't autocomplete that variable?
+Example:
+ CODELCODEL 
+
+If I separate those two lines in different cells, autocomplete is working mxposed Please post a complete reproduction case. Also what's your Jedi version? davidhalter Thanks for your reply. This was my almost complete reproduction case. More specifically, let's do this:
+• Cell 1
+ CODELCODEL 
+• Cell 2
+ CODELCODEL 
+• Cell 3
+ CODELCODEL 
+
+When I press in Cell 2, there is no autocomplete. When I press in Cell 3, there is autocomplete that I expect, methods of CODESCODES class.
+
+My versions:
+python 3.1
+jedi 0.16.0These 2 cases are not the same at all, because in one case Jedi does static analysis and in the other Jedi has the actual object and can essentially do a CODESCODES on it.
+
+However I feel like this should work if you install latest Jedi and CODESCODES in combination with CODESCODES. At least it works for me. Installing numpydoc makes sure that Jedi understands the return types defined in CODESCODES 's docstring.Strange, can't make it work. Upgraded jedi and a ton of other packages too, but still have the same behaviour. I have an anaconda installation. I'd be very grateful if you can help me figure out why isn't it working.Did you install CODESCODES?Yes, numpydoc 0.2Can you try it in IPython? I don't use Jupyter Notebook, so it's pretty hard for me to reproduce.
+
+What I do is this: CODESCODES and it works for me.ipython 7.13.0
+
+Does not work in IPython either, it shows me completion for 3 files I have in that directory that start with a dotPlease run this then:
+
+ CODELCODEL 
+Wow, there's a ton of debug output.
+ CODESCODES 
+0.17.0 sys. version info major 3, minor 7, micro 1, releaselevel 'final', serial 0 1.18.2 0.2
+
+debug at LINKLINK 
+
+ 
+ CODESCODES I finally found it. The problem is that matplotlib uses the following in its docstring now: CODELCODEL.
+
+In the older version I tested with, matplotlib used CODESCODES, which Jedi was able to understand. IMO this is a matplotlib issue. They should probably just use annotations to clear this up and make it possible for a lot of static analysis tools to understand the return type.Hi I think I'm bumping into mxposed same error but on numpy:
+ Cell 1
+ CODELCODEL 
+ Cell 2
+ CODELCODEL 
+ doesn't autocomplete 
+
+ Cell 3
+ CODELCODEL 
+ autocompleted 
+Below are the versions of the relevant i think packages. just checking if this could be similar. 
+Thanks in advance!
+
+ CODELCODEL 
+
+EDIT: I am aware that disabling jedi is a workaround I read the whole issue 
+
+I don't think this actually works. Disabling Jedi won't help in this case, because CODESCODES does not exist at that point I might be mistaken about this, since I don't know exactly how jupyter works. If it actually was defined, Jedi would use the definition and find completions like what happens in cell 3.
+
+ takluyver Carreau I'm in favor of closing this issue. The original issue was probably resolved. You could then tag me in newer issues. But this issue serves now as a general autocompletion issue with different people complaining about different things that were partially fixed a while ago. So I'm in favor of closing. Your call. davidhalter the cell nr. 2 has been already executed, and disabling jedi does work. Feel free to close the issue, just thought I'd complete with correct information.Closing this for now then, and we can open a separate issue if necessary:
+
+ CODELCODEL  Carreau I guess it should be more like CODESCODES 
+
+Which surprisingly to me doesn't work, it's a bug in Jedi. Opened LINKLINK in favor of this ticket.
+
+Also feel free to tag me whenever these kind of issues come up.Thanks a lot davidhalter for taking care of this, jedi is awesome!I had the same problem. I use pyenv and discovered that jupyter does not search at pyenv's repository for jedi files. Thus, if you use pyenv, you need to install jedi on your local python instalationRan into this recently and just found this thread, upgrading to CODESCODES fixed our tab auto completion bug.I had this problem in a conda environment only. Disabling jedi by adding CODESCODES to the JN helped.
+I also had this problem oddly. Completion worked in a venv with jedi 0.17. completion did not work with a new venv using 0.18 
+downgrading did the trick, this thread was a help.This is a different issue. It's essentially this issue: LINKLINK 
+
+As a temporary solution use:
+
+ CODELCODEL 
+
+As soon as IPython master is released, we're fine. davidhalter Downgrading jedi from 0.18 to 0.17.2 worked for me. Thanks for posting here and referencing the jedi issue.  davidhalter yep downgrading Jedi worked for me too. Thanks!Downgrading from jedi 0.18.0 to 0.17.2 fixed this issue for me in Windows. Just ran pip install jedi 0.17.2 
+
+
+
+
+
+
+
+Thanks a lot, it works for me!
+I am having the same issue. It is because of Jedi as mentioned.
+
+ CODELCODEL 
+ 
+ 
+ CODELCODEL 
+
+
+
+
+
+Downgrading jedi as below solved my problem. This issue helped a lot. Thanks.
+
+pip install jedi 0.17.2For those using Jupyterlab and who have many kernels associated with CODESCODES environments, just wanted to add that you need to install jedi 0.17.2 in each kernel conda environment, not just your base environment that contains jupyter lab.

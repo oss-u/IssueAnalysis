@@ -1,0 +1,216 @@
+I would like sklearn to support Poisson, gamma and other Tweedie family loss functions. These loss distributions are widely used in industry for count and other long tailed data. Additionally, they are implemented in other libraries such as R: GLM, GLMNET, GBM ext. Part of implementing these distributions would be to include a way for offsets to be passed to the loss functions. This is a common way to handle exposure when using a log link function with these distributions. 
+
+Would the sklearn community be open to adding these loss functions. If so I or (hopefully others) would be willing to research the feasibility of implementing these loss functions and offsets into the sklearn API. Thanks
+I think we should at least add a poisson regression, though I'm not super familiar with it.
+Do you have open example datasets?
+What kind of data is gamma loss used on?
+
+Can you elaborate on the offset?
+
+These would all be separate models in `linear_model`, I think. I'm not sure if they are usually learned using l-bfgs or if people use CD solvers? Maybe @mblondel or @larsmans or @agramfort know more?
+The poisson distribution is widely used for modeling count data. It can be shown to be the limiting distribution for a normal approximation to a binomial where the number of trials goes to infinity and the probability goes to zero and both happen at such a rate that np is equal to some mean frequency for your process. Gamma can be theoretical shown to be the time till a poisson event occurs. So for example the number of accidents you'll have this year can be theoretical shown to be poisson. And the expected time till your next accident is or third ext is a gamma process.  Tweedie is a generalized parent of these distributions that allows for additional weight on zero. Think of tweedie as modeling loss dollars and 99 percent of all customers have zero weight the rest have a long tailed positive loss or gamma. In practice these distributions are widely used for regression problems in insurance, hazard modeling, disaster models, finance, economics and social sciences. Feel free to reference wikipedia. I'd like to have these loss functions as choices in glmnet, GBM and random forest. This means that in GBM for example Freedman's boosting algorithm would use this loss instead of Gaussian or quartile loss. Gamma and poisson (beta tweedie) are already in Rs GBM and glm packages and xgboost has some support. The offsets are used by practitioners to weight their data by exposure. Typically a poisson model has a link function ex: yhat=offset x exp(regression model output) is called the log link and is most common. Here the offset allows exposure to be captured differently for different units of observation. Poisson processes are additive but different examples may have been taken over non equal space or time or customer counts and hence the offset vector is needed for each observation. I'm willing to tackle programming this but I'm not super familiar with the api so I'd appreciate suggestions so I do this right and get get it rolled into the release. 
+Okay, I'm working on implementing this. I'm adding the three distributions noted above and offsets. I'd appreciate feedback from the general sklearn audience on how to implement the offsets. I'm planning on adding a new argument to the GradientBoostedRegression call 'offset=None' where offset would be a vector like object with length n (number of samples). My main question is whether I should add offsets to all loss functions (Gaussian, Huber, Quantile) such as is done in R's GBM implementation or whether I should just add enable the offsets to work with the tweedie family and throw a warning if you try to use offset with an unsupported loss function?
+I was more asking for practical use-cases, as in data-sets or publications. I know what the distributions do ;)
+
+It would probably be a good addition, though I can't guarantee you that your contribution will be merged. It would probably be good to discuss it more broadly before you jump in. Unless you just want to implement it for your self and don't care if we merge it ;)
+
+So I take it you are mostly interested in gradient boosting, not linear models?
+
+ping @pprett @glouppe @arjoly 
+I'm interested in integrating it all around but mostly tree ensembles
+first. Either way they be a fair amount of duplicate work as random forest
+and GBM both have different ABC for each loss function. So I can just do
+the work once and have it work in both unfortunately.  I can also get some
+datasets. What does the process look like for merging this what process
+should I follow. I'm new to contributing so want to make sure it's done
+right. But like I said GBM treats loss classes independent of anything else
+in sklearn so my changes to GBM could easily stand alone. I only have to
+edit code in on .py script.
+On Dec 10, 2015 4:57 PM, "Andreas Mueller" notifications@github.com wrote:
+
+> I was more asking for practical use-cases, as in data-sets or
+> publications. I know what the distributions do ;)
+> 
+> It would probably be a good addition, though I can't guarantee you that
+> your contribution will be merged. It would probably be good to discuss it
+> more broadly before you jump in. Unless you just want to implement it for
+> your self and don't care if we merge it ;)
+> 
+> So I take it you are mostly interested in gradient boosting, not linear
+> models?
+> 
+> ping @pprett https://github.com/pprett @glouppe
+> https://github.com/glouppe @arjoly https://github.com/arjoly
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/5975#issuecomment-163761067
+> .
+It would be nice to have some input from our GBM experts that I pinged above, but you can also write to the mailing list asking if people would be interested in the addition.
+do you also plan to support coordinate solvers with L1/L2 penalties
+like _glmnet
+?_
+Any updates on this issue?  I'd like to see a Poisson regression added into `linear_models` so I don't have to venture outside of using `sklearn`.  If no one is actively working at it, I can take a stab at implementing it.
+no one AFAIK.
+
+don't hesitate to give it a try and share a WIP implementation.
+I was going to work on this and am still going too. If I do it though I
+need a clean way to add offsets to the api. I was thinking about adding an
+offset kwarg and the default could be None and throw a warning if loss
+isn't poisson.  I mainly use poisson for insurance modeling where the
+offset is log(earned exposure) I know from experimentation and distribution
+theory that for sparse count data you'll get a vastly inferior model
+without offsets. Currently R's linear model and GBM both support Poisson
+with offsets. So that's my current go to tool. I'd like to add this to
+sklearn though if others want it added.
+On May 1, 2016 4:03 AM, "Alexandre Gramfort" notifications@github.com
+wrote:
+
+> no one AFAIK.
+> 
+> don't hesitate to give it a try and share a WIP implementation.
+> 
+> —
+> You are receiving this because you authored the thread.
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/5975#issuecomment-216024458
+@thenomemac Do you have a WIP implementation that I could take a look at?
+
+For offsets, couldn't you just require the user to divide their counts through by the offset/exposure to make the "y" value a rate instead of a count (https://en.wikipedia.org/wiki/Poisson_regression#.22Exposure.22_and_offset)?  R's GLM package has a great interface for specifying models (including specifying offsets) but not sure how that would fit into the existing linear models API.
+@bjlkeng I don't have a WIP implementation complete yet. I started a while back then got distracted. I don't think dividing through by exposures to get a poisson rate is a correct derivation of the GBM algorithm for poisson loss. The offset=log(exposure) in the gradient is an additive factor. So, you're effectively giving more weight to "areas" with a higher exposure. Not 100% sure if you can get back to the correct gradient at each iteration of fitting the base learner (tree) because the current scheme for passing weights to the tree learner is multiplicative not additive. I'll try to type up a more rigorous mathematical derivation of what I'm referring to. I can say that in practice it does matter. In real world data sets I've modeled where you'd expect the count data to be poisson, using R's gbm will converge faster and to a better outcome because it's handling offsets the "mathematically" correct way. And other gbm implementations such as xgboost with a poisson loss function can't model the data as well using a Poisson rate as suggested. 
+(aside I found the link to this issue on stats.stackexchange
+
+statmodels GLM has offset and exposure (exposure only for log link)
+
+In master there is now an elastic net option for GLM and a few other models, implemented via apython loop for coordinate descend (uses generic maximum likelihood with offset)
+
+In master there is now also Tweedie family for GLM. However, it doesn't use the full loglikelihood loss function because that is an infinite sum of terms and calculating a truncated version is slow and commonly used approximations are not very accurate over some range of the parameter space
+
+So, if you need a reference implementation, statsmodels has these parts. I never heard of or looked at GBM for GLM. I also don't know enough about the scikit-learn code to tell how it would fit in.
+)
+@thenomemac You're absolutely right about the loss function changing due to exposure, I was mistaken.  In fact, I believe I worked it out.  I have a very early WIP (more of just playing around): https://github.com/bjlkeng/scikit-learn/blob/poisson_regression/sklearn/linear_model/poisson.py (check out the `_poisson_loss()` function).
+
+@josef-pkt Thanks, I looked at the statsmodels implementation, it's actually quite good (except for the API, which I'm not a fan of).  It's actually a bit more general where their "count" model supports other count-based regressions like negative binomial.  The statsmodel implementation already takes into account exposure and regularization (which is what I was also looking for).
+
+Given that statsmodels has an implementation, do you think it's still valuable to have something like this in `sklearn`?  If so, I can attempt to put some more effort into getting it into a usable form.  I've just been quite busy with work so I haven't had much time.
+I think this would still be valuable.
+@bjlkeng Thanks for the comment! Are you interested in taking it up and making a Pull Request? If not I can try to take this issue and attempt making a PR... First for poisson and subsequently for gamma... @agramfort Is that fine by you? :)
+Hey @raghavrv , sorry for the late reply.  Work got pretty busy and also I realized it would take longer than I had time for.  So please feel free to continue on.  I would take a look at the statsmodel implementation because they have most of the functionality that I think you would want here.
+@raghavrv Did you start working on this? I may also be able to contribute so that we have at least Poisson regression in sklearn.@btabibian @raghavrv What is the status of this? I need a Poisson regression implementation for a project and would be willing to contribute. Please go ahead :) I haven't had time for this sorry...Same i haven't had time. Also I've been struggling with the API and how to
+integrate offsets.  I could show the math or a code example in statsmodels.
+But TLDR you need offsets if you want to use poisson regression with
+unequal exposures (area or time) then you need offsets. The model doesn't
+give the correct weighting if you just divide your counts by exposures.
+
+On Apr 1, 2017 2:49 PM, "(Venkat) Raghav (Rajagopalan)" <
+notifications@github.com> wrote:
+
+> Please go ahead :) I haven't had time for this sorry...
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/scikit-learn/scikit-learn/issues/5975#issuecomment-290939521>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AOeuWjVGf3-VmeasNHMLQAB1dnd4zuUQks5rrpw4gaJpZM4Gwd6->
+> .
+>
+I will start looking into it then. @thenomemac thanks for the tip! I will check out the statsmodels implementation to see how they handle exposure. Hello, are there any updates? Would it also be possible to add a negative binomial likelihood? This shouldn't make much of a difference to Poisson. Otherwise I could look into this..
+
+Best,
+SimonHi @dirmeier, unfortunately not. I've switched to a hierarchical Bayesian model and never got around to implementing the Poisson regression.@dirmeier, @jakobworldpeace is there some work in progress that you can point us to? I can also jump on taking a look at this?Hi @NickHoernle, 
+I am currently using R for NB-regression, because I dont have the time. I'd be glad if you want to implement this :) @NickHoernle There is no WIP but the statsmodels Poisson regression implementation should get you started.Excellent. I'll start taking a look at this and see where we get.I've been working on GLMs here: https://github.com/madrury/py-glm.  
+
+I'm not intending for this to be merged into sklearn, it's really for my students to use in class, but would like to point out the work in case it is useful to anyone working on this issue.your solver in a newton method which will have a hard time scaling in high
+dimension. It also does not support L1 type penalties. Also check your API
+consistency with sklearn. Fit should only take X, y and sample_weights
+
+to fix the scalability issues the first thing to do is to use l-bfgs. See
+our logistic regression code
+
+HTH
+As I said, my goal isn't total consistency with sklearn, it's just to have a simple implementation that follows MuCullagh and Nelder and provides some of the inferential tools (which I believe puts it out of scope for sklearn).  It's meant to be used in a classroom environment on medium sized data sets.  I just wanted to link the code here in case any ideas there are useful to whomever works on this feature for sklearn (and to get a little exposure, never hurts).
+
+I'm not thinking of L1 penalties as in scope, for that I would just use `glmnet`.  L2 is simple enough to incorporate into the classical GLM framework that I went ahead and added it.
+
+As for the `fit` method, I'll venture a small comment here, I hope it's not out of place.  The lack of `offset` as provided to fit was a big part of why sklearn didn't catch on at my last job.  You really need that to do proper insurance modeling.  Regulators expect the Poisson and Tweedie models to be fit that way, and can be quite rigid in their expectations.thanks for clarifying the vision.
+
+regarding offset is it specific to Poisson and Tweedie models ?
+if it's a sample specific value then it can be a sample_prop in the fit
+parameters.
+It's just the max_iter or tol that are not data dependent that should be in
+the init.
+Have to compared to #9405?@agramfort You're right about max_iter and tol, i'll move those to the __init__.
+
+Do you have a reference for what you mean by `sample_prop`?see https://github.com/scikit-learn/enhancement_proposals/pull/6
+
+it's still being discussed what's the best way to do it...
+A short note on offsets: AFAIK, sample weights are enough to deal with exposure, i.e. fitting y=values/exposure with sample_weight=exposure should do the job and generalizes well to other distributions and links other than Poisson with log-link.
+
+@madrury Thanks for sharing. I'll have a look at your implementation and compare with mine.Are people still interested in this? I would be interested in contributing.I'm still interested in the feature should someone add it sklearn.
+
+On Thu, Dec 21, 2017 at 6:04 PM, Jared Samet <notifications@github.com>
+wrote:
+
+> Are people still interested in this? I would be interested in contributing.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/scikit-learn/scikit-learn/issues/5975#issuecomment-353479618>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AOeuWtvi4Um_o_ERuVe1ob86201G-ASdks5tCuP4gaJpZM4Gwd6->
+> .
+>
+@oracleofnj @thenomemac
+
+I've got a validated, general glm implementation in my py-glm library, but have no plans to attempt to merge it into sklearn (I made some design decisions that make it incompatible with sklearn's).  It's setup so that it should be very easy to add other exponential families.
+
+I also have a full, pure python glmnet implementation that supports the same exponential families in the same library, but I got stuck on a bug and I've put it down.  I would love some help reasoning through the bug, just need some motivation to pick it back up.  @madrury Happy to take a shot at helping you out with that bug. Hello, anything built for these distributions? Curious about any updates. Thanks. I'd be personally fine with closing this issue to help the contributors
+focus. Reasons:
+
+
+- The python landscape has changed
+
+- statsmodels is now much more mature and includes these distributions with
+proper exposure weighting
+
+- jit based implementations via pytorch or tensorflow make it easier to
+implement any esotaric loss with no performance penalty or package
+recompilation
+
+Thoughts?we are currently allocating resources to help with
+https://github.com/scikit-learn/scikit-learn/pull/9405
+and make it (at least some parts) land in master. It should be tackled over
+the next months.
+Awesome work !
+
+On Sat, Apr 13, 2019, 3:27 AM Alexandre Gramfort <notifications@github.com>
+wrote:
+
+> we are currently allocating resources to help with
+> https://github.com/scikit-learn/scikit-learn/pull/9405
+> and make it (at least some parts) land in master. It should be tackled over
+> the next months.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/scikit-learn/scikit-learn/issues/5975#issuecomment-482784732>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AOeuWj8PD0nfltM7Acg12Pfhl4sG5n7Fks5vgYbogaJpZM4Gwd6->
+> .
+>
+It would be great to have GLM in sciki-learn.  This will reduce the need to go to other languages.  Looking forward to it.  Agreed. Coming from the R world, I was surprised that sklearn didn't already have GLM functionality. I hope it will soon.I'll add another vote to include GLM In sklearn. It's a core class of models which is taught in undergraduate stats programs. Also, the fact that there is a "Generalized Linear Models" section in the user manual that doesn't include any discussion of link functions or error distributions is surprising to me.@patrickspry Statsmodels has a good implementation of most GLMs an undergrad would learn.  @patrickspry There is a fairly complete PR in https://github.com/scikit-learn/scikit-learn/pull/9405 and work is in progress to merge that functionality.Oh, fantastic! Thanks for the heads up!
+Any estimated timeline to merge the PR? Thanks.@Jiang-Li See [here](https://github.com/scikit-learn/scikit-learn/pull/9405#issuecomment-550534975)For linear models, there is #14300. Then there the open issue #15123. I personally would really like to see tree based models with tweedie loss functions.For linear models  #14300 is now merged, although  additional features could still be added https://github.com/scikit-learn/scikit-learn/pull/9405#issuecomment-594553953
+
+>  I personally would really like to see tree based models with tweedie loss functions.
+
+That could indeed be the next step (e.g. https://github.com/scikit-learn/scikit-learn/issues/15123#issuecomment-542090766) It is impressive to see the great work in sklearn 0.23, which includes the Poisson, gamma and tweedie.  Hope to see more enhancements in the future.  
+Reading the User Guide, Logistic Regression is outside of Generalized linear regression.   Perhaps there should be at least some words stating in the Generalized linear regression section that logistic regression is a type of  GLM and can be solved using the same deviance loss function.  Looks like we can close the issue now that  #14300 is merged?> Reading the User Guide, Logistic Regression is outside of Generalized linear regression. Perhaps there should be at least some words stating in the Generalized linear regression section that logistic regression is a type of GLM and can be solved using the same deviance loss function.
+
+Thanks for the feedback @magicmathmandarin ! Yes, absolutely. The original PR https://github.com/scikit-learn/scikit-learn/pull/9405 actually included deviance of BinomialDistribution for binary logistic regression. The reason we didn't include that in the first merged PR is that even they are indeed part of the same theoretical framework, the specialized  `LogisticRegression` implementation at present is still recommended (better tested by users, handles more options, e.g. multi-class), and we didn't want to confuse users. Now that it's merged, I agree that that part can be formulated better. 
+
+> Looks like we can close the issue now that #14300 is merged?
+
+Sure. There are some follow-up discussions in https://github.com/scikit-learn/scikit-learn/issues/16668, https://github.com/scikit-learn/scikit-learn/pull/16692 and https://github.com/scikit-learn/scikit-learn/issues/15123.

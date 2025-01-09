@@ -1,0 +1,15 @@
+ 6372 adds CODESCODES to CODESCODES. It accepts a list of names of CODESCODES or substitutes with defaults and constructs feature name strings that are human readable and informative. Similar support should be available for other transformers, including feature selectors, feature agglomeration, CODESCODES, and perhaps even PCA giving the top contributors to each component. CODESCODES should be modified to handle the case where an argument is supplied. A proposal for support in CODESCODES is given in 6424.
+
+Modelled on 6372, each enhancement can be contributed as a separate PR. Note that default names for features are CODESCODES 
+ CODESCODES amueller 6372
+ feature selection and randomized L1 yenchenlin1994 
+ feature agglomeration yenchenlin1994 
+ CODESCODES nelson liu 6431
+ scalers, normalizers and imputers: should be trivial like CODESCODES 6431
+ CODESCODES 6431
+ CODESCODES 6441
+ CODESCODES yenchenlin1994 
+ PCA?
+ CODESCODES?
+ CODESCODES?
+ other transformers?

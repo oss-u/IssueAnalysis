@@ -1,0 +1,260 @@
+This error message appeared randomly today when I as usually tried to start a notebook via CODESCODES Did the error show up in a terminal, or somewhere else? What platform are you on?Yep terminal iTerm, platform is OS X and Browser Chrome.
+
+
+OK, I'll leave it for the Mac users to help with that.Same with built in Terminal and Safari, macOS 10.12.same here with MacOS 10.12.5 Beta 16F67a Same here, built in Terminal and Google Chrome on Mac OS 10.12.5 Beta 16F60a  takluyver Where in the code base is this error thrown? That will help us to diagnose it.That error is not something from our code, as far as I can see.Same here with Mac OS and Google Chrome Canary. Error:
+
+
+
+Same here with macOS and Chrome. Error:
+ CODELCODEL This is an Apple event error: The script doesn’t understand the message. The event was not handled. AppleScript documentation:
+ url 
+I guess this was caused by recent changes in the latest MacOS revision.
+The 'open location' call run by Jupyter would need to be adapted; meanwhile setting CODESCODES in your CODESCODES and manually copying the NB link helps if one finds the error message annoying.
+Same issue, latest OS X, looks like a Mac side problem. Copy paste link in browser works every time.Ignore the error. Go to CODESCODES directly, in your browser.For me, this seems to have started with the upgrade to 10.12. which dropped on 15 May. But this thread appeared earlier: can anyone who saw this earlier confirm whether they were on the macOS beta?
+
+ Also, this is clearly a bug, even if it's generated OS side: Ignore the error is only the best solution if it's not fixable. I was on the beta version when the bug first appeared, don't know which version tough as there were updates since then.Same for me just after upgrade to 10.12. 
+However, the link works.For what it's worth, the release notes to LINKLINK and LINKLINK don't appear to have anything listed that would result in this but my ability to read and understand the security update information is limited.
+
+Also, I just checked in the AppleScript editor, and both Safari and Chrome do understand the open location LINKLINK message but I note that the error message is the reverse of this:
+
+ 0:97: execution error: LINKLINK doesn’t understand the “open location” message. thumbs down 708 
+ 
+
+I suppose it's worth a look in the jupyter code to see how this actually gets done. 
+
+Restarted my laptop to update the system and got this error. Going directly to LINKLINK, as kjprice suggests, helps in my case. Solution at bottom! 
+
+So it seems that the problem is in the Python standard library, and I suppose with its interaction with the macOS update:
+
+ CODELCODEL 
+ same behaviour with Python 2 or 3 
+
+However, CODESCODES works! 
+
+So, the solution is to explicitly set the browser in CODESCODES updated from stupidly incorrect file location:
+
+ CODELCODEL 
+
+
+
+Same here, the error occurs just after macOS 10.12.5 update Safari 10.1.
+
+I'm using Jupyter from Anaconda's distribution and defjaf's solution 
+ c. NotebookApp. browser u'Safari' in. jupyter notebook config. py 
+doesn't seem to work for me.
+I tried to put there another option c. NotebookApp. open browser False just to avoid the message, but no success either. Looks like the config file is being ignored.
+Any hints?
+
+ ansteam: try saving it in. jupyter jupyter notebook config. py
+Same here after upgrading to 10.12.5 defjaf Hey Andrew, thanks for your solution, it works!I tried
+
+ CODESCODES 
+
+But got
+
+ CODESCODES 
+
+ Also tried 'Chrome' with the same results. 
+
+What do I need to do to have it launch Chrome?
+ jcrotinger, according to LINKLINK, it looks like the Chrome problem should be fixed in the next update to all maintained python builds.  jcrotinger: CODESCODES should do the trick. defjaf: Thanks Andrew for the Safari browser help!
+
+Here the command to create. jupyter notebook config. py if it does not exist:
+ CODELCODEL c. NotebookApp. browser u'chrome' worked for me! defjaf and bighomeyg thanks for those steps: solved it for me after I remembered to also uncomment the config line! Problem cropped up when I upgraded just now to macOS 10.12. defjaf and davidjaimes the combination of the two solutions worked for me. Thanks!Let's also remember that there is still possibly a bug here: the expectation is that jupyter should use the default browser when CODESCODES is unset as used to be the behaviour. Not clear whether this is a python bug, a macOS bug, or a security feature. but it doesn't appear to be something specific to jupyter since CODESCODES fails in python with exactly the error that we all saw.An alternative workaround is to set the BROWSER environment variable. 
+
+For example:
+ CODESCODES 
+Upon rmcantin 's suggestion, editing my. bash profile file to contain the lines:
+
+
+export BROWSER
+
+worked for me c. NotebookApp. browser u'chrome', did not for whatever reason Reported on the Python bug tracker as LINKLINK  andrewjmacrae your solution worked for me! Thanks andrewjmacrae 你的方法有效，谢谢！As a side note, the 10.12.5 screwed up a lot of my opens. When I tried to open markdown files using CODELCODEL it tried to open it using RStudio it should have used sublime. So I'm inclined to think this is a MacOS bug, not a python one. andrewjmacrae it worked! Thanks!Guys,
+
+1 Create jupyter notebook config. py 
+2 Write the following routine inside:
+
+import webbrowser
+browser webbrowser. get Safari 
+browser. open LINKLINK 
+
+3 save it on path. jupyter command+shift+G 
+
+Good luck!
+Just for completeness, I'll note that it seems to be a bug in Apple's CODESCODES application with the specific CODESCODES command. See LINKLINK. I have also filed an Apple radar.Thanks arrudadfa! It works! arrudadfa I don't understand why CODESCODES in that same file doesn't work which is the jupyterish pythonic way to do it. Note in particular that the notebook won't always be at port 8888 for example, if you have more than one running. defjaf try chrome instead of Safari Full story at LINKLINK  davidjaimes: setting the config file to CODESCODES works for me.
+Thanks, it helped! andrewjmacrae 's solution worked. Thanks! c. NotebookApp. browser u'Safari'
+ did not work for me
+
+ c. NotebookApp. browser 'Safari'
+ didFor those who couldn't get it to work with u'Chrome', try
+ CODESCODES For those who don't want to change CODESCODES or CODESCODES environment variable, specify CODESCODES flag when launching CODESCODES, for example 
+ CODELCODEL 
+ CODESCODES worked for mec. NotebookApp. browser u'Safari' works for my mac, thank you, Andrew! defjaf Same here with OS X and Chrome and when I copy and paste the link it works andrewjmacrae It works: Thanks andrew!I‘m sorry. I try to set the browser to Opera or Chrome, but it both can't work The Chrome can't open it automaticly, but opera just doesn't work. Only Safari works. Does anyone knows why? thank you very much. aryamccarthy It works for me. Thanks Andrew for your idea. andrewjmacrae Really thanks!
+How do I specify Firefox Nightly?
+
+ CODESCODES does not workBy the way, I have just found out that if you set the CODESCODES variable to CODESCODES as:
+ CODELCODEL 
+it automatically detects your default browser when you run CODESCODES.  lmarti That worked for me, thanks. lmarti That works for me too, and I'm really appreciate for that.I have an issue witht the terminal. Every time i run a command on it, it gives me this CODESCODES. I don't really understanf what's going onApparently, the underlying CODESCODES bug is LINKLINK, so that part of the problem will be fixed with the next macOS update the problem with explicitly setting Chrome is separate, but won't be an issue if Chrome is set as the default browser.Thanks andrewjmacrae, your solution is work.thank you for the update, defjaf Simply setting CODELCODEL don't know why I dont have to set the browser in my bash profile though  lmarti Thanks! Your way is really convenient! same error. i just updated the Mac OX, than open the jupyter, it give me this message, but the link works well still andrewjmacrae Thank you very much! It works to my MAC! cheer! andrewjmacrae Thanks a lot it worked for my MacIf CODESCODES doesn't work on your Mac like it doesn't on mine, try CODESCODES. Worked like a charm.Guys let me ask you a question. What happens if you want to run jupyter form inside as virtual env. Even though the above solutions worked especially when I set the browser in the jupyter config file. But, I've found that the problem is persistent if I want to run jupyter from inside a virtual env. For instance you might want to try some new packages in your virtual env but I keep getting these errors:
+
+ CODELCODEL 
+
+Any ideas? lmarti How did you discover that?For anyone who is unable to locate the CODESCODES file, the solution posted by defjaf will still work. However you must first create a file with this name within the following directory:
+
+ CODESCODES 
+
+And once the file is created, you must write the following line to the file:
+
+ CODESCODES Same problem has folks have noted here MacOS 10.12.5 upgrade killed it but adding this to jupyter config did solve the problem:
+
+ CODELCODEL I think the only solution that is browser agnostic is CODESCODES When I copy and paste the suggested URL, I still have to go back to the Terminal and copy and paste the token into the password field. rltbennett because CODESCODES is a macos command that, well, opens what is passed as argument using the app associated with the file type of the argument.
+ c. NotebookApp. browser u'chrome'
+
+Thanks, solved the problem for me after upgrading Sierra and encountering the same issues! I am not using chrome, but CODESCODES works equally fine. Imarti
+ export BROWSER open
+It works for me and so simple way. Hi. Please Help Me.
+My MacbookPro2015 Sierra 10.12.5
+Jupyter notebook don't work.
+I read this thread. and done these.
+1 with terminal: jupyter notebook generate config
+2 with editer: c. NotebookApp. browser u'Safari'
+
+but don't move jupyter with anaconda. 
+ Thanks, Andrew. it worked for me! tsatie 
+Did you make sure that you put the config file created from CODESCODES into your CODESCODES directory? rasbt 
+Thanks. 
+Yes. Surely there is CODESCODES in CODESCODES.
+And I rewrote CODESCODES c. NotebookApp. browser CODESCODES.
+But trying to select CODESCODES from the Anaconda's menu,
+
+
+ Serving notebooks from local directory: Users tsatie
+ 0 active kernels 
+ The Jupyter Notebook is running at: LINKLINK 
+ Use Control C to stop this server and shut down all kernels twice to skip confirmation.
+ 
+
+ to login with a token:
+ LINKLINK 
+0:97: execution error: LINKLINK location”メッセージを認識できません。 thumbs down 708 
+
+”tokenはopen locationメッセージを認識できません。” is Japanese, 
+probably token can not recognize message open location in English.
+
+So, with Safari, paste that URL, I can use Jupyter noteook.
+But, can't using CODESCODES from the Anaconda's menu. 
+ tsatie make sure that the line in the confit file does not start with That makes it a comment.
+Oh! Thanks. Ok.
+well. 
+ c. NotebookApp. browser ''
+delete line's head and change last ' none ' to 'safari'. 
+c. NotebookApp. browser u'safari'
+I missed about. sorry.
+
+
+ lmarti export BROWSER open worked for me too! Great work! thumbs up  andrewjmacrae Thanks for your solution! It works for me. TL;DR:
+
+ CODELCODEL Follow this steps:
+ Paste this on Terminal:
+ CODESCODES 
+You can choose other number
+ Now this:
+ CODESCODES 
+It will show you some URL's
+ Copy any URL that it shows you on:
+ CODESCODES 
+And paste in your browser
+
+Thanks, it works for me.Here is the solution: Go to the directory CODESCODES: 
+ CODESCODES 
+and create jupyter configuration file: 
+ CODESCODES 
+ Now use any editor to open CODESCODES file: 
+ CODESCODES  Search for the line CODESCODES and remove CODESCODES and then add your browser chrome safari:
+ CODESCODES 
+ NOTE: For some users, CODESCODES doesn't work. In that case use the following: 
+ CODESCODES 
+
+Done! Now launch the notebook using CODESCODES. This works for me, just slightly modify your answer:
+To create jupyter configuration file:
+ CODELCODEL Worked for me, thanks!
+And I changed the browser to firefox.
+
+c. NotebookApp. browser u'firefox'
+
+If you're using environments, chances are the default config file won't work because it's connected to the root condo environment. In this case, you will have to navigate to your environment and use the following commands replace with whatever your Mac username is.
+
+ CODELCODEL 
+
+This will create the Jupiter config file at the following location
+ CODESCODES 
+
+To open jupyter notebook in Chrome on a Mac:
+ run this command: CODESCODES if CODESCODES does not exist  open CODESCODES in a text editor add this line: CODESCODES  try to open jupyter again and it should work
+
+Thanks to tsatie and huanhock 
+
+P. S. I tried the following and none of them worked:
+ c. NotebookApp. browser u'chrome'
+ c. NotebookApp. browser u'Chrome'
+ edit. bash profile
+
+
+ huanhock, thank you, your solution worked for me as well. See solution on Stack Overflow: LINKLINK 
+
+ lmarti 's solution works for me on mac 10.12.5
+ export BROWSER openIn the terminal window while you are home directory do these:
+ cd. jupyter 
+ vi jupyter notebook config. py It opens the config file in vi editor 
+ find the line c. Notebook. browser ' '
+ change the c. Notebook. browser u'chrome' to change it in edit mode press 'i' letter 
+ delete at the beginning of the line
+ press esc
+ enter: wq to save and exit the file lmarti's solution below works for me, make sure to add it to your. bash profile so you won't have to run it every time you want to open a notebook.
+
+export BROWSER open🤔 I noticed I only started seeing this error after I changed my default browser from safari to chrome. lmarti lancekrogers CODESCODES worked for me as well.Be aware that CODESCODES will potentially let Python applications which think they're opening an URL in a web browser actually open and potentially run any application or program on your computer, so this isn't really a safe way to address this problem.Welp, I'm getting a new error as a result of my chrome solution posted above:  CODESCODES seems to be resulting in the following error:
+
+ CODESCODES. For anyone experiencing this, I've found two workarounds to avoid this error: 
+1. Open chrome first, and then launch jupyter from the command line works just fine! or 
+2. Switch to Safari with CODESCODES. 
+I'm opting for Safari, but curious if anyone finds any Chrome solutions that don't include CODESCODES which, as glyph explains, is pretty dangerous.Have you tried u Google Chrome? That's the literal name of the app bundle, I believe.I did it results in a CODESCODES error. u'chrome' is the only chrome Google Chrome Google Chrome combination that would work for me. currently experiencing this bug after updating Mac OSX to 10.12.5
+
+ CODESCODES worked but c9. io gave me an error about Sockets not working properly in Safari 10.1 and suggested that I use Chrome. 
+
+these combinations did not work: CODESCODES, CODESCODES, CODESCODES and CODESCODES 
+
+This finally worked:
+ CODESCODES 
+
+thanks tlwillke and haccks for solution. Is that s being literally interpolated or is it being shell quoted somehow?macOS 10.12.6 is out and so the underlying osascript bug is fixed which means that jupyter should use the default browser; the separate problem of specifying Chrome for CODESCODES may still exist if you want to specify it in CODESCODES. glyph. yes but the other solutions can also be fooled by creating an application named 'Google Chrome' or 'Safari'. In any case, all approaches here are temporary solutions until the real bug is solved.If you're still dealing with this issue, the 10.12.15 system python doesn't like any solution other than for chrome, insert path to your browser bundle for something else:
+
+ CODESCODES 
+
+If you install either python2 or python3 via brew then setting c. NotebookApp. browser to 'chrome' will work with or without the unicode decorator so:
+
+ CODESCODES 
+
+or
+
+ CODESCODES Update macOS. The bug is fixed thumbs up.Can confirm upgrading to 10.12.6 fixes the issue. Confirm 10.12.6 fixed that. Please closed this issue.Thanks all. Please open a new issue if you see a similar problem with OSX 10.12.6 or newer.Thanks to rmcantin. Your solution helps me. 
+ CODELCODEL  rmcantin Your solution worked for me thumbs up Please do not use rmcantin's solution 😢. Upgrade macOS.open terminal in Mac
+type CODESCODES 
+the output is similar to 
+ CODESCODES 
+then type CODESCODES to open the python file
+find CODESCODES 
+and change it to CODESCODES In addition to the instructions from Clara YR you also need to uncomment the line CODESCODES. 
+
+Here are clear instructions: LINKLINK For Opera users, this worked for me,
+
+ CODESCODES 
+
+Also, for other browsers flavours, LINKLINK might be helpful
+
+Thanks all, arrudadfa Thanks so much. creating the config file did the trick. After safari opened up, I had to fetch the token for the jupyter notebook, by typing in the command in terminal: jupyter notebook list. Safari required that token to load the jupyter notebook. I also appreciate the shortcut command shift g to open up a specific path to save the file in for the save as dialog. Very useful. Thanks again!
+ 
+
+I've just built a Jupyter IPython Notebook environment on some older Linux machines, and I was having trouble getting one laptop to launch the webbrowser correctly. I run Gnome desktop and spent a long time messing about with glib and gtk+, putting the pkgconfig. pc files into usr lib pkgconfig to make sure Firefox would find the right libs when it started, etc. But I still I kept getting the Jupyter authentication token being displayed when I ran jupyter notebook, and an error saying that Jupyter could not launch the browser. I would have to start Firefox, enter localhost:8888 as a url, and copy the long Jupyter authentication token into the password field to let Firefox access the localhost:8888 url. It's not supposed to work this way. When you enter jupyter notebook at term shell, the browser should just fire up, and you should see a web page showing your directory tree you launched from.
+
+The fix turned out to be simple. I just had to start the Firefox browser from the Gnome Xwindows desktop, and click the button in Firefox to set Firefox as the default browser. You can then close the browser. Once that was done, you can just start a term shell, enter jupyter notebook, and Jupyter starts and invokes the browser correctly with the authentication token, and you should see your directory tree that you launched from in the intial Jupyter webpage. This works on my older Fedora Linux platforms, and also on a CentOS box ver. 6. running Gnome 2.28. Firefox 31.1 ESR. 
+I am using Ubuntu, and for me worked with:
+ CODESCODES 

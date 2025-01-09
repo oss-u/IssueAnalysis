@@ -1,0 +1,16 @@
+I spent some time figuring out what the problem with my image was. It turns out that Jupyter renders the following correctly and Github fails to do so:
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+The following fixes the problem notice the absence of comma and the trailing:
+
+ 
+ 
+ 
+
+Hopefully, it'll be helpful to somebody else.

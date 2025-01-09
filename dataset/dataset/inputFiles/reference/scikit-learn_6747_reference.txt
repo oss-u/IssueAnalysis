@@ -1,0 +1,2 @@
+I've recently see more people using balanced accuracy for imbalanced binary and multi class problems. I think it is the same as macro average recall. If so, I think we might want to create an alias, because it is not super obvious, and maybe add a scorer.
+Also see LINKLINK 

@@ -1,0 +1,656 @@
+I was excited to see tensorflow, but as many other users, we are on Windows, would be nice to see this support happen. Will you accept Windows port contributions?
+
+In the meantime, Microsoft recently released their Deep Learning toolkit which scales on multiple machines with GPUs for both Linux and Windows. LINKLINK 
+I think its a great suggestion!
+Same, I was kind of disappointed to see no mention of Windows in the download and install page.
+Anyone have an idea of what the major incompatibilities accommodations are? Is it it mostly issues with file paths, etc? 
+
+It's built with Bazel, which only supports linux mac, but the good news is that windows support for bazel seems will be out by the LINKLINK 
+: thumbsup:
+You can already use TensorFlow on a Windows machine by using Docker. 
+Details are in this thread.
+ LINKLINK 
+I would like to use TensorFlow on Windows without Docker, in order to use GPU compute. Using Docker in this case is not using a Windows container, but a Linux virtual machine on Hyper V or VirtualBox, and so the GPU will not be passed through.
+ thumbs up 
+google, give us windows support, please!
+ CODESCODES 
+ thumbs up 
+Yeah, windows support would be super nice.
+ thumbs up 
+ thumbs up 
+ thumbs up 
+
+yes please
+Would love to use TensorFlow on Windows native, not in a VM.
+I'll take a look into whether Continuum can provide a conda package for tensorflow.
+Judging by the use of bazel across the documentation, I assume its a matter of waiting for bazel to support windows. Is there anything specific to Tensorflow that would need to be addressed for windows to be supported, or is just bazel?
+One question I have is when Bazel support is actually arriving on Windows. Looking at the Bazel repository it says they are planning to support Android in Windows, but I didn't see any reference to building what I assume are native packages.
+Here is the bug we are using to track Bazel support for Windows: LINKLINK. A month ago, dslomov was able to LINKLINK. The plan is to finish Windows support by end of this year.
+ davidzchen I was actually working with that repo earlier this afternoon to try and give it a go without much luck, I might play around with it some more to see if I can get it to successfully bootstrap itself.
+ thumbs up native support on windows should be available
+ thumbs up 
+or maybe we could port it to a more reasonable build system. perhaps cmake.
+ ahmadia do you have any tips on how to install tensorflow using conda?
+Right now we're in the same boat as everybody else because there is no port of TensorFlow to Windows. If somebody can put together a Windows port I'm happy to help with the binary build deployment. Somebody has already put together a recipe for OS X Linux available with CODESCODES.
+ thumbs up for this
+ thumbs up 
+ thumbs up 
+also cmake support would be great
+I put together an article with instructions and screenshots for getting LINKLINK using the tips from LINKLINK if it's helpful for anyone. 
+
+Although I'm still not sure how I can take advantage of my GPU though if TensorFlow is running in a VM on my Windows machine.
+ thumbs up native windows support would be extremely helpful
+ thumbs up 
+I want have a version of TensorFlow for Windows 7, if you have, Please send my email.
+My email address:
+Thanks!
+ thumbs up 
+Windows support is a bit of a dramatic effort. Maybe supporting Windows only for a truly standard compiler gcc tdm gcc mingwpy and on a modern Python 3. would be a much more easy target?
+Perhaps using Clang frontend with VC++ CodeGen would be a fastest pathway to get working Windows builds LINKLINK. Project was designed to provide consistently working toolchain for cross platform builds of code primarily targeting windows, nonetheless scenario in which nix code is compiled on windows could be equally interesting. MSFT C++ team states that code they write is contributed back to LLVM project so it should allow for fast and joint work on getting good cross platform support. 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up. This is the first Python package I recall not working on Windows. It seems odd to me, as my understanding is that NVIDIA's drivers have always been better on Windows than Linux, and I have a GTX 970 that's feeling bored these days.
+I have ported most of the tensorflow c++ to a windows build use vc 2013. so far most code compile and linked use my own sources file. the biggest challenge for me to work around is that: it use static variable to register op and kernel. I build them as static library and app link to it will skip those static variable. I have to use a stub. cpp in app folder to include used ops and kernels.
+ yuanhua8 any chance you push your changes to a github repo? BTW, I solved the static registration thing in caffe by using dumpin to generate a header that forces symbol liking. See LINKLINK and LINKLINK for details.
+Hope native Tensorflow for Windows will be ready soon, might have to wait until bazel for Windows is stable, thrilled to try LINKLINK by Google and Udacity!
+FYI Windows support for Bazel is LINKLINK. Stay tuned.
+Same here, i begun the deep learning course offered by Google and here i am stuck because i am running Windows.
+When should we expect support for Windows?
+I noticed lot of people facing a problem running this under Windows so did a quick write up on how to set it under Windows using Vagrant and Docker:
+
+ LINKLINK 
+ umarniz Thanks for the guide. However, I think, what most people here anticipate to see is TensorFlow running natively on Windows because of GPU support. That unfortunately doesn't work with Docker as far as I know nor any other solution using virtualization. 
+ SeveQ I completely agree and I personally prefer using Linux for all my ML experiments due to the ease of setting up multiple unique programming environments. This guide was meant to run the course material from Google as the training sets and examples they have are for beginners with smaller data sets which should be able to run in a CPU only environment too.
+ umarniz Alright, didn't mean to denigrate your effort. Definitely not! You did a great job writing that up! Thanks again!
+
+By the way, only to mention this. the Deep MNIST example, which is admittedly already not that simple anymore, takes several hours on my CPU whereas my GPU GTX 980Ti rushes through it in at most a few seconds. On a native Ubuntu that is. I've one set up on a USB stick. It works, however dual boot can be quite cumbersome and a huge demotivating factor. Even more so since a hibernated Windows on a UEFI system can be pretty picky when it comes to accessing data on NTFS partitions from Linux. 
+
+Sure, I totally agree that Linux Ubuntu is the best OS for ML tasks because it's the one most people use, and not without reason. But it still has its disadvantages for enthusiast people like me who not only do ML for a living but also as hobbyists, and who have other hobbies in parallel that rely on Windows. like gaming for example. 
+
+I guess that's some first world problems that I'd absolutely love to see solved nevertheless. 
+ SeveQ I didn't take it that way either thumbs up 
+
+I agree with dual boot being a pain, I had to completely move to Ubuntu for a few months otherwise it becomes quite cumbersome to switch but I love the power that bash shell gives for working with large data sets.
+
+I think i'll see what I can do to help add Windows support for TensorFlow myself.
+ thumbs up 
+ umarniz Sounds good. I don't have the time right now to also dedicate myself to this, unfortunately. Other priorities like graduating. Windows support for TensorFlow would be a great help though in this matter. I'm graduating as MSc. systems engineer, specializing in, who would have thought, machine learning. 
+any update on this
+I make a port of the c++ code into our internal branch. Sorry can not publish back since it take dependency of our code branch. Find some gap btw c++ and Python. But the core engine work for me in our windows Vc environment.
+H y 
+
+Sent from my iPhone
+
+
+
+
+
+
+
+For all those who want to use Tensorflow and can surrender GPU support LINKLINK about installing Tensorflow with jupyter notebook support for Windows with Docker.
+An update on Windows support for Bazel: the initial set of patches to get Bazel working on Windows has been merged see bazelbuild bazel 276, and dslomov has been able to get Bazel to LINKLINK.
+
+We are planning to have experimental support for Windows in LINKLINK. If you would like to follow our progress, see the LINKLINK on the Bazel issue tracker.
+
+
+Unable to find image ' LINKLINK ' locally
+
+docker: Error response from daemon: unable to ping registry endpoint LINKLINK 
+ LINKLINK 
+v2 ping attempt failed with error: Get LINKLINK: dial tcp 64.233.188.82:443: i o timeout
+Any news regarding being able to use TensorFlow in Windows, without Docker?
+How hard would it be to offer a CMake build process that works both for Linux and Windows creating a MVS project?
+I wrote LINKLINK for installing tensorflow on a CentOS virtual machine. If you're having trouble working with Docker, this might be your solution.
+Guys if you install bash on Windows using the new developer preview tensorflow does install and kinda work. So you can use that to run it on Windows without using docker. And it would probably improve the bash for Windows because more people are using it. 
+That's fantastic. 
+Using bash on Windows was my biggest hope to use tensorflow on Windows. 
+
+The biggest question is whether you can use the GPU drivers? 
+
+That's the main reason people asking for a native tensorflow installation in windows. Otherwise cpu support is just fine through docker or Linux virtual machine 
+I have no knowledge of that but we should ask the Windows team about that.
+People have gotten GUI programs to work through windows but it uses CPU not
+GPU so I'm thinking it does not currently have access
+ hayder78 wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Yeah. I read that GUI programs run through bash in windows will use a generic GPU driver. Which means does not use the nvidia drivers.
+
+Let's pray that Google is working on a tensorflow on Windows under the hood. 
+
+I think bash for Windows needs time to be mature enough and bug free. In the meantime probably VM and docker will be a better choice. 
+I am now making a choice between tensorflow and CNTK. 
+ thumbs up for Windows native support, including GPU.
+The link to follow Bazel's Windows issues provided by davidzchen isn't working, the correct one is LINKLINK 
+
+ I know everyone is hoping for Windows native support + GPU, I am waiting too, but we have to wait until Bazel for Windows gets stable, helping in testing and contributing to Bazel will probably speed up the process 
+another thumbs up for windows with GPU support. Although TF seemed a better option, I had to switch to Theano as a result for lack of GPU support on windows. It will be nice if there is a mention on TF's roadmap as to whether support is going to be available in future releases, as it will help with loads of researchers decision making. 
+ thumbs up 
+ thumbs up 
+One interesting piece of news: shanselman wrote a LINKLINK about running TensorFlow on Bash for Windows.
+
+We still intend to provide first class Windows support, but adventurous users might find this a good way to get started in the mean time.
+ mrry Hi Derek Murray, 
+I am glad to hear from you as a Google software engineer that you intend to provide a native windows support for tensorflow. Are you part of the tensorflow developer team at Google? 
+
+At least I have a hope now. 
+
+Any rough estimate when will be a beta release? 
+Another thumbs up, very interested to see this happen. If and when Bazel actually runs on Windows, will TF actually compile on the platform? Or are there other portability issues as well for example network, file system calls?
+ thumbs up 
+Folks, could you please use LINKLINK rather than writing thumbs up in a new message? Right now it produces a lot of spam for people who subscribed to updates in this thread. Thanks!
+ thumbs up for GitHub reactions!
+Well bazel seems to work most of the time on windows now, aside from a few name errors illegal characters or very long commands. There definitely are issues to getting a working windows tensorflow other than just having a working bazel. All the errors I have got so far are of the type:
+ CODESCODES 
+So I am guessing build rules need to be updated for windows first.
+The official roadmap of tensorflow:
+ LINKLINK 
+
+Windows support is part of the near future roadmap that is targeted for the next few months!
+ Sabrewarrior I tried to build the tensorflow on windows using bazel, but the configure file just give some errors. I wondering if you changed or added some parts on that file to be supported on windows
+ Fhrozen LINKLINK 
+These are my installed packages when I ran configure without any changes. I am running this on msys2 with python 2.7 on a Windows 10 machine.
+ Sabrewarrior thanks for the answer. I checked it, was the spaces in the folder name my problem.
+Now i got this error on the cuda version. 
+
+
+
+
+
+
+
+
+
+
+Setting up Cuda include
+Setting up Cuda
+ln: fallo al crear el enlace simbólico '. third party gpus cuda extras visual studio integration MSBuildExtensions CUDA': No such file or directory
+ln: fallo al crear el enlace simbólico '. third party gpus cuda extras visual studio integration MSBuildExtensions 7. props': No such file or directory
+ln: fallo al crear el enlace simbólico '. third party gpus cuda extras visual studio integration MSBuildExtensions CUDA': No such file or directory
+ln: fallo al crear el enlace simbólico '. third party gpus cuda extras visual studio integration MSBuildExtensions 7. targets': No such file or directory
+ln: fallo al crear el enlace simbólico '. third party gpus cuda extras visual studio integration MSBuildExtensions CUDA': No such file or directory
+ln: fallo al crear el enlace simbólico '. third party gpus cuda extras visual studio integration MSBuildExtensions 7. xml': No such file or directory
+xargs: bash: finish with status 255; aborting
+ 
+ Fhrozen AFAIK you can't use gcc as a compiler for CUDA on Windows. Only Visual C++ Compiler is supported by CUDA on Windows LINKLINK. 
+ thumbs up 
+ AGAIN! PLEASE DON'T MAKE USELESS thumbs up COMMENTS! USE THE GITHUB REACTIONS INSTEAD!
+ thumbs up 
+ stop thumbs up!
+
+I repeat, stop thumbs up for ¥ sake! Anyone who comments thumbs up after this is an idiot! P Use Github reactions, dammit! 
+
+Could someone give me some kind of moderator status? I'd like to clean this issue from useless thumbs up comments. 
+Hi team. I'm trying to understand what work needs to be done to be able to use TensorFlow on Windows 10, I guess with GPU support via CUDA. From what I know so far, that rules out Docker because Docker cannot access the host's GPU, and means that we must use Visual Studio's cl. exe which is what Bazel for Windows does use.
+
+From that, is it just Bazel for Windows that needs to be progressed? Is that the only unsatisfied dependency here? Happy to be corrected on any point.
+If I want to turn on the Bash on Windows, I need to check the Windows Subsystem for Linux Beta right? But I can't find this menu in the Windows Features dialog. I'm following the guide LINKLINK and LINKLINK.
+Do I need to tick Hyper V check box in the Windows Features dialog?
+I've also turned on the Developer mode in the settings already.
+
+It seems like I need to desert these Windows beta bash features and unwillingly use Docker?
+ off99555 You're Windows 10 should have the latest preview release Fast Ring. Check your build, if it is lower than 14000, then you don't have this feature yet. This update will be GA August 2nd 
+Hello,
+
+For Tensorflow Windows support, are we going to be able to build out Windows Binaries that are not msys2 binaries? This makes sense since it would be a possible to do actual deployment on most user's machines.
+
+If this is not possible, can we have a way to just deploy a stripped down version of the prediction pass forward pass of the library for this purpose? I can train on Linux just fine but for the actual prediction process, I will like to be able to deploy on a regular Windows box without msys2. Is this on the roadmap?
+
+If you look at what CNTK is doing:
+ LINKLINK 
+
+They have a much easier way to do evaluation prediction using a stripped down DLL. Can we have something like this in Tensorflow as well for Windows and other platforms I can imagine will find it very useful.
+
+Thanks!
+I don't understand why you are added support for Mac OS and not Windows. You cannot use normal CUDA GPU on most Macs. It is useless platform for deep learning training
+Can the team tell us please about estimates for native windows support?
+ mrry is actively working on this and can provide more updates on this if you have specific questions.
+ aselle Thanks for the useful update, much appreciated!
+
+ mrry Hello, how are the specifics of the Windows implementation going to be rolled out?
+
+1 Will we have ideally a VS2015 solution that we can build with our apps tools? A cmake method that generates the VS solution works too.
+
+2 Is this going to be a statically linked or dynamically linked library?
+
+3 Will there be a lightweight forward pass evaluation module library that we can use for deployment with our tools apps?
+
+The current resource I could find regarding deploying tensorflow with a C++ standalone app is here:
+ LINKLINK 
+
+My main concern is what is stated here:
+ The build is huge, coming in at 103MB, even for this simple example. Much of this is for TensorFlow, CUDA support and numerous dependencies we never use. This is especially true since the C++ API doesn’t support much functionality right now, as a large portion of the TensorFlow API is Python only. There is probably a better way of linking to TensorFlow for example shared library but I haven’t gotten it working yet. 
+
+If there is a better way to get around linking a large static library that will be great, especially for the purposes of a forward pass evaluation which does not really need GPU support.
+
+Thanks!
+ mrry How can others get involved in this? How can we help to get TensorFlow running on Windows as soon as possible? At least we can help with testing and bug reporting.
+ thumbs up 
+Any updates on windows? whats needed to get it run natively having GPU available as well?
+We need windows support!
+Can the team tell us please about estimates for native windows support?
+No windows? why? at least CPU only versions?
+Here is a summary of what I think is happening in this Windows support issue:
+
+Tensorflow requires LINKLINK to build from source, If I am not mistaken, Bazel is a build system like GNU Make, but not a compiler.
+
+Based on what I saw as I briefly scanned through the code, source code of Tensorflow itself uses mostly standard C++ library for things like threading so it should be no problem to compile on Windows, essential third party libraries it uses all have Windows support.
+
+Therefore, I think the main problem lies on lack of build method for Windows rather than source code itself. There are works on using CMake to build instead of Bazel but not complete yet. If someone can translate Bazel build rules to CMake's, I think we will be able to build it on Windows.
+ LINKLINK 
+ LINKLINK 
+
+Stable Bazel support for Windows still have LINKLINK.
+
+Please correct me if I made a mistake here.
+ eiva If you want CPU only support you can run Tensorflow in a virtual machine. I've run it on Ubuntu 14 on a Windows 10 host without issue.
+ rongjiecomputer I honestly wonder why they used Bazel at all. 
+
+ eiva There's also a ready built Docker container that you can use on a Windows host. Works out of the box. It's just not that much fun to work with tensorflow without GPU support. For the cool stuff at least a single GPU is a requirement. You can of course run basic stuff like linear or logistic regression without a GPU. But that's just not tensorflow's long suit. It's made for deep learning tasks which basically require a GPU. 
+ marklit i use it this way already, but most of my app running on windows, and most of development is going on windows. Its not easy to switch os each time i doing something with different parts of system. 
+ Loo Rong
+Your speculation is right!
+ LINKLINK 
+
+ Eugene Ivanchenko 
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+Thanks for all of the interest in TensorFlow on Windows! We're making progress on two main fronts: Adapting TensorFlow's Bazel CODESCODES files to work on Windows. You may have seen some recent pull requests from meteorcloudy in that direction like 4449, and our eventual plan is to have full support for building TensorFlow, using Bazel, on Windows. Modifying the TensorFlow runtime to build with the Visual C++ 2015 compiler. I've been working on this effort, and the diff between HEAD and my working branch is getting smaller every day. For now, I'm using CMake to build TensorFlow using Visual Studio MSBuild, but I plan to switch to Bazel when the CODESCODES files work cross platform.
+
+We expect to make an announcement soon, with a binary PIP package and instructions for building TensorFlow on Windows. In the meantime, we will update this issue when we have news to share.
+
+ 
+
+Responding to the LINKLINK from kestrelm: I am currently using CMake to generate a VS solution with multiple projects, and we'll merge this as part of item 2 above. At the very least, we can generate a Python extension DLL containing the runtime and all kernels the equivalent of CODESCODES, and provide instructions for building a statically linked C++ binary the equivalent of CODESCODES. We can easily make a version of the runtime with those features something like the Android subset of inference related kernels in a DLL behind the C API, although it probably won't be part of the initial release. It will however be possible to modify the build files to make a target that has these properties, and I'll be happy to help anyone who's trying to do that.
+Awesome work, mrry!
+
+
+
+Can you give any rough estimates on when that announcement will be? I can't wait!
+ mrry: Derek, solid update. Do you have a binary GPU release BETA before the rest of the makefile compiler framework solidifies? At least folks could try out against the Python API. 
+Dear Gurus:
+
+I tried to build tensorflow from source code on Windows 10. It reports bazel is already supported on Windows although might not be stable. Nevertheless I got a working one.
+However, when I tried to build tensorflow, there're two problems, first it indicates bazel clean expunge async failed with permission problem. I bet it's not that severe. The next problem is a little vital since it blocks the build. it reports: 
+
+
+ERROR: missing input file '.
+
+Target tensorflow tools pip package: build pip package failed to build
+
+
+
+Actually during the configuration process, I deliberately disable GPU support, so why it tries to load dynamic library related to CUDA?
+
+Since I disable GPU support, the stub libraries are correctly created with zero size and with the DLL file extension. However, as in the error message, I don't know where the requirement of loading CUDA related libraries originated. I checked several files but still have no idea. Meantime, I also think the file is poorly written, since it should look for DLL files instead SO files. However I still have no clue.
+
+Anyone has any idea to this problem? Thanks a lot.
+As you may have seen with PR 4778 merged, we now have preliminary support for building TensorFlow on Windows using CMake. It supports build a CPU only version of TensorFlow for use in the C++ example trainer program, and a PIP package for Python use. For more details and instructions on how to build TensorFlow from source on Windows, see the LINKLINK.
+
+This is alpha quality code, and we expect there to be bugs in this initial version. If you find one, please raise a new GitHub issue for the specific problem.
+
+Our focus now shifts to getting GPU support for TensorFlow on Windows, and transitioning to a common Bazel based build for Windows and Linux. If you have other feature requests, please raise a new GitHub issue.
+I was using this prebuilt project LINKLINK, but it does not support GPU.
+ mrry Hi, Derek, appreciate your contribution to TensorFlow.
+ cesardelgadof Hi, Cesar, thanks for your information.
+
+However, I think the previously obstacle hindering build TensorFlow on Windows platform is the unavailability of bazel on Windows. Since now it's available, though may not be stable, so in my opinion we'd better try to solve the problem ahead when building TensorFlow using bazel.
+
+I personally think guys at Google, if they do have the plan to support native build on Windows, they probably will choose bazel. And once the official solution available, I guess people will switch from cmake to bazel. So if there's such a day, why we work together to have the day come early?
+
+Nevertheless I will try the cmake version, and hopefully someone else will also try the bazel build system. Probably we can figure out what's the nasty error comes from, and locate the poorly written configuration file.
+
+Thanks for you all. 
+ mrry Thanks for the major contribution! I've tried to follow your instructions. All seem to work flawlessly for about 45min until it failed with:
+
+
+
+
+
+
+
+
+ CustomBuild target 
+
+
+
+ CODELCODEL 
+ laudney Thanks for giving it a try, and I'm sorry to see that you're getting an error! Since this issue has a lot of subscribers, I've created issue 4798 to track the fix for this problem, so let's continue the discussion there.
+ mingyr We hope to have TensorFlow building on Windows with Bazel as soon as possible. meteorcloudy has been doing sterling work to get this to happen, and he just sent PR 4796, which enables Bazel to build CODESCODES on Windows. We'll aim to get that merged soon.
+ mrry Thanks for 4798, it now builds ok, also tested python whl install and no problems found so far. 
+Hope to see tensorflow in conda soon.
+Use Tensorflow on virtualized environments as Docker VirtualBox is a very bad solution. Tensorflow should run on Windows natively. And since the most is coded in Python should not be a problem create a distribution for Windows. 
+Hi everyone! As mentioned by mrry, I am working on TensorFlow Windows build with Bazel. With PR 4796 and PR 4874 merged, the C++ example trainer now builds on Windows with LINKLINK!
+
+Here is a brief instruction about how to build TF with Bazel on Windows:
+ Install Bazel on Windows LINKLINK 
+ Setup the environment Bazel needs for LINKLINK 
+ Clone TF repository, run CODESCODES in MSYS
+ Run CODESCODES 
+
+For convenience, you can put the build options in CODESCODES, mine is like:
+
+ CODELCODEL 
+
+A known issue is that Bazel's MSVC LINKLINK doesn't support python3 in Bazel 0.2, but it's already been fixed at LINKLINK. You can solve it by setting CODESCODES to a python 2.7 binary or building Bazel from HEAD.
+
+Building the C++ example trainer with Bazel takes about 20 minutes on my machine Windows 7, CPU 2.9GHz, RAM 64G, an incremental build after changing some source file for example LINKLINK is around 1 minute.
+
+I am also making some progress on building the python PIP package on Windows with Bazel, I will send a PR as soon as possible.
+
+Please try to build TensorFlow with Bazel on Windows, and tell us what we could improve!
+ meteorcloudy, Hi, Yun:
+The C++ example trainer must built by the prebuilt bazel binary installed on Windows, or could I sync to the latest git version of bazel, and use the custom built bazel?
+
+Actually I choose the second way, use the customer build bazel, however, it complains as follows:
+
+
+
+
+. 
+
+Procedures for build I took:
+ cd c: tensorflow
+
+ export BAZEL SH c: tools msys64 usr bin bash. exe
+
+
+ export PATH PATH: c Python27: c Python27 Scripts: c tools swigwin 3.10: c bazel output
+. configure
+
+bazel build c opt cpu x64 windows msvc host cpu x64 windows msvc tensorflow cc: tutorials example trainer verbose failures
+
+Any suggestion?
+
+Thanks.
+ meteorcloudy Hi Yun,
+
+I have followed similar procedure but I get the following error:
+
+bazel out host bin external protobuf protoc. exe cpp out bazel out vc 14 0 x64 opt genfiles plugin protoc gen grpc bazel out host bin external grpc grpc cpp plugin. exe grpc out bazel out vc 14 0 x64 opt genfiles I. Iexternal protobuf src Ibazel out vc 14 0 x64 opt genfiles external protobuf src tensorflow core debug debug service. proto: com. google. devtools. build. lib. shell. BadExitStatusException: Process exited with status azel out vc 14 0 x64 opt genfiles external protobuf src: warning: directory does not exist.
+
+I checked the folders and there is no src directory in protobuf. Also there is no grpc folder in bazel out host bin external so no grpc cpp plugin. exe file. 
+
+this error is followed by a bunch of errors that files in tensorflow core are not created
+
+Any idea how to fix it?
+
+Thanks
+ mingyr karthiek Thank you for trying to build TF with Bazel! 
+Unfortunately, according to LINKLINK, TF build is even failing on Linux with Bazel at HEAD with similar error given by you. We are fixing it, meanwhile, can you try again with LINKLINK?
+ meteorcloudy Hi Yun:
+
+What do you mean by can you try again with Bazel 0.2?
+
+You mean the official prebuilt Windows binary, or we can sync to the latest version of bazel, and use my build?
+
+Actually I already sync to the latest version of bazel and use my build. If you indicate I should try the official prebuilt binary to see whether the problem is still pending, please kindly let me know.
+ R.
+ mingyr Yes, I mean the official prebuilt binary. I am having the same error after sync to HEAD.
+Please see LINKLINK 
+ meteorcloudy Hi, Yun
+
+Thanks for the suggestion. I tried using 0.2 pre compiled binary and was able to compile and generate tutorilas example trainer. exe file. 
+ karthiek So glad you succeed! How long did it take? Is it faster than the CMake build?
+ meteorcloudy It took around 15 minutes Intel R Core TM i7 6700 CPU 3.40GHz. Its just yesterday I had the necessity to build tensor flow on windows. So, I directly tried the last method you suggested. I didn't try building it using CMake. 
+Hi, I tried to follow meteorcloudy approach but ended up with errors as below. Could anyone help?
+
+ bazel build c opt cpu x64 windows msvc host cpu x64 windows msvc tensorflow cc: tutorials example trainer verbose failures
+
+
+
+
+
+
+Traceback most recent call last:
+ File tensorflow tools git gen git source. py, line 258, in 
+ generate args. generate 
+ File tensorflow tools git gen git source. py, line 210, in generate
+ git version get git version data 
+ File tensorflow tools git gen git source. py, line 151, in get git version
+
+
+ process Popen stdout PIPE, popenargs, kwargs 
+
+ errread, errwrite 
+
+ startupinfo 
+WindowsError: The system cannot find the file specified
+
+
+Target tensorflow cc: tutorials example trainer failed to build
+
+FAILED: Build did NOT complete successfully
+ bssrdf your symptoms seem similar to LINKLINK.
+It is a known issue of bazel on Windows that we break if your workspace is not on CODESCODES drive.
+
+If that's the case, the workaround is to create a junction if your tensorflow checkout is in CODESCODES the following should work
+
+ CODELCODEL 
+
+See LINKLINK 
+Sorry for the inconvenience, we are fixing this asap.
+ bssrdf hmm on a second look maybe it is not it could it be that you do not have CODESCODES in PATH?
+ meteorcloudy Hi, Yun:
+
+I also confirm that there's no problem compiling the C++ example trainer using pre compiled bazel binary version 0.2.
+
+My notebook is a old one and meantime it runs other tasks, so the compiling time is nonsense from bench marking perspective.
+
+Thanks for your work and look farword to compiling the python PIP package on Windows
+ R.
+ mingyr That's great! 
+But just a notification for everyone, the example trainer is not buildable at TF HEAD, because my fix was reverted at be3bc472a52571a83f048479d6a4fa528b5a495e for some reason. 
+The good news is, building python PIP package with Bazel is close! Please see PR 4942
+ dslomov thanks for the reply. I did have to solve the bazel non c: drive workspace problem as you suggested. I installed git for windows and git can be seen in the PATH by MSYS2. 
+
+I just relaunched the bazel build command and it's working now, like a miracle. I don't know what happened yesterday. Anyway, this is just another confirmation of success on Windows 10 home, VS 2015 community edition, prebuilt bazel 0.2 and Winpython 2.10.2
+
+Thanks a lot for Yun's work. 
+ meteorcloudy, is it possible to build the GPU version following the procedure with changes in bazel build of course?
+ mrry Hi Derek, thanks for your contribution, but I have this problem with tensorboard, it does not working:
+
+ CODELCODEL 
+ bssrdf Probably not, because the code doesn't support GPU on Windows yet. mrry did all the work of making TF code compile with MSVC, and he has been focusing on fixing GPU support.
+Do we have some sort of educated guess on ETA for production use?
+Since it seems relevant to people here using Bazel on Windows; i created a chocolatey package to make installation easier. LINKLINK. Please try it out and if there are any problems it is new, tweet or raise an issue over at bazelbuild bazel. 
+GPU support is out thanks to mrry and guschmue.
+Instructions will be updated on LINKLINK.
+Has anyone been able to compile on Windows and create a PIP package? Thank you. thumbs up 
+master 66f979714c9a8582059f383ec1505d13c9e8c523 should build ok for windows cpu and gpu. Instructions are in tensorflow contrib cmake README. md use cmake 3.6 for now. 
+Tensorboard is not included? because it not works:
+
+ CODELCODEL 
+Some python modules are missing from the pip: examples, some of contrib and tensorboard, doesn't get copied into the wheel when building with cmake.
+Let me check what it is just a matter of adding it with an option to tf python. cmake or if there are complications.
+I compiled tensorflow for python as per the instructions, but I get a crash originating from CODESCODES when using CODESCODES on my GPU.
+
+Sample code that causes the crash is
+
+ CODELCODEL 
+
+This causes the python process to crash and gives this output in the jupyter console
+
+ CODELCODEL 
+
+While messing around with the trying different versions of CODESCODES I was able to get the code to work once and confirmed that the GPU was being used, but even after trying all the versions of CODESCODES that I downloaded I have had no luck making it work a second time.
+tried your script and it works for me. We tested only with cudnn5. everything older I don't know.
+I'd get a clean install of cudnn5. build with that and make sure the cudnn64 5. dll in PATH is 5.
+Another thing to check: your free memory is a little lower than I'd expect is there maybe another python running that has the device open?
+I tried a clean rebuild with a fresh cudnn downloaded and on the PATH CODESCODES but no cigar. CODESCODES from this download is 'File version': CODESCODES and has 'File description': CODESCODES.
+
+ CODESCODES from the CUDA 8.0 path has the same 'File version' but 'File description': CODESCODES 
+
+ CODESCODES and CODESCODES also have matching 'File versions' but are CODESCODES in 'File description'
+
+The GPU drivers I have installed are version CODESCODES from latest CUDA drivers and CODESCODES in System32 has 'File version': CODESCODES and has 'File description': CODESCODES.
+
+ 
+
+I believe the low device memory is just because I have a 970 which only has 3.5GB of useful memory and CUDA doesn't like using the last 0.5GB.
+I have the same cudnn version and its works fine for me. There are a bunch of conv python tests in the tf tree and they are all passing. I mostly use a 970 for testing. Your log was specific that it had issues initializing cudnn. Let me take a look at the init code.
+OK the issue appears to be a driver one. I can successfully use cudnn and convolutions once each time I restart the video driver using device manager disable then enable. Once I have used it in one process however, any future uses fail to initialise.
+
+Furthermore I think other processes are having driver related crashes once cudnn has been initialised.
+
+ 
+
+Update: I've uninstalled and reinstalled my graphics driver and now I can have one process jupyter kernel with cudnn work correctly, but until I close that kernel every attempt to use cudnn in other kernels will encounter the same crash. If I restart the working kernel I can run the code in a different kernel without having to reload the driver.
+It compiled for me, but I had to add shell True in the line 150 of the file gen git source. py. Otherwise, I would get the same error as showed in:
+ LINKLINK 
+
+
+config. gpu options. per process gpu memory fraction 0.4
+with tf. Session config config as sess: 
+with that I can run 2 scripts in a loop that hit cudnn. This is the same on linux.
+But it crashes is different on windows on linux it gets CUDA ERROR OUT OF MEMORY, on windows it get CUDNN STATUS NOT INITIALIZED. Going to take a look at this.
+Ah so the problem was that my system was using too much video memory even before initialising tensorflow. I guess the driver stuff was just bringing the used device memory down so that tensorflow could initialise properly. Thanks!
+Guys, is it possible to build on Windows without MSVS? Windows 10 SDK is supposed to contain the C++ compiler, wouldn't that suffice for the task?
+ zandaqo You only need LINKLINK and CMake, so there is no need to install the whole Visual Studio. Windows 10 SDK contains dll, static libraries, header files and source codes for the libraries and some useful tools, but it does not contain compiler.
+Hello!
+
+I'm new to both Python and Tensorflow, but I have done some MNIST stuff in the past. I followed the instructions on tensorflow contrib cmake README. md, and it worked fine, GPU seems to be working fine as well. Tensorflow on Windows seems to be breaking in some places, as expected, and I just want to check whether my understanding of the breakage is right.
+
+I tried to follow LINKLINK and it doesn't work, since this import path tensorflow. examples. tutorials. mnist doesnt exist. This is ultimately due to CODESCODES not being included in the pip package, right?
+
+
+
+ CODELCODEL 
+
+I couldn't find the definition of gen variable ops anywhere, but the documentation says that CODESCODES is not currently implemented. So, CODESCODES is implemented somewhere else, which needs to be loaded using CODESCODES. So, the lack of tf. load op library is what is causing the problem, right?
+I've managed to build successfully the pip package following the cmake path, and installed it with CODESCODES which reported a successful installation. However, when I try to import tensorflow, I get the following errors:
+
+ CODELCODEL 
+
+Did I miss some dependency here or something was wrong with the build installation?
+ zandaqo, I got this problem when I first run tensorflow on Windows. You just need to compile the examples, and add the folder with the compiled examples to your path. When you compile the sample codes, it will also compile some DLLs needed for Tensorflow.
+ ErivaldoJunior By compiling the examples do you mean this: CODESCODES? I did that before compiling the pip package. It compiles to CODESCODES, is that the folder to add to path? I have just tried adding it, but no luck so far.
+
+I do see files named CODESCODES mentioned in the errors in that CODESCODES folder, maybe manually copying them somewhere might help Python to see them. Not sure where though.
+ zandaqo, that is right. I just add that Release folder to my Windows path and it worked. However, I tested by launching python my tensorflow script. py from a CMD window. I don't know if it work if you use some kind of IDE or iPython.
+ ErivaldoJunior Thanks, you were right about missing DLLs, though in my case it turned out to be CODESCODES that was missing from both the package and CODESCODES folder. I've manually copied CODESCODES into the folder, as it was suggested LINKLINK and the import now works.
+I successed to build the tensorflow! But CODESCODES causes build error, CODESCODES works fine. 
+Good to know! We'd welcome a PR with an appropriate minimum version
+statement in the cmakelist file.
+
+On Saturday, November 5, 2016, Takahiro Kubo 
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+ martinwicke as in LINKLINK it seems the minimum known working Cmake version is 3. Should I change LINKLINK to 3.5 and update the readme for minimum 3.5 up to 3.
+Nice to see that TensorFlow can now work on Windows with GPU now. Are there plans for a version that need not be installed from sources? And if so, any ETA on that? It would be great if the setup process were as straightforward as on Linux, I'm using TensorFlow on Linux without problems and would like to do so on Windows, but the requisites and setup process documented in the readme currently looks a bit cumbersome for those of us that don't have much time. 
+Hey guys! With the release of LINKLINK, TensorFlow PIP package can now build with Bazel on Windows.
+Thanks to petemounce's contribution, you can use CODESCODES to install Bazel easily.
+
+ gunan has already set up a ci job for it: LINKLINK 
+Basically, we are using LINKLINK. So with proper modification to the environment variables if your installations of Visual Studio, Python 3 or msys is not at the standard places, you'll be able to build the PIP package with Bazel as well!
+
+Update: I would recommend to run the commands in the script manually if you have trouble running it directly.
+ meteorcloudy Thanks for update!
+
+Any way to debug that? I have localized windows russian, maybe that's the cause
+
+Full log. Running in PowerShell as admin:
+
+ CODELCODEL 
+ KhabarlakKonstantin That's CODESCODES bazelbuild bazel 1744 I think. It only happens the first time after bazel is installed. There don't seem to be any repercussions.
+ KhabarlakKonstantin As petemounce pointed out, you can safely ignore that error. And you can also skip CODESCODES if the CODESCODES error is blocking you. I guess it's because it tried to remove CODESCODES before jvm fully shutdown after invoking CODESCODES.
+ petemounce meteorcloudy Thanks for help
+The problem is that it doesn't start building. I've commented out CODESCODES and it goes now a little bit furhter, but still crashes
+
+ CODELCODEL 
+
+No more output here
+ KhabarlakKonstantin It seems OpenCL configuration is just added into CODESCODES but not turned off by default on Windows, so please manually run that script or add CODESCODES before CODESCODES 
+
+ CODELCODEL 
+Is anybody else having LINKLINK with Pragma ignore pywrap one?
+
+Building with GPU and all specs in accord to readme.
+ Carmezim, it worked fine for me. I did not get any of these errors.
+I have a pr to fix this here: LINKLINK 
+ guschmue Nice! Thanks for the quick response
+After fixing Pragma, this is what I get in the same file:
+
+ CODELCODEL 
+ 5421 will fix this as well.
+Can I build with GPU support using bazel?
+ edwin100394 no GPU support on windows using bazel yet.
+We are still working on it.
+
+ edwin100394 
+wrote:
+
+
+
+
+
+
+
+
+
+
+ meteorcloudy Adding CODESCODES helped me to go a little further
+
+Now I'm getting another error:
+
+ CODELCODEL 
+I've started from scratch and I've build bazel from sources. Now it building almost till the end
+
+It fails at link time in the end:
+
+ CODELCODEL 
+Hi folks, now that rudimentary Windows support is in place, I am going to lock this issue for new comments, but keep it open until we have a stable release. Going forward:
+ If you have an issue, please open a new issue against TensorFlow to describe your problem, and fill out the standard issue template. This will help us to track and assign the remaining work that we have to do to get TensorFlow on Windows released.
+ We will continue to use this issue for rare announcements about Windows support, so you can continue to subscribe to the issue for a low traffic feed about improvements to TensorFlow on Windows.
+
+Once again, thanks for all your interest in TensorFlow on Windows, and now we're going to get back to work!
+Today we LINKLINK, with packages for Python 3. If you have installed the 64 bit version of Python 3.5 either from Python. org or Anaconda, you can install TensorFlow with a single command:
+
+ CODELCODEL 
+
+For GPU support, if you have CUDA 8.0 installed, you can install the following package instead:
+
+ CODELCODEL 
+
+Now that Windows is a supported configuration, I'm going to close this issue; please open a new issue if you have problems with these packages. There are still some discrepancies between the Windows package and the other platforms, which are outlined in LINKLINK. We'll be working over the next few weeks to close these gaps.
+
+Thanks for all of your interest in TensorFlow on Windows!

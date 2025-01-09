@@ -1,0 +1,18 @@
+
+
+
+I don't think so. In CODESCODES, partial stands for partial access to the data: you expect that the data does not fit in memory at once so you fit with one chunk at a time and update the model incrementally while scanning through the data.
+
+In this case we want to change the number of sub estimators but might want to reuse exactly the same data at each call.
+
+For a similar reason ElasticNet has a CODESCODES constructor param instead of a CODESCODES method and SGDClassifier both has a CODESCODES param and a CODESCODES method: they serve different purposes.
+
+I agree that the monitor API would be very useful in general for dealing with snapshoting, early stopping and such but would not solve the issue of growing the number of sub estimators in an interactive manner.
+
+We could also have:
+
+ CODELCODEL 
+
+Or even to grow by 110 10 more estimators:
+
+ CODELCODEL 

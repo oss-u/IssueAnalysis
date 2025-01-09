@@ -1,0 +1,11 @@
+First of all thank you for all your hard work with the notebook.
+
+I have a very weird problem with Jupyter that nobody else seem to have reported so far. Specifically whenever I click on a cell no matter if it's empty or not it's height decreases making half of the line covered.
+
+ LINKLINK 
+
+I'm using Python 3. Arch Linux and view the notebook in newest Firefox. I have a 4K screen so perhaps it's because of this?
+
+Any help would be appreciated, maybe there is a simple solution rather than modifying CSS files.
+
+Many thanks!

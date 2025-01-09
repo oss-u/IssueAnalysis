@@ -1,0 +1,285 @@
+I got this Spark connection issue, and SparkContext didn't work for sc.
+
+The command to initialize ipython notebook:
+
+> ipython notebook --profile=pyspark
+
+Environment:
+Mac OS
+Python 2.7.10
+Spark 1.4.1
+java version "1.8.0_65"
+<img width="1081" alt="2015-11-21 12 09 58" src="https://cloud.githubusercontent.com/assets/8994269/11316726/f58781f0-904d-11e5-9c27-2bd7832e81a3.png">
+any solution to this. experiencing same thing. 
+How did you install Spark? You may need to set SPARK_HOME for it to find it properly.
+@minrk  I have set SPARK_HOME already. I downloaded spark-1.4.1-bin-hadoop2.6.tgz from official website then tar it.
+Do you have any other spark env variables defined, such as PYSPARK_SUBMIT_ARGS?
+@minrk  Yes, I followed the step here, https://gist.github.com/ololobus/4c221a0891775eaa86b0 
+Try _removing_ the PYSPARK_SUBMIT_ARGS env.
+I was having the same problem with spark 1.6.0 but removing PYSPARK_SUBMIT_ARGS env from my bash solved the problem. In my bashrc i have set only SPARK_HOME and PYTHONPATH and launching the jupyter notebook I am using the default profile not the pyspark profile.
+@Hanuman26 Thanks for passing along details of your success for others. cc/ @wlsherica @minrk 
+
+I'm going to mark this closed but feel free to reopen if needed.
+I was experiencing the same error .Removing the PYSPARK_SUBMIT_ARGS env did the trick. 
+Thanks
+You actually have to define "pyspark-shell" in PYSPARK_SUBMIT_ARGS if you define this.
+
+For instance:
+
+```
+import os
+os.environ['PYSPARK_SUBMIT_ARGS'] = "--master mymaster --total-executor 2 --conf "spark.driver.extraJavaOptions=-Dhttp.proxyHost=proxy.mycorp.com-Dhttp.proxyPort=1234 -Dhttp.nonProxyHosts=localhost|.mycorp.com|127.0.0.1 -Dhttps.proxyHost=proxy.mycorp.com -Dhttps.proxyPort=1234 -Dhttps.nonProxyHosts=localhost|.mycorp.com|127.0.0.1 pyspark-shell"
+```
+
+works
+@Stibbons , where do I put this in the .bash_profile
+thanks.in your jupiter notebook juste before importing findsparkI removed removed it by doing os.unsetenv("PYSPARK_SUBMIT_ARGS") but still same error happensI am using the python 3 and I installed the pyspark library with 
+`pip install pyspark`
+its installed successfully , and the library is imported successfully,
+but when I use this command 
+`sc1 = sp.SparkContext.getOrCreate()`
+
+so I am getting the same error 
+
+`Exception: Java gateway process exited before sending the driver its port number
+`
+I saw comments but didn't help me, any solution how can I fix this issue.?`
+`@raviladhar The only thing that helped me fix this was to install a prebuilt spark version from https://spark.apache.org/downloads.html
+Hope this works for you!!The only way to get more info on this is by modifying the java_gateway.py file like this :
+
+(add the line **print(command, env)**)
+
+       
+```
+        ....
+        from subprocess import STDOUT
+
+        # Launch the Java gateway.
+        # We open a pipe to stdin so that the Java gateway can die when the pipe is broken
+        if not on_windows:
+            # Don't send ctrl-c / SIGINT to the Java gateway:
+            def preexec_func():
+                signal.signal(signal.SIGINT, signal.SIG_IGN)
+            proc = Popen(command, stdin=PIPE, stdout=PIPE, stderr=STDOUT, preexec_fn=preexec_func, env=env)
+        else:
+            # preexec_fn not supported on Windows
+            proc = Popen(command, stdin=PIPE, stdout=PIPE, stderr=STDOUT, env=env)
+
+        gateway_port = None
+        # We use select() here in order to avoid blocking indefinitely if the subprocess dies
+        # before connecting
+        print(command, env)
+
+        while gateway_port is None and proc.poll() is None:
+            timeout = 1  # (seconds)
+            readable, _, _ = select.select([callback_socket], [], [], timeout)
+            if callback_socket in readable:
+                gateway_connection = callback_socket.accept()[0]
+                # Determine which ephemeral port the server started on:
+                gateway_port = read_int(gateway_connection.makefile(mode="rb"))
+                gateway_connection.close()
+                callback_socket.close()
+        if gateway_port is None:
+            debug = proc.communicate()
+            raise Exception("Java gateway process exited before sending the driver its port number", debug)
+        ....
+```
+
+Then for example you will get the following stacktrace :
+```
+
+Java gateway process exited before sending the driver its port number
+ (b'command hdp-select is not found
+ please manually export HDP_VERSION in spark-env.sh or current environment
+```
+
+Indicating that some env variables are missing!I am getting the same error from just doing a fresh install from apache spark (the pre-built prepackaged version) on Mac OSX
+` /usr/local/spark/spark-2.2.1-bin-hadoop2.7 `
+in this directory running
+`$ ./bin/pyspark `
+not 100% sure what is going on
+Make sure you use the correct protocol when specifying the master. Worked hours on this. My problem was with Java 10 installation. I uninstalled it and installed Java 8, and now Pyspark works.@amnghd 
+
+Don't use the new Java 9 or 10 with Spark!
+A new version of Java just came out daily - Java 9 and 10. Spark is not compatible with Java 9 + versions....
+You should make sure you install a Java 8 JDK and set JAVA_HOME points to it. do not install a Java 9 or JAVA 10 JDK.I figured out the problem in Windows system. The installation directory for Java must not have blanks in the path such as in "C:\Program Files". I re-installed Java in "C\Java". I set JAVA_HOME to C:\Java and the problem went away.
+I had similar problem and setting JAVA_HOME helped.在项目中添加os.environ['JAVA_HOME'] = “/the/path/to/java home directory”, then ok!`set JAVA_HOME=C:\Progra~2\Java\jdk1.8.0_181` worked for meHi there,
+I solved the issue:
+`Exception: Java gateway process exited before sending the driver its port number #743`
+
+with installing this package
+`conda install -c conda-forge findspark`
+
+and importing it:
+```
+import findspark as fs
+fs.init()
+```
+
+@SujanMukherjee You don't necessarily have to reinstall it, you can simply escape the spaces:
+```
+import os
+os.environ["JAVA_HOME"] = "C:/Program\ Files/Java/jdk1.8.0_60"
+```
+
+This fixed the error on Windows 10.( downloading openjdk 8 ) sudo apt-get install openjdk-8-jdk
+( adding following lines in .bashrc )
+export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+export PATH=$PATH:$JAVA_HOME/bin
+
+java 9 or 10 is not supported for me. 
+(OS : ubuntu 16.04)
+On the folder in whick I was working, I had a log (text file) with an error of Java environment, I deleted that file and the problem was solved.
+So, this is the top result if you google this exception (but I am not using jupyter).  For me, the root cause of the problem was I had used pip to install the latest version of pyspark, but the version of spark I had installed was different (specifically i had 2.3.0 installed) uninstalling the python module, and then using an explicit version "pip install pyspark==2.3.0" fixed my error.I had the same... just type 
+"module load spark" in command line. This issue will be resolvedNot sure if this will help anyone, but I ran into the same error while running Pyspark using the spark-without-hadoop installation and a separate, specific Hadoop version.
+I was able to get things working with the help of some not-easy-to-find [hadoop docs](https://spark.apache.org/docs/latest/hadoop-provided.html)
+
+Basically, 
+`export SPARK_DIST_CLASSPATH=$(/home/ec2-user/hadoop-3.1.2/bin/hadoop classpath)`
+
+Also, setting $JAVA_HOME, as mentioned above was also necessary.Ran into the exact same error few minutes back - I had multiple versions of JAVA installed on my machine (all > 8 + versions). Solution was to just keep Java8 and remove rest of them, worked like charm ! Hope this helps. > 在项目中添加os.environ['JAVA_HOME'] = “/the/path/to/java home directory”, then ok!
+
+我佛了.It works, even here I can meet ChineseI resolve the issue under OS X Yosemite version 10.10.5
+1: make sure you have JAVA8 
+2: Find your JAVA8's home directory then add those two lines.
+import os
+os.environ["JAVA_HOME"]="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home"@shekharkoirala Thanks. This was enough to solve on my linux machine.Same problem. My JAVA_HOME path was messed up. Once i fixed that it worked.> I got this Spark connection issue, and SparkContext didn't work for sc.
+> 
+> The command to initialize ipython notebook:
+> 
+> > ipython notebook --profile=pyspark
+> 
+> Environment:
+> Mac OS
+> Python 2.7.10
+> Spark 1.4.1
+> java version "1.8.0_65"
+> <img alt="2015-11-21 12 09 58" width="1081" src="https://cloud.githubusercontent.com/assets/8994269/11316726/f58781f0-904d-11e5-9c27-2bd7832e81a3.png">
+**Add this code line helps me solve the same problem:** 
+ Help to solve Java gateway process exited before sending the driver its port number
+import findspark as fs 
+fs.init()
+
+Try restarting the Kernel and Clear all Output in Jupyter notebooks.
+
+It resolved for me.@Naveen-kr  Thank you so much
+@minrk where is the removing the PYSPARK_SUBMIT_ARGS env?> > I got this Spark connection issue, and SparkContext didn't work for sc.
+> > The command to initialize ipython notebook:
+> > > ipython notebook --profile=pyspark
+> > 
+> > 
+> > Environment:
+> > Mac OS
+> > Python 2.7.10
+> > Spark 1.4.1
+> > java version "1.8.0_65"
+> > <img alt="2015-11-21 12 09 58" width="1081" src="https://cloud.githubusercontent.com/assets/8994269/11316726/f58781f0-904d-11e5-9c27-2bd7832e81a3.png">
+> > **Add this code line helps me solve the same problem:**
+> > Help to solve Java gateway process exited before sending the driver its port number
+> > import findspark as fs
+> > fs.init()
+
+Hi, do you know how to do that in Anaconda on Windows?Hi 
+My problem is into VSCode IDE when I’m debugging my code, vscode don’t detect Java installed in my pc(windows) 
+Now I’m builiding my testing  functions with pytest and I want to check if my functions are ok
+My solution have done:
+Into the UseR directory in my pc: c:/users/xxxx
+I created .bash_profile y there I wrote This line:
+export path_java_my_pc
+With it my pc know where is java when I Started my bash console
+After I created virtual enviaronoment and I installed the necessary libraries (pyspark,pytest,etc) and after I Throw the command pytest file.py and It show me the errors and I managed to pass the tests
+Thanks 
+Regards Had the same problem. For me, Java and OpenJDK were missing on my system (Ubuntu 20). 
+
+Installed the OpenJDK from the link below and after setting the JAVA_HOME variable manually, it got solved. 
+https://docs.datastax.com/en/jdk-install/doc/jdk-install/installOpenJdkDeb.html
+
+Cheers!
+running Window 10. having this issue. alrdy set HOME and stuffs but nth is helping. need to make pyspark so i can continue with my lessons.......... pls help.....
+![image](https://user-images.githubusercontent.com/23465690/89386580-d8deb780-d733-11ea-90fc-f78c0e36ac6d.png)
+![image (1)](https://user-images.githubusercontent.com/23465690/89386583-da0fe480-d733-11ea-8a92-b047c9de3080.png)
+
+My solution was start over but with python, not anaconda. Anaconda was the problem, the set of the variables it is ok.
+
+> running Window 10. having this issue. alrdy set HOME and stuffs but nth is helping. need to make pyspark so i can continue with my lessons.......... pls help.....
+> ![image](https://user-images.githubusercontent.com/23465690/89386580-d8deb780-d733-11ea-90fc-f78c0e36ac6d.png)
+> ![image (1)](https://user-images.githubusercontent.com/23465690/89386583-da0fe480-d733-11ea-8a92-b047c9de3080.png)
+
+hi mikesneider, thx for the reply! Does that mean I have to uninstall and remove all the paths related to Java, Anaconda, etc etc and start the installation all over starting from Python?do not change the paths, that's it is ok, you only need to uninstall anaconda and start over with Python3. Actually, in the Microsoft store, you can install it. If after that do you have trouble with sklearn reply.I solved this problem by updating my java version(java7->java8). I think it could be helpful for some of you.**How I solved my similar problem**
+
+_Prerequisite:_
+1) anaconda already installed
+2) Spark already installed (https://spark.apache.org/downloads.html)
+3) pyspark already installed (https://anaconda.org/conda-forge/pyspark)
+
+_Steps I did_ (NOTE: set the folder path accordingly to your system)
+
+1. set the following environment variables.
+2. SPARK_HOME to 'C:\spark\spark-3.0.1-bin-hadoop2.7'
+3. set HADOOP_HOME  to 'C:\spark\spark-3.0.1-bin-hadoop2.7'
+4. set PYSPARK_DRIVER_PYTHON to 'jupyter'
+5. set PYSPARK_DRIVER_PYTHON_OPTS to 'notebook'
+6. add 'C:\spark\spark-3.0.1-bin-hadoop2.7\bin;' to PATH system variable.
+7. Change the java installed folder directly under C: (Previously java was installed under Program files, so I re-installed directly under C:)
+8. so my JAVA_HOME will become like this 'C:\java\jdk1.8.0_271'
+
+now. it works !Had the same situation under MAC. After installing spark with the anaconda environment tool, open a notebook and 
+
+```
+from pyspark import SparkContext
+sc = SparkContext()
+```
+then I got an error message with a lot of stuff and finally:
+
+`Java gateway process exited before sending the driver its port number
+`
+
+I solved the situation with the next steps:
+
+- check the java version you are using and the compatibility with spark.
+- to see the compatibility access: https://spark.apache.org/docs/latest/index.html
+
+```
+(base) MacBook-Pro-de-daniel:~ danielvegamartinez$ java -version
+java version "16.0.1" 2021-04-20
+```
+```
+(base) MacBook-Pro-de-daniel:~ danielvegamartinez$ ls /Library/Java/JavaVirtualMachines/
+1.6.0.jdk	jdk-16.0.1.jdk
+```
+So I removed the 16 version
+
+```
+(base) MacBook-Pro-de-daniel:~ danielvegamartinez$ sudo rm -fr /Library/Internet\ Plug-Ins/JavaAppletPlugin.plugin
+(base) MacBook-Pro-de-daniel:~ danielvegamartinez$ sudo rm -fr /Library/PreferencesPanes/JavaControlPanel.prefPane
+(base) MacBook-Pro-de-daniel:~ danielvegamartinez$ sudo rm -fr ~/Library/Application\ Support/Oracle/Java
+(base) MacBook-Pro-de-daniel:~ danielvegamartinez$ sudo rm -fr /Library/Java/JavaVirtualMachines/jdk-16.0.1.jdk/
+(base) MacBook-Pro-de-daniel:~ danielvegamartinez$ ls /Library/Java/JavaVirtualMachines/
+1.6.0.jdk
+```
+Then went to Oracle and downloaded a java 10 version which seems to be compatible to spark 3.1.1
+
+https://www.oracle.com/java/technologies/oracle-java-archive-downloads.html
+
+Installed it with the installer and now I am running the 10 verison
+
+```
+(base) MacBook-Pro-de-daniel:~ danielvegamartinez$ ls /Library/Java/JavaVirtualMachines/
+1.6.0.jdk	jdk-10.0.2.jdk
+```
+
+```
+(base) MacBook-Pro-de-daniel:~ danielvegamartinez$ java -version
+java version "10.0.2" 2018-07-17
+```
+
+Re-started the notebook and now it is running and fine.
+
+Hope my case helps. Good luck, 
+
+
+
+@dvegamar  
+Same issue i was facing and worked for hours,resolved now.Thanks a lot
+
+

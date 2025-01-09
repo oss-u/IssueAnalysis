@@ -1,0 +1,292 @@
+When I'm working in a notebook jupyter 4.6 in Safari, OSX 10.5 I periodically get a message saying the file has changed from disk, do I want to reload or overwrite. I m certain there are no other kernels or notebooks running. I usually just say overwrite but why does this happen?
+One more bit of info: I'm running the notebook as a publicly accessible server so I can access it from my labtop and all the files live on a locally mounted server.
+here is the terminal output:
+iMac: jupyter notebook
+ Serving notebooks from local directory: Users dosc3612
+ 0 active kernels
+ The IPython Notebook is running at: https:8888 
+ Use Control C to stop this server and shut down all kernels twice to skip confirmation.
+ Kernel started: ec591d51 c03c 44fc 86bf a221c0e1b0a7
+
+
+
+
+
+
+
+ LINKLINK 
+
+
+Could there be something else accessing the file? If you get this message it means that there is something else that have modified the file since last save. Could there be a dropbox syncing? Or could the dates on the mounted filesystem be wrong?
+The dates and times look in sync. There is no dropbox syncing on this
+folder. I also don't remember getting this while using ipython3
+ pre jupyter.
+ 
+
+Dominik Schneider
+o 303.735.6296 c 518.956.3978
+
+ Matthias Bussonnier 
+ wrote:
+
+
+
+
+
+
+
+
+
+
+
+Same situation.
+
+I am running ipython notebook in a Fedora 22 box. The box is running as a vmware guest hosted on M windows. 
+
+The ipynb file is stored in a directory mounted with vmhgfs in the guest machine, and the corresponding directory on the host Windows machine is a directory in NTFS.
+
+ipython version is 4.0.
+
+The issue does not exist if the ipynb file is stored in a naive ext4 partition.
+I see this sometime, but usually when the underlying notebook has changed because of git. 
+This is also happening to me, running ipython notebook on a linux guest under VmWare Fusion, working on a filesystem mounted with vmhgfs. I have suspected that the problem occurs when the OS X clock is slightly out of sync with the linux clock, owing to a suspend; but if so, it involves tiny offsets. I'm using ntp on both OS X and the linux VM.
+
+As a workaround, is there a way to disable this check? It is seriously interfering with work.
+
+
+Not easily. You can modify CODESCODES 
+
+ or CODESCODES if running from dev 
+
+and change:
+
+ CODELCODEL 
+
+To 
+
+ CODESCODES 
+
+It might be due to an clock offset, you might be right. 
+this issue hasn't occurred since i switched to chrome from safari.
+
+Dominik Schneider
+o 303.735.6296 c 518.956.3978
+
+ Matthias Bussonnier 
+ wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+We get sufficiently enough bug reports that I'll bump that to 4. maybe 4. 
+I see if I can generate a UUID on client, or smth with a hash to do an extra compare and prevent annoying report. 
+ 729 add some debug statements in Javascript, it might help us to debug. 
+If any of you can test, we would appreciate. It can give us more insight of why that's hapenning. 
+Notes from 4.1 meeting:
+
+Continue with Carreau 's debug information PR.
+Investigate adding 739 for 4.2 
+I see this spurious message every few minutes, when the notebook file is on a server Synology NAS Samba accessed by OS X using Chrome. I did not occur with IPython notebook; it's new to Jupyter.
+Hi,
+
+I am seeing the same error messages. In our setup we are serving notebooks from a Samba share, and I am pretty sure that is the root cause of the error. To be precise we are running Jupyter in a Docker container, based on the official Docker images but heavily customised, and the share is a LINKLINK on Azure, which is mounted using the SMB3 protocol on the Linux host, so it is quite complicated, but I think most of that is not related. 
+
+I have checked the developer tools in my browser and found the debug message recently added to Jupyter:
+
+ CODELCODEL 
+
+As you can see there is really only a very small difference, a fraction of a second, and it definitely seems to be a timestamp issue between the host and the SMB server.
+
+Similar issues have been reported for numerous tools over the years, including LINKLINK, LINKLINK, LINKLINK and LINKLINK itself LINKLINK, and you can find references to Samba shares and also VirtualBox shares in the comments. 
+
+As far as I can see in the linked bug reports some tools are still unfixed, while others most notably Eclipse managed to work around this by changing how they check for changes. Is there a chance a similar change can be applied in Jupyter without breaking existing functionality for everyone else?
+
+Thanks,
+Adam
+Possibly. I tried to work out from that link what Eclipse had done, but it looked like understanding it was going to require more digging into Eclipse stuff than I have time for.
+
+If you're keen to see this happen, could you dig into those reports and try to summarise what the projects that have encountered this bug and fixed it worked around it are doing? Then we can work out whether it makes sense to do something similar in Jupyter.
+I also have this problem on my Jupyterhub server with the user homes being mounted from a SMB server. Since it is a difference of milliseconds always less than 1 second, i modified the check to:
+
+ CODELCODEL 
+
+Do you think this is a very bad solution?
+Well, it's a kludge. It's probably fine for personal use, but if we just made that the default check, I'm sure it would do the wrong thing for someone else.
+In my analysis of the bugs in other products, the reason that this issue is pervasive in many projects is not that there's an unresolved problem in Samba. It's pervasive because it's hard to get right, because of various levels of caching at the Samba and filesystem layers and multiple opportunities to pull clock information from sometimes asynchronous sources. I believe that's why it manifests in VMs as well.
+
+Eclipse uses native platform APIs to track file changes, like inotify I suppose. They decided to automatically background refresh non dirty editor windows.
+
+
+
+Another possible approach that should be tolerant of clock skew and Samba bugs:
+ calculate a hash for the file while saving
+ if last modified timestamps indicate a change, and the time window is small, calculate the hash of the new file and compare to the hash of the last known saved file
+
+Since notification of a file changed in the background doesn't need to be immediate, the hashes can be calculated in a background thread task coroutine. The hash of the last saved file doesn't even need to be saved, if a copy is left in memory until needed.
+
+
+
+The problem with that approach, is that you actually need to read the hash which can be extremely huge, which can be a pain, especially on samba. And if you look at how the implementation is done, this specific case won't help, as the date time is from last API call to save, which would require another round trip of the file to the server.
+We might be able to do the file watching strategy LINKLINK is supposed to be a cross platform interface to the different inotify like APIs, but it would probably be quite a bit of added complexity, and no doubt would introduce some new bugs. I also don't know how it would interact with the real time collaboration work that Carreau is doing.
+Once the real time API is in, that should not have any impact on the Rt API,
+
+
+Not sure how it can be really huge, a notebook json file that is semi large will break the notebook anyways.
+
+
+No it breaks only if you append to the Dom. 
+You can have alternate repr that are not used and are still in the DOM. 
+Ah gotcha!
+A workaround to prevent the annoying messages from regularly popping up is to disable autosave in your Jupyter notebooks you can do this temporarily by executing autosave 0 at the beginning of the notebook.
+This way the pop up only comes up when you manually save the notebook. I have the same problem, all in a sudden, this annoying message appeared. I uninstalled the Anaconda 2, and even changed the directory of Jupyter, but non of them worked. I encountered the same warning using Docker for Windows and the LINKLINK.
+However, no problem when running the container on a Linux host.
+
+As mentioned above, it could really be due to a clock offset, even though the time difference that we get from the Web console logs is super small a few ms.I also have this problem using Docker for Windows, in this case with LINKLINK, which stores Jupyter Notebook files on the local filesystem but accesses them through a docker container. In the past, problems related to timestamp missmatches between Windows and the docker environment have been resolved by restarting Docker for Windows, but that did not help in this case.One work around for me is to disable the autosave at the beginning. 
+ CODELCODEL 
+It's kinda annoying since I have to do this every time I reopen the docker containerSame issue here running CODESCODES in Docker for Windows and running the notebook in a local browser. CODESCODES stops the error appearing automatically, but I still get it each time I manually save, which is disconcerting.I am also getting this error every few minutes while I'm working with PyCharm. Getting this error too, and I've verified the file is not opened access by any other app Same issue here, I have been getting this popup recently every few minutes, my Jupyter notebook is located in a CIFS share drive. Any advice on how to fix it will be greatly appreciated.Running Docker for Windows with a directory mounted on the container with the CODESCODES flag during container creation. The problem as described above with milliseconds difference occurs for notebooks running inside the mounted directory, but not for those outside. I suppose this particular scenario is more of a Docker issue than a jupyter issue.
+
+I tried to understand how the object being passed is created for example, CODESCODES for which CODESCODES is compared to CODESCODES but I only got as far as it being the promised output of CODESCODES.Same problem here. Using CODESCODES installed using the official docker image on Docker for Windows Docker version 17.06.0 ce, build 02c1d87. The message is a bit annoying but worse than that is losing information every once in a while because is doesn't always save even after pressing CODESCODES.
+
+I do believe it is specific to Docker for Windows, in my case. I used to use Docker Toolbox prior to the native Docker for Windows and this problem didn't exist.
+
+Investigating into clock offset issues with Hyper V led to some posts stating that Docker for Windows didn't have Tyme Sync enabled in Hyper V by default in previous versions LINKLINK. But that has since been fixed. Still, however, this problem persists.I would like to point out that a new modal window is created over the old warning window. And in 10 minutes they are very much under each other. Fix please: smile:This is also happening to me, only on a file on remote disk mounted on my laptop. My system is Ubuntu 16.04 Carreau minrk takluyver This appears to be affecting many people. Any ideas?I don't understand it. From what I can see, we compare one time we've got from the filesystem with another. So the only way that dialog should appear is if the filesystem reports different modified times for a file which has not been modified.
+
+The only thing I can think of is to add a way to turn off the check, and go back to the old behaviour where two tabs open on the same notebook periodically overwrite each other, making it easy to lose work.I don't have technical expertise to assist, I'm afraid. What I can say is that I already lose data frequently. Pressing 'overwrite' does not always work.
+
+I'm not sure if that helps but it does seem circumscribed to docker for windows and docker for mac. But sure about that either.I don't know the detail implementation, but I like the second suggestion by jbarlow83 if hashing may have problem for bigger files. I suppose that jupyter does not need to save as soon as any change happens like typing a single letter. Changes probably happen on the time scale of a few seconds or minutes. So if it does not save file too often, making it more tolerable to time difference might be OK? I guess I see the point that if two tabs are open simultaneously, they may overwrite each other. Is it possible to assign different saving schedule to different tabs, for example based on the port they use since the port number is already assigned in an incremental way? As long as the interval between two tabs to save files are much longer than the tolerance of timing check, the warning can still be given if another tab saves before the current tab.I guess we could add a fuzz factor of say 0.5 seconds to the time comparison to mitigate this. 2698 attempts to implement a 0.5 second fuzz factor. I don't have this problem, though, so I can't easily test it.
+
+If anyone wants to help test it, these instructions explain what you need for installing from source: LINKLINK I was too fast reporting back minutes ago but actually had forgotten to test the real issue: volume mounts.
+
+I have just briefly tested it following installation from source with volume mounts and the message seems to persist.
+
+Just to make sure:
+
+ I am using Windows 10;
+ I have Docker for Windows version 17.06.0 ce, build 02c1d87;
+ I installed jupyter notebook from source using the Dockerfile below;
+ After building the image based on the below Dockerfile, I ran CODESCODES in Windows powershell;
+ I opened the jupyter notebook's link LINKLINK in my local browser;
+ I tried saving twice to check if the same error message occurred;
+ The same message still occurred.
+ There is no problem if not working with volume mounts in docker.
+
+ Please advise if I need to do anything else to better test the solution 
+
+Dockerfile that I used:
+ CODELCODEL  luissalgadofreire You're testing master, not the PR. Where you're installing the notebook from source, you need to do this:
+
+ CODELCODEL Or try again with master, now that gnestor has merged that PR. Don't forget to tweak something in the dockerfile to invalidate the cache before it clones the repo.Hi takluyver.
+
+Just tried with your proposed code:
+ CODELCODEL 
+I can confirm that the notebook changed on disk message has disappeared. When I hit the save button repeatedly, it no longer shows the error message as before.
+
+It seems to be fixed.Great, thanks for taking the time to test it.
+
+It's not really 'fixed', but hopefully it will make the issue invisible in most cases.Thanks for the time to 'fix' it, takluyver.
+
+It will certainly make my day a lot easier. Every second hit to the save button and there was the message, often resulting in not even being able to save properly, even after choosing 'overwrite'. This seems to make it at least a lot more robust.is there a solution for this? i am using jupyter official docker images. LINKLINK will be included in notebook 5.1 which will be released very soonHi, gnestor.
+
+I just noticed this issue is included in milestone 5.2 and not on 5.
+
+Is it really scheduled for 5. 2698 will be included in 5.1 and if that solves the problem for everyone, then we can close this out. Otherwise, we will follow up with this again before 5.2 is released.However, 2698 doesn't fix my problem, I am using notebook with a samba volume on Ubuntu, I upgraded to notebook 5.0rc2 which contains the 500ms tolerence. I verified in my browser it contains:
+ CODELCODEL 
+
+In my case, I get this message in the console and annoying popup dialog:
+ CODELCODEL That's 40s difference we definitely can't make the tolerance that big. Maybe we can provide a way to configure it, but that will be after 5.
+
+Is it possible that that is the difference between the clocks on your own machine and the server the samba volume is on? If you can configure them both to get their time from a public NTP server, it should be possible to get them much more closely synced.I understand, but I afraid that won't be a general solution, you simply can't change the time on the client or the server.
+
+So why can't this be done with jupyter notebook itself, for example, when starting a ipython notebook, the server send it's own time to the browser, and the browser compare to it's own time, save this diff value, then perhaps plus 500ms as tolerance value, use the diff+500 as a criterion to determine wether it has been changed or not.
+Jupyter doesn't really know that there's a server involved. It's just writing files to your filesystem. I don't think we can realistically detect and work around problems coming from the filesystem.Well, how about when you write the file, you use something like CODESCODES to get the time right after the writing, then you will be able to get diff value between the jupyter server and the samba server or the file system in general?We do get the mtime right after writing it! This check doesn't rely on what Jupyter thinks the time is.
+
+I'm guessing that just after we write it, the filesystem has it in a local cache, so the mtime it gives us is based on the client's clock. Then at some point later, it gets confirmation that the server has stored the new data, and switches to an mtime based on a server timestamp. So the next time we get the mtime, it has changed, exactly as if something else had written the file in the meantime.Hi guys
+Just to give some feedback, I run jupyter from a virtual machine with shared drives from a remote data center.
+It was working fine until recently when the IT changed something with the shares and me and my colleagues got this annoying error. 
+
+I added the solution from dsoares as quick fix and it runs fine.  Nikolai Hlubek Do you think this issue is resolved? Is it safe to close this? gnestor For us with a 1000ms uncertainty in the. js file it is resolved. I had the notebooks running over night and the message did not appear again. I can try with other values or provide additional information if that helps you.
+But I do not know of the other use cases scenarios that were discussed here.Can you try with 500ms uncertainty? That's what we're adding by default for 5. If that's insufficient, we can consider increasing it or making it configurable for 5.I tried with 500ms and for one day it is running without issues and without the message. My colleagues also did not experience any issues.Thanks! I think we're OK for now then, and I'll close this issue.What about the fact that even though when i open my notebook from a particular directory, in my case it 
+was CODESCODES, the notebook kept on throwing that error and when i checked my working directory using CODESCODES it was showing me CODESCODES. 
+
+After changing the directory, the message disappeared.
+ AdityaSoni19031997 So you started the notebook server in CODESCODES and CODESCODES returned CODESCODES?Notebook 5.0rc1 is available on PyPI so please give it a try and confirm that this is resolved thumbs up:
+
+ CODESCODES Our IT has changed some options in the mounts and we were getting this message again. 
+I set the uncertainty to 2500ms just to be safe and did not get any warnings since a week.
+
+Would it be possible to make this value a parameter in the configuration file? takluyver minrk What are you thoughts about making LINKLINK a config value? If you think it makes sense, where should it be set? CODESCODES? Or as a server option?I'm fine with making it configurable. It probably belongs in frontend config CODESCODES.I submitted a PR that makes this configurable in CODESCODES thumbs up What is the config value's name?
+Thank you so much for working on this. Its been driving me up a wall all weekI got same message and can not doing save, But when i Enter a new notebook name without special character it's working well.I'm getting this error frequently in Win10 64 Chrome 64 WinPython 3.7 Jupyter 5.0.
+
+The frequency of the error increases after I save as my notebook and change one character in the name. Per mhmodmoustafa I am now going to stop using and and see if that solves it.
+
+Here are the things I've tried that did not fix it:
+ move WinPython and my notebook files out of a cloud synced directory move my working WinPython directory and my working notebook files to C: from another partition turn off autosave
+
+If the dev team would like me to try a test with the LINKLINK 
+, I can probably make time soon.
+
+A company colleague coded this test to compare file saving time with the system times immediately before and afterwards. Running that code in Jupyter passes 80 of the time and fails 20.
+
+ import os, datetime
+
+
+ save f. myfile2. py 1
+
+modtime os. stat. myfile2. py. st mtime
+tstamp datetime. datetime. fromtimestamp modtime 
+if not before tstamp after:
+ print Error: File date times don't match system 
+else:
+ print Timestamps look OK 
+ 
+
+I've been getting this every 30 seconds or so while working in Jupyter Lab ever since I did a fresh install of Windows and reinstalled Anaconda and all my tools a month or two ago. I have no file syncing going on. I have fewer tools and apps and services installed and running now than before I had to reinstall Windows. Before the refresh, JL was working fine. It's with both old and new. ipynb files. Well, my new files are copies of my old ones.
+
+Fist this error pops up:
+
+File Changed
+The file has changed on disk since the last time it was opened or saved. Do you want to overwrite the file on disk with the version open here, or load the version on disk revert?
+
+Then this one right after I choose overwrite:
+
+File Save Error for MyStuff. ipynb
+Unexpected error while saving file: ML MyStuff. ipynb Bad file descriptorI don't know if it's the best solution, but I was having the same problem and I made a copy of the notebook and deleted the saved checkpoint it had from the. ipynb folder in the parent directory and it seems to have fixed issue for the time being. I would not recommend this method, but if all other methods fail try doing this. Use this as a last resort.
+Again make sure you have a backup of the notebook, try the 'save as' option in 'File' to create a new copy and then go ahead 3273 has done nothing for meHas anyone found a resolution to this issue?This continues to plague my ML model training in Sagemaker all week. Any updates?Hi zwarshavsky, are you running in SageMaker Studio? 
+
+If so, with what kernel and instance type are you seeing the issue? 
+
+Is it with all notebooks or perhaps a notebook with a lot of cells or a lot of output? m12390 and philastrophist, can you please describe your setup as well please Operating System, whether using Docker, etc.I had a similar issue. What worked for me was deleting the notebook checkpoint in the CODESCODES directory and an intermediate file in the current working directory if my notebook is named hello. ipynb I deleted a file named. hello. ipynb. After this, I was able to work with no issues. Hello,
+I had a similar issue today. The change I had made was, due to diskspace issues, I had moved my notebooks and other folders to a network drive, while anaconda was installed on home drive which is on SSD running ubuntu. It brought the popup like crazy!
+
+I moved by notebooks back to the same SSD and now all is at peace. No more popup. So network drive vs. local drive seems like a factor here. 
+I had a similar issue with another software that does monitoring of files changes imagej app everytime I updated the macro I got notification of overwrite because my macro scripts were on a network drive. I moved them to where app was installed on SSD and it went away 
+HTH,
+DarshatI noticed this happening when I used the notebook inside a Google Drive File Stream GDFS folder.You can change the name of the folder, use less special symbols
+I had this same problem when the file address of the notebook I was using was really long. The notebook was inside too many folders, making the address too long for the kernel.
+
+I fixed this problem by moving my notebook. ipynb to my desktop to shorten the path as much as possible.
+
+The message The notebook file has changed on disk since the last time we opened or saved it. Do you want to overwrite the file on disk with the version open here, or load the version on disk reload the page? finally stopped popping up. Solution that worked for me! 
+
+
+I resolved this issue by reducing the characters in filename.
+Prior my saved filename had 134 characters; capturing all the parametric details of the experiment in filename.
+I renamed the notebook with 23 characters long string and not facing this error anymore.

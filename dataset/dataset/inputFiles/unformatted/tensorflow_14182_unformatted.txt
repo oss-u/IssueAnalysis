@@ -1,0 +1,484 @@
+### System information
+- **Have I written custom code (as opposed to using a stock example script provided in TensorFlow)**: No
+- **OS Platform and Distribution (e.g., Linux Ubuntu 16.04)**: Linux Ubuntu 14.04
+- **TensorFlow installed from (source or binary)**: Source
+- **TensorFlow version (use command below)**: 
+- **Python version**: Python3.6
+- **Bazel version (if compiling from source)**:
+- **GCC/Compiler version (if compiling from source)**: -NA-
+- **CUDA/cuDNN version**: -NA-
+- **GPU model and memory**: -NA-
+- **Exact command to reproduce**: import tensorflow as tf
+
+**Environment capture text:**
+
+https://github.com/tensorflow/tensorflow/tree/master/tools/tf_env_collect.sh
+[tf_env.txt](https://github.com/tensorflow/tensorflow/files/1437609/tf_env.txt)
+
+You can obtain the TensorFlow version with
+python -c "import tensorflow as tf; print(tf.GIT_VERSION, tf.VERSION)"
+This command also results in the same error.
+/home/raju/anaconda3/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)
+
+### Describe the problem
+When importing tensorflow , I get this error. I found some information on "Feature request: nightly build for python 3.6 #12935" --"Yes, we unfortunately copy the 3.5 binary for 3.6 I'll look into creating a specific 3.6 binary for Linux."
+
+### Source code / logs
+$import tensorflow as tf
+**result is** 
+/home/raju/anaconda3/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)
+
+same issue on MacOS 10.12.6same problem on Linux Ubuntu 16.04@gunan : Do we have any updates on the resources we have to support Python 3.6 releases?@av8ramit looks like there were divergences which prevent us from using the same pip packages on python 3.5 and 3.6
+Can we modify our builds to also build 3.6 version from scratch?Same issue on Linux CentOS 7Same issue after upgrade Tensorflow from 1.3 to 1.4 on Mac High Sierra 10.13.1 using Python 3.6.2.
+Tensorflow still works but give the above warning which is "RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6"FWIW, python3.5 still worksANything that can be changed here?Same problem using virtualenv after upgrading from Ubuntu 17.04 to 17.10. 
+`/home/wiebe/virtual/tensorflow/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)`Same on Ubuntu 14.04Same issue on Fedora 26 with Python 3.6.2.Same issue on OSX 10.12.5 with Python 3.6.3Same issue on OSX with Python 3.6.2Only posting because I didn't see my environment mentioned:
+Clean 17.10 Ubuntu Server install on Python 3.6.3 (native `pip install tensorflow-gpu`)
+Outputs:
+```
+/usr/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)
+```I have tried both 3.5 and 3.6 (macOS High Sierra). 
+3.5 works perfect while 3.6 gives warns.
+While 3.6 still works.
+
+Hope this helps.same problem on Linux Ubuntu 17.10
+
+Clean 17.10 Ubuntu Server install on Python 3.6.3 (native pip install tensorflow)Same issue on OSX 10.12.6 with Python 3.6.3(virtualenv installation)
+
+>>>> import tensorflow as tf
+/Users/zhanghao/virtualenv/tensorflow/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)Same issue using this Docker file `https://github.com/christiangda/kerasvideo/blob/master/Dockerfile` 
+
+error:
+```
+import tensorflow as tf
+
+/opt/conda/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)
+```Hi,
+Can you let me know if this has to be treated as a warning and ignored?
+**Furthermore  the error is**
+from PyQt5 import QtCore, QtGui, QtWidgets
+ImportError: dlopen: cannot load any more object with static TLS
+
+**See the Traceback below**
+Traceback (most recent call last):
+  File "train.py", line 51, in <module>
+    from object_detection.builders import model_builder
+  File "/home/raju/anaconda3/envs/tensorflow/models/research/object_detection/builders/model_builder.py", line 29, in <module>
+    from object_detection.meta_architectures import ssd_meta_arch
+  File "/home/raju/anaconda3/envs/tensorflow/models/research/object_detection/meta_architectures/ssd_meta_arch.py", line 31, in <module>
+    from object_detection.utils import visualization_utils
+  File "/home/raju/anaconda3/envs/tensorflow/models/research/object_detection/utils/visualization_utils.py", line 24, in <module>
+    import matplotlib.pyplot as plt
+  File "/home/raju/anaconda3/lib/python3.6/site-packages/matplotlib/pyplot.py", line 113, in <module>
+    _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
+  File "/home/raju/anaconda3/lib/python3.6/site-packages/matplotlib/backends/__init__.py", line 60, in pylab_setup
+    [backend_name], 0)
+  File "/home/raju/anaconda3/lib/python3.6/site-packages/matplotlib/backends/backend_qt5agg.py", line 16, in <module>
+    from .backend_qt5 import (
+  File "/home/raju/anaconda3/lib/python3.6/site-packages/matplotlib/backends/backend_qt5.py", line 18, in <module>
+    import matplotlib.backends.qt_editor.figureoptions as figureoptions
+  File "/home/raju/anaconda3/lib/python3.6/site-packages/matplotlib/backends/qt_editor/figureoptions.py", line 20, in <module>
+    import matplotlib.backends.qt_editor.formlayout as formlayout
+  File "/home/raju/anaconda3/lib/python3.6/site-packages/matplotlib/backends/qt_editor/formlayout.py", line 56, in <module>
+    from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
+  File "/home/raju/anaconda3/lib/python3.6/site-packages/matplotlib/backends/qt_compat.py", line 137, in <module>
+    **from PyQt5 import QtCore, QtGui, QtWidgets
+ImportError: dlopen: cannot load any more object with static TLS**
+
+Pls let me know ways to resolve this error. Or will it be resolved only when the warning is resolved!!Same issues on Ubuntu 16.04 64bit virtualenv python3Does it break stuff or can I ignore the warning?Quite strange since the prior version worked fine with 3.6 (and it's packages), so it would seem that this should be a pretty simple fix?same issue with the just released 1.4 version...Just to add to what @dsitnik said,  simple hello world to reproduce on Fedora 26 venv 
+
+```
+$ cat requirements.txt 
+bleach==1.5.0
+enum34==1.1.6
+html5lib==0.9999999
+Markdown==2.6.9
+numpy==1.13.3
+protobuf==3.4.0
+six==1.11.0
+tensorflow==1.4.0
+tensorflow-tensorboard==0.4.0rc2
+Werkzeug==0.12.2
+```
+
+```
+$ python --version
+Python 3.6.2
+```
+
+```
+$ cat app.py 
+import tensorflow as tf
+
+hello = tf.constant('Hello, TensorFlow!')
+session = tf.Session()
+print(session.run(hello))
+```
+
+```
+$ python app.py 
+/usr/lib64/python3.6/importlib/_bootstrap.py:205: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)
+2017-11-07 16:41:00.517173: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2
+b'Hello, TensorFlow!'
+```
+Same issue on OSX 10.11.6, in an Anaconda virtual environment with Python 3.6.3 and attempting upgrade from TensorFlow  1.3 to 1.4. 
+Temporarily routed around this issue by creating a new Anaconda environment with Python 3.5.4 and Tensorflow 1.4, which is working fine.same issue on MacOS high sierra！how resolved it！give me command ，not link！Same issue on OSX 10.12.6 sierra,
+![image](https://user-images.githubusercontent.com/24262233/32562915-795d941c-c475-11e7-8f5f-314800f1c51e.png)
+
+the version:
+![image](https://user-images.githubusercontent.com/24262233/32562950-9213c742-c475-11e7-9ade-84519916faa5.png)
+
+Hope this helps.
+I am working on resolving both the Python3.6 binary as well as the git_version tag. I took reference from 
+https://github.com/tensorflow/tensorflow/issues/6533
+
+```
+$ python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whl
+Collecting tensorflow==0.12.0 from https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whl
+  Downloading https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whl (38.4MB)
+    100% |████████████████████████████████| 38.4MB 33kB/s 
+Collecting protobuf==3.1.0 (from tensorflow==0.12.0)
+  Downloading protobuf-3.1.0-py2.py3-none-any.whl (339kB)
+    100% |████████████████████████████████| 348kB 1.4MB/s 
+Requirement already up-to-date: six>=1.10.0 in ./virtualenvs/dl4cv/lib/python3.6/site-packages (from tensorflow==0.12.0)
+Requirement already up-to-date: numpy>=1.11.0 in ./virtualenvs/dl4cv/lib/python3.6/site-packages (from tensorflow==0.12.0)
+Requirement already up-to-date: wheel>=0.26 in ./virtualenvs/dl4cv/lib/python3.6/site-packages (from tensorflow==0.12.0)
+Requirement already up-to-date: setuptools in ./virtualenvs/dl4cv/lib/python3.6/site-packages (from protobuf==3.1.0->tensorflow==0.12.0)
+Installing collected packages: protobuf, tensorflow
+  Found existing installation: protobuf 3.4.0
+    Uninstalling protobuf-3.4.0:
+      Successfully uninstalled protobuf-3.4.0
+Successfully installed protobuf-3.1.0 tensorflow-0.12.0
+
+$ python
+Python 3.6.3 (default, Oct  4 2017, 06:09:15) 
+[GCC 4.2.1 Compatible Apple LLVM 9.0.0 (clang-900.0.37)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> 
+
+$ python
+Python 3.6.3 (default, Oct  4 2017, 06:09:15) 
+[GCC 4.2.1 Compatible Apple LLVM 9.0.0 (clang-900.0.37)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import keras
+Using TensorFlow backend.
+>>> 
+```Same issue on OSX 10.13.1 with Python 3.6.3same issue on osx 10.12.6 with Python 3.6.3
+```
+/usr/local/Cellar/python3/3.6.3/Frameworks/Python.framework/Versions/3.6/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)
+```
+
+I someone has a solution I take it ! :) setup a virtualenv with Python 3.5.0@aktivkohle We need binary for python 3.6 anywayssame issue on macOS 10.13.1 with Python 3.6.3
+```
+/usr/local/Cellar/python3/3.6.3/Frameworks/Python.framework/Versions/3.6/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)
+```got same issue on macOS 10.12.6. However, seem we can ignore this warning. Waiting for a fix!Same issue using Anaconda with python 3.6 on Ubuntu 16.04 when upgrading from tensorflow-gpu 1.3same issue on Ubuntu 17.10, python 3.6.
+Can we really ignore this warning ?Same issue on Anaconda, Ubuntu 16.04, Python 3.6, Tensorflow GPUSame issue on Anaconda, Ubuntu 16.04, Python 3.6, Tensorflow CPUSame issue. Going to try to come back to setup a virtualenv with Python 3.5I wish GitHub had a "Me Too" button... Anyways, me too.
+
+Arch Linux, Pip env, and native GPU installation. Python 3.6.I see the same warning with Python 3.6 from conda. On Mac it's just a warning, and things seem to work OK. But on Linux I see that `import tensorflow` breaks `import scipy.special` in a weird way.
+```
+python -c 'import tensorflow as tf; import scipy.special'
+/d1/hfm/deil/software/anaconda/envs/image-style-transfer/lib/python3.6/importlib/_bootstrap.py:205: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/d1/hfm/deil/software/anaconda/envs/image-style-transfer/lib/python3.6/site-packages/scipy/special/__init__.py", line 648, in <module>
+    from ._ellip_harm import ellip_harm, ellip_harm_2, ellip_normal
+  File "/d1/hfm/deil/software/anaconda/envs/image-style-transfer/lib/python3.6/site-packages/scipy/special/_ellip_harm.py", line 7, in <module>
+    from ._ellip_harm_2 import _ellipsoid, _ellipsoid_norm
+ImportError: cannot import name '_ellipsoid'
+```
+
+I think my scipy is OK, at least this import works if I don't import tensorflow:
+```
+python -c 'import scipy.special'
+```
+
+Scipy 1.0 was installed via Anaconda, tensorflow 1.4 via pip:
+```
+$ conda list
+scipy                     1.0.0            py36hbf646e7_0  
+tensorflow                1.4.0                     <pip>
+```Same issue on macOS 10.13 with Python 3.6.3
+
+`/Users/mcukingdom007/tensorflow/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)`Any workaround or timeline to solve this problem? Thanks a lot! I am also facing the same issue on macOS 10.12.6 with Python 3.6
+`/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)`Maybe Tensorflow-1.4 does not support linux & macOS with Python 3.6, so there seems to be an error.
+if you downgrade from v1.4 to v1.3, then it does not cause an error.Same issue on macOS 10.13 with python 3.6.1I'm also having the same problem not anaconda install...just with pyenv and jupyter...on a macOS Sierra version 10.12.6 with python 3.6
+
+Using TensorFlow backend.
+
+/Users/Create/.pyenv/versions/3.6.3/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)Same issue on Ubuntu16.04.3 with python 3.6.3Switching to Python 3.5 has removed the warning. To do this, I basically had to remove python 3.6 from my machine completely since jupyter was still pointing towards 3.6 even when only installed in 3.5 packages.
+
+I followed [this answer](https://stackoverflow.com/questions/3819449/how-to-uninstall-python-2-7-on-a-mac-os-x-10-6-4/3819829#3819829) to remove python 3.6 from my machine (just replace all occurrences of 2.7 with 3.6 in that answer).
+
+I then made sure to set PYTHONPATH to 3.5 using
+`export PYTHONPATH=/Library/Frameworks/Python.framework/Versions/3.5/bin`
+Then removing 3.6 from PATH by
+`echo $PATH` then copy that entire path
+`export PATH=pasteInThePathAndRemovePython3.6`
+
+Hopefully this helps in the mean time! Just remember that you'll have to reinstall all your packages for python 3.5!"FIxed" issue by forcing the installation of the 1.3.0 version of tensorflow
+```
+$~/Downloads$ pip3 install tensorflow==1.3.0
+Collecting tensorflow==1.3.0
+  Downloading tensorflow-1.3.0-cp36-cp36m-manylinux1_x86_64.whl (43.5MB)
+    100% |████████████████████████████████| 43.6MB 42kB/s 
+Collecting six>=1.10.0 (from tensorflow==1.3.0)
+  Using cached six-1.11.0-py2.py3-none-any.whl
+Collecting protobuf>=3.3.0 (from tensorflow==1.3.0)
+  Using cached protobuf-3.4.0-cp36-cp36m-manylinux1_x86_64.whl
+Collecting wheel>=0.26 (from tensorflow==1.3.0)
+  Using cached wheel-0.30.0-py2.py3-none-any.whl
+Collecting numpy>=1.11.0 (from tensorflow==1.3.0)
+  Using cached numpy-1.13.3-cp36-cp36m-manylinux1_x86_64.whl
+Collecting tensorflow-tensorboard<0.2.0,>=0.1.0 (from tensorflow==1.3.0)
+  Downloading tensorflow_tensorboard-0.1.8-py3-none-any.whl (1.6MB)
+    100% |████████████████████████████████| 1.6MB 1.2MB/s 
+Collecting setuptools (from protobuf>=3.3.0->tensorflow==1.3.0)
+  Using cached setuptools-36.7.2-py2.py3-none-any.whl
+Collecting werkzeug>=0.11.10 (from tensorflow-tensorboard<0.2.0,>=0.1.0->tensorflow==1.3.0)
+  Using cached Werkzeug-0.12.2-py2.py3-none-any.whl
+Collecting markdown>=2.6.8 (from tensorflow-tensorboard<0.2.0,>=0.1.0->tensorflow==1.3.0)
+Collecting html5lib==0.9999999 (from tensorflow-tensorboard<0.2.0,>=0.1.0->tensorflow==1.3.0)
+Collecting bleach==1.5.0 (from tensorflow-tensorboard<0.2.0,>=0.1.0->tensorflow==1.3.0)
+  Using cached bleach-1.5.0-py2.py3-none-any.whl
+Installing collected packages: six, setuptools, protobuf, wheel, numpy, werkzeug, markdown, html5lib, bleach, tensorflow-tensorboard, tensorflow
+Successfully installed bleach-1.5.0 html5lib-0.9999999 markdown-2.6.9 numpy-1.13.3 protobuf-3.4.0 setuptools-36.7.2 six-1.11.0 tensorflow-1.3.0 tensorflow-tensorboard-0.4.0rc2 werkzeug-0.12.2 wheel-0.30.0
+$~/Downloads$ python3
+Python 3.6.3 (default, Oct  3 2017, 21:45:48) 
+[GCC 7.2.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import keras
+Using TensorFlow backend.
+>>> 
+```Great!!!TensorFlow v1.4 doesn't work with Python3.6.
+So, we should use TensorFlow v1.3.
+Thank you for your great information.This is the main guidance to installing which py version and tf version
+https://github.com/lakshayg/tensorflow-build
+I use Mac OS High Sierra.
+I tried to use TF v1.4 with Python3.6.3, but , RuntimeWarning is shown when I import TF.
+So, if you use High Sierra , be careful.I am finding the GPU version (using Nvidia ) 1.4 works fine on Ubuntu Linux (py3.6) once past the warnings.. Have not run into other issues than the warnings..Here are working 3.6 wheels https://github.com/mind/wheelsI have the same problem with clang 900.0.38,  python 3.6.3, tf 1.4.0. no idea how to fix it.## Here is a temporal "fix"
+
+For anyone looking for a workaround we have several options:
+
+- Wait for an official binary to be released for Python 3.6
+- Ignore the warning, it seems to work.
+- Don't use tensorflow 1.4.0 instead use 1.3.0 `pip3 install tensorflow==1.3.0`.
+- Install an unofficial tensorflow binary compatible with Python 3.6 from [lakshayg/tensorflow-build](https://github.com/lakshayg/tensorflow-build) or from [mind/wheels](https://github.com/mind/wheels).
+
+Example in **Mac OS High Sierra** I do:
+
+```
+$ pip install https://github.com/lakshayg/tensorflow-build/raw/master/tensorflow-1.4.0-cp36-cp36m-macosx_10_12_x86_64.whl
+```
+
+Note: Be careful to choose the correct wheel for your platform and if it's with CPU or GPU support.Same issue on Ubuntu 16.04, Python 3.6.1, CPU version.
+Force install TensorFlow 1.3 can fix like @VictorGaiva said.When can we expect the official build of TF 1.4.0 for Python 3.6? The official docs reference `https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.4.0-cp36-cp36m-linux_x86_64.whl` as the Python 3.6 version, but I am still getting the original warning.As a workaround (in virtualenv), we can use python 3.5 as below.
+
+**virtualenv --system-site-packages -p  /usr/bin/python3.5 ~/tensorflow/**
+
+```
+>>> import tensorflow as tf
+>>> hello = tf.constant('Hello, TensorFlow!')
+>>> sess = tf.Session()
+```
+
+
+In mac os ,this help me: python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whltf-nightly and tf-nightly-gpu now has a python3.6 binary built from scratch for Linux. 
+1.5.0-dev20171206 and up
+
+This should fix the warningSame issue on MacOS 10.11.6 with Python 3.6.1I installed tf_nightly_gpu-1.5.0.dev20171213-cp36-cp36m-manylinux1_x86_64.whl successfully.
+Ubuntu17.10 x64.
+Tensorflow is looking for cuda-9.0 but I have cuda-8.0 installed. does tf_1.5.0 works with cuda-8.0?
+I have cuda-8.0 installed. I can see it in the library path. Any help to resolve this issue will be much appreciated.
+
+![screenshot from 2017-12-15 01-44-45](https://user-images.githubusercontent.com/5642181/34030106-956b7260-e139-11e7-9f71-6f665a587cb1.png)
+
+![screenshot from 2017-12-15 01-42-30](https://user-images.githubusercontent.com/5642181/34030072-6fb10f58-e139-11e7-8697-3290121e340a.png)
+
+![screenshot from 2017-12-15 01-59-36](https://user-images.githubusercontent.com/5642181/34030630-cf648838-e13b-11e7-826d-3fe1888b0fce.png)
+
+
+Following is Traceback for error 
+
+ImportError                               Traceback (most recent call last)
+/usr/local/lib/python3.6/dist-packages/tensorflow/python/pywrap_tensorflow.py in <module>()
+     57 
+---> 58   from tensorflow.python.pywrap_tensorflow_internal import *
+     59   from tensorflow.python.pywrap_tensorflow_internal import __version__
+
+/usr/local/lib/python3.6/dist-packages/tensorflow/python/pywrap_tensorflow_internal.py in <module>()
+     27             return _mod
+---> 28     _pywrap_tensorflow_internal = swig_import_helper()
+     29     del swig_import_helper
+
+/usr/local/lib/python3.6/dist-packages/tensorflow/python/pywrap_tensorflow_internal.py in swig_import_helper()
+     23             try:
+---> 24                 _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+     25             finally:
+
+/usr/lib/python3.6/imp.py in load_module(name, file, filename, details)
+    242         else:
+--> 243             return load_dynamic(name, filename, file)
+    244     elif type_ == PKG_DIRECTORY:
+
+/usr/lib/python3.6/imp.py in load_dynamic(name, path, file)
+    342             name=name, loader=loader, origin=path)
+--> 343         return _load(spec)
+    344 
+
+ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory
+
+During handling of the above exception, another exception occurred:
+
+ImportError                               Traceback (most recent call last)
+<ipython-input-2-64156d691fe5> in <module>()
+----> 1 import tensorflow as tf
+
+/usr/local/lib/python3.6/dist-packages/tensorflow/__init__.py in <module>()
+     22 
+     23 # pylint: disable=wildcard-import
+---> 24 from tensorflow.python import *
+     25 # pylint: enable=wildcard-import
+     26 
+
+/usr/local/lib/python3.6/dist-packages/tensorflow/python/__init__.py in <module>()
+     47 import numpy as np
+     48 
+---> 49 from tensorflow.python import pywrap_tensorflow
+     50 
+     51 # Protocol buffers
+
+/usr/local/lib/python3.6/dist-packages/tensorflow/python/pywrap_tensorflow.py in <module>()
+     71 for some common reasons and solutions.  Include the entire stack trace
+     72 above this error message when asking for help.""" % traceback.format_exc()
+---> 73   raise ImportError(msg)
+     74 
+     75 # pylint: enable=wildcard-import,g-import-not-at-top,unused-import,line-too-long
+
+ImportError: Traceback (most recent call last):
+  File "/usr/local/lib/python3.6/dist-packages/tensorflow/python/pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "/usr/local/lib/python3.6/dist-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "/usr/local/lib/python3.6/dist-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "/usr/lib/python3.6/imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "/usr/lib/python3.6/imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory
+
+
+Failed to load the native TensorFlow runtime.
+
+See https://www.tensorflow.org/install/install_sources#common_installation_problems
+
+for some common reasons and solutions.  Include the entire stack trace
+above this error message when asking for help.
+
+​
+Just installed python 3.6 on ubuntu 16.04. Then:
+
+~$ python3.6 -m pip install --user tensorflow
+Collecting tensorflow
+  Downloading tensorflow-1.4.1-cp36-cp36m-manylinux1_x86_64.whl (41.2MB)
+    100% |████████████████████████████████| 41.2MB 52kB/s 
+
+and so on...
+
+Then:
+
+~$ ipython
+Python 3.6.3 (default, Oct  4 2017, 02:55:45) 
+Type 'copyright', 'credits' or 'license' for more information
+IPython 6.2.1 -- An enhanced Interactive Python. Type '?' for help.
+
+In [1]: import tensorflow as tf
+/usr/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)
+
+In [2]: hello = tf.constant('Hello TensorFlow!')
+
+In [3]: session = tf.Session()
+2017-12-15 15:53:35.523688: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+
+In [4]: print(session.run(hello))
+b'Hello TensorFlow!'
+
+
+So I'm going to assume that this works just fine and this warning will go away with 1.5 or perhaps a 1.4.2 version.
+
+
+By the way, did not notice this warning in Windows7 using tensorflow-gpu version 1.4.0 with python 3.6.2Same issue on Ubuntu 16.04 LTS.Same issue.Same issue on Ubuntu 16.04 LTS.We are not offering a native python3.6 binary for mac anytime soon.
+
+As for the cuda9 issue, tf-nightly is built from HEAD at master every night, and I believe the latest binaries require cuda9. Try using an older version of tf-nightly. (Maybe 1208 or something)
+
+Windows has a native python3.6 binary so you will not see this issue.
+
+Thanks @av8ramit 
+
+For those who have the (arbitrary) preference of only wanting to use official releases, the following is correct?
+- you'll need to wait for 1.5.x for this warning message to go away when using Python 3.6 on linux
+- in the meantime, you can use 1.4.1 with no problems, you'll just see the warning messageThe same issue appears while I use Anaconda 3-5.0.1-Linux-x86_64.sh(Python3.6) and TensorFlow 1.4.For what it's worth, the issue was discussed in a Hacker News thread about the 1.4 release (https://news.ycombinator.com/item?id=15647790). User allenlavoie responded:
+
+> It's just a small Cython-compiled utility throwing the warning, it works fine. Everything else is pure Python and so doesn't care about 3.5 vs 3.6. We will fix the warning, though (disclaimer: I work on TF and added fast_tensor_utils--sorry!).Dear Tensorflow QA team. Please add some unit tests!!! Happy NYYou can create whl from source using following link steps. http://www.python36.com/install-tensorflow141-gpu/ . Let me informed if it worked.Nagging Assignee: It has been 14 days with no activity and this issue has an assignee. Please update the label and/or status accordingly.Official releases now (1.5+) have a native python3.6 image build on Ubuntu 16.04. We do not build a python3.6 specific binary for mac. Windows has native 3.6 as well. @av8ramit , I have 1.4.1 and you said that official releases *now* have .... yet,
+
+When I do:
+`python3.6 -m pip install --upgrade --user tensorflow`
+
+It says that:
+`Requirement already up-to-date: tensorflow in ./.local/lib/python3.6/site-packages`You guys could get python3.6 specific binary for mac/linux/windows from here:
+https://pypi.python.org/pypi/tensorflow@av8ramit  I manually downloaded 1.5.0rc1 cp36 manylinux wheel and installed successfully. The warning message has disappeared when import tensorflow in python 3.6
+
+However, I think there is issue with pip. See below please. Do you need me to start a new issue, or am I just doing something wrong?
+
+When I do:
+`python3.6 -m pip install --upgrade --user tensorflow -vvv`
+
+It does find the 1.5.0rc1 cp36 manylinux wheel, as well as rc0 and older version wheels (both rc and non-rc): 
+```
+Found link https://pypi.python.org/packages/cd/e4/b2a8bcd1fa689489050386ec70c5c547e4a75d06f2cc2b55f45463cd092c/tensorflow-1.1.0-cp36-cp36m-manylinux1_x86_64.whl#md5=1f761290358dfb7fe4ec73140f4d282a (from https://pypi.python.org/simple/tensorflow/), version: 1.1.0
+...
+Found link https://pypi.python.org/packages/c6/1c/d64f9367cc3a50194e911ab9da865c2515cbc1fefa5e210ddebf85a61bac/tensorflow-1.2.0rc0-cp36-cp36m-manylinux1_x86_64.whl#md5=8a637f414bc16c86708c01f17c94f3f6 (from https://pypi.python.org/simple/tensorflow/), version: 1.2.0rc0
+...
+Found link https://pypi.python.org/packages/fe/7d/01c588ba060e5e7dffe64ab968745d143530c84da30296f9593f661ca27d/tensorflow-1.5.0rc0-cp36-cp36m-manylinux1_x86_64.whl#md5=6578302e0c843660464cc16ad45d6093 (from https://pypi.python.org/simple/tensorflow/), version: 1.5.0rc0
+...
+Found link https://pypi.python.org/packages/4e/50/87e3c6861957413deb5ccd62aee6cea85cc2eedcf6391183595191d3c87d/tensorflow-1.5.0rc1-cp36-cp36m-manylinux1_x86_64.whl#md5=501d5072275518056aa5a5f25a001015 (from https://pypi.python.org/simple/tensorflow/), version: 1.5.0rc1
+```
+
+but at the end this does not register somehow with pip to be the latest version:
+```
+Installed version (1.4.1) is most up-to-date (past versions: 0.12.1, 1.0.0, 1.0.1, 1.1.0, 1.2.0, 1.2.1, 1.3.0, 1.4.0, 1.4.1)
+Requirement already up-to-date: tensorflow in ./.local/lib/python3.6/site-packages
+```
+
+I may be completely wrong, but it seems pip is not catching the versions with rc in the version number. I don't know if this is pip's error or tensorflow's error, but it seems to be an issue. Or am I wrong?@tylerlekang pip fetch the latest stable release by default (see https://pip.pypa.io/en/stable/reference/pip_install/#pre-release-versions) 
+and the pypi package of tensorflow is still a release candidate (1.5.0rc1) 
+
+try using: 
+`pip install 'tensorflow>=1.5.0rc1' `@attiasr  Oh! Well ... that's embarrassing!
+
+How long does it take the rc to turn into stable, and are there usually any changes once released as rc? Well I guess I can answer my own question by fact that there has already been rc0 and rc1 of 1.5.0 .....
+
+Thanks!@tylerlekang np
+python3.6 -m pip install https://github.com/lakshayg/tensorflow-build/raw/master/tensorflow-1.4.0-cp36-cp36m-linux_x86_64.whl
+Thanks @Karthick333031 it works for me (MacOS 10.12.6)Running: `pip3 install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.10.0-py3-none-any.whl` solved the issue
+
+Python **3.6.5**
+TensorFlow **1.10.0** (Was previously **1.10.1**)
+MacOS **10.14**Thanks,
+
+ @umang6891! It solved the problem for me. With the warning, my example hanged forever without failing, but now it runs. It looks like the problem is the version in pip.
+
+<img width="798" alt="screenshot 2018-08-24 23 38 35" src="https://user-images.githubusercontent.com/1203545/44615098-d741b080-a7f6-11e8-8548-8066e698ed5a.png"> 👍 @umang6891 's solution works good for me, and I am using a python3.6 virtualenv. 

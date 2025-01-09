@@ -1,0 +1,4 @@
+I'm referring to the setup. py that's in the repository: LINKLINK 
+This file isn't laid down during installation but it's what is used during CODESCODES 's installation.
+
+You might try CODESCODES. You should have CODESCODES installed.

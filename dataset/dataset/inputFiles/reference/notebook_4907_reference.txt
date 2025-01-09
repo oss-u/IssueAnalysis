@@ -1,0 +1,5 @@
+I had the same issue, reinstalled Anaconda but it was not working.
+
+The solution that worked for me was extremely simple.
+
+I ran Anaconda + Jupyter as administrator and it was solved.

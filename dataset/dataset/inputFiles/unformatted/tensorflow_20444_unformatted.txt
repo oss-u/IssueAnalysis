@@ -1,0 +1,889 @@
+### System information
+- **Have I written custom code (as opposed to using a stock example script provided in TensorFlow)**: N/A
+- **OS Platform and Distribution (e.g., Linux Ubuntu 16.04)**: macOS 10.13
+- **TensorFlow installed from (source or binary)**: binary
+- **TensorFlow version (use command below)**: 1.8
+- **Python version**: 3.7
+- **Bazel version (if compiling from source)**: N/A
+- **GCC/Compiler version (if compiling from source)**: N/A
+- **CUDA/cuDNN version**: N/A
+- **GPU model and memory**: N/A
+- **Exact command to reproduce**: `pip install tensorflow`
+
+### Describe the problem
+Installing TensorFlow on **Python3.7** with pip failed. Please see the failure log below.
+
+
+### Source code / logs
+> Could not find a version that satisfies the requirement tensorflow (from versions: )
+> No matching distribution found for tensorflow
+
+I installed it successfully by `pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl`. However, it seems that this wheel is not Python 3.7 compatible. The problem is that `tensorflow/python/pywrap_tensorflow_internal.py` contains `async` as variable names but `async` becomes a keyword in python3.7 so it's no longer available. 
+
+Also, I noticed that the URL is only for Python 3.4, 3.5, 3.6 but I can't find any other URLs. So probably we need to wait for the official Python 3.7-compatible package. Thank you for identifying the cause!still can't install it with python3.7
+```
+(env) mcbk:trainer todor$ pip3 install tensorflow
+Collecting tensorflow
+  Could not find a version that satisfies the requirement tensorflow (from versions: )
+No matching distribution found for tensorflow
+(env) mcbk:trainer todor$ which python3.7
+/Users/todor/xor/projects/trainer/env/bin/python3.7
+(env) mcbk:trainer todor$ which pip3
+/Users/todor/xor/projects/trainer/env/bin/pip3
+```same here.+1Any update? chriss-mbp:~ chris$ pip3 install tensorflow
+Collecting tensorflow
+  Could not find a version that satisfies the requirement tensorflow (from versions: )
+No matching distribution found for tensorflow
+
+Any update on a fix for this?  Thank you.Why was this issue closed?Has the problem with this wheel https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl been fixed? Or rather what is the new link/version?because of python 3.7 fully release, all production opencv are death because of tensorflow are incompatible. HELP pls!!!!!!
+
+ Same issue here..would be awesome to know when a fix is going to be available for this issue :)This is preventing me from upgrading several projects to 3.7, fix ETA would be great.@richardARPANET issue is we won't know what will happen before upgrade python 3.7, because nobody will go and check each module either it is compatible or not.
+
+And due to that, after upgrade to python 3.7, everything become nightmare.@thuyen isn't that why automated tests exist?same here.Same issue here too.Same issue here. Such a shame because I want to use it in cloud functions of GCP, which only supports 3.7 ATM...@christiaanleysen works fine on 3.7 with some minor tweaks and patches if you're willing to build yourself: https://github.com/tensorflow/tensorflow/pull/21202that's work for me
+just try to use this one below 
+pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whlHow to build tendorflow-gpu with fix for python 3.7? @bstriner @Mahamatnour 
+It doesn't work for me. It works fine for me by using command :
+`pip3 install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.10.1-py3-none-any.whl`
+
+Please see doc from [https://www.tensorflow.org/install/install_mac#the_url_of_the_tensorflow_python_package](https://www.tensorflow.org/install/install_mac#the_url_of_the_tensorflow_python_package)problem are not on mac platform!!!
+
+all current problem are for linux platform, if you are using mac, no need to report it here, due to that mac platform got no issue at all@thyeun please, see natsukium's plateform... I just answered him because i had the same error int the output... (and with the same plateform...)@Browny75 please, i'm not said that on you, just to make sure mac users got no problem on python 3.7, the only problem are for linux users!!!, don't mis-understanding my comment.@thyeun no such thing as understand or misunderstand, cu, thinking any is okFor what it's worth here is the repo to build the docker image with 3.7 and Tensorflow which works but takes a looong time to build: https://github.com/Guillemdb/docker-base@SukeshP1995 should be detailed in the links but let me know if you have issues. The main changes are in the repository now, but you still have to modify `workspace.bzl` to update and patch eigen and protobuf.
+
+@vmarkovtsev maybe check how many threads are running. Sometimes way off in docker. Tries to run 1k threads on 8 cpus...
+@bstriner I successfully build locally, it takes to much time to build on Dockerhub and there is a hard limit. If you want dockerhub builds, chain multiple images
+
+On Thu, Aug 30, 2018, 3:01 PM Vadim Markovtsev <notifications@github.com>
+wrote:
+
+> @bstriner <https://github.com/bstriner> I successfully build locally, it
+> takes to much time to build on Dockerhub and there is a hard limit.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/20444#issuecomment-417430029>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AL4rbPXGZMGkGX-ETM718jmMSogkWiJsks5uWDZvgaJpZM4U-EUx>
+> .
+>
+90% of the time is taken by `bazel build` @bstrinerHypothetically, run some of the subprojects individually beforehand in one
+image, then make the package in another and those dependencies won't be
+rebuilt, but probably more pain than it is worth. TF team doesn't want to
+merge dependencies on unofficial releases, so the biggest barrier to
+official 3.7 builds for all OS is to debug protobuf and eigen. But if you
+care about 3.7, you probably also want to build from source anyways to get
+the right optimizations.
+
+On Thu, Aug 30, 2018 at 4:10 PM Vadim Markovtsev <notifications@github.com>
+wrote:
+
+> 90% of the time is taken by bazel build @bstriner
+> <https://github.com/bstriner>
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/20444#issuecomment-417450405>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AL4rbLxpR-fNjtL58nLw3AeBd0R_VVrhks5uWEawgaJpZM4U-EUx>
+> .
+>
+I don't want to say exploit the good people at dockerhub, but I have had
+projects were I needed a chain of 3-4 images to build pytorch and a ton of
+related software. It was for the public good (TAing a class). As long as
+you aren't constantly rebuilding and you're doing something good with it,
+make as many steps as you need.
+
+On Thu, Aug 30, 2018 at 4:22 PM Benjamin Striner <bstriner@gmail.com> wrote:
+
+> Hypothetically, run some of the subprojects individually beforehand in one
+> image, then make the package in another and those dependencies won't be
+> rebuilt, but probably more pain than it is worth. TF team doesn't want to
+> merge dependencies on unofficial releases, so the biggest barrier to
+> official 3.7 builds for all OS is to debug protobuf and eigen. But if you
+> care about 3.7, you probably also want to build from source anyways to get
+> the right optimizations.
+>
+> On Thu, Aug 30, 2018 at 4:10 PM Vadim Markovtsev <notifications@github.com>
+> wrote:
+>
+>> 90% of the time is taken by bazel build @bstriner
+>> <https://github.com/bstriner>
+>>
+>> —
+>> You are receiving this because you were mentioned.
+>> Reply to this email directly, view it on GitHub
+>> <https://github.com/tensorflow/tensorflow/issues/20444#issuecomment-417450405>,
+>> or mute the thread
+>> <https://github.com/notifications/unsubscribe-auth/AL4rbLxpR-fNjtL58nLw3AeBd0R_VVrhks5uWEawgaJpZM4U-EUx>
+>> .
+>>
+>
+I found this to work after searching for a while. I will leave this here as it might be useful for someone.
+
+Tensorflow only supports Python 3.6 as of today. You can install a different version of python alongside your standard one. You need to:
+- Download the Python3.6 tgz file from the official website (eg. Python-3.6.6.tgz)
+- Unpack it with `tar -xvzf Python-3.6.6.tgz`
+- `cd Python-3.6.6`
+- run `./configure`
+- run `make altinstall` to install it (`install` vs `altinstall` explanation here https://stackoverflow.com/questions/16018463/difference-in-details-between-make-install-and-make-altinstall)
+
+You'll normally find your new python install under `/usr/local/bin`. Now you can create a new virtualenv specifying the python version with:
+- `virtualenv --python=python3.6 env3.6`
+- Get into the virtualenv running the command `source env3.6/source/bin/activate`.
+- Install tensorflow with the classic `pip install tensorflow`
+- Profit
+
+> It works fine for me by using command :
+> `pip3 install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.10.1-py3-none-any.whl`
+> 
+> Please see doc from https://www.tensorflow.org/install/install_mac#the_url_of_the_tensorflow_python_package
+
+works for me!Installation works as described above by @liutingchen , but when I run `import tensorflow` I still get errors (... is my home path):
+
+`import tensorflow`
+
+`Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/.../python3_env/lib/python3.7/site-packages/tensorflow/__init__.py", line 22, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "/.../python3_env/lib/python3.7/site-packages/tensorflow/python/__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "/.../python3_env/lib/python3.7/site-packages/tensorflow/python/pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "/.../python3_env/lib/python3.7/site-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 114
+    def TFE_ContextOptionsSetAsync(arg1, async):
+                                             ^
+SyntaxError: invalid syntax`I installed using:
+pip3 install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl
+
+However, The script running is getting:  "TFE_ContextOptionsSetAsync"
+
+Traceback (most recent call last):
+  File "yolo.py", line 11, in <module>
+    from keras import backend as K
+  File "/usr/local/lib/python3.7/site-packages/keras/__init__.py", line 3, in <module>
+    from . import utils
+  File "/usr/local/lib/python3.7/site-packages/keras/utils/__init__.py", line 6, in <module>
+    from . import conv_utils
+  File "/usr/local/lib/python3.7/site-packages/keras/utils/conv_utils.py", line 9, in <module>
+    from .. import backend as K
+  File "/usr/local/lib/python3.7/site-packages/keras/backend/__init__.py", line 89, in <module>
+    from .tensorflow_backend import *
+  File "/usr/local/lib/python3.7/site-packages/keras/backend/tensorflow_backend.py", line 5, in <module>
+    import tensorflow as tf
+  File "/usr/local/lib/python3.7/site-packages/tensorflow/__init__.py", line 24, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "/usr/local/lib/python3.7/site-packages/tensorflow/python/__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "/usr/local/lib/python3.7/site-packages/tensorflow/python/pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "/usr/local/lib/python3.7/site-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 114
+    def TFE_ContextOptionsSetAsync(arg1, async):> that's work for me
+> just try to use this one below
+> pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl
+
+That is good, but ``` pip install tensorflow ``` has failed via python version 3.7 , it seems that this wheel is not Python 3.7 compatible. The problem is that tensorflow/python/pywrap_tensorflow_internal.py contains async as variable names but async becomes a keyword in python3.7 so it's no longer available. Same Problem here on Mac OSX and python 3.7 (anaconda) 
+`   def TFE_ContextOptionsSetAsync(arg1, async):
+                                             ^
+SyntaxError: invalid syntax`
+
+Any update from a Tensorflow maintainer ?  Can you please reopen the issue? 
+
+Btw, I recommend to people to downgrade python version to 3.5/.6 on conda : 
+`conda install python=3.5`This should be fixed by #21202.same question as the whole above~ has it fixed or updated?TL;DR if you want the TF official packages to work, bug eigen and protobuf to make new releases.
+
+Has been fixed on master for a while but if you're waiting for a release that supports py3.7 it might be a little bit. So basically, until you see a post here saying that that has happened, the official pip install isn't going to work, but you can:
+- build from source (#21202)
+- use an unofficial wheel (some links were in this thread)
+
+Last eigen release was 23.07.2018 and last protobuf release was Jul 31 as of this posting (AFAIK). Both need fixes to support py3.7. I think as of now those fixes are in master but not in releases, but I could be wrong. TF isn't going to release an official package that depends on unreleased or patched third-party stuff if it can be avoided.
+
+I'm not really involved in either of those two libraries so I'm curious about the status of those issues, too. TF problems are easy to fix and release. Third-party libraries not-so-much. If it was just TF problems, then Python 3.7 would've been supported officially in no time.Found a some related links:
+https://github.com/protocolbuffers/protobuf/pull/4940
+https://github.com/protocolbuffers/protobuf/pull/4862
+
+No idea what the eigen status is TBH.
+
+Still unable to install TensorFlow on Python3.7 with pip. Perhaps should keep the issue open util a wheel is released.For those on macOs (like me), you can use brew to (temporarily) switch back to 3.6.5: [link](https://apple.stackexchange.com/questions/329187/homebrew-rollback-from-python-3-7-to-python-3-6-5-x) . I had to do
+`brew link --overwrite python` in addition and then
+`pip install --upgrade tensorflow` works fine
+Well done thanks, tensorflow is not available anymore in python 3.7. Stay waiting for the release.
+
+For other people who may encounter this issue: create an new env with python 3.6 :-) .I use Docker to run tensorflow, so it is not a problem for me. Just pointing out that we should always follow the latest standard of a language, even it changes rapidly.Any update about pip install tensorflow?Here's a simple trick to get things working with 3.7, but only if you're a tough moth*****r who doesn't give a shit if things break:
+
+```
+wget https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.11.0-cp36-cp36m-linux_x86_64.whl
+``` 
+(or whatever the correct wheel is)
+and:
+```
+cp tensorflow-1.11.0-cp36-cp36m-linux_x86_64.whl tensorflow-1.11.0-cp37-cp37m-linux_x86_64.whl
+pip install tensorflow-1.11.0-cp37-cp37m-linux_x86_64.whl
+```
+> Here's a simple trick to get things working with 3.7, but only if you're a tough moth*****r who doesn't give a shit if things break:
+> 
+> ```
+> wget https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.11.0-cp36-cp36m-linux_x86_64.whl
+> ```
+> 
+> (or whatever the correct wheel is)
+> and:
+> 
+> ```
+> cp tensorflow-1.11.0-cp36-cp36m-linux_x86_64.whl tensorflow-1.11.0-cp37-cp37m-linux_x86_64.whl
+> pip install tensorflow-1.11.0-cp37-cp37m-linux_x86_64.whl
+> ```
+
+Hi, Harpone.
+
+I tried your trick, but I received this message:
+
+/home/adriano/anaconda3/lib/python3.7/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.6 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.7
+  return f(*args, **kwds)
+
+but... I saw that I don't receive an error message when I import the tensorflow module in my script.
+pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whl
+that's which i use, python 3.7 on windows and it works.> pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whl
+> that's which i use, python 3.7 on windows and it works.
+
+Worked for me, python 3.7 on Mac.> pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whl
+> that's which i use, python 3.7 on windows and it works.
+
+Worked for me too on Mac , thanks!Why closed?
+`pip install tensorflow` still no worky.
+
+`pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whl` successful, but not the simple n00b-friendly install.
+
+aside: [  `tf.enable_eager_execution()` is removed, if that's in your checkscripts; 
+`AttributeError: module 'tensorflow' has no attribute 'enable_eager_execution'` ] 
+pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whl
+
+Is this version 0.12 or 1.12?pip install tensorflow  not working on OS X  python 3.7
+Fix from this thread shows version 0.12.0 ? 
+>>> import tensorflow as tf
+>>> tf.__version__ 
+'0.12.0' ?? 
+> Why closed?
+> `pip install tensorflow` still no worky.
+> 
+> `pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whl` successful, but not the simple n00b-friendly install.
+> 
+> aside: [ `tf.enable_eager_execution()` is removed, if that's in your checkscripts;
+> `AttributeError: module 'tensorflow' has no attribute 'enable_eager_execution'` ]
+
+I second that. This 0.12. version also breaks compatibility with keras. Even to the point where keras does not throw any warning or error messages but just refuses to learn.
+
+I just solved my issue by installing conda (miniconda3 to be precise), then using that to install a virtualenv with python 3.6.5, and in that installed both tf and keras. Now my model learns.I'm almost certain the 0.12 is because of a typo in the original comment. Installing https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.12.0-py3-none-any.whl works for me:
+
+```
+Python 3.7.1 (v3.7.1:260ec2c36a, Oct 20 2018, 03:13:28) 
+[Clang 6.0 (clang-600.0.57)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import tensorflow
+/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.6 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.7
+  return f(*args, **kwds)
+>>> tensorflow.__version__
+'1.12.0'
+>>> 
+```
+
+Note that the `RuntimeWarning` is just a warning.> I'm almost certain the 0.12 is because of a typo in the original comment. Installing https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.12.0-py3-none-any.whl works for me:
+> 
+> ```
+> Python 3.7.1 (v3.7.1:260ec2c36a, Oct 20 2018, 03:13:28) 
+> [Clang 6.0 (clang-600.0.57)] on darwin
+> Type "help", "copyright", "credits" or "license" for more information.
+> >>> import tensorflow
+> /Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.6 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.7
+>   return f(*args, **kwds)
+> >>> tensorflow.__version__
+> '1.12.0'
+> >>> 
+> ```
+> Note that the `RuntimeWarning` is just a warning.
+
+Got this, thx! Worked for me, same warning with no difference.```
+$ pip --version
+pip 18.1 
+
+$ python --version
+Python 3.7.0
+
+$ pip install tensorflow
+Collecting tensorflow
+  Could not find a version that satisfies the requirement tensorflow (from versions: )
+No matching distribution found for tensorflow
+
+$ pip search tensorflow
+tensorflow (1.12.0)       - TensorFlow is an open source machine learning framework for everyone.
+
+$ pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.12.0-py3-none-any.whl
+
+$ python
+Python 3.7.0 (default, Oct 18 2018, 15:08:12)
+[Clang 10.0.0 (clang-1000.10.44.2)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import tensorflow
+/lib/python3.7/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.6 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.7
+  return f(*args, **kwds)
+>>> tensorflow.__version__
+'1.12.0'
+
+```
+pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.12.0-py3-none-any.whl
+not work for python 3.7.1> I found this to work after searching for a while. I will leave this here as it might be useful for someone.
+> 
+> Tensorflow only supports Python 3.6 as of today. You can install a different version of python alongside your standard one. You need to:
+> 
+>     * Download the Python3.6 tgz file from the official website (eg. Python-3.6.6.tgz)
+> 
+>     * Unpack it with `tar -xvzf Python-3.6.6.tgz`
+> 
+>     * `cd Python-3.6.6`
+> 
+>     * run `./configure`
+> 
+>     * run `make altinstall` to install it (`install` vs `altinstall` explanation here https://stackoverflow.com/questions/16018463/difference-in-details-between-make-install-and-make-altinstall)
+> 
+> 
+> You'll normally find your new python install under `/usr/local/bin`. Now you can create a new virtualenv specifying the python version with:
+> 
+>     * `virtualenv --python=python3.6 env3.6`
+> 
+>     * Get into the virtualenv running the command `source env3.6/source/bin/activate`.
+> 
+>     * Install tensorflow with the classic `pip install tensorflow`
+> 
+>     * Profit
+
+There's a typo in running the virtual env command. It should be `source env3.6/bin/activate`I had same issue. Try this:
+
+- Downgrade your python from 3.7 to 3.6 (if using conda virtual env, create a new virtual env with ' conda create -n yourenvname python==3.6 anaconda' )
+- Then 'pip install tensorflow-gpu'
+
+should be worked..If you're using **x86_64** and **any Linux distro**, then you can find below GitHub repo to be useful.
+
+https://github.com/evdcush/TensorFlow-wheels
+
+I have tried and successfully installed into my machine.
+
+```bash
+$ wget https://github.com/evdcush/TensorFlow-wheels/releases/download/tf-1.12.0-py37-cpu-ivybridge/tensorflow-1.12.0-cp37-cp37m-linux_x86_64.whl
+$ pip install --user tensorflow-1.12.0-cp37-cp37m-linux_x86_64.whl  
+$ python
+Python 3.7.1 (default, Oct 22 2018, 10:41:28) 
+[GCC 8.2.1 20180831] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import tensorflow
+>>> print(tensorflow.__version__)
+1.12.0
+>>>
+```
+
+If you want Tensorflow + GPU build, then you can choose which one you want using above Github repo page.
+
+Cheers.> pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whl
+> that's which i use, python 3.7 on windows and it works.
+
+Just want you to know that this worked fantastically. Thanks!Any suggestions for linux?
+
+```
+pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.12.0-cp36-cp36m-linux_x86_64.whl
+```
+tensorflow-1.12.0-cp36-cp36m-linux_x86_64.whl **is not a supported wheel on this platform**.   somebody could help me !
+I've already installed python 3.7.1  wanna install tensor-flow but i can't 
+any one who could tell me how to fix this problem > somebody could help me !
+> I've already installed python 3.7.1 wanna install tensor-flow but i can't
+> any one who could tell me how to fix this problem
+
+
+Hi Nasser, unfortunately Tensorflow doesn't work with Python v3.7 yet. You'll have to uninstall, go into Python's website and install Python v3.6. The good thing is there are not many differences :) Just be sure to reinstall all your packages. I personally took a screenshot of all my packages (i.e. go into command prompt, and type in pip list, then take a screenshot) and referred to them to install everything again.
+
+Cheers> 
+> 
+> > somebody could help me !
+> > I've already installed python 3.7.1 wanna install tensor-flow but i can't
+> > any one who could tell me how to fix this problem
+> 
+> Hi Nasser, unfortunately Tensorflow doesn't work with Python v3.7 yet. You'll have to uninstall, go into Python's website and install Python v3.6. The good thing is there are not many differences :) Just be sure to reinstall all your packages. I personally took a screenshot of all my packages (i.e. go into command prompt, and type in pip list, then take a screenshot) and referred to them to install everything again.
+> 
+> Cheers
+
+Thankswhen will tensorflow be supported for python 3.7.2?try 
+
+python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whl> 
+> 
+> ```
+> $ pip --version
+> pip 18.1 
+> 
+> $ python --version
+> Python 3.7.0
+> 
+> $ pip install tensorflow
+> Collecting tensorflow
+>   Could not find a version that satisfies the requirement tensorflow (from versions: )
+> No matching distribution found for tensorflow
+> 
+> $ pip search tensorflow
+> tensorflow (1.12.0)       - TensorFlow is an open source machine learning framework for everyone.
+> 
+> $ pip install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.12.0-py3-none-any.whl
+> 
+> $ python
+> Python 3.7.0 (default, Oct 18 2018, 15:08:12)
+> [Clang 10.0.0 (clang-1000.10.44.2)] on darwin
+> Type "help", "copyright", "credits" or "license" for more information.
+> >>> import tensorflow
+> /lib/python3.7/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.6 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.7
+>   return f(*args, **kwds)
+> >>> tensorflow.__version__
+> '1.12.0'
+> ```
+
+Well this doesn't work for me. After the download with pip finished it says no module named tensorflowOkay guys... Spent two hours. Quick workaround for now: It's as simple as...... Use `python3.6.5_1` for now. Launch your tensorflow-based applications with the full path to the older python executable.
+
+```zsh
+❯ /usr/local/Cellar/python3/3.6.5_1/bin/python3
+Python 3.6.5 (default, Jun 17 2018, 12:13:06)
+[GCC 4.2.1 Compatible Apple LLVM 9.1.0 (clang-902.0.39.2)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import tensorflow
+>>> tensorflow.__version__
+'1.12.0'
+>>>
+```
+
+Just make sure you manage to install this python version using homebrew or some other way. **Now everything else can use regular up-to-date python 3.7, while we wait for TensorFlow devs to fix this.**@PiotrWegrzyn,
+
+See if the following works for you:
+`pip3 install --upgrade https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.12.0-py3-none-any.whl` @shahril96 
+
+Your solution worked for me on arch linux, thank you!even if you successful install tensorflow1.12 in python 3.7, it'll get some unexpected error like:
+'tf.constant(5)' get 'UnboundLocalError: local variable 'self' referenced before assignment'When can we expect to have Tensorflow for Python 3.7 on PIP? When you include it in another package as a dependency other options do not work. TensorFlow will have a 3.7 on pip when its dependencies have one. This, in particular, means protobuf. There are patches for protobuf making it possible to work on 3.7 (since November, roughly), but there hasn't been a release yet. It seems difficult to support python3.7. It's been months and still no progress+1+1+1Python group insists on releasing breaking language changes with a minor version bump.I thought Python was done with these breaking changes. But come on Google async as a variable name?
+I just wanted to highlight that posting +1 or loosely connected remarks will spam mailboxes of about 65 people watching this thread (I bet many hope that the next notification will say that we got a release for Python 3.7).
+
+To subscribe to notifications without writing a comment one can click "subscribe" button on the top-right of the page. I think that the numer of subsribers will be as good indication of interst in this problem to the maintatiners as writing "+1" but without notifying everyone else. Thank you :)
+
+Also, here is another highlight: `async` was actually introduced in Python 3.5, released in September 2015 - which was more than three years ago. And they had warned:
+
+> async and await are not recommended to be used as variable, class, function or module names. Introduced by PEP 492 in Python 3.5, they will become proper keywords in Python 3.7.So I believe we can follow an actual open ticket for this at #25429 > ### System information
+> * **Have I written custom code (as opposed to using a stock example script provided in TensorFlow)**: N/A
+> * **OS Platform and Distribution (e.g., Linux Ubuntu 16.04)**: macOS 10.13
+> * **TensorFlow installed from (source or binary)**: binary
+> * **TensorFlow version (use command below)**: 1.8
+> * **Python version**: 3.7
+> * **Bazel version (if compiling from source)**: N/A
+> * **GCC/Compiler version (if compiling from source)**: N/A
+> * **CUDA/cuDNN version**: N/A
+> * **GPU model and memory**: N/A
+> * **Exact command to reproduce**: `pip install tensorflow`
+> 
+> ### Describe the problem
+> Installing TensorFlow on **Python3.7** with pip failed. Please see the failure log below.
+> 
+> ### Source code / logs
+> > Could not find a version that satisfies the requirement tensorflow (from versions: )
+> > No matching distribution found for tensorflow
+
+This worked for me:
+
+python -m pip  install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.12.0-py3-none-any.whlHey guys, I believe that this is fixed on the latest python/pip
+
+```
+$ python -V
+Python 3.7.2
+$pip -V
+pip 19.0.3 from /usr/lib/python3.7/site-packages/pip (python 3.7)
+```
+
+Here is the log of the install
+```
+$ pip install tensorflow --no-cache-dir
+Collecting tensorflow
+  Downloading https://files.pythonhosted.org/packages/74/1b/8b39fbe2fc8a7f6c9e19824b45b8a295526da466f75e7c53e00c51105664/tensorflow-1.13.0rc2-cp37-cp37m-manylinux1_x86_64.whl (92.7MB)
+    100% |████████████████████████████████| 92.7MB 9.8MB/s 
+Collecting keras-applications>=1.0.6 (from tensorflow)
+  Downloading https://files.pythonhosted.org/packages/90/85/64c82949765cfb246bbdaf5aca2d55f400f792655927a017710a78445def/Keras_Applications-1.0.7-py2.py3-none-any.whl (51kB)
+    100% |████████████████████████████████| 61kB 10.3MB/s 
+Collecting tensorflow-estimator<1.14.0rc0,>=1.13.0rc0 (from tensorflow)
+  Downloading https://files.pythonhosted.org/packages/bb/48/13f49fc3fa0fdf916aa1419013bb8f2ad09674c275b4046d5ee669a46873/tensorflow_estimator-1.13.0-py2.py3-none-any.whl (367kB)
+    100% |████████████████████████████████| 368kB 9.7MB/s 
+Requirement already satisfied: protobuf>=3.6.1 in /home/j/.myvirtualenvs/pintpass/lib/python3.7/site-packages (from tensorflow) (3.6.1)
+Requirement already satisfied: numpy>=1.13.3 in /home/j/.myvirtualenvs/pintpass/lib/python3.7/site-packages (from tensorflow) (1.15.4)
+Collecting absl-py>=0.1.6 (from tensorflow)
+  Downloading https://files.pythonhosted.org/packages/31/bc/ab68120d1d89ae23b694a55fe2aece2f91194313b71f9b05a80b32d3c24b/absl-py-0.7.0.tar.gz (96kB)
+    100% |████████████████████████████████| 102kB 14.3MB/s 
+Collecting astor>=0.6.0 (from tensorflow)
+  Downloading https://files.pythonhosted.org/packages/35/6b/11530768cac581a12952a2aad00e1526b89d242d0b9f59534ef6e6a1752f/astor-0.7.1-py2.py3-none-any.whl
+Requirement already satisfied: six>=1.10.0 in /home/j/.myvirtualenvs/pintpass/lib/python3.7/site-packages (from tensorflow) (1.11.0)
+Collecting gast>=0.2.0 (from tensorflow)
+  Downloading https://files.pythonhosted.org/packages/4e/35/11749bf99b2d4e3cceb4d55ca22590b0d7c2c62b9de38ac4a4a7f4687421/gast-0.2.2.tar.gz
+Requirement already satisfied: wheel>=0.26 in /home/j/.myvirtualenvs/pintpass/lib/python3.7/site-packages (from tensorflow) (0.32.3)
+Collecting termcolor>=1.1.0 (from tensorflow)
+  Downloading https://files.pythonhosted.org/packages/8a/48/a76be51647d0eb9f10e2a4511bf3ffb8cc1e6b14e9e4fab46173aa79f981/termcolor-1.1.0.tar.gz
+Collecting tensorboard<1.13.0,>=1.12.0 (from tensorflow)
+  Downloading https://files.pythonhosted.org/packages/07/53/8d32ce9471c18f8d99028b7cef2e5b39ea8765bd7ef250ca05b490880971/tensorboard-1.12.2-py3-none-any.whl (3.0MB)
+    100% |████████████████████████████████| 3.1MB 10.5MB/s 
+Collecting keras-preprocessing>=1.0.5 (from tensorflow)
+  Downloading https://files.pythonhosted.org/packages/c0/bf/0315ef6a9fd3fc2346e85b0ff1f5f83ca17073f2c31ac719ab2e4da0d4a3/Keras_Preprocessing-1.0.9-py2.py3-none-any.whl (59kB)
+    100% |████████████████████████████████| 61kB 18.7MB/s 
+Collecting grpcio>=1.8.6 (from tensorflow)
+  Downloading https://files.pythonhosted.org/packages/0a/47/d40daf7a46543e4d762ce0507d83ec49a883a6c0fed4d33a9e93652de8a8/grpcio-1.18.0-cp37-cp37m-manylinux1_x86_64.whl (10.6MB)
+    100% |████████████████████████████████| 10.6MB 10.4MB/s 
+Collecting h5py (from keras-applications>=1.0.6->tensorflow)
+  Downloading https://files.pythonhosted.org/packages/8e/fd/2ca5c4f4ed33ac4178f9c4d551e3946ab480866e3cd67a65a67a4bb35367/h5py-2.9.0-cp37-cp37m-manylinux1_x86_64.whl (2.8MB)
+    100% |████████████████████████████████| 2.8MB 12.5MB/s 
+Collecting mock>=2.0.0 (from tensorflow-estimator<1.14.0rc0,>=1.13.0rc0->tensorflow)
+  Downloading https://files.pythonhosted.org/packages/e6/35/f187bdf23be87092bd0f1200d43d23076cee4d0dec109f195173fd3ebc79/mock-2.0.0-py2.py3-none-any.whl (56kB)
+    100% |████████████████████████████████| 61kB 9.2MB/s 
+Requirement already satisfied: setuptools in /home/j/.myvirtualenvs/pintpass/lib/python3.7/site-packages (from protobuf>=3.6.1->tensorflow) (40.6.3)
+Collecting markdown>=2.6.8 (from tensorboard<1.13.0,>=1.12.0->tensorflow)
+  Downloading https://files.pythonhosted.org/packages/7a/6b/5600647404ba15545ec37d2f7f58844d690baf2f81f3a60b862e48f29287/Markdown-3.0.1-py2.py3-none-any.whl (89kB)
+    100% |████████████████████████████████| 92kB 18.4MB/s 
+Collecting werkzeug>=0.11.10 (from tensorboard<1.13.0,>=1.12.0->tensorflow)
+  Downloading https://files.pythonhosted.org/packages/20/c4/12e3e56473e52375aa29c4764e70d1b8f3efa6682bef8d0aae04fe335243/Werkzeug-0.14.1-py2.py3-none-any.whl (322kB)
+    100% |████████████████████████████████| 327kB 15.6MB/s 
+Collecting pbr>=0.11 (from mock>=2.0.0->tensorflow-estimator<1.14.0rc0,>=1.13.0rc0->tensorflow)
+  Downloading https://files.pythonhosted.org/packages/8c/7f/fed53b379500fd889707d1f6e61c2a35e12f2de87396894aff89b017d1d6/pbr-5.1.2-py2.py3-none-any.whl (107kB)
+    100% |████████████████████████████████| 112kB 3.4MB/s 
+Installing collected packages: h5py, keras-applications, absl-py, pbr, mock, tensorflow-estimator, astor, gast, termcolor, markdown, werkzeug, grpcio, tensorboard, keras-preprocessing, tensorflow
+  Running setup.py install for absl-py ... done
+  Running setup.py install for gast ... done
+  Running setup.py install for termcolor ... done
+Successfully installed absl-py-0.7.0 astor-0.7.1 gast-0.2.2 grpcio-1.18.0 h5py-2.9.0 keras-applications-1.0.7 keras-preprocessing-1.0.9 markdown-3.0.1 mock-2.0.0 pbr-5.1.2 tensorboard-1.12.2 tensorflow-1.13.0rc2 tensorflow-estimator-1.13.0 termcolor-1.1.0 werkzeug-0.14.1
+```
+
+and the results
+
+```
+$ python
+Python 3.7.2 (default, Jan 10 2019, 23:51:51) 
+[GCC 8.2.1 20181127] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import tensorflow as tf
+>>>
+```
+
+unrelated..
+@campanelli-resonon Hey! Sure is cold outside :)I got this error when I tried to install tensorflow on Ubuntu and Python3.5, any help, please. I have posted a similar question last week.
+![image](https://user-images.githubusercontent.com/43449527/54888796-528f4180-4e6e-11e9-906d-c41fce1e1968.png)
+I'm running Ubuntu on Oracle Virtual Box- running on Windows 10,  and python3.5 , I got same install tensorflow error message above even when I changed the URL path to (linjx and Mac).  Apology:  for the typo , I meant to (linux, and mac).Any update?
+On the window system with installed python 3.7.2
+I type the command pip install tensoflow (not pip install tensorflow) and it worked.
+This is fixed, we're publishing 3.7 binaries to pypi. If you are seeing problems, please open a new issue. Hi   mejimaru
+
+*That install complete successfully, but tensoflow is the same as
+Tensorflow? have same functionality, I have not used tensoflow before. *
+*Many Thanks for your support!*
+
+*Salih*
+
+On Fri, Mar 29, 2019 at 11:32 AM Martin Wicke <notifications@github.com>
+wrote:
+
+> This is fixed, we're publishing 3.7 binaries to pypi. If you are seeing
+> problems, please open a new issue.
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/20444#issuecomment-478061701>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/Apb8t7oBHeBnRivki9_h5XCks1D_fO0jks5vbkAHgaJpZM4U-EUx>
+> .
+>
+Hi   mejimaru
+
+That install complete successfully, but tensoflow is the same as Tensorflow? have same functionality, I have not used tensoflow before. 
+Many Thanks for your support!> This is fixed, we're publishing 3.7 binaries to pypi. If you are seeing problems, please open a new issue.
+
+So does this mean that I need to batch/upgrade my current python version to 3.7 to solve my tensorflow install error I have posted above. My current python version on Ubuntu 16.04 is "Python3.5".  Thanks for info!Please find the appropriate issue for your problem. This issue is about 3.7.
+Hi
+This one worked for me on Python 3.7.2:
+sudo  pip3  install
+https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl
+<https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.12.0-py3-none-any.whl>
+
+
+Best Regards,
+Salih
+
+On Fri, Mar 29, 2019 at 11:22 AM mejimaru <notifications@github.com> wrote:
+
+> Any update?
+> On the window system with installed python 3.7.2
+> I type the command pip install tensoflow (not pip install tensorflow) and
+> it worked.
+>
+> pip install tensoflow
+>
+> Worked.
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/20444#issuecomment-478058562>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/Apb8t-hlKUU7z8SO0STC3kXCis9BXs7gks5vbj3MgaJpZM4U-EUx>
+> .
+>
+I was able to install tensorflow without error on Python3.7.2 , but after I have launched Python 3,7.2 and tried to import tensorflow  I got an error "no module named tensorflow".  Any hep?I'm trying to install Tensorflow using source code rom github , after I gave up on installing it on my Python3.7  platform,  fin order to do that I need to download and isntall "Bazel" , from this link: https://github.com/bazelbuild/bazel/pulls   . THE PROBLEM, I could find the link to download and install "Bazel" using (wget, or git clone ,...etc)  . 
+ANY HELP PLEASE. 
+ALSO, Do you think I should give up installing Tensorflow on 3.7 altogether, if so WHAT IS THE MOST STABLE PYTHON Platform to INSTALL TENSORFLOW?!!!! 
+Its very frustrating!@SalihOsman1 you seem to have successfully installed it. If it doesn't work, check whether you are using the right python binary. If you suspect that there is a bug in tensorflow, please open an issue providing the information requested in the issue template. Given your description, I believe it is likely something simple, like installing into the wrong python installation.
+
+This is the wrong issue to seek help for your problem.@SalihOsman1 Check your python --version, you should install python package for 64-bit.
+
+> that's work for me
+> just try to use this one below
+> pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl
+
+it worked for me. thanks> @SalihOsman1 Check your python --version, you should install python package for 64-bit.
+
+Yeah issue resolved ty buddy My python version was 32 bit It seems like most people recognize the problem has been fixed.  i just loaded it onto a fresh install of Rapsbian buster today.  it comes with python 3.7.3.  but the pip is 18.1 and if you look on the site documentation for tensorflow they want PIP to be >19.0.  SO i had to 
+python3 -m pip install--upgrade pip   
+
+and then check
+pip3 --version 
+
+ to be sure it was at 19.2 
+then I ran 
+
+sudo pip3 install tensorflow 
+(there were write permissions for one library)  and it worked fine
+
+How do I install TensorFlow on windows for python 3.7? what COMMAND do I use it is not working using pip install tensorflowcheck your pip --version  it should be at least 19.0 otherwise tensorflow won't install.  if it still doesn't install reply with exactly what error mess age you are getting
+ > check your pip --version it should be at least 19.0 otherwise tensorflow won't install. if it still doesn't install reply with exactly what error mess age you are getting
+
+I've installed the latest version (and older versions) of Tensorflow using pip 19.2.3 and I still cannot run Tensorflow. I keep running into the following error:
+
+`ImportError: No module named tensorflow`
+
+I've found no solution after hours of research. Has anyone successfully installed tensorflow with python 2 or 3 lately?@Bredding234 TensorFlow 2.0 (release candidate 0) has pips for 3.7 on windows, see #31431 . Please try that version and let us know if it is not working.
+
+@cskonopka what operating system are you using? Are you in a virtualenv? Please make sure the same python interpreter used for installing is also used for testing. For example, you could do:
+
+```console
+python -m pip install --upgrade pip
+python -m pip install tensorflow
+python -c "import tensorflow"
+```
+
+And this should not fail.I have the same error.
+![tferr](https://user-images.githubusercontent.com/41957912/64014667-fd451380-cb22-11e9-8e50-2d678982b78a.PNG)
+Funnily, installing TensorFlow works fine in an Anaconda virtualenv.@hannesrollin `pip` version? Did you follow the steps in https://github.com/tensorflow/tensorflow/issues/20444#issuecomment-524941378 ?same issue here,
+python version 3.7
+pip version 19.2
+on windows 10
+>> pip install tensorflow
+ERROR: Could not find a version that satisfies the requirement tensorflow (from versions: none)
+ERROR: No matching distribution found for tensorflow> same issue here,
+> python version 3.7
+> pip version 19.2
+> on windows 10
+> 
+> > > pip install tensorflow
+> > > ERROR: Could not find a version that satisfies the requirement tensorflow (from versions: none)
+> > > ERROR: No matching distribution found for tensorflow
+
+Please make sure Python interpreter you're using must be 64 bit version , It solved the problem for me try it .
+> ### System information
+> * **Have I written custom code (as opposed to using a stock example script provided in TensorFlow)**: N/A
+> * **OS Platform and Distribution (e.g., Linux Ubuntu 16.04)**: macOS 10.13
+> * **TensorFlow installed from (source or binary)**: binary
+> * **TensorFlow version (use command below)**: 1.8
+> * **Python version**: 3.7
+> * **Bazel version (if compiling from source)**: N/A
+> * **GCC/Compiler version (if compiling from source)**: N/A
+> * **CUDA/cuDNN version**: N/A
+> * **GPU model and memory**: N/A
+> * **Exact command to reproduce**: `pip install tensorflow`
+> 
+> ### Describe the problem
+> Installing TensorFlow on **Python3.7** with pip failed. Please see the failure log below.
+> 
+> ### Source code / logs
+> > Could not find a version that satisfies the requirement tensorflow (from versions: )
+> > No matching distribution found for tensorflow
+
+Please make sure Python interpreter you're using must be 64 bit version , It solved the problem for me try it .For 32bits versus 64 bits Python interpreters, check #32315 and #31431 
+
+To debug why you cannot install tensorflow, `pip debug --verbose` should display the list of tags your environment supports. Then check out the [download files](https://pypi.org/project/tensorflow/2.0.0rc0/#files)  (here for 2.0, but you can check others too) and see if your tag is in there. If it is, then it is an issue for us, otherwise this shouldn't be an issue opened in the repository.https://github.com/tensorflow/tensorflow/issues/32627i have an answer since python 3.7 tensorflow is not working
+try python 3.6 by following these steps on the link https://www.youtube.com/watch?v=_kU50QtlI14
+
+Works for me!my python is 3.8.0 is that mean i have to downgrade to use tensorflow?> my python is 3.8.0 is that mean i have to downgrade to use tensorflow?
+
+I think it is more secure for now tu **use python 3.7 rather than 3.8** as all ML/DL packages do not release any new versions for python 3.8. I recommend to start to use py3.8 by the start of Jan2020. 
+(Some package will not need update as 3.7 work under 3.8, but the other way doesn't work. -> **Let see how the community will answer to py3.8 in the next couple of month**).Python3.8 support is in #33374
+
+This issue is about python3.7 on windows with 32bits interpreter. Please don't confuse the issues.I guess that TensorFLow does not support python yet 3.8.0 or this version don't have support. I pass by this same problem, and I solved creating an **environment** of python 3.5.2 in Anaconda, and this work OK to me. Anticipating, If you'll use the tensorflow-gpu you can go through the same problem, because don't have support yet for CUDA 11, and from current cudnn version, so I needed to do a drowngrade too.TensorFlow currently not support python 3.7. but I have solved this issue (on windows 10) by using Python environments like virtualenv , conda.
+
+first, you need to download python 3.5x or 3.6x >> https://www.python.org/downloads/
+and install it to your machine. then you'll need to create a virtual environment with Python 3.6 or 3.5.
+( virtualenv -p {path to python.exe(3.6)} {environment name} ) .
+
+finally, check your python version with activating the virtual environment.> > same issue here,
+> > python version 3.7
+> > pip version 19.2
+> > on windows 10
+> > > > pip install tensorflow
+> > > > ERROR: Could not find a version that satisfies the requirement tensorflow (from versions: none)
+> > > > ERROR: No matching distribution found for tensorflow
+> 
+> Please make sure Python interpreter you're using must be 64 bit version , It solved the problem for me try it .
+
+Yes like me> > that's work for me
+> > just try to use this one below
+> > pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl
+> 
+> it worked for me. thanks
+
+this worked for me too. Thanks
+please, I use ubuntu
+ python 3.8.0
+pip 19.3.1
+I find this problem when i install tensorflow
+"could not find a version that satisfies the requirement tensorflow (from versions none)"@aynesss please read previous messages
+
+In particular, your use case is covered by https://github.com/tensorflow/tensorflow/issues/20444#issuecomment-545036560 and #33374@ShriLingam23 this issue is about python3.7. So your solution about downgrading python 3.8 to 3.7.6 is out of scope. Please don't comment on closed issues as that only creates more confusion@NIravMeghani please stop spamming unrelated issues.
+
+TF 1.8 is out of life for a few years already. Please use TF 1.15, 2.0 or 2.1.
+
+TF has no support for python 8 at the moment. You can compile from source if you want to. We are working on releasing python 8 support soon.
+
+In the future, please open a new issue instead of riding on the back on unrelated issues.> that's work for me
+> just try to use this one below
+> pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl
+
+WORKED FOR ME TOO. Thanks.@ravi-ai-cons please don't update closed issues with "worked for me, thanks" messages as these messages send unnecessary emails to everyone who replied on the issue and these message have no real content.I fixed this issue on python 3.8 using this :
+1/ Go to the directory of Scipts in your python in my case :  C:\Python\Python38-32\Scripts
+2/ in Cmd type : cd C:\Python\Python38-32\Scripts
+Then type : pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl@KaberMed this issue is about python3.7, not python3.8. Please don't spam> I installed it successfully by `pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl`. However, it seems that this wheel is not Python 3.7 compatible. The problem is that `tensorflow/python/pywrap_tensorflow_internal.py` contains `async` as variable names but `async` becomes a keyword in python3.7 so it's no longer available.
+> 
+> Also, I noticed that the URL is only for Python 3.4, 3.5, 3.6 but I can't find any other URLs. So probably we need to wait for the official Python 3.7-compatible package.
+
+
+
+> I installed it successfully by `pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl`. However, it seems that this wheel is not Python 3.7 compatible. The problem is that `tensorflow/python/pywrap_tensorflow_internal.py` contains `async` as variable names but `async` becomes a keyword in python3.7 so it's no longer available.
+> 
+> Also, I noticed that the URL is only for Python 3.4, 3.5, 3.6 but I can't find any other URLs. So probably we need to wait for the official Python 3.7-compatible package.
+
+This helped me, Thank you! 
+In VSC, Python 3.7.2https://www.tensorflow.org/install/pip says that a windows version for python 3.7 support exists for 64bit python.
+ `pip install https://storage.googleapis.com/tensorflow/windows/cpu/tensorflow_cpu-2.1.0-cp37-cp37m-win_amd64.whl` which the page says is for windows using python 3.7 should work. if you get an error saying the wheel doesn't exist for this platform, that means you're using a 32bit python  installed using the wheel file.Please relase an updated version of tensorflow libraries for Java.> > I installed it successfully by `pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl`. However, it seems that this wheel is not Python 3.7 compatible. The problem is that `tensorflow/python/pywrap_tensorflow_internal.py` contains `async` as variable names but `async` becomes a keyword in python3.7 so it's no longer available.
+> > Also, I noticed that the URL is only for Python 3.4, 3.5, 3.6 but I can't find any other URLs. So probably we need to wait for the official Python 3.7-compatible package.
+> 
+> > I installed it successfully by `pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl`. However, it seems that this wheel is not Python 3.7 compatible. The problem is that `tensorflow/python/pywrap_tensorflow_internal.py` contains `async` as variable names but `async` becomes a keyword in python3.7 so it's no longer available.
+> > Also, I noticed that the URL is only for Python 3.4, 3.5, 3.6 but I can't find any other URLs. So probably we need to wait for the official Python 3.7-compatible package.
+> 
+> This helped me, Thank you!
+> In VSC, Python 3.7.2
+
+I have successfully installed on Python3.7 but it shows this error.
+File "C:\Python37-32\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 114
+    def TFE_ContextOptionsSetAsync(arg1, async):
+
+Any solution to resolve this issue?
+
+I have successfully installed tensorflow in Python3.7using pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl
+ but while using it, it shows this error.
+File "C:\Python37-32\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 114
+def TFE_ContextOptionsSetAsync(arg1, async):
+
+Any solution to resolve this issue?> I have successfully installed tensorflow in Python3.7using pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl
+> but while using it, it shows this error.
+> File "C:\Python37-32\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 114
+> def TFE_ContextOptionsSetAsync(arg1, async):
+> 
+> Any solution to resolve this issue?
+
+Is it that tensorflow -1.8.0 is a older version???> > I have successfully installed tensorflow in Python3.7using pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl
+> > but while using it, it shows this error.
+> > File "C:\Python37-32\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 114
+> > def TFE_ContextOptionsSetAsync(arg1, async):
+> > Any solution to resolve this issue?
+> 
+> Is it that tensorflow -1.8.0 is a older version???
+
+Yes it is tensorflow 1.8.0. I have replaced async with async1 as async is keyword in python 3.7
+So this problem is resolved.
+
+But now I am having below mentioned error:
+
+ImportError: No module named '_pywrap_tensorflow_internal'On Mac OSX Catalina --pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl worked without any issues.In my case, in the windows machine, I had same issue. I was using python 3.8.  I made a new  conda environment with python=3.6
+```
+conda create --name newenv python=3.6 
+pip install tensorflow
+```
+same error here with python3.6 on nvidia jetson> In my case, in the windows machine, I had same issue. I was using python 3.8. I made a new conda environment with python=3.6
+> 
+> ```
+> conda create --name newenv python=3.6 
+> pip install tensorflow
+> ```
+
+this worked for meHi Pranay,Thank you so much for your reply. Now it's working fine for me too by using python 3.6
+
+Sent from Yahoo Mail on Android 
+ 
+  On Fri, 5 Jun 2020 at 14:44, PranaySoniSPAN<notifications@github.com> wrote:   
+
+
+
+In my case, in the windows machine, I had same issue. I was using python 3.8. I made a new conda environment with python=3.6
+conda create --name newenv python=3.6 
+pip install tensorflow
+
+
+this worked for me
+
+—
+You are receiving this because you commented.
+Reply to this email directly, view it on GitHub, or unsubscribe.
+  
+> On Mac OSX Catalina --pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl worked without any issues.
+
+
+
+> > I installed it successfully by `pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl`. However, it seems that this wheel is not Python 3.7 compatible. The problem is that `tensorflow/python/pywrap_tensorflow_internal.py` contains `async` as variable names but `async` becomes a keyword in python3.7 so it's no longer available.
+> > Also, I noticed that the URL is only for Python 3.4, 3.5, 3.6 but I can't find any other URLs. So probably we need to wait for the official Python 3.7-compatible package.
+> 
+> > I installed it successfully by `pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl`. However, it seems that this wheel is not Python 3.7 compatible. The problem is that `tensorflow/python/pywrap_tensorflow_internal.py` contains `async` as variable names but `async` becomes a keyword in python3.7 so it's no longer available.
+> > Also, I noticed that the URL is only for Python 3.4, 3.5, 3.6 but I can't find any other URLs. So probably we need to wait for the official Python 3.7-compatible package.
+> 
+> This helped me, Thank you!
+> In VSC, Python 3.7.2
+
+This works for Me!
+> that's work for me
+> just try to use this one below
+> pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl
+
+in my case this wheel did not work correctly 
+it throw below error 
+
+Python 3.7.9 (default, Aug 31 2020, 12:42:55) 
+[GCC 7.3.0] :: Anaconda, Inc. on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import tensorflow as tf 
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/home/ahmed/anaconda3/envs/tf14/lib/python3.7/site-packages/tensorflow/__init__.py", line 24, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "/home/ahmed/anaconda3/envs/tf14/lib/python3.7/site-packages/tensorflow/python/__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "/home/ahmed/anaconda3/envs/tf14/lib/python3.7/site-packages/tensorflow/python/pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "/home/ahmed/anaconda3/envs/tf14/lib/python3.7/site-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 114
+    def TFE_ContextOptionsSetAsync(arg1, async):
+                                             ^
+SyntaxError: invalid syntax
+Hi! Had a few dead ends but this worked out for me on python 3.6.9/3.8 (Updating setuptools to the latest version, then installing tensorflow):
+
+Step 1: `pip install -U pip`
+Step 2: `pip install -U setuptools`
+Step 3: `pip install tensorflow`
+
+source: liquidweb.com/kb/how-to-install-tensorflow-on-ubuntu-18-04/

@@ -1,0 +1,977 @@
+```
+PermissionError: [Errno 13] Permission deniedRo: 'C:\\Users\\srikanth\\AppData\\Roaming\\jupyter\\runtime\\kernel-026a1895-5304-47b1-b096-7c7c0c165723.json'
+
+The kernel in jupyter is dead always (even on restart).
+The Kernel error is "Failed to start kernel"---> "Unhandled error"
+Traceback (most recent call last):
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\web.py", line 1699, in _execute
+    result = await result
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+    type=mtype))
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+    kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+    self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 209, in wrapper
+    yielded = next(result)
+  File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+    super(MappingKernelManager, self).start_kernel(**kwargs)
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+    km.start_kernel(**kwargs)
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+    self.write_connection_file()
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+    kernel_name=self.kernel_name
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+    with secure_write(fname) as f:
+  File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\contextlib.py", line 112, in __enter__
+    return next(self.gen)
+  File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 102, in secure_write
+    with os.fdopen(os.open(fname, open_flag, 0o600), mode) as f:
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\srikanth\\AppData\\Roaming\\jupyter\\runtime\\kernel-026a1895-5304-47b1-b096-7c7c0c165723.json'
+```
+
+This notebook is run Windows 10 OS.
+I have exhausted every solution out there, and none of it works.
+Hi @Srikanth-Kb - sorry for this inconvenience.
+
+This is the same issue as described here https://github.com/jupyter/jupyter_client/issues/479, but it sounds like you might be at more liberty to share information (which may prove useful).
+
+Could you please provide the following...
+1. Is the user running the notebook server (presumably `srikanth`) a member of the Windows `Administrators` group?
+2. Any additional information about the file `C:\Users\srikanth\AppData\Roaming\jupyter\runtime\kernel-026a1895-5304-47b1-b096-7c7c0c165723.json` would be helpful.  `DIR`, `ls -l` - whatever filesystem stat information you can provide about the file.
+3. A screen shot (or equivalent) of the `Security` tab via the Windows explorer relative to that file?
+
+I'm beginning to wonder if the step that secures the file using Windows privs is side-affecting things when the user is not in Administrators by replacing the CREATOR OWNER ACE when constructing a new ACL.
+
+As many details as you can provide regarding the file would be much appreciated.  Thank you.Hi, 
+Yes, the issue is similar or same to the one described. I did check that one too, and it seems they did face the same problem. However, here are the answers to your queries:
+1. The user running the notebook server(srikanth) is the member of Windows Administrators group.
+2. Unfortunately, I did removed all of the jupyter and other dependencies, including the files in path.
+    But, the permissions of those files were the same as any other files on the path. It had all read, write
+    and execute permissions.
+3. Also, I don't have the screenshot saved from before. But, the folders AppData, Roaming, jupyter,
+   runtime, and the "kernel".json file were are hidden folders/files.
+
+Let me know, if I could be of any help.
+Thank youIs this running inside a WSL (windows bash) enviroment or native windows? If the former try the suggestions on the thread @kevin-bates posted.> 
+> 
+> Is this running inside a WSL (windows bash) enviroment or native windows? If the former try the suggestions on the thread @kevin-bates posted.
+
+This is running inside a WSL (windows bash) environment. Before I could try the suggestions on the thread that @kevin-bates  posted, I had a quick reset of jupyter and its depending modules. That solved the error for me. I believe we previously had a fallback with a warning when failing to make files private, which has happened pretty often on Windows, which has complicated permissions scenarios. Adding a similar fallback is perhaps appropriate.Hi,
+I just created today a new kernel in Windows (native not WSL) and all my notebooks stopped working with the Error 13 Access Denied.
+
+```
+        with os.fdopen(os.open(fname, open_flag, 0o600), mode) as f:
+    PermissionError: [Errno 13] Permission denied: 'C:\\Users\\mike\\AppData\\Roaming\\jupyter\\runtime\\kernel-41bd85f6-1192-4a91-b5bf-9cc4c94c1500.json'
+[W 20:18:50.432 NotebookApp] Unhandled error
+[E 20:18:50.435 NotebookApp] {
+
+```
+
+After that i checked with dir the mode permissions:
+
+```
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        9/27/2019   7:49 PM              0 kernel-0ea79e39-5e76-44dc-a001-05dc73f866ef.json
+-a----        8/29/2019  12:33 AM            274 kernel-12d7f348-0baa-4fce-8c85-752390e405eb.json
+-a----        9/24/2019   6:15 PM            274 kernel-2aca9f02-16b9-46b0-b80a-ff805bf541f6.json
+-a----         8/3/2019   9:56 PM            274 kernel-319e4df2-c173-4e43-bcec-76e72d9add81.json
+-a----        9/21/2019  10:38 PM            274 kernel-3422b12a-dc24-4f1b-838b-5fcfa8ae3d29.json
+```
+
+with get-acl i listed the acl for the current folder and also for the specific folder which i use:
+
+```
+PS C:\Users\mike\AppData\Roaming\jupyter\runtime> get-acl
+
+
+    Directory: C:\Users\mike\AppData\Roaming\jupyter
+
+
+Path    Owner     Access
+----    -----     ------
+runtime MIKE\mike NT AUTHORITY\SYSTEM Allow  FullControl...
+
+
+PS C:\Users\mike\AppData\Roaming\jupyter\runtime> get-acl C:\\Users\\mike\\AppData\\Roaming\\jupyter\\runtime\\kernel-41bd85f6-1192-4a91-b5bf-9cc4c94c1500.json
+
+
+    Directory: C:\Users\mike\AppData\Roaming\jupyter\runtime
+
+
+Path                                             Owner     Access
+----                                             -----     ------
+kernel-41bd85f6-1192-4a91-b5bf-9cc4c94c1500.json MIKE\mike BUILTIN\Administrators Allow  FullControl...
+```
+
+my user mike is in the local administrator group, but i start the notebook always as user (never as administrator). Additionally i create with the following script my virtual environments:
+
+```
+@echo off
+set /p id="Enter Project Name: "
+
+mkdir "%~dp0%id%"
+mkdir "%~dp0%id%\data"
+mkdir "%~dp0%id%\docs"
+mkdir "%~dp0%id%\src"
+mkdir "%~dp0%id%\test"
+
+cd "%~dp0%id%"
+python -m venv project
+cd "%~dp0%id%\project\Scripts\"
+start "%id% Python" activate.bat
+
+cd "%~dp0"
+
+echo Copy paste the parseinpythonshell.txt to the python shell that opens from the virtualenv
+@pause
+
+echo python -m pip install --upgrade pip > "%~dp0%parseinpythonshell.txt"
+echo pip install ipykernel >> "%~dp0%parseinpythonshell.txt"
+echo ipython kernel install --user --name=%id% >> "%~dp0%parseinpythonshell.txt"
+
+```
+
+So it shouldnt be possible that i created a virtual env somehow that could destroy the system.
+
+Any input on what else i can check to remove this error would be helpful....Thanks for the great information @snapo!  
+
+Since `kernel-41bd85f6-1192-4a91-b5bf-9cc4c94c1500.json` is not viewable via `dir` as user `mike` (I suspect `get-acl` runs with higher privs), this implies that the update in jupyter_client 5.3.3 isn't configuring the file for the user correctly.
+
+Does `MIKE/mike` appear in the ACL at all (following the ...)?
+
+Can we assume the files that do appear via `dir` were created prior to the update of `jupyter_client`?  (Although the zero-length file on 9/27 is odd.) I also assume that an admin running `dir` could see `kernel-41db...` - is that correct?Hi @kevin-bates ,
+No all have the same permission, i just cut it out as all have the same permission (forgot to add points) everything was run as user. But as wished here is the full output:
+
+```
+> PS C:\Users\mike> whoami
+> mike\mike
+> PS C:\Users\mike> cd .\AppData\Roaming\jupyter\runtime\
+> PS C:\Users\mike\AppData\Roaming\jupyter\runtime> dir
+> 
+> 
+>     Directory: C:\Users\mike\AppData\Roaming\jupyter\runtime
+> 
+> 
+> Mode                LastWriteTime         Length Name
+> ----                -------------         ------ ----
+> -a----        9/27/2019   7:49 PM              0 kernel-0ea79e39-5e76-44dc-a001-05dc73f866ef.json
+> -a----        8/29/2019  12:33 AM            274 kernel-12d7f348-0baa-4fce-8c85-752390e405eb.json
+> -a----        9/24/2019   6:15 PM            274 kernel-2aca9f02-16b9-46b0-b80a-ff805bf541f6.json
+> -a----         8/3/2019   9:56 PM            274 kernel-319e4df2-c173-4e43-bcec-76e72d9add81.json
+> -a----        9/21/2019  10:38 PM            274 kernel-3422b12a-dc24-4f1b-838b-5fcfa8ae3d29.json
+> -a----        9/27/2019   8:18 PM              0 kernel-41bd85f6-1192-4a91-b5bf-9cc4c94c1500.json
+> -a----        9/27/2019   7:29 PM              0 kernel-42ad46f8-e4ea-438c-b9c1-f61524dc38b9.json
+> -a----        9/27/2019   7:41 PM              0 kernel-5523cdc9-c61a-4475-bb03-3041fd8bd957.json
+> -a----        9/27/2019   7:25 PM              0 kernel-5770b6ac-d0c5-4f17-8173-1063de853123.json
+> -a----        9/27/2019   7:33 PM              0 kernel-578e15d8-de21-4cb6-ab9e-f62ab48408b3.json
+> -a----        9/27/2019   7:13 PM              0 kernel-63490b1f-c1f9-48b8-b8c7-41af754d4f38.json
+> -a----        9/21/2019  10:44 PM            274 kernel-64b883a1-9e5c-4b1e-aa94-64aa78128d29.json
+> -a----        9/27/2019   7:14 PM              0 kernel-73b5999b-d47d-4cba-8924-40c8b8fe589d.json
+> -a----        9/27/2019   7:22 PM              0 kernel-7739b615-fe3d-4d2f-b327-f92c11394e47.json
+> -a----        9/27/2019   8:17 PM              0 kernel-81c82d39-0524-4a4c-aed7-6f10882575b2.json
+> -a----        9/27/2019   9:04 PM              0 kernel-8887e97a-199e-4263-a7da-e4b59d278565.json
+> -a----        9/11/2019   9:40 PM            274 kernel-8b8a691b-4d92-403f-bc43-0ae270ca914a.json
+> -a----        9/27/2019   7:42 PM              0 kernel-8edc63f7-0a0c-4202-b2f2-fb6429404da6.json
+> -a----        9/11/2019   8:42 PM            274 kernel-934a9bb6-dc68-4f1e-8182-a0cd3078f554.json
+> -a----         8/2/2019  11:41 PM            274 kernel-9e1e5834-4c28-476d-b10c-d5c6549c9582.json
+> -a----        9/24/2019   6:16 PM            274 kernel-a5539ffb-d849-4c17-868a-d42db76ae643.json
+> -a----        9/27/2019   7:12 PM              0 kernel-ad43ebe9-a3c6-4c3f-825d-447fb89eac64.json
+> -a----        9/27/2019   7:13 PM              0 kernel-c4ce8a7a-03af-4ecf-a352-9122d4c4fbe6.json
+> -a----        9/24/2019   7:53 PM            274 kernel-c5ec53ae-4355-41d0-a7b3-1a8738e72cb1.json
+> -a----        9/27/2019   7:35 PM              0 kernel-d486df0f-4874-421d-8355-cbd4ef93930e.json
+> -a----        9/22/2019   3:52 PM            274 kernel-d56d5f33-d878-41b2-9f11-e283a64879ab.json
+> -a----        9/27/2019   7:18 PM              0 kernel-e5236e57-abec-49df-94c5-fb372a17ee5b.json
+> -a----        9/11/2019   8:42 PM            274 kernel-f59c2b14-96e7-4311-a42e-4208efced6ea.json
+> -a----        9/27/2019   7:49 PM            694 nbserver-10628-open.html
+> -a----        9/27/2019   7:49 PM            257 nbserver-10628.json
+> -a----        9/27/2019   8:17 PM            694 nbserver-10832-open.html
+> -a----        9/27/2019   8:17 PM            257 nbserver-10832.json
+> -a----        9/21/2019  10:34 PM            694 nbserver-11140-open.html
+> -a----        9/21/2019  10:34 PM            257 nbserver-11140.json
+> -a----         8/2/2019  11:42 PM            694 nbserver-11300-open.html
+> -a----         8/2/2019  11:42 PM            257 nbserver-11300.json
+> -a----        9/24/2019   6:13 PM            694 nbserver-11360-open.html
+> -a----        9/24/2019   6:13 PM            257 nbserver-11360.json
+> -a----        9/27/2019   7:41 PM            694 nbserver-11584-open.html
+> -a----        9/27/2019   7:41 PM            257 nbserver-11584.json
+> -a----        9/11/2019   8:27 PM            694 nbserver-12336-open.html
+> -a----        9/11/2019   8:27 PM            257 nbserver-12336.json
+> -a----        9/21/2019  10:41 PM            694 nbserver-15128-open.html
+> -a----        9/21/2019  10:41 PM            257 nbserver-15128.json
+> -a----        9/27/2019   7:28 PM            694 nbserver-20800-open.html
+> -a----        9/27/2019   7:28 PM            274 nbserver-20800.json
+> -a----        8/28/2019   7:20 PM            694 nbserver-3624-open.html
+> -a----        8/28/2019   7:20 PM            256 nbserver-3624.json
+> -a----        9/27/2019   7:14 PM            694 nbserver-4272-open.html
+> -a----        9/27/2019   7:14 PM            256 nbserver-4272.json
+> -a----        9/27/2019   7:33 PM            694 nbserver-4936-open.html
+> -a----        9/27/2019   7:33 PM            256 nbserver-4936.json
+> -a----        9/27/2019   7:29 PM            694 nbserver-5148-open.html
+> -a----        9/27/2019   7:29 PM            256 nbserver-5148.json
+> -a----        9/27/2019   8:18 PM            694 nbserver-5664-open.html
+> -a----        9/27/2019   8:18 PM            256 nbserver-5664.json
+> -a----        9/27/2019   7:25 PM            694 nbserver-5916-open.html
+> -a----        9/27/2019   7:25 PM            256 nbserver-5916.json
+> -a----         8/2/2019  10:28 PM            694 nbserver-6452-open.html
+> -a----         8/2/2019  10:28 PM            256 nbserver-6452.json
+> -a----         8/3/2019   9:40 PM            694 nbserver-6688-open.html
+> -a----         8/3/2019   9:40 PM            256 nbserver-6688.json
+> -a----        9/27/2019   7:42 PM            694 nbserver-9040-open.html
+> -a----        9/27/2019   7:42 PM            256 nbserver-9040.json
+> -a----        9/27/2019   7:27 PM            694 nbserver-9368-open.html
+> -a----        9/27/2019   7:27 PM            273 nbserver-9368.json
+> -a----         8/3/2019  10:04 PM            694 nbserver-9940-open.html
+> -a----         8/3/2019  10:04 PM            256 nbserver-9940.json
+> -a----         8/2/2019  10:28 PM             45 notebook_cookie_secret
+> 
+> 
+> PS C:\Users\mike\AppData\Roaming\jupyter\runtime>
+```
+
+sorry for the confusion...
+
+To proof that i didnt open powershell as admin, thats the output of my powershell without admin:
+
+```
+PS C:\Users\mike\AppData\Roaming\jupyter\runtime> whoami /groups /fo csv | convertfrom-csv | where-object { $_.SID -eq "S-1-5-32-544" }
+
+Group Name             Type  SID          Attributes
+----------             ----  ---          ----------
+BUILTIN\Administrators Alias S-1-5-32-544 Group used for deny only
+```
+
+
+
+That would be the output of my powershell if i did open it as admin:
+```
+PS C:\Windows\system32> whoami /groups /fo csv | convertfrom-csv | where-object { $_.SID -eq "S-1-5-32-544" }
+
+Group Name             Type  SID          Attributes
+----------             ----  ---          ----------
+BUILTIN\Administrators Alias S-1-5-32-544 Mandatory group, Enabled by default, Enabled group, Group owner
+
+
+PS C:\Windows\system32>
+```Thanks, and just for completeness...
+> Does MIKE/mike appear in the ACL at all (following the ...)?
+
+relative to `kernel-41bd85f6-1192-4a91-b5bf-9cc4c94c1500.json` please.Yes sir it does...
+
+```
+PS C:\Users\mike\AppData\Roaming\jupyter\runtime> get-acl .\kernel-41bd85f6-1192-4a91-b5bf-9cc4c94c1500.json
+
+
+    Directory: C:\Users\mike\AppData\Roaming\jupyter\runtime
+
+
+Path                                             Owner     Access
+----                                             -----     ------
+kernel-41bd85f6-1192-4a91-b5bf-9cc4c94c1500.json MIKE\mike BUILTIN\Administrators Allow  FullControl...
+
+
+PS C:\Users\mike\AppData\Roaming\jupyter\runtime>
+```
+
+I have to add... this started after i created the last virtualenv for my next project. I used the same script i used always before...
+
+And it happens on all Kernels currently... without a known change from my side... as i never touch the appdata folder
+That's the Creator-Owner.  I expected to see `MIKE\mike` buried in the ACL with just READ/WRITE access per this code: https://github.com/jupyter/jupyter_client/blob/5.x/jupyter_client/connect.py#L57-L69hmm there is something really strange on the permissions:
+
+![image](https://user-images.githubusercontent.com/6347922/65806054-34413000-e188-11e9-8893-4130878f431d.png)
+
+
+
+Other kernels seem to have the right permission, but still dont work
+![image](https://user-images.githubusercontent.com/6347922/65806027-1a075200-e188-11e9-953c-58186885ae8f.png)
+
+Can i delete all kernels and they get auto re-generated?
+These kernel files are the connection information (zmq ports) to each kernel. Their existence implies they are associated with running kernels.  If you know no kernels are running, they can be deleted, but if you need to still support active kernels, I'd hold off.
+
+For the ones that have human-readable text and not the SID, were they created before your update of jupyter_client (which may have been implicit with a windows update - although I'm not familiar with jupyter deployments on Windows)?
+
+If I recall (worked on Windows 15 years ago) an unresolved SID usually meant there was an issue with the LDAP repository (typically Active Directory).  So perhaps there's a disconnect between user 'MIKE\mike' and the LDAP provider such that the python win32 stuff can't equate 'MIKE\mike' as having Read/Write access?  Although that's purely hypothetical.
+@kevin-bates its happening on my home pc, and i am responsible only at the company i work for for the software deployment ;=) As i already did multiple restarts and i dont care about the running kernels, i will delete them and give feedback on what is generated then.
+
+Give feedback in a few minutesRight on.  I suspect we may need to update the `GetUserName` to `GetUserNameEx` and ask for the samCompatible name - which should return `MIKE\mike`: https://stackoverflow.com/questions/40658865/python-how-to-get-domain-username-for-logged-in-user
+
+Although if you're at home - is the LDAP at your company and you're using a VPN?  That might complicate things.So i deleted the content of the runtime folder...
+
+same error with all kernels i open:
+```
+    PermissionError: [Errno 13] Permission denied: 'C:\\Users\\mike\\AppData\\Roaming\\jupyter\\runtime\\kernel-006867ea-c214-4506-a3f1-b7424fe7ee89.json'
+[W 00:50:45.068 NotebookApp] Unhandled error
+```
+
+it created 4 files for the kernel i did try to start:
+![image](https://user-images.githubusercontent.com/6347922/65806537-458b3c00-e18a-11e9-95f3-669ec177ad88.png)
+
+
+What i would like to know is where this sid comes from, i cant remember that SID from mind. and i also didnt change my user account or my own user accounts SID.
+So this SID had existed once on my system or is wrong from another place.
+
+I did try to read my SID (i login with the windows live ID)
+```
+PS C:\Users\mike> wmic useraccount where name='%username%' get sid
+Node - MIKE
+ERROR:
+Description = Invalid query
+
+```
+
+looking now for a powershellish way to get my SID as i still dont know where the SID comes from
+
+
+It is my private pc, no vpn.... its my gaming and private development workstation
+
+
+found it:
+![image](https://user-images.githubusercontent.com/6347922/65806769-83d52b00-e18b-11e9-957f-dad7510d136b.png)
+
+
+but what i still dont know is what the heck is this sid in the permissions :-( and from where does that come from... i start reviewing the ACL code you linked to.I am getting a bit closer ;=)
+
+![image](https://user-images.githubusercontent.com/6347922/65806963-8d12c780-e18c-11e9-85bf-b4ab233037af.png)
+
+The unknown SID is somehow generated by the user lookup of the win32api.GetUserName
+
+Uh misscopy ;=) but still correct it comes from the win32security.LookupAccountName
+
+I am checking if there was a change lately...Just out of curiosity - can you change the call from `win32api.GetUserName()` to `win32api.GetUserNameEx(win32api.NameSamCompatible)`?  Not sure that will even run, but it looks correct.Maybe im wrong... but whats the reason for using the win32api / win32security to lookup the account name?
+
+All Windows systems have it in the environment variable per default (domain joined and workgroup pc's)
+
+![image](https://user-images.githubusercontent.com/6347922/65807465-e8de5000-e18e-11e9-852d-3aada1ebcb5e.png)
+
+
+Would it not be better to use the standard os library if possible?
+
+Will do your curiousity request ;=)
+![image](https://user-images.githubusercontent.com/6347922/65807524-2fcc4580-e18f-11e9-957b-a867536673ae.png)
+The SID is required to set the proper security.  Just not sure we're getting the correct SID.  Of the SIDs that are scratched out in the blue screen, which one (if any) matches the SID displayed in this comment:  https://github.com/jupyter/notebook/issues/4907#issuecomment-536121214 ?
+
+cc: @MSeal the correct SID would be: S-1-5-21-1719644623-1720000185-84389473-1001
+your change does correct it. can i change that somehow local? without building jupyter notebook from scratch?
+just to test if it is just because of the wrong sid in the variable... of if there is really a SID permission issueYou should be able to go into where that package is installed and change the `connect.py` file (and restart Notebook).  If that's proves problematic, I can build you a wheel file that contains the change.
+
+Did you need to import or adjust anything to get the GetUserNameEx/parameter to run correctly?
+i imported the following:
+import os
+import win32api
+import win32security
+import ntsecuritycon as con
+
+but i dont know yet if os is required ... i can do quick test what libs are required
+
+to set the 3 variables (without the ACL part) you require the following imports:
+
+import win32api
+import win32securityOk - cool, so no additional imports in our code.
+
+Also, do you know which principal the SID in the comment I reference corresponds to?  That might be helpful information if it's like `MIKE\DefaultAccount` or something like that.```
+PS C:\Windows\system32> Get-WmiObject win32_useraccount
+
+
+AccountType : 512
+Caption     : MIKE\Administrator
+Domain      : MIKE
+SID         : S-1-5-21-1719644623-1720000185-84389473-500
+FullName    :
+Name        : Administrator
+
+AccountType : 512
+Caption     : MIKE\DefaultAccount
+Domain      : MIKE
+SID         : S-1-5-21-1719644623-1720000185-84389473-503
+FullName    :
+Name        : DefaultAccount
+
+AccountType : 512
+Caption     : MIKE\Guest
+Domain      : MIKE
+SID         : S-1-5-21-1719644623-1720000185-84389473-501
+FullName    :
+Name        : Guest
+
+AccountType : 512
+Caption     : MIKE\mike
+Domain      : MIKE
+SID         : S-1-5-21-1719644623-1720000185-84389473-1001
+FullName    : Mike BLAHBLAHBLAH hidden :-)
+Name        : mike
+
+AccountType : 512
+Caption     : MIKE\WDAGUtilityAccount
+Domain      : MIKE
+SID         : S-1-5-21-1719644623-1720000185-84389473-504
+FullName    :
+Name        : WDAGUtilityAccount
+
+```
+Hmm - interesting.  It's like the SID in the comment is the "prefix" with the 3 or 4 digit suffix missing.  Been too long to know what that's about.trying currently to figure out where the file/files are located on a default installation ;=)It should be logged in the console, similar to this: `C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py`ah now i understand it is in my virtualenv .... so i have to adjust all of them. but there is a compiled pyc for connect. will it recompile? it if i change the connect.py?`
+
+![image](https://user-images.githubusercontent.com/6347922/65808191-0ad9d180-e193-11e9-94d8-307d3385b47c.png)
+Yeah, I think so. I usually delete the .pyc file that corresponds to the one I'm changing - just to be sure.  You just need to be sure to only change the connect.py in jupyter_client.  Don't worry about the others.Changed the file, deleted the kernels again, deleted the precompiled pyc.... somehow still the same error and the wrong sid.
+Additionally what i dont understand this should have affected only my new virtualenv (in theory) why are all virtualenvs affect. Thats kinda strange.
+
+But for today i have to put in a stop its already 2am here and my wife gets angry :-(
+
+Will try tomorrow more, otherwise i do a full re-install.
+
+I have to figure out which connect.py is really used and from which virtualenv and if there is something else that is preventing a successful request of the SID.
+
+Will deliver tomorrow more insights ;=) Thank you already very much for you indepth help@snapo - thank you so much for your help!  This information has been useful.  Others that have access to Windows systems may be able to look into this deeper as well (I don't have such access unfortunately).
+
+Sorry for taking your time.  Its just that its difficult to get good diagnostic information so I tried to gather what I thought might be helpful - thank you again!  Have a great weekend!@kevin-bates absolutely no problem i like to help as im also using the product and i like it quite a lot.
+I additionally learned a lot more about jupyters notebook and also the standard virtualenv from python ;=)
+
+Finally i found which file is responsible and from where to where connections and requests are going.
+
+First of all your proposal of:
+
+```
+- user, _domain, _type = win32security.LookupAccountName("", win32api.GetUserName())
++ user, _domain, _type = win32security.LookupAccountName("", win32api.GetUserNameEx(win32api.NameSamCompatible))
+```
+
+Does fix it for me... Windows users can fix it easily with the following steps:
+
+```
+1. delete the existing kernels and files (save the content of your notebook_cookie_secret if you have many links pointing to it)
+2. edit C:\Users\{USERNAME}\AppData\Local\Programs\Python\Python{Version}\site-packages\jupyter_client\connect.py
+3. replace the line 59 with the proposal made by @kevin-bates 
+4. delete the corresponding compiled python file (C:\Users\mike\AppData\Local\Programs\Python\Python37\Lib\site-packages\jupyter_client\__pycache__\connect.cpython-XX.pyc)
+5. Enjoy all notebooks working again...
+```
+
+What i am not so happy about is the data structure and paths used on Windows :-(
+
+> Applications should stay in  **C:\program files\** but python is in **C:\Users\mike\AppData\Local\Programs**
+> Application data (programdata) should be in **C:\ProgramData** but they are in **C:\Users\mike\AppData\Roaming**
+
+Thank you very much again for your absolutely great work in supporting jupyter notebook. I would never have been able to find that out by my own. Finally i can go forward working with my notebooks :-)
+
+Virtualenvs get the recompiled pyc files from python directly ;=) thats why i was a bit off the shoes in understanding that..
+
+This is absolutely fantastic news @snapo!   Couple things...
+
+1. When you now look at the file via the Windows explorer, do you see the previous unresolved SID entry as being resolved (i.e., human-readable)?
+
+2. Would you like to contribute the fix to [jupyter_client](https://github.com/jupyter/jupyter_client)?  The PR should be relative to the 5.x branch.  (Or I suppose a PR could go against [jupyter_core]()'s master branch - which is where this change will ultimately live.) If not, I'll be happy to submit a PR with you as co-author - your help was invaluable - thank you again!Heya @kevin-bates  ,
+
+1. Yes now the SID resolves to the correct one and yes it is human readable as it can now be resolved.
+![image](https://user-images.githubusercontent.com/6347922/65820020-656f3e00-e224-11e9-9620-b42932b1bdd6.png)
+
+2. Regarding this part that would be my first PR for a public project ;=) have to first read on the guidelines on how to do that properly. Personally im not about getting points and its only 1 line change. So if you like you can catch it. What i can not do is test it if it is still working on all Windows OS versions (backtest) , corporate domain joined pc's work too as i tested it in the company i work with too. There fore i cant gurantee it will fix all error 13's but mine is working and also that i tested it on a corporate ad joined pc, and on a workgroup joined pc without a windows live id.
+
+Best regards
+MikeThanks so much for helping dive into this issue @snapo and @kevin-bates !
+
+The the change of `win32security.LookupAccountName("", win32api.GetUserName())` vs `win32security.LookupAccountName("", win32api.GetUserNameEx(win32api.NameSamCompatible))` do we know if there's situations where the new pattern might cause unexpected issues? I'm not super familiar with the differences in those two APIs and the docs don't provide much info. From what I can read this looks like the correct change to make.
+
+I think separately I need to look into the bash-on-windows issue where jupyter has been initialized outside of the linux subsystem.
+
+I think given much many little issues that are coming up with the windows permissions let's do the PR against [jupyter_core](https://github.com/jupyter/jupyter_core) and I can help make PRs to jupyter_client and jupyter_server to use the new core function.@MSeal - I suspect this change should be sufficient on bash-on-windows but hoping you can perform the same testing you did to derive the change in the first place.
+
+Since @snapo was able to provide the necessary details (previously, it was like groping in the dark) we were able to see the unresolved SID.  Since his was a local system, so there was no remote LDAP that perhaps couldn't be accessed for the SID resolution, I started looking into other forms for getting the username and found `GetUserNameEx` and `NameSamCompatible` (which returns the more classic form of WIndows principals DOMAIN\user) and thought it would be worth a shot.  Because that change (again with @snapo's help) generated a "human-readable" value (not to mention resolved the errno 13 issue), it feels like the right approach.
+
+I think directing this change to jupyter_core is the right approach (then we can get 4.6.0 out), so I'll post a PR there shortly.@snapo - what is your email address associated to your github so I can make you a co-author?  If you choose to keep your email private, I think I can use a 'no-reply' email to associate to the co-author tag.
+
+EDIT: Actually, it looks like you'd need to configure a "no-reply" email account and let me know its value - as described [here](https://help.github.com/en/articles/setting-your-commit-email-address#about-commit-email-addresses).@kevin-bates  6347922+snapo@users.noreply.github.com is the mail i generated (no-reply) mail best regardsSubmitted PR to jupyter_core: https://github.com/jupyter/jupyter_core/pull/166
+
+@snapo - thank you again for all of your help!
+@MSeal - please perform your testing magic with this update.  Let me know if you need assistance in "moving" things around (updating references) in jupyter_client or jupyter_server.I'll do some testing with my windows setup in a few ways. I'll post testing results to the PR directly. If you open the PR to jupyter_client and I can get that one merged and released as soon as core releases. Otherwise I can make the PR and have you approve it :)
+
+For jupyter_sever someone else will need to merge but I can open or +1 a PR.@MSeal - I'll be happy to open a PR to jupyter_client once you've confirmed expected behavior in core.  (I have the commit on my fork ready to go.)
+
+For jupyter_server, I'm inclined to open a PR that uses the code in jupyter_core instead (and requires >=4.6.0), then jupyter_server is done relative to the `secure_write` change.  We'd still need to make a similar change in jupyter_client, but I agree that, right now, jupyter_client will require a 5.3.4 release so existing users can easily get a fix.Yep. Sounds right to me. I'll do testing this afternoon.
+
+On Sun, 29 Sep 2019, 9:09 AM Kevin Bates, <notifications@github.com> wrote:
+
+> @MSeal <https://github.com/MSeal> - I'll be happy to open a PR to
+> jupyter_client once you've confirmed expected behavior in core. (I have the
+> commit on my fork ready to go.)
+>
+> For jupyter_server, I'm inclined to open a PR that uses the code in
+> jupyter_core instead (and requires >=4.6.0), then jupyter_server is done
+> relative to the secure_write change. We'd still need to make a similar
+> change in jupyter_client, but I agree that, right now, jupyter_client will
+> require a 5.3.4 release so existing users can easily get a fix.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/4907?email_source=notifications&email_token=AAOHBVFVN4FJ3SKXDNQSRQ3QMDHNHA5CNFSM4IY5GDS2YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOD73YUUY#issuecomment-536316499>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AAOHBVC5YOMO5H7HYNGI6JLQMDHNHANCNFSM4IY5GDSQ>
+> .
+>
+> Traceback (most recent call last):
+  File "d:\python\lib\site-packages\tornado\web.py", line 1699, in _execute
+    result = await result
+  File "d:\python\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "d:\python\lib\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+    type=mtype))
+  File "d:\python\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "d:\python\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "d:\python\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+    kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+  File "d:\python\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "d:\python\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "d:\python\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+    self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+  File "d:\python\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "d:\python\lib\site-packages\tornado\gen.py", line 209, in wrapper
+    yielded = next(result)
+  File "d:\python\lib\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+    super(MappingKernelManager, self).start_kernel(**kwargs)
+  File "d:\python\lib\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+    km.start_kernel(**kwargs)
+  File "d:\python\lib\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+    self.write_connection_file()
+  File "d:\python\lib\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+    kernel_name=self.kernel_name
+  File "d:\python\lib\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+    with secure_write(fname) as f:
+  File "d:\python\lib\contextlib.py", line 112, in __enter__
+    return next(self.gen)
+  File "d:\python\lib\site-packages\jupyter_client\connect.py", line 102, in secure_write
+    with os.fdopen(os.open(fname, open_flag, 0o600), mode) as f:
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Name\\AppData\\Roaming\\jupyter\\runtime\\kernel-df51b01d-64bd-46cb-9c85-8b07797ab028.json'
+
+The same. I uninstall and reinstall jupyter, only to see the same prompt again. Is this an update bug?
+I never see this beforeSolution till the PR is merged to master:
+
+
+```
+- user, _domain, _type = win32security.LookupAccountName("", win32api.GetUserName())
++ user, _domain, _type = win32security.LookupAccountName("", win32api.GetUserNameEx(win32api.NameSamCompatible))
+```
+
+Does fix it for me... Windows users can fix it easily with the following steps:
+
+```
+1. delete the existing kernels and files (save the content of your notebook_cookie_secret if you have many links pointing to it)
+2. edit C:\Users\{USERNAME}\AppData\Local\Programs\Python\Python{Version}\site-packages\jupyter_client\connect.py
+3. replace the line 59 with the proposal made by @kevin-bates 
+4. delete the corresponding compiled python file (C:\Users\mike\AppData\Local\Programs\Python\Python37\Lib\site-packages\jupyter_client\__pycache__\connect.cpython-XX.pyc)
+5. Enjoy all notebooks working again...
+```> > Is this running inside a WSL (windows bash) enviroment or native windows? If the former try the suggestions on the thread @kevin-bates posted.
+> 
+> This is running inside a WSL (windows bash) environment. Before I could try the suggestions on the thread that @kevin-bates posted, I had a quick reset of jupyter and its depending modules. That solved the error for me.
+
+Please could do you say how did that?
+I have the same issue. Thanks in advance@snapo - now that jupyter_client and jupyter_core releases have been made available (and contain the fix for this issue), would you mind trying the following...
+
+1. `pip install jupyter_client --upgrade`  - this should replace your modified jupyter_client package with release `5.3.4` **and** install the updated version of `jupyter_core` (`4.6.0`)
+2. If you find that jupyter_core is NOT 4.6.0 - please try `pip install jupyter_core --upgrade`.
+
+you'll also notice that the change you made in jupyter_client is not present as it is now located in jupyter_core.
+
+I will be updating the Notebook dependencies to these versions, but thought it might be a good idea to check this out somewhere and, well, you've been extremely helpful in this effort. :smile:@kevin-bates yes sure... will do the test today evening, will get back asap with the results :-)**@kevin-bates**  I have the same issue when running Jupyter via Anaconda. I updated the jupyter_client to 5.3.4 and the jupyter_core to 4.6.0. I got the same error result. I then updated the lines of code as per **@snapo** instructions higher and it did work. I have an environment and found the paths in the environment directories:
+
+```
+- kernels:
+C:\Users\USERNAME\AppData\Roaming\jupyter\runtime
+
+- connect.py :
+C:\Users\USERNAME\.conda\envs\orange3\Lib\site-packages\jupyter_client\connect.py
+orange3 is the name of my environment. 
+
+- connect.cpython-XX.pyc:
+C:\Users\USERNAME\.conda\envs\orange3\Lib\site-packages\jupyter_client\__pycache__
+orange3 is the name of my environment. 
+```
+@alexbaharov - I think we should verify your files are indeed updated.  When you upgrade jupyter_client to 5.3.4 you should NOT find an implementation of `secure_write()` in `connect.py`.  Instead you should only show an import statement to jupyter_core.  You should find the `secure_write()` implementation, along with the win32-specific method, in jupyter_core's `paths.py` file.
+
+If those files are confirmed, can you please restart your notebook server and try again?
+
+Can you provide the console output relative to the issue you're seeing?  (If things reproduce again)Hi @kevin-bates 
+
+I started with the update and it also updated jupyter core 4.6 (so far so good , see screenshot)
+![image](https://user-images.githubusercontent.com/6347922/66594698-eec62f00-eb99-11e9-9e84-396c58586577.png)
+
+Created a testproject001
+![image](https://user-images.githubusercontent.com/6347922/66594757-0a313a00-eb9a-11e9-8a38-35727db41b9c.png)
+
+and starting then jupyter with via powershell as user and also did open then the virtual kernel of this project:
+
+![image](https://user-images.githubusercontent.com/6347922/66594966-5da38800-eb9a-11e9-8ba1-5c6e7075685d.png)
+
+so far no kernel errors:
+![image](https://user-images.githubusercontent.com/6347922/66595032-72801b80-eb9a-11e9-8be0-855646bcd0e3.png)
+
+saving and editing the workbook and play it works like a charm.
+
+lets look at the file permissions:
+![image](https://user-images.githubusercontent.com/6347922/66595269-e3273800-eb9a-11e9-8f7a-399d3ea3f0b4.png)
+
+
+from my point the issue seems fixed... i cant speak about anaconda as i dont like anaconda for managing virtualenvs... maybe some one else has more expirience with anaconda ;=) i only use the module virtualenv to create my environments.
+
+Hope this helps a bit
+
+Attached what i have in my base env:
+
+```
+PS C:\Users\mike> pip list
+Package            Version
+------------------ -------
+astroid            2.2.5
+attrs              19.1.0
+backcall           0.1.0
+bleach             3.1.0
+colorama           0.4.1
+decorator          4.4.0
+defusedxml         0.6.0
+entrypoints        0.3
+ipykernel          5.1.2
+ipython            7.8.0
+ipython-genutils   0.2.0
+ipywidgets         7.5.1
+isort              4.3.21
+jedi               0.15.1
+Jinja2             2.10.1
+jsonschema         3.0.2
+jupyter            1.0.0
+jupyter-client     5.3.4
+jupyter-console    6.0.0
+jupyter-core       4.6.0
+lazy-object-proxy  1.4.2
+MarkupSafe         1.1.1
+mccabe             0.6.1
+mistune            0.8.4
+nbconvert          5.6.0
+nbformat           4.4.0
+notebook           6.0.1
+numpy              1.17.2
+pandocfilters      1.4.2
+parso              0.5.1
+pickleshare        0.7.5
+pip                19.2.3
+prometheus-client  0.7.1
+prompt-toolkit     2.0.9
+Pygments           2.4.2
+pylint             2.3.1
+pyrsistent         0.15.4
+python-dateutil    2.8.0
+pywin32            225
+pywinpty           0.5.5
+pyzmq              18.1.0
+qtconsole          4.5.5
+Send2Trash         1.5.0
+setuptools         41.2.0
+six                1.12.0
+terminado          0.8.2
+testpath           0.4.2
+tornado            6.0.3
+traitlets          4.3.2
+typed-ast          1.4.0
+wcwidth            0.1.7
+webencodings       0.5.1
+widgetsnbextension 3.5.1
+wrapt              1.11.2
+
+
+
+
+
+```@snapo - thank you so much (yet again)!
+@alexbaharov - I wonder if you're hitting the pywin32==225 issue that exists on conda?  That said, I don't know why updating the code would work for you - unless in the process of reverting the modules, you also reverted pywin32 to 224.
+
+Because @snapo was successful and @MSeal did testing as well I think I'm going to move forward with the library dependency updates in Notebook.
+
+We can continue to use this issue to understand @alexbaharov's issue, if that works for others.  You might try performing the updates and ensuring you're running pywin32==224.Hi, could you help me, please?
+
+I read that these steps are working:
+
+1. delete the existing kernels and files (save the content of your notebook_cookie_secret if you have many links pointing to it)
+2. edit C:\Users\{USERNAME}\AppData\Local\Programs\Python\Python{Version}\site-packages\jupyter_client\connect.py
+3. replace the line 59 with the proposal made by @kevin-bates 
+4. delete the corresponding compiled python file (C:\Users\mike\AppData\Local\Programs\Python\Python37\Lib\site-packages\jupyter_client\__pycache__\connect.cpython-XX.pyc)
+5. Enjoy all notebooks working again...
+
+but in C:\Users\{USERNAME}\AppData\Local\Programs\Python\Python{Version}\site-packages\jupyter_client\connect.py I don't have "Python" folder, I only have an empty "Common" folder. The solution is ASAP, I have a really important project for tomorrow, please help me!
+Thank you very much!Hi @Vermilion69.
+
+As of last week, those steps aren't necessary provided you have **jupyter_client 5.3.4 and jupyter_core 4.6.0** installed.  Right around this same time, Windows issues were exacerbated with a conda-related snafu with the 225 build of `pywin32`.
+
+Please ensure the versions of jupyter_client and jupyter_core are correct, check the version of pywin32 and restart your Notebook server.  If you reproduce the issue, we should probably confirm it's the same instance of this issue (there are several surrounding this area of code lately) - so providing the console update of the traceback would be helpful.  I would also recommend you add the `--debug` flag when restarting your Notebook server - so we get as much information as possible.
+
+If things are getting too tight for your project tomorrow, I suspect you'll find downgrading jupyter_client to 5.3.1 to be a workaround, but just keep in mind that your connection files (and some others) are not as secure as they should be - thus the scramble to get these pieces fixed up.
+I had the same issue, reinstalled Anaconda but it was not working.
+
+The solution that worked for me was extremely simple.
+
+I ran Anaconda + Jupyter as administrator and it was solved.I think this issue should be closed at this point.  
+
+@Srikanth-Kb, @lresende, or whomever else has permissions - could you please close this issue?@kevin-bates, you now have triage permission to be able to manage issues. Congratulations and thanks! :)Thank you @jasongrout - this is much appreciated.  Since it looks like I can now apply labels.  Given their rich descriptions, I'm hoping that is something that will improve supportability and, ideally, generate contributions.  Would that be okay to apply?Absolutely! We trust your judgement - go for it if you think it will help.Closing issue based on recent successes.  
+
+Using the latest versions of jupyter_client (>=5.3.4) and jupyter_core (>=4.6.1) should be attempted prior to opening a new issue.  Thank you.@kevin-bates There seems to be a typo in the closing comment, shouldn't it be jupyter_core >= 4.6.0?Thanks @tovrstra.  At the time I typed that, 4.6.1 had just been delivered - so .1 was intentional.  I don't know if the change in 4.6.1 is applicable to this instance of the issue, but was just being complete.Traceback (most recent call last):
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\tornado\web.py", line 1699, in _execute
+    result = await result
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+    type=mtype))
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+    kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+    self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\tornado\gen.py", line 209, in wrapper
+    yielded = next(result)
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+    super(MappingKernelManager, self).start_kernel(**kwargs)
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+    km.start_kernel(**kwargs)
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+    self.write_connection_file()
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+    kernel_name=self.kernel_name
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+    with secure_write(fname) as f:
+  File "C:\Users\Arah\Anaconda3\lib\contextlib.py", line 112, in __enter__
+    return next(self.gen)
+  File "C:\Users\Arah\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 102, in secure_write
+    with os.fdopen(os.open(fname, open_flag, 0o600), mode) as f:
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Arah\\AppData\\Roaming\\jupyter\\runtime\\kernel-6b69b888-781b-4e53-8a2c-ed97dc516f11.json'
+Please start with [this comment](https://github.com/jupyter/notebook/issues/3556#issuecomment-562231294).  If you still have issues please provide the updated traceback information.> I had the same issue, reinstalled Anaconda but it was not working.
+> 
+> The solution that worked for me was extremely simple.
+> 
+> I ran Anaconda + Jupyter as administrator and it was solved.
+
+perfect!You are a genius!> ```
+> PermissionError: [Errno 13] Permission deniedRo: 'C:\\Users\\srikanth\\AppData\\Roaming\\jupyter\\runtime\\kernel-026a1895-5304-47b1-b096-7c7c0c165723.json'
+> 
+> The kernel in jupyter is dead always (even on restart).
+> The Kernel error is "Failed to start kernel"---> "Unhandled error"
+> Traceback (most recent call last):
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\web.py", line 1699, in _execute
+>     result = await result
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+>     yielded = self.gen.throw(*exc_info)  # type: ignore
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+>     type=mtype))
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+>     value = future.result()
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+>     yielded = self.gen.throw(*exc_info)  # type: ignore
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+>     kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+>     value = future.result()
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+>     yielded = self.gen.throw(*exc_info)  # type: ignore
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+>     self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+>     value = future.result()
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 209, in wrapper
+>     yielded = next(result)
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+>     super(MappingKernelManager, self).start_kernel(**kwargs)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+>     km.start_kernel(**kwargs)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+>     self.write_connection_file()
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+>     kernel_name=self.kernel_name
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+>     with secure_write(fname) as f:
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\contextlib.py", line 112, in __enter__
+>     return next(self.gen)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 102, in secure_write
+>     with os.fdopen(os.open(fname, open_flag, 0o600), mode) as f:
+> PermissionError: [Errno 13] Permission denied: 'C:\\Users\\srikanth\\AppData\\Roaming\\jupyter\\runtime\\kernel-026a1895-5304-47b1-b096-7c7c0c165723.json'
+> ```
+> 
+> This notebook is run Windows 10 OS.
+> I have exhausted every solution out there, and none of it works.
+
+
+
+> ```
+> PermissionError: [Errno 13] Permission deniedRo: 'C:\\Users\\srikanth\\AppData\\Roaming\\jupyter\\runtime\\kernel-026a1895-5304-47b1-b096-7c7c0c165723.json'
+> 
+> The kernel in jupyter is dead always (even on restart).
+> The Kernel error is "Failed to start kernel"---> "Unhandled error"
+> Traceback (most recent call last):
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\web.py", line 1699, in _execute
+>     result = await result
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+>     yielded = self.gen.throw(*exc_info)  # type: ignore
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+>     type=mtype))
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+>     value = future.result()
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+>     yielded = self.gen.throw(*exc_info)  # type: ignore
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+>     kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+>     value = future.result()
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+>     yielded = self.gen.throw(*exc_info)  # type: ignore
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+>     self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+>     value = future.result()
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 209, in wrapper
+>     yielded = next(result)
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+>     super(MappingKernelManager, self).start_kernel(**kwargs)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+>     km.start_kernel(**kwargs)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+>     self.write_connection_file()
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+>     kernel_name=self.kernel_name
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+>     with secure_write(fname) as f:
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\contextlib.py", line 112, in __enter__
+>     return next(self.gen)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 102, in secure_write
+>     with os.fdopen(os.open(fname, open_flag, 0o600), mode) as f:
+> PermissionError: [Errno 13] Permission denied: 'C:\\Users\\srikanth\\AppData\\Roaming\\jupyter\\runtime\\kernel-026a1895-5304-47b1-b096-7c7c0c165723.json'
+> ```
+> 
+> This notebook is run Windows 10 OS.
+> I have exhausted every solution out there, and none of it works.
+
+im facing the same problem and im completely new to these types of error 
+can someone help me with a detailed solution to this problem cause i cant understand the upper mentioned solutions
+any help would be appreciated a lot@parva-jain Your `C:\\Users\\srikanth\\AppData\\Roaming\\jupyter` or `C:\\Users\\srikanth\\AppData\\Roaming\\jupyter\\runtime` directories are likely permissioned as an administrator due to installing something in admin mode at some point. A few things you can do here are, A) make sure your `C:\\Users\\srikanth\\AppData\\Roaming` directory and parent directories have open permissions for your `srikanth` user, B) delete the `C:\\Users\\srikanth\\AppData\\Roaming\\jupyter` folder and let it be rehydrated by jupyter processes (this may require option C as well), and C) uninstall jupyter and reinstall the dependencies listed above. If those fail, try running the same reinstallations as an administrator (you can right click on on the processes you're launching and select "run as administrator", including CLI prompts).I had the same Permission Error for kernel and by updating jupyter_client and jupyter_core it solved my problem. Thank you @kevin-bates Just want to share my very wired experience on my corporate PC where the admin profile is not an option for me. I enabled "Extension Manager" try to install/enable "toc" and the build fails and I uninstall it and then give me the same permission denied error showing on this post, did this back and forth a couple times, the kernel now is usable, but I cannot have any extension properly installed. I have the issue;  use administrator options when you open the tool. There's a new flag now with jupyter_core 4.6.3, where if you set the environment variable `JUPYTER_ALLOW_INSECURE_WRITES` to `1` or `true` it will disable the secure write checks. You'll get a warning instead of an error for permission issues. This isn't recommended by default, and it's better if you have jupyter shared files in a folder where you can control permissions (kernel hijacking is possible with this information saved there), but if you have no control and the mounted OS has no permission settings available the env variable should opt you back to the pre-secure-write behavior.**JUST CLOSE THE FILE IN CASE YOU OPENED IT.THE ERROR DISAPPEARS ITSELF****JUST CLOSE THE FILE IN CASE  IT IS OPENED IN THE BACKGROUND .THE ERROR DISAPPEARS ITSELF**Hi, everyone!
+
+The same issue:
+Traceback (most recent call last):
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\tornado\web.py", line 1699, in _execute
+    result = await result
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+    type=mtype))
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+    kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+    self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\tornado\gen.py", line 209, in wrapper
+    yielded = next(result)
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+    super(MappingKernelManager, self).start_kernel(**kwargs)
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+    km.start_kernel(**kwargs)
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+    self.write_connection_file()
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+    kernel_name=self.kernel_name
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+    with secure_write(fname) as f:
+  File "C:\Users\Anton\Anaconda3\lib\contextlib.py", line 112, in __enter__
+    return next(self.gen)
+  File "C:\Users\Anton\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 102, in secure_write
+    with os.fdopen(os.open(fname, open_flag, 0o600), mode) as f:
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Anton\\AppData\\Roaming\\jupyter\\runtime\\kernel-ce7ea8e3-d5bb-4f2d-845d-15f0c50e9899.json'
+
+The problem is following: my jupyter worked correctly before one "happy day" (actually, I don't know, what went wrong). It is clear, that the problem with permission and jupyter works if I try to launch it as Admininstrator, but how to fix this problem? I'd like to launch jupyter without any admininstrator permissions.
+
+Thank you in advance!@IVN-tone Likely the `AppData\Roaming\jupyter` or `AppData\Roaming\jupyter\runtime\` folders are owned by the administrator user. As an admin delete those folders or change them to your user as the owner and it should clear up.> @IVN-tone Likely the `AppData\Roaming\jupyter` or `AppData\Roaming\jupyter\runtime\` folders are owned by the administrator user. As an admin delete those folders or change them to your user as the owner and it should clear up.
+
+@MSeal  thank you for advice, but neither changing the rights nor deleting all the files inside the folder helped((One of the solutions of this problem is downgrading to: `jupyter client 5.3.1`. So, what I actually did:
+
+1) Launch jupyer notebook as Admin.
+2) execute `pip install jupyter_client==5.3.1` and then
+3) restart jupyter as I ususally did without any additional Admin rights.
+
+Maybe somebody knows how to fix this problem by any other normal way?
+
+If downgrading works, then `JUPYTER_ALLOW_INSECURE_WRITES=1` env variable should also work. All that changed was a check that your permissions are actually being set for secret files. The ways this can fail to write is A) your filesystem is mounted on a system that doesn't support full permissioning (e.g. some docker setups or network harddrive protocols), or B) your directory path is owned or restricted by the Admistrator/root somewhere up the line of directories, preventing your user from assigning permissions.> ```
+> PermissionError: [Errno 13] Permission deniedRo: 'C:\\Users\\srikanth\\AppData\\Roaming\\jupyter\\runtime\\kernel-026a1895-5304-47b1-b096-7c7c0c165723.json'
+> 
+> The kernel in jupyter is dead always (even on restart).
+> The Kernel error is "Failed to start kernel"---> "Unhandled error"
+> Traceback (most recent call last):
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\web.py", line 1699, in _execute
+>     result = await result
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+>     yielded = self.gen.throw(*exc_info)  # type: ignore
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+>     type=mtype))
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+>     value = future.result()
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+>     yielded = self.gen.throw(*exc_info)  # type: ignore
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+>     kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+>     value = future.result()
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+>     yielded = self.gen.throw(*exc_info)  # type: ignore
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+>     self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+>     value = future.result()
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 209, in wrapper
+>     yielded = next(result)
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+>     super(MappingKernelManager, self).start_kernel(**kwargs)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+>     km.start_kernel(**kwargs)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+>     self.write_connection_file()
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+>     kernel_name=self.kernel_name
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+>     with secure_write(fname) as f:
+>   File "C:\Users\srikanth\AppData\Local\Programs\Python\Python37\lib\contextlib.py", line 112, in __enter__
+>     return next(self.gen)
+>   File "C:\Users\srikanth\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 102, in secure_write
+>     with os.fdopen(os.open(fname, open_flag, 0o600), mode) as f:
+> PermissionError: [Errno 13] Permission denied: 'C:\\Users\\srikanth\\AppData\\Roaming\\jupyter\\runtime\\kernel-026a1895-5304-47b1-b096-7c7c0c165723.json'
+> ```
+> 
+> This notebook is run Windows 10 OS.
+> I have exhausted every solution out there, and none of it works.
+
+Hi there Open Jupyter (Run as Administrator)the simplest solution on this topic is to run anaconda prompt as administrator 
+![image](https://user-images.githubusercontent.com/11585702/78576024-0702c800-7824-11ea-884e-7843a9d95694.png)

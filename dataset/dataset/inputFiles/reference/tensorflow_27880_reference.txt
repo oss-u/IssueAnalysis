@@ -1,0 +1,1 @@
+Hi, we are actively working on a Keras replacement for contrib quantize. We hare hoping to have it ready by the end of Q2. Thanks!

@@ -1,0 +1,5 @@
+As far as I see it is not possible to copy paste cells between different notebooks.
+
+This can be a very time saving feature for someone who needs to edit multiple notebooks at the same time for example creating new notebooks from existing ones. 
+
+As an example, I am using Jupyter as a lecturer. When I restructure course materials notebooks, I have to recreate cells for the new notebook s even if those cells are already in my existing notebooks.

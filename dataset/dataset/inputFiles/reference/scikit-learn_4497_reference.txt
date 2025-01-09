@@ -1,0 +1,30 @@
+This is an issue that I am opening for discussion.
+
+ Problem:
+
+Sample weights in various estimators, group labels for cross validation objects, group id in learning to rank are optional information that need to be passed to estimators and the CV framework, and that need to kept to the proper shape throughout the data processing pipeline.
+
+Right now, the code to deal with this is inhomogeneous in the codebase, the APIs are not fully consistent ie passing sample weights to objects that do not support them will just crash.
+
+This discussion attempt to address the problems above, and open the door to more flexibility to future evolution
+
+ Core idea 
+
+We could have an argument that is a dataframe like object, ie a collection dictionary of 1D array like object. This argument would be sliced and diced by any code that modifies the number of samples CV objects, train test split, and passed along the data.
+
+ Proposal A 
+
+All objects could take as a signature fit X, y, sample props None, with y optional for unsupervised learners.
+
+sample props name to be debated would be a dataframe like object ie either a dict of arrays, or a dataframe. It would have a few predefined fields, such as weight for sample weight, group for sample groups used in cross validation. It would open the door to attaching domain specific information to samples, and thus make scikit learn easier to adapt to specific applications.
+
+ Proposal B 
+
+y could be optionally a dataframe like object, which would have as a compulsory field target, serving the purpose of the current y, and other fields such as weight, group. In which case, arguments sample weights and alike would disappear into it.
+
+People at the Paris sprint including me seem to lean towards proposal 
+ Implementation aspects 
+
+The different validation tools will have to be adapted to accept this type of argument. We should not depend on pandas. Thus we will accept dict of arrays and build a helper function to slice them in the sample direction. Also, this helper should probably accept data frame but given that data frames can be indexed like dictionaries, this will not be a problem.
+
+Finally, the CV objects should be adapted to split the corresponding structure. Probably in a follow up to 4294

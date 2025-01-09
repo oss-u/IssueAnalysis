@@ -1,0 +1,484 @@
+Issue to trace effort of swig interface for java. Started implementation - will update with progress. If anyone has any comments/tips - please feel welcome to join the discussion!
+Nice!
+Moving this comment here from https://github.com/tensorflow/tensorflow/issues/3:
+
+---
+
+There's a testsuite with fairly good converge, but currently it's mostly Python with a few C++ tests. There's also a lot of functionality for building graphs that's currently Python only, in particular the automatic differentiation functionality, though that doesn't matter for evaluation of graphs in Java. There are plans to move this functionality into the underlying C++ in future, at which point Java SWIG bindings would be more useful for creating graphs.
+
+If someone takes up the Java SWIG challenge, we'd be happy to accept it upstream pending review, etc., at which point it would be part of our continuous testing. The details of accepting contributions is in flux at the moment, but that will stabilize.
+Hello guys
+We are also interested in adapting TensorFlow for Java. @ravwojdyla  Have you, by any chance, started working on the Swig Interface for Java? If you have, we could join our efforts and collaborate on that
+Hello,
+I am working on a SWIG wrap of the main C++ API. You can see my progress thus far on my fork, but what's up there is not finished; I'm currently experiencing a problem in which `#include "tensorflow/core/lib/core/error_codes.pb.h"` is unable to be resolved and I cannot find the intended file anywhere within the project files. Input of any kind would be greatly appreciated.
+There are javacpp preset available for libiraries like Caffe  and OpenCV. See also  https://github.com/bytedeco/javacpp-presets/issues/111. Java-cpp enable also IOS with RoboVM 
+@girving Initial commit at https://github.com/bytedeco/javacpp-presets/commit/374e1d5ea3cb4db36144aeec2cac33d32e1a7489
+/cc @saudet
+@pslam - I was able to work just a little bit on this - could definitely use some help!
+Hi guys, I believe I have pretty functional bindings for JavaCPP: https://github.com/bytedeco/javacpp-presets/tree/master/tensorflow. Let me know if you see anything that could be done with SWIG, but not JavaCPP. I could definitely use the feedback. (Thanks for the cc @bhack!)
+Very nicely done @saudet! I have almost finished a SWIG wrap, but it seems that your implementation works just as well. I do not see anything that my SWIG wrap can do that yours cannot do. JavaCPP seems very cool, I'll have to look into using it for future projects.
+Hi @kylevedder, have you resolved the issue related to `error_codes.pb.h` ?
+[Edited]
+All .pb.h files are compiled from .proto
+@tngan Yes, that is what I discovered as well. Additionally, the `.proto` files in this project require ProtoBuff3 to be used. I'm using Ubuntu 14.04 and ProtoBuff3 was not available in my package manager, so I compiled it from source, which I got from the [3.0.0 beta release](https://github.com/google/protobuf/releases/tag/v3.0.0-beta-1). 
+
+The current roadblock which I am trying to solve is how to get ProtoBuff to recurse over the entire file tree and compile the `.proto` files into `.h` and `.cc` files; doing each folder piecemeal results in failures due to unsatisfied dependencies upon other yet to be compiled `.proto` files.
+@kylevedder Are your SWIG wrappers in a separate repository or are you working in the tensorflow repository? `protoc` works similar to other compilers. If you are working in the tensorflow repository or are using Bazel, then you would need to set up the protobuf build targets and the dependencies among them.
+
+If you are working in a separate repository and using a different build system, then you would need to use the protobuf plugin for that build system.
+
+I'd be happy to help you set up the build if you would like.
+@davidzchen Thank you for the offer, any and all help is greatly appreciated. 
+
+**What I have thus far:**
+
+I have already setup Bazel and gotten it to compile into a `.whl` file, which I then handed over to `pip` and confirmed that I can run the [First TensorFlow program](https://github.com/tensorflow/tensorflow#try-your-first-tensorflow-program). 
+
+I have generated SWIG wrapper files in my forked repository. They are in a folder under `core/javaWrapper`. [[link](https://github.com/kylevedder/tensorflow/tree/master/tensorflow/core/javaWrapper)]
+
+**What I am trying to do:**
+
+Ultimately, my goal is to generate a `.so` file which than can be called as a native library in Java. Currently, I'm attempting to use g++ to compile the entire system into a `.so` file; however, the `.proto` files need to first be expanded into `.h`s and `.cc`s prior to this compilation, and that is what I am trying to do with `protoc`.
+
+You can see my attempt at a wrap script [here](https://github.com/kylevedder/tensorflow/blob/master/tensorflow/core/javaWrapper/createWrapper.sh) to potentially get a better idea of what it is I am getting at, although thus far all of my attempts at using `protoc` has been directory by directory and, consequently, not in the script.
+
+Finally, any feedback on areas of improvement would be greatly appreciated. Thanks!
+@kylevedder I already have an `.so` build as part of the JavaCPP Presets: https://github.com/bytedeco/javacpp-presets/tree/master/tensorflow. Thanks to Bazel, it's really simple. Just apply a patch like this:
+
+``` diff
+diff -ruN tensorflow/tensorflow/cc/BUILD tensorflow-patch/tensorflow/cc/BUILD
+--- tensorflow/tensorflow/cc/BUILD  2015-11-22 00:00:02.441829192 +0900
++++ tensorflow-patch/tensorflow/cc/BUILD    2015-11-14 11:15:12.689330351 +0900
+@@ -75,6 +75,17 @@
+     ],
+ )
+
++cc_binary(
++    name = "libtensorflow.so",
++    copts = tf_copts(),
++    linkshared = 1,
++    deps = [
++        ":cc_ops",
++        "//tensorflow/core:kernels",
++        "//tensorflow/core:tensorflow",
++    ],
++)
++
+ filegroup(
+     name = "all_files",
+     srcs = glob(
+```
+
+And run Bazel like this, for example:
+
+```
+bazel build -c opt //tensorflow/cc:libtensorflow.so
+```
+
+AFAIK, this should gobble up pretty much anything of interest for the C++ API.
+@saudet Is there a reason why you are using a `cc_binary` rule to build the shared library rather than `cc_library`? You can just have a `cc_library` rule with the name `tensorflow` and the build target will build a shared library called `libtensorflow.so`.
+
+@kylevedder If your goal is to generate an `.so` file, then something similar to what @saudet suggested would work.
+
+If you need to use the TensorFlow protos in Java code, then you would need to add dependencies from your `java_*` Bazel build targets to the `proto_library` targets that generate the Java classes from the `.proto` files.
+
+We still have a bit of work to do before we open-source the native `proto_library` rules (see bazelbuild/bazel#52), but in the meantime, TensorFlow uses the [`cc_proto_library` and `py_proto_library` rules provided by protobuf](https://github.com/google/protobuf/blob/master/protobuf.bzl), and for Java, you should be able to use the [Java `genproto` rule that is included with Bazel](https://github.com/bazelbuild/bazel/blob/master/tools/build_rules/genproto.bzl). I will check with the team to find out what the timeline for `proto_library` is and whether it would be worthwhile to unify the rules provided by Protobuf with `genproto`.
+
+A few other bits of feedback:
+- I think it would be better to keep the directory names consistent and use `java_wrapper` rather than `javaWrapper`
+- Perhaps a better place for the Java wrapper would be `//tensorflow/java/wrapper` rather than `//tensorflow/core/java_wrapper`?
+- Internally, we have some build rules that take `.swig` files and generate the sources. This is more ideal because we would avoid checking in the generated files. I can take a look to see how difficult it would be for us to add some SWIG build rules for Bazel to make stuff like this easier.
+@davidzchen No reason in particular. I'm new to Bazel and just using `linkshared=1` as I've seen mentioned on the mailing list worked. So thanks for the tip! I'll be updating that.
+@saudet Thanks! I was just checking to make sure that it wasn't an issue with Bazel. :) Feel free to let me know or open a bug if you run into any issues.
+@saudet Thanks for the info on using Bazel. I too am new to it and did not realize it was capable of generating a `.so` in that manner.
+
+@davidzchen Thanks for the addendum about using a `cc_library`, I modified the example from @saudet accordingly when I implemented [my Bazil wrapper build](https://github.com/kylevedder/tensorflow/blob/master/tensorflow/core/java/wrapper/BUILD). Also, thank you for the input regarding the directory structure; I have updated my folder structure to align with your suggestions.
+
+Additionally, I was not very clear in my previous comment about generating `.so` files; while my objective is to generate a `.so` file from the original source, I also want to include [the `.cxx` file that SWIG generates](https://github.com/kylevedder/tensorflow/blob/master/tensorflow/core/java/wrapper/tensor_c_api_wrap.cxx)  inside of the `.so` in order to facilitate the JNI calls. Currently, I'm running into an issue in which I cannot get the SWIG generated `.cxx` file to compile; it's trying to reference `JNI.h`, a header located in `$JAVA_HOME/include/`, but I cannot seem to get Bazel to understand the external include path.
+@davidzchen Hum, nope, `cc_library` doesn't work. I don't see any other way to make Bazel pass the `-shared` option to the compiler: http://bazel.io/docs/be/c-cpp.html.
+@saudet I don't think you need to pass `-shared` yourself. `cc_library` should be building a `.so` by default. Does that work for you?
+@kylevedder You won't be able to add the JNI headers that way since they're outside the workspace. However, Bazel includes the local JDK as a [local repository](http://bazel.io/docs/be/workspace.html#local_repository) and provides a number of built-in targets (see [`jdk.WORKSPACE`](https://github.com/bazelbuild/bazel/blob/master/src/main/java/com/google/devtools/build/lib/bazel/rules/java/jdk.WORKSPACE) and corresponding [`jdk.BUILD`](https://github.com/bazelbuild/bazel/blob/master/src/main/tools/jdk.BUILD)) you can use to depend on local JDK. These are included in each Bazel workspace by default.
+
+Bazel itself uses JNI and interfaces with the local JDK this way (see [`src/main/native/BUILD`](https://github.com/bazelbuild/bazel/blob/master/src/main/native/BUILD)). In this BUILD file, there are two `genrule`s to copy the JNI headers and a `cc_library` target for the library it is building that uses JNI that depends on the headers, and a `includes = ["."]` so that the C++ code can include the JNI header with `#include <jni.h>`. This is currently not documented because we are working on a number of improvements to the external repository mechanism, and the `@local-jdk` name might change, but we can use it for TensorFlow and any other Bazel project that uses JNI in the meantime.
+
+Here is a patch for your BUILD file that adds the `genrule` targets for copying the JNI headers you need and some changes to the `cc_library` target to set up the right dependencies, namely:
+1. Add `jni.h` and `jni_md.h`, which are copied to the current package by the `genrule`s to `srcs`
+2. Add a dependency on `//tensorflow/core` so that you can include the headers under `tensorflow/core/public`. Note that, headers or any source file in a separate directory are in a separate package from Bazel's point of view, and you will need to add a dependency on the build target that contains those files.
+
+``` diff
+diff --git a/tensorflow/core/java/wrapper/BUILD b/tensorflow/core/java/wrapper/BUILD
+index 72b4076..04a3394 100644
+--- a/tensorflow/core/java/wrapper/BUILD
++++ b/tensorflow/core/java/wrapper/BUILD
+@@ -7,10 +7,30 @@ exports_files(["LICENSE"])
+ load("/tensorflow/tensorflow", "tf_copts")
+ load("/tensorflow/tensorflow", "tf_gen_op_wrappers_cc")
+
++genrule(
++    name = "copy_link_jni_md_header",
++    srcs = ["//external:jni_md_header-linux"],
++    outs = ["jni_md.h"],
++    cmd = "cp -f $< $@",
++)
++
++genrule(
++    name = "copy_link_jni_header",
++    srcs = ["//external:jni_header"],
++    outs = ["jni.h"],
++    cmd = "cp -f $< $@",
++)
++
+ cc_library(
+     name = "java_wrapper",
+-    srcs = glob(["*.cc","*.cxx","*.h"]),
+-    copts = ["-I$$JAVA_HOME/include/", "-I$$JAVA_HOME/include/linux/"],
++    srcs = glob(["*.cc", "*.cxx", "*.h"]) + [
++        ":jni.h",
++        ":jni_md.h",
++    ],
++    includes = ["."],
++    deps = [
++        "//tensorflow/core",
++    ],
+     visibility = ["//visibility:public"],
+ )
+```
+
+Note that in general, compile actions in Bazel are run from the root of the source tree, and you would need to change the includes in your SWIG file as follows and then re-generate the C++ files so that they will have the correct includes as well:
+
+``` diff
+diff --git a/tensorflow/core/java/wrapper/tensor_c_api.i b/tensorflow/core/java/wrapper/tensor_c_api.i
+index d08b571..9ab1fa1 100644
+--- a/tensorflow/core/java/wrapper/tensor_c_api.i
++++ b/tensorflow/core/java/wrapper/tensor_c_api.i
+@@ -1,8 +1,8 @@
+ %module tensor_c_api_module
+ %{
+-#include "../../public/tensor_c_api.h"
++#include "tensorflow/core/public/tensor_c_api.h"
+ %}
+-%include "../../public/tensor_c_api.h"
++%include "tensorflow/core/public/tensor_c_api.h"
+ %include "stddef.h"
+```
+
+Once this works, you would have the JNI build set up for Linux since the `copy_link_jni_md_header` `genrule` only copies the Linux-specific header. To have it copy the correct platform-specific JNI header, we would need to do the following:
+1. Set up `cpu` `config_setting`s for other platforms. Currently, tensorflow has a `config_setting` for `--cpu=darwin` in [`tensorflow/python/BUILD`](https://github.com/tensorflow/tensorflow/blob/04f1932f053dd7865b191719b33860270461943a/tensorflow/python/BUILD#L17). We should probably move that a more appropriate package such as `//tensorflow/core`. Basically, we would want the same set of `config_setting`s as Bazel (see [`src/BUILD`](https://github.com/bazelbuild/bazel/blob/master/src/BUILD#L135)).
+2. Have `copy_link_jni_md_header` copy the right JNI header based on which config setting is set using `select()`, similar to [the one in Bazel](https://github.com/bazelbuild/bazel/blob/master/src/main/native/BUILD#L1). Our `genrule` would look something like the following:
+
+``` python
+genrule(
+    name = "copy_link_jni_md_header",
+    srcs = select({
+        "//tensorflow/core:darwin": ["//external:jni_md_header-darwin"],
+        "//tensorflow/core:darwin_x86_64": ["//external:jni_md_header-darwin"],
+        "//tensorflow/core:freebsd": ["//external:jni_md_header-freebsd"],
+        "//conditions:default": ["//external:jni_md_header-linux"],
+    }),
+    outs = ["jni_md.h"],
+    cmd = "cp -f $< $@",
+)
+```
+
+I'd be happy to help you with this if you run into any issues. Let me know if this works for you.
+@davidzchen cc_library generates a bunch of .a files, but no .so file. I'm using 0.1.0 as was previously recommended for TensorFlow... Maybe it's fixed in 0.1.1? I'll have to try again.
+@davidzchen Thank you very much for your help. I have followed your instructions and updated both the Java wrapper [`BUILD` file](https://github.com/kylevedder/tensorflow/blob/master/tensorflow/core/java/wrapper/BUILD) as well as the [SWIG `.i` file](https://github.com/kylevedder/tensorflow/blob/master/tensorflow/core/java/wrapper/tensor_c_api.i) as you suggested. Additionally, I moved the wrap script from `core/java/wrapper` to the root directory and updated the links accordingly.
+
+For now, I have skipped the generalization the `genrule` for the `jni_md.h` file, instead focusing on trying to get `libtensorflow.so` built. Unfortunately, it appears to me as though `libtensorflow.so` is not being generated; I ended up searching my entire file system for anything named some variant of "libtensorflow" and nothing relevant appeared. It may be named differently or this may be a simple case of user error. Additionally, there is a possibility that it may be related to the issue that @saudet is experiencing with the `cc_library` rule for `.so` generation.
+
+Once again, thank you for all of your help, I really appreciate it.
+Sorry, it turns out I was wrong. In order to build a `.so` that includes the transitive dependencies, what @saudet did using `cc_binary` with `linkshared = 1` and `name = "libtensorflow.so"` was correct. From [the `cc_binary.linkshared` documentation](http://bazel.io/docs/be/c-cpp.html#cc_binary.linkshared):
+
+> Create a shared library. To enable this attribute, include linkshared=1 in your rule. By default this option is off. If you enable it, you must name your binary libfoo.so (or whatever is the naming convention of libraries on the target platform) for some sensible value of foo.
+
+The main difference between the `.so`'s built by `cc_library` targets and the `.so` built with `cc_binary` using the method described above is that the `cc_library` artifacts only contain the code in `srcs`. This is why building `cc_library` targets with no `srcs` and only `deps`, such as `//tensorflow/core`, do not produce any artifacts. On the other hand, `cc_binary` targets will link in all the transitive dependencies.
+
+I apologize for the confusion. Perhaps we should improve our documentation and add an example on building `.so`s.
+I guess you should follow those steps to build Tensorflow and all it's dependencies. We are working on porting TensorFlow to node.js, and I've implemented a shell script to compile and getter only essential sources from the whole repo:
+https://github.com/node-tensorflow/node-tensorflow/blob/1.0.0/tools/install.sh#L233-L282
+@davidzchen Thank you for the information regarding the creation of a `.so`. I have updated my setup accordingly and I have created a [`tensorflow/core/java/wrapper/example`](https://github.com/kylevedder/tensorflow/tree/master/tensorflow/core/java/wrapper/example) with an _extremely_ basic tester to prove that JNI function calls to the `.so` work. Note that [`createWrapper.sh`](https://github.com/kylevedder/tensorflow/blob/master/createWrapper.sh) must be run prior to running [`compileAndRun.sh`](https://github.com/kylevedder/tensorflow/blob/master/tensorflow/core/java/wrapper/example/compileAndRun.sh).
+
+I will try to improve the SWIG wrapper and make a better example, the one I have now is simply a bare minimum proof of working bindings.
+
+Finally, I want to thank @davidzchen and @saudet for all of their help; I would not have been able to do this without them.
+Nice! Thanks for working on this, @kylevedder!
+
+If you're interested, I can try integrating your `createWrapper.sh` and `compileAndRun.sh` scripts into the Bazel build by 1) creating Skylark SWIG rule and 2) using [Bazel's Java rules](http://bazel.io/docs/be/java.html) to build the Java code.
+@davidzchen That would be great! I will work on improving the SWIG wrapper and the base example.
+I've finalized the presets for JavaCPP and ported the `example_trainer.cc` sample:
+https://github.com/bytedeco/javacpp-presets/tree/master/tensorflow
+Looking forward to compare this with an equivalent wrapper using SWIG!
+Looks like the API link is broken: http://bytedeco.org/javacpp-presets/tensorflow/apidocs/
+@verdiyanto Sorry, I don't have CI yet, but uploading the API docs is easy enough, so I've at least done that. Enjoy!
+@saudet Nice work on the JavaCPP presets!
+
+An update on my work: I have done some more work on the SWIG wrapper, and you can see the work I've done [here](https://github.com/kylevedder/tensorflow/tree/master/tensorflow/core/java/wrapper). However, I am at a bit of a cross roads and I am not sure of the best way to proceed.
+
+I'm rather new to SWIG, given this is my first major project using it, so I read the SWIG documentation on [SWIG Basics](http://www.swig.org/Doc3.0/SWIG.html) and on [SWIG and Java](http://www.swig.org/Doc3.0/Java.html) which run through how SWIG works and how to wrap C/C++ with SWIG Java wrappers.
+
+The documentation explains how SWIG converts pointers in C/C++ into opaque Java objects, which is why you get classes like `SWIGTYPE_p_void` generated by SWIG. The issue is there is not an easy way to convert POJOs into these SWIG classes. 
+
+So, for example, in [`tensor_c_api.h`](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/public/tensor_c_api.h), the C method `TF_CreateTensor()` takes a `void*` which points to the input data and a `size` parameter to specify the size of the input data in bytes. This is a perfectly reasonable design pattern for C/C++, but completely nonsensical in Java. The SWIG generated Java method `TF_CreateTensor()` takes a `SWIGTYPE_p_void` object as its data, along with `size`, but there is no way to convert a POJO such as a `String` into a `SWIGTYPE_p_void` without handwriting a lot of code.
+
+And this is the crossroads at which I currently lie: I either write a ton of C/C++ conversion methods which take any type defined in `TF_DataType` and convert to a `void*`, or write a bunch of SWIG typemaps to do the same thing. The SWIG documentation does not seem to favor either solution, as they do both seemingly interchangeably. 
+
+So, the question is, C/C++ conversion functions or SWIG typemaps?
+@kylevedder I see you're starting to understand why I created JavaCPP in the first place. :)
+I've been using @saudet's JavaCPP presets, extremely useful, thanks! I'm using it to build a Clojure interface to tensorflow. 
+
+Some comments:
+
+a) There is opportunity for simplification / a higher-level layer
+
+A lot of the JavaCPP api replicates protobuf functionality that can be directly achieved on the JVM, without the bridge. Took me a bit to realize this, but one is simply building up a protobuf object using the JavaCPP bindings, producing this platform-independent representation using interop, and then stuffing it into the Session.
+
+I've ended up just using jvm-based protobufs to build the graph directly, bypassing the JavaCPP constructor functions. This has several advantages -- a simpler api to program against, and also nice .toString format that shows the human-readable protobuf. 
+
+Particularly for Clojure, its much easier to describe the tensorflow graph in terms of data structures and then convert directly them to protobuf, than it is to look up and invoke a constructor function for each node in my data structure.
+
+b) Building and package improvements
+
+I'm not expert in building native code, or in the build tools used in these projects. It would be great to have maven-ized artifacts; in particular if they also included the generated java protobuf classes. It took an embarrassing amount of time for me to figure out how to do this. 
+
+c) It would be useful to have a small number of graph test cases to target. 
+
+Right now my methodology is somewhat cumbersome: Use the JavaCPP constructor functions to generate a graph, mashall it into my JVM protobufs and see the human-readable form, and figure out how to build my own constructors to make the same form. 
+
+It would be useful to have a small collection of very simple graphs that exercise the core functionalities of TensorFlow, so people like me have a reasonable set of test cases to target for interop to different languages. 
+
+Anyway thanks for everyones efforts and keep up the good work!
+@kovasb Thanks for the feedback! Obviously, there is much to be done to make the interface more natural to Java, Scala, Clojure, etc.
+
+If you have helper classes to integrate the C++ API with the Java protobuf API, feel free to put all that in the following package, including the generated Java protobuf classes themselves, and send a PR:
+https://github.com/bytedeco/javacpp-presets/tree/master/tensorflow/src/main/java/org/bytedeco/javacpp/helper
+That's what it's meant for, and it will automatically get packaged in the Maven artifact, something that Bazel doesn't appear to support. In any case, thanks for looking into this!
+@kovasb A clojure interface sounds really interesting. Got any code to share yet?
+
+Thanks!
+So people in this thread are aware also, in https://github.com/tensorflow/tensorflow/issues/3 has been raised: automatic differentiation doesn't currently work unless you use TF from the python api. This seems like a showstopper pending that functionality being ported to C++.
+
+I don't quite understand the data flow but perhaps it is possible to launch the python helper stuff together with the C++ lib?
+
+Another solution I'm looking at is just using Jpy or one of the other bridges (anyone have recommendations?) JyNi also looks quite interesting but pretty far from primetime (though it would be great to see more momentum/community behind it)
+
+If JyNi gets sorted out, it + jython would give the JVM a really awesome story re python ecosystem interop. One can dream. 
++1 for a Java interface!
+if we could use javaCPP, is SWIG still necessary? shall we collaborate to implement the SWIG interface?
+@maxiwu I like to think that JavaCPP does a better job than SWIG, but I'm all for comparing them to actually proove it :)
+@kovasb I'd be very much interested in helping/contributing to the Clojure interface. 
+@sorenmacbeth email me at my first-name dot last-name at gmail, happy to walk you through what I have... 
+Seems that we have here a quite complete Javacpp preset. Is it an acceptable solution for "the team"?
+@saudet I'm trying to build a copy of the JavaCPP wrappers, but it seems that due to the rapid rate of change of the tensorflow source they are not compatible with either the 0.6.0 release or today's master branch. Would it be possible to update them with a pointer to the exact tensorflow commit/version they were tested with?
+@nikitakit I've just made an update for the master branch here: https://github.com/bytedeco/javacpp-presets/commit/43bdcdf03beaaddb4bd5badf5d4f79669e9e78dd
+
+Unlike Caffe though, TensorFlow actually seems to get a release every month or so, so I guess I'll start stabilizing the bindings at those points, starting with the next release (0.7.0?)
+@martinwicke What do you think?
+When there's a stable Java binding, I'm happy to work on the Scala API.
+/cc @databricks
+@kovasb I think I missed this first time through. Are you saying that all the nice auto-differentiation magic that we get from using TensorFlow through python is implemented within python, not within the c++ libs? So in practice, a Java API would either need to re-implement all this, or would be just another numerics library? I'm not familiar enough with the internals of TensorFlow or the python glue to understand exactly what heavy lifting is done where.
+@drdozer that's my understanding, based on comments by @girving and then looking the source a bit myself. Reimplementing stuff in Java seems like a nonstarter. I suggest looking at the comments in #3 
+
+If someone is really interested I would just recommend trying to do some training examples using the Java api (so far I've just seen/done the forward path). 
+I wonder how far we'd get running the Python code with Jython...
+I believe the Python API layer has lots of logic that the C++ layer API does not expose.
+I was trying to follow JavaCpp path but at the end there will be lots of duplication code and will be hard to maintain consistencies when something change in the Python implementation.
+
+Probably easier path is to use Jython as @saudet had mentioned before ...
+It was assigned in https://github.com/tensorflow/tensorflow/issues/476 to  @josh11b. If he is working on this doesn't make sense to use Jython. 
+If we use jython will the c++ code still work?  I am looking to use this for a server that's in Java but I'm stuck between trying a Java route directly or just sending the data over a socket to a Python process
+I'd like to mention that although the Java API doesn't include a lot of features like auto-differentiation, I haven't found this to be a barrier for my own work. I've had great success generating a model in python, serializing it to a .proto file, and then opening it through the Java wrapper for training. The same can be done for test-time, since I believe the Saver functionality is available through the C++ and Java APIs.
++1
+@saudet
+Thanks for creating javacpp and the presets for tensorflow.  I was able to successfully recreate a Python graph in Java, but I am stuck trying to restore from a saved model file.  This line doesn't work:
+
+Tensor fn = new Tensor(tensorflow.DT_STRING, new TensorShape(1));
+        CharBuffer buffer = fn.createBuffer();
+                buffer.put("modelfile.tf");
+                session.Run(...);
+
+but the CharBuffer turns out to be NULL.  If I change DT_STRING to DT_FLOAT, I get a FloatBuffer, but DT_STRING doesn't seem to work.
+
+ @nikitakit  you said you got this to work.  could you share your code?
+@lakshmanok 
+
+EDIT: sorry, misread what you said here. I can't provide any help for using external savers from Java
+
+For reference, the part of my code that imports tensorflow graphs is here: https://gist.github.com/nikitakit/d3ec270aee9d930267cec3efa844d5aa
+
+It's in Scala, but porting to Java / other JVM language should be straightforward.
+
+My code for actually running nodes in the graph is unfortunately heavily tied up with a Scala framework I'm using, so you'll have to rely on the tensorflow API docs for this part.
+Has anyone got anywhere with embedding the python tensorflow environment in the jvm? Say with jython + JyNI? Or is this all a bit too experimental to get to work reliably?
+I am currently working on expanding the C API to add support for graph definition.  Not sure when it will be done, but it is one of our goals before 1.0.
+I am working on using tensor flow from java. I am approaching the problem by using jython and modifying the tensor flow cpython library to accomodate another python interpreter.  the cpython should keep working flawlessly and my code is detecting if the interpreter is Jython and modifying the imports / modules to allow it to work. Underneath it uses the javacpp bindings for libtensorflow_cc.so. Is this something the google team would be open to have in the official repo ? @vrv 
+That seems like a nice proof of concept but I think an official binding would probably want to bind more natively than going through Python :(
+no, instead of calling the c-python wrapper, we call the javaccp wrapper. So it would be the same thing as cpython tensor flow but evaluated from the JVM using Jython. Reimplementing the whole python logic in another language seems too much, you end up with another API.  javacpp bindings allow you to run Inference without problem but the model has to be built/trained from a cpython script at the moment.  
+Has anyone looked at making tensorflow work with Kotlin?  It seems a more natural fit and it's still 100% java at the end of the day.  I find the Kotlin language to be a very nice middle ground between python and pure Java.
+Update: I was able to successfully get things going with javacpp (thanks to @saudet ) and have Java programs read/execute TensorFlow models.
+
+https://medium.com/google-cloud/how-to-invoke-a-trained-tensorflow-model-from-java-programs-27ed5f4f502d#.tx8nyds5v
+Thanks @lakshmanok and @saudet . The `javacpp` project seems to implement most TensorFlow APIs. We're trying to run the [tensorflow/serving](https://github.com/tensorflow/serving) in Java.
+
+The API is simple and defined by `protobuf`. Now we have implemented the server and want the implement the client in Java. It just need to construct the `TensorProto` in Java and invoke the `gRPC` call. TensorFlow has provides helper functions to convert multiple dimention arrays for Python and C++, but not Java.
+
+Can you tell how to use `javacpp` or implement by ourselves for this?
+What you are looking for is probably already in https://github.com/bytedeco/javacpp-presets/blob/master/tensorflow/src/main/java/org/bytedeco/javacpp/helper/tensorflow.java but let me know if something is missing there. Thanks!
+is this still being worked on? is there an official github repo for this porting project? I see a couple of random repos, but can't tell. 
+Yep, but probably sometime in October/November. We're using the C API instead of SWIGing to the C++ API. In the meantime, you can use the bindings that saudet mentioned.
+how did you come to the conclusion to use the C API? we are working on a
+ruby interface using swig:
+http://github.com/somaticio/tensorflow.rb
+
+On Tue, Sep 13, 2016 at 6:22 PM, Jonathan Hseu notifications@github.com
+wrote:
+
+> Yep, but probably sometime in October/November. We're using the C API
+> instead of SWIGing to the C++ API. In the meantime, you can use the
+> bindings that saudet mentioned.
+> 
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> https://github.com/tensorflow/tensorflow/issues/5#issuecomment-246844192,
+> or mute the thread
+> https://github.com/notifications/unsubscribe-auth/AAA5v3g86Z6D1rz-aTGdMyMWnQZhrZUYks5qpyIJgaJpZM4Getd8
+> .
+Going forward, we'd prefer that all language bindings use the C API. A doc is forthcoming.
+
+You can see example usage here:
+https://github.com/tensorflow/tensorflow/tree/master/tensorflow/go
+
+There's no urgency, though, and building on top of SWIG is fine for now.
+@jhseu Does that mean that the C API will be expanded to cover all that the Python bindings currently have access to?
+Wow, big change.  Wish this was decided earlier on.  Anyway to see the docs
+sooner?
+
+On Wed, Sep 14, 2016 at 5:56 PM, Samuel Audet notifications@github.com
+wrote:
+
+> @jhseu https://github.com/jhseu Does that mean that the C API will be
+> expanded to cover all that the Python bindings currently have access to?
+> 
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> https://github.com/tensorflow/tensorflow/issues/5#issuecomment-247167887,
+> or mute the thread
+> https://github.com/notifications/unsubscribe-auth/AAA5vwfBJoZC2s33_7E9Xy6-NYNUjHjnks5qqG2FgaJpZM4Getd8
+> .
+@saudet Most functionality, except in the short term it'll be missing some things (like gradients, optimizers).
+@jtoy There's no urgency for you to migrate. SWIG will continue to work for a while.
+
+The docs just describe how to do it and naming conventions. You can start migrating to the C API without them, though:
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/c/c_api.h
+Thanks @saudet . I have found this in [stackoverflow](http://stackoverflow.com/questions/39443019/how-can-i-create-tensorproto-for-tensorflow-in-java) about generating `TensorProto` with pure protobuf API. And here is the [example code](https://github.com/tobegit3hub/deep_recommend_system/blob/master/grpc_service/java/src/main/java/com/tobe/GenericInferenceClient.java) of TensorFlow serving gRPC Java client.
+@tobegit3hub Nice, if you can make this work with the C++ API, please add it to the helper package of the JavaCPP Presets and send a pull request! This guy would be interested in something like that: https://github.com/bytedeco/javacpp-presets/issues/240
+@girving Does javacpp solve the problem already?
+I want to contribute to tensorflow java api , I prefer implement it like python.
+Hi guys, did somebody already start working on the Java/Scala language bindings using the C API ?
+(instead of building on top of SWIG)
+I have a working Java/Scala interface to tensorflow using only the C API via [JNR](https://github.com/jnr/jnr-ffi). Unfortunately, I don't yet have permission to open source it. I will post here if and when I release it. It is still a work in progress, but it's very functional.
+@jdolson Does the API you expose accept TensorFlow's protocol buffer objects? One of the biggest issues I've had using the javacpp presets from @saudet is that when you are manipulating tensor objects in Java client code you're dealing with a org.tensorflow.framework.TensorProto which is generated by the protocol buffer compiler when configured to output java. But in the TensorFlow API wrapper you are dealing with a org.bytedeco.javacpp.tensorflow.TensorProto.TensorProto which is generated by javacpp when pointed at the c code generated by the protocol buffer compiler when configured to produce C. Since the types aren't the same you can't directly use your java code's tensors when calling the wrapped TensorFlow API.
+@Intropy Yes, I compile all the tensorflow `*.proto` sources to Java source code with `protoc` and use those classes in the API.
+@jhseu Is the C API interface still on track to be released sometime within November? If not, what's the current status?
+@eaplatanios : The C API is mostly stable (and will be officially so by 1.0) and usable though not complete (still missing the ability to automatically gradient computations to the graph). A doc describing how the C API can be used to build language bindings is at https://www.tensorflow.org/how_tos/language_bindings/index.html
+
+The [Go API](https://godoc.org/github.com/tensorflow/tensorflow/tensorflow/go) was implemented using the C API as a first example of following the above document.
+
+We hope to have the Java bindings be built on top of this as well (using JNI) and have started exploring that a bit. Any comments/learnings folks have based on using @saudet 's wonderful work with getting JavaCPP working would be nice to know about.I do have a few suggestions based on using JavaCPP bindings.
+
+First, since protocol buffers compile directly to java, the java versions should be used. Preferably I think that the protocol buffers that take part in the API should be separately available as a maven module and should come with the proto definitions so that people on a Java stack have an easy way to get the definitions as binary as well as an easy way to get the proto definitions for inclusion within other proto definitions.
+
+Second, it would be helpful to find the minimum version of libc that TensorFlow needs and build against that.
+
+Third, it is much easier to use a thoughtfully designed API than an automatically generated one. I know that that's obvious and kind of sounds like a shot at JavaCPP. I don't mean it to be. I'm really glad the automatically generated interface exists. It _is_ usable. But it requires odd circumlocutions, it has a lot of warts, and it's pretty hard to read the code to figure out how to do what you're trying to do. I wish this suggestion was more helpful than "you should make it good", but I guess the point is that look how different the C++ API and the python API are. Both are straightforward because they fit their environment in a way that automatically converted code is unlikely to match.It would have been maybe nicer to support C backend of Swig and generate TF C API via Swig as well: https://github.com/swig/swig/issues/800 so that other languages like Go, Ruby, R can use the C api to write their own bindings.We have an existing C API for adding support for any language with a C FFI:
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/c/c_api.h
+
+(And that is what is used to build the Go, Java, Rust etc. bindings for TensorFlow)Could the C API be accessed using [JNA](https://github.com/java-native-access/jna)?@jhseu I meant, it could have been maybe generated from C++ API earlier, before manually implementing the C API. @Quantum64, [here](https://github.com/mskimm/tensorflow-scala) is a Scala binding of tensorflow that uses JNA.Since this issue still open, how does
+  `https://github.com/tensorflow/tensorflow/tree/master/tensorflow/java`
+being implemented and what was the PR for the commit?@hsaputra : Could you elaborate on what you're looking for? There are multiple commits that contribute to the code in [`tensorflow/java`](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/java), most of which are referenced in this issue (such as 2b1cd28, d73a266 and many others in between)HI @asimshankar , thanks for the reply.
+
+I am just wondering what was the path that `tensorflow/java` take to implement Java API since this ticket is not closed.
+There were discussions about using JavaCPP vs SWIG vs call via Jython.
+
+Seemed like the `tensorflow/java` is implemented with direct JNI to call C APIs instead?
+Correct.Hey,
+
+I just got these Swig bindings working yesterday. I have a request for an API change. Currently in order to generate Tensors reflection is required and the format of the arrays are a bit unweildy, as they require the use of n-dimensional native Java arrays. Can we keep this interface, but also add some methods for creating tensors that require 1-dimensional arrays and specifying the shape using another array of long? I imagine it could look something like this:
+
+```
+double[] matrix = {1.414, 2.718, 3.1415, 3.4, 56.7, 89.0};
+long[] shape = {2, 3};
+
+// add a method for each primitive type
+org.tensorflow.Tensor tensor = org.tensorflow.Tensor.createDouble(matrix, shape);
+```
+
+This would also lead to the possibility of create int8, int16, uint8, uint16, uint32 tensors as well, which will help with compatibility.
+
+Should I make this an issue? Or is it ok here?
+
+Also, more than happy to take a stab at building these methods out.@hollinwilkins : I'm hoping PR #6577 addresses this, with just a slight tweak to your proposed factory method:
+
+```java
+Tensor tensor = Tensor.create(shape, DoubleBuffer.wrap(matrix));
+```
+@asimshankar This is great! Thanks for the quick reply. It looks like it's pretty close to being merged too :+1:I'm trying to use the new java API, and I've come across some things that make it harder to use than I think it ought to be:
+
+1. The java API should accept a GraphDef object. Currently it only accepts a byte array representing the serialized binary of the GraphDef protocol buffer. It's odd to require a serialization/deserialization step at the library boundary.
+2. Session.Runner.feed should be able to accept org.tensorflow.framework.TensorProto or there should be a  good way to create org.tensorflow.Tensor from org.tensorflow.framework.TensorProto.
+3. Session.Runner.run returns a list of Tensor objects. Similar to above there should be an easy way to get TensorProto output either directly or by giving org.tensorflow.Tensor a good way to convert to TensorProto.
+4. Session.Runner.run swallows Status. There should be a way to get that out information about failures, perhaps through throwing an exception.
+
+Also, it's possible I missed the way to handle this, but it looks to me like I can't get all supported tensor types in the output from run. For example if my output tensor is of dtype INT16, then there's no way to extract the value from it. There's no Tensor.shortValue or the like, and Tensor.intValue seems to rquire an exact match. I'm basing this on reading DEFINE_GET_SCALAR_METHOD in tensor_jni.cc.@Intropy : Thanks for your comments and they definitely make sense. For now I can share some quick thoughts with you:
+
+RE: protobufs: At this point we're trying to keep the core API independent of protobufs for a number of reasons (including use on resource restricted systems where something like [nanproto](https://github.com/google/protobuf/tree/master/javanano#nano-version) may be more appropriate). So, that's the reason why we have been hesitant, but it's something we're thinking about and suggestions are appreciated. One possibility is to have all the protobuf related functionality in a separate package so that there is a clear separation.
+
+So, going back to your points:
+
+1. See above. Though, I'd wager that there are many cases where the `byte[]` makes more sense (such as reading the graph from a file or network channel)
+
+2. Point taken
+
+3. See above.
+
+4. `Session.runner.run` should *not* be swallowing status. If there is an error, an exception will be thrown ([`session_jni.cc:166`](https://github.com/tensorflow/tensorflow/blob/f074dc8/tensorflow/java/src/main/native/session_jni.cc#L166)). If that is not happening, please do file a bug.
+
+You are right, not all types are supported yet, but should be easy enough to add. If you have a pressing need for the missing types, please feel free to file an issue and/or send in a PR. Contributions are welcome :)
+@asimshankar Thanks for your thoughts.
+
+Regarding the first point, it's not really a big deal. As you say there are times where a byte[] makes the most sense. In my own use case I have an InputStream, which is trivial to convert to byte[]. The protocol buffer API makes conversion straightforward. I just consider the byte[] a wart on the API because you're going to have to deserialize anyway (in TF_GraphImportGraphDef) and this way you lose some type safety. There's also proto3's json serialization to consider.
+
+On swallowing status, you're right. I missed the unchecked exception.
+
+The most obvious way to handle 2 and 3 is to give org.tensorflow.Tensor a factory that converts from a TensorProto and some toTensorProto(). If resource limited use cases is the issue with protocol buffers, then people in those circumstances could simply not use those functions. The problem is that people who do use those functions would be paying the cost of a conversion that could likely be avoided by having the Tensor store its data directly in a protobuff. I've never worked with jni before, so I'm having trouble following how the data are stored, but it looks like it's essentially treating nativeHandle like a pointer to a TF_Tensor which has a TensorBuffer that is treated essentially like a sized void*.Could we break up this issue and file separate issues for each feature in the Java interface? It'll make easier to track/parse, then we can close this issue.@drpngx : My intention is to get a couple more changes in (reading tensors from buffers) before closing this out like we did for Go and having features/bugs be filed individually. So hopefully soon.Sounds good, thanks!Alright, seems like we have enough of a base to build on (e.g., enough to build the [LabelImage example](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/java/src/main/java/org/tensorflow/examples) and folks are filing more specific bugs/feature requests.
+
+I'm going to close this issue out. There is still much to do in the Java API, but let's discuss/track those in separate issues. Thanks!@asimshankar we are in the process of selecting deep learning framework (mxnet/tf) and our etl/api are based on spark/akka flow...Is there a plan to add distributed_runtime support to Java API to run model parallel training using ps nodes ? ps node is critical to us for many use-cases...javacpp presets may be easier to export for the first cut since the C API itself does not seem to have distributed_runtime in it...@debasish83 : Including the distributed runtime by itself is trivial, but there are a bunch of higher level constructs in the Python API like the `Estimator` class that take care of a bunch of things (checkpointing, summary saving etc. that make visualization through TensorBoard trivial) that may make it more suitable to run the training jobs in Python.
+
+All this can be built using the existing primitives in the Java API, but the right approach will depend on your precise needs.
+
+Perhaps we should sync up off thread?@asimshankar Is there a way already from the tensorflow Java binding to retrieve information from a graphDef (built from the .pb file of the graph on disk) like the list of nodes, input and output format or is it an incoming feature? Thanks!@asimshankar I'm not sure to understand what is missing to do training with TF Java. Is it a problem of the numeric library (missing numpy)? I mean if you are not interesting in TensorBoard dataviz, but training only, using a native Java numeric library, why to use python only for training (as you suggest about the `Estimator` class)?
+
+Thanks.What is the state of training models in Java? I have been thinking of writing an ImageJ (popular and free image analysis suite) plugin to apply approaches such as https://arxiv.org/pdf/1505.04597.pdf (recently wildly popular in image segmentation for cell tracking and biomedical applications). I think it would be useful to provide a range of pre-trained models and enable users to refine these for their specific use case. I have been looking into DL4J for this purpose. Are there any concrete plans to allow fitting in the TF Java bindings?@bergwerf : Training in Java is certainly possible, if not particularly convenient.
+You can find a sample at https://github.com/tensorflow/models/tree/master/samples/languages/java/training 
+
+(Also, I'm sure you're aware, but see also https://imagej.net/TensorFlow)Oh, awesome! My information must be outdated then ;-). I thought I had read
+somewhere the Java API was only intended for predicting with pre-trained
+models. I will look into the example.
+
+On Wed, Mar 28, 2018, 22:01 Asim Shankar <notifications@github.com> wrote:
+
+> @bergwerf <https://github.com/bergwerf> : Training in Java is certainly
+> possibly, if not particularly convenient.
+> You can find a sample at
+> https://github.com/tensorflow/models/tree/master/samples/languages/java/training
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/5#issuecomment-377015867>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AEQJ1UD9-xACQAII5996ees_UFJ_NzL-ks5ti-wSgaJpZM4Getd8>
+> .
+>
+@asimshankar that's awesome 👍 💯 🥇 , I'm going to add to my repo https://github.com/loretoparisi/tensorflow-java

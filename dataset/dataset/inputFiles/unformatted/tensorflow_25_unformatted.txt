@@ -1,0 +1,523 @@
+Are there plans to support Cuda compute capability 3.0? 
+Officially, Cuda compute capability 3.5 and 5.2 are supported. You can try to enable other compute capability by modifying the build script: 
+
+https://github.com/tensorflow/tensorflow/blob/master/third_party/gpus/crosstool/clang/bin/crosstool_wrapper_driver_is_not_gcc#L236
+Thanks! Will try it and report here.
+This is not officially supported yet. But if you want to enable Cuda 3.0 locally, here are the additional places to change: 
+
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/common_runtime/gpu/gpu_device.cc#L610
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/common_runtime/gpu/gpu_device.cc#L629
+Where the smaller GPU device is ignored. 
+
+The official support will eventually come in a different form, where we make sure the fix works on all different computational environment.
+I made the changes to the lines above, and was able to compile and run the basic example on the Getting Started page: http://tensorflow.org/get_started/os_setup.md#try_your_first_tensorflow_program - it did not complain about gpu, but it didn't report using the gpu either.
+
+How can I help with next steps?
+infojunkie@, could you post your step and upload the log?
+
+If you were following this example: 
+
+bazel build -c opt --config=cuda //tensorflow/cc:tutorials_example_trainer
+bazel-bin/tensorflow/cc/tutorials_example_trainer --use_gpu
+
+If you see the following line, the GPU logic device is being created: 
+
+Creating TensorFlow device (/gpu:0) -> (device: ..., name: ..., pci bus id: ...)
+
+If you want to be absolutely sure GPU was used, set CUDA_PROFILE=1 and enable Cuda profiler. If the Cuda profiler logs were generated, it was a sure sign GPU was used. 
+
+http://docs.nvidia.com/cuda/profiler-users-guide/#command-line-profiler-control
+I got the following log: 
+
+```
+I tensorflow/core/common_runtime/local_device.cc:25] Local device intra op parallelism threads: 8
+I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:888] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:88] Found device 0 with properties: 
+name: GeForce GT 750M
+major: 3 minor: 0 memoryClockRate (GHz) 0.967
+pciBusID 0000:02:00.0
+Total memory: 2.00GiB
+Free memory: 896.49MiB
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:112] DMA: 0 
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:122] 0:   Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:643] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:02:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:643] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:02:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:643] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:02:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:643] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:02:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:643] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:02:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:643] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:02:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_region_allocator.cc:47] Setting region size to 730324992
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:643] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:02:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:643] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:02:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:643] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:02:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:643] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:02:00.0)
+I tensorflow/core/common_runtime/local_session.cc:45] Local session inter op parallelism threads: 8
+```
+
+I guess it means the GPU was found and used. I can try the CUDA profiler if you think it's useful.
+Please prioritize this issue. It is blocking gpu usage on both OSX and AWS's K520 and for many people this is the only environments available.
+Thanks!
+Not the nicest fix, but just comment out the the cuda compute version check at _gpu_device.c_ line [610](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/common_runtime/gpu/gpu_device.cc#L610) to [616](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/common_runtime/gpu/gpu_device.cc#L616), recompile, and amazon g2 GPU acceleration seems to works fine:
+
+![example](http://im.ezgif.com/tmp/ezgif-12713768.gif)
+For reference, here's my very primitive patch to work with Cuda 3.0: https://gist.github.com/infojunkie/cb6d1a4e8bf674c6e38e
+@infojunkie I applied your fix, but I got lots of nan's in the computation output:
+
+```
+$ bazel-bin/tensorflow/cc/tutorials_example_trainer --use_gpu
+000006/000003 lambda =     -nan x = [0.000000 0.000000] y = [0.000000 0.000000]
+000004/000003 lambda = 2.000027 x = [79795.101562 -39896.468750] y = [159592.375000 -79795.101562]
+000005/000006 lambda = 2.000054 x = [39896.468750 -19947.152344] y = [79795.101562 -39896.468750]
+000001/000007 lambda =     -nan x = [0.000000 0.000000] y = [0.000000 0.000000]
+000002/000003 lambda =     -nan x = [0.000000 0.000000] y = [0.000000 0.000000]
+000009/000008 lambda =     -nan x = [0.000000 0.000000] y = [0.000000 0.000000]
+000004/000004 lambda =     -nan x = [0.000000 0.000000] y = [0.000000 0.000000]
+000001/000005 lambda =     -nan x = [0.000000 0.000000] y = [0.000000 0.000000]
+000006/000007 lambda =     -nan x = [0.000000 0.000000] y = [0.000000 0.000000]
+000003/000006 lambda =     -nan x = [0.000000 0.000000] y = [0.000000 0.000000]
+000006/000006 lambda =     -nan x = [0.000000 0.000000] y = [0.000000 0.000000]
+```
+@markusdr, this is very strange. Could you post the completely steps you build the binary? 
+
+Could what GPU and OS are you running with? Are you using Cuda 7.0 and Cudnn 6.5 V2? 
+Just +1 to fix this problem on AWS as soon as possible. We don't have any other GPU cards for our research.
+Hi, not sure if this is a separate issue but I'm trying to build with a CUDA 3.0 GPU (Geforce 660 Ti) and am getting many errors with --config=cuda. See the attached file below. It seems unrelated to the recommended changes above. I've noticed that it tries to compile a temporary compute_52.cpp1.ii file which would be the wrong version for my GPU.
+
+I'm on Ubuntu 15.10. I modified the host_config.h in the Cuda includes to remove the version check on gcc. I'm using Cuda 7.0 and cuDNN 6.5 v2 as recommended, although I have newer versions installed as well.
+
+[cuda_build_fail.txt](https://github.com/tensorflow/tensorflow/files/31955/cuda_build_fail.txt)
+Yes, I was using Cuda 7.0 and Cudnn 6.5 on an EC2 g2.2xlarge instance with this AIM:
+cuda_7 - ami-12fd8178
+ubuntu 14.04, gcc 4.8, cuda 7.0, atlas, and opencv.
+To build, I followed the instructions on tensorflow.org.
+It looks like we are seeing an API incompatibility between Compute Capability v3 and Compute Capability v3.5; post **infojunkie's** patch fix, I stumped onto this issue
+
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:643] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Quadro K2100M, pci bus id: 0000:01:00.0)
+I tensorflow/core/common_runtime/local_session.cc:45] Local session inter op parallelism threads: 8
+F tensorflow/stream_executor/cuda/cuda_blas.cc:229] Check failed: f != nullptr _could not find **cublasCreate_v2** in cuBLAS DSO_; dlerror: bazel-bin/tensorflow/cc/tutorials_example_trainer: undefined symbol: cublasCreate_v2
+
+I run on Ubuntu 15.04, gcc 4.9.2, CUDA Toolkit 7.5, cuDNN 6.5;
+
++1 for having Compute Capability v3 Support 
+is cublas installed? and where does it link to 
+ls -lah /usr/local/cuda/lib64/libcublas.so ?
+@allanzelener, what OS and GCC versions do you have? Your errors seem to come from incompatible C++ compilers.
+
+It is recommended to use Ubuntu 14.04 and GCC 4.8 with TensorFlow. 
+@vsrikarunyan, it is better to use CUDA Toolkit 7.0, as recommended. You can install an older CUDA Toolkit along with your newer toolkit. Just point TensorFlow "configure" and maybe LD_LIBRARY_PATH to the CUDA 7.0 when you run TensorFlow. 
+@avostryakov, @infojunkie's early patch should work on AWS. 
+
+https://gist.github.com/infojunkie/cb6d1a4e8bf674c6e38e
+
+An official patch is working its way through the pipeline. It would expose a configuration option to let you choose your compute target. But underneath, it does similar changes. I've tried it on AWS g2, and find out once things would work, after I completely uninstall NVIDIA driver, and reinstall the latest GPU driver from NVIDIA. 
+
+Once again, the recommended setting on AWS at this point is the following. 
+Ubuntu 14.04, GCC 4.8, CUDA Toolkit 7.0 and CUDNN 6.5. For the last two, it is okay to install them without affecting your existing installation of other versions. Also the official recommended versions for the last two might change soon as well. 
+I applied the same patch on a g2.2xlarge instance and got the same result as @markusdr... a bunch of nan's. 
+@zheng-xq Yes, I'm on Ubuntu 15.10 and I was using GCC 5.2.1. The issue was the compiler. I couldn't figure out how to change the compiler with bazel but simply installing gcc-4.8 and using update-alternatives to change the symlinks in usr/bin seems to have worked. (More info: http://askubuntu.com/questions/26498/choose-gcc-and-g-version). Thanks for the help, I'll report back if I experience any further issues.
+I did get this to work on a g2.2xlarge instance and got the training example to run, and verified that the gpu was active using the nvidia-smi tool , but when running mnist's convolutional.py , it ran out of memory.  I suspect this just has to do with the batch size and the fact that the aws gpus don't have a lot of memory, but just wanted to throw that out there to make sure it sounds correct.  To clarify, I ran the following, and it ran for like 15 minutes , and then ran out of memory.  
+
+python tensorflow/models/image/mnist/convolutional.py
+@nbenhaim, just what did you have to do to get it to work?
+@markusdr, @jbencook, the NAN is quite troubling. I ran the same thing myself, and didn't have any problem. 
+
+If you use the recommended software setting: Ubuntu 14.04, GCC 4.8, Cuda 7.0 and Cudnn 6.5, then my next guess is the Cuda driver. Could you uninstall and reinstall the latest Cuda driver. 
+
+This is the sequence I tried on AWS, your mileage may vary:
+
+sudo apt-get remove --purge "nvidia*"
+wget http://us.download.nvidia.com/XFree86/Linux-x86_64/352.55/NVIDIA-Linux-x86_64-352.55.run
+sudo ./NVIDIA-Linux-x86_64-352.55.run --accept-license --no-x-check --no-recursion
+Thanks for following up @zheng-xq - I'll give that a shot today.
+Another +1 for supporting pre-3.5 GPUs, as someone else whose only realistic option for training on real data is AWS GPU instances.
+
+Even for local testing, turns out my (recent, developer) laptop's GPU doesn't support 3.5 :-(
+@anjishnu I just followed @infojunkie 's patch https://gist.github.com/infojunkie/cb6d1a4e8bf674c6e38e after doing a clean install and build by following the directions.
+
+A few comments - The AMI I was using had the NVIDIA cuda toolkit 6.5 installed, so when I followed the link in the tensorflow getting started guide, I downloaded the 7.0 .run file for ubuntu 14.04 , upgraded the driver, and installed cuda 7.0 into /usr/local/cuda-7.0 without creating a symlink to /usr/local/cuda since I already had 6.5 installed and didn't wanna kill it
+
+Then, when building I just specified the right location of cuda 7.0.  One confusing thing is that when builting the python library, the tutorial doesn't remind you to specify --config=cuda , but you have to do that if you want the python lib to utilize gpu
+@markusdr, @jbencook, I got an NaN and all kinds of messed up values as well when I applied the patch initially, but what fixed it was doing a "bazel clean" and rebuilding from scratch after making the proposed changes outlined in @infojunkie 's patch.  Did you try this?
+Interesing... no I haven't had a chance yet. Did you try running the CNN from the Getting Started guide?
+
+```
+python tensorflow/models/image/mnist/convolutional.py
+```
+
+Curious to hear if that worked correctly.
+@jbencook  as I mentioned , convolutional.py seems to run correctly, but after like 15 minutes it crashes due to out of memory, but the output looks correct and I used nvidia-smi's tool to verify that it's actually running on the GPU and it is.  I suspect that this is because the batch size ... i know that the gpus on ec2 don't have that much memory, but I'm really unsure at this moment why it ran out of memory
+The convolutional.py example ran out of GPU memory for me too, on a GeForce GTX 780 Ti.
+I was able to install it on AWS after lots of pain. See https://gist.github.com/erikbern/78ba519b97b440e10640 – I also built an AMI: ami-cf5028a5 (in Virginia region)
+
+It works on g2.2xlarge and g2.8xlarge and it detects the devices correctly (1 and 4 respectively). However I'm not seeing any speedup from the 4 GPU cards on the g2.8xlarge. Both machines process about 330 examples/sec running the CIFAR 10 example with multiple GPUs. Also very similar performance on the MNIST convolutional example. It also crashes after about 15 minutes with "Out of GPU memory, see memory state dump above" as some other people mentioned above
+
+I've run the CIFAR example for about an hour and it seems to chug along quite well so far
+As for building for Cuda 3.0 device, if you sync the latest TensorFlow code, you can do the following. The official documentation will update soon. But this is what it looks like: 
+
+$ TF_UNOFFICIAL_SETTING=1 ./configure
+
+... Same as the official settings above
+
+WARNING: You are configuring unofficial settings in TensorFlow. Because some
+external libraries are not backward compatible, these settings are largely
+untested and unsupported.
+
+Please specify a list of comma-separated Cuda compute capabilities you want to 
+build with. You can find the compute capability of your device at: 
+https://developer.nvidia.com/cuda-gpus. 
+Please note that each additional compute capability significantly increases 
+your build time and binary size. [Default is: "3.5,5.2"]: 3.0
+
+Setting up Cuda include
+Setting up Cuda lib64
+Setting up Cuda bin
+Setting up Cuda nvvm
+Configuration finished
+@nbenhaim @markusdr 
+
+Out of memory issue may be due to fact that `convolutional.py` runs evaluation on the whole test dataset (10000) examples. It happens after training is finished, as the last step:
+
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/models/image/mnist/convolutional.py#L266
+
+Can you try slicing `train_data` and `test_labels` to make is smaller?
+I can confirm that with @erikbern's install script and the latest TensorFlow master branch the `cifar10_multi_gpu_train.py` works as expected on the GPU:
+
+```
+step 100, loss = 4.49 (330.8 examples/sec; 0.387 sec/batch)
+```
+
+Although [this line](https://gist.github.com/erikbern/78ba519b97b440e10640#file-install-tensorflow-sh-L64) now breaks because of the code changes.
+
+Also if I take 1000 test samples the `convolutional.py` example works too.
+
+EDIT: The `bazel-bin/tensorflow/cc/tutorials_example_trainer --use_gpu` example also works without giving me a bunch of nan's.
+I confirm that the latest build supports specifying the compute capability via 
+`$ TF_UNOFFICIAL_SETTING=1 ./configure` 
+without need for a patch. Thanks!
+
+I think this issue can be closed, unless someone encounters an actual function that fails for Cuda < 3.5.
+Actually, let me take that back :-) The `./configure` script modifies the source code by changing the relevant lines with the hand-specified Cuda versions. Then git reports uncommitted changes and it becomes very difficult to work with this codebase without reverting the change, `git pull`ing, and configuring again, not to mention submitting contributions.
+
+A better approach would be to read those version settings from a config file.
+ErikBern above and his AMI is working for cifar for me - ami-cf5028a5 
+
+Getting ~320 samples per sec versus my i7 windows box on docker which gets ~105 samples per second for  cifar10_train.py
+@infojunkie: yes, this isn't ideal (@zheng-xq and I discussed this a bit during the review!).
+
+We'll try to think of a better way to handle this, though we would like to keep the ability for the runtime device filtering to be in sync with the way the binary was built (hence needing to edit the source code for both compile and runtime).  Otherwise users get hard-to-debug errors.
+
+We'll continue to work on making this easier, but hopefully this allows some forward progress for you.
+@vrv: yes, I can definitely continue my work with these fixes. Thanks for the support!
+Just curious, as c4.4xlarge with 16 vCpus is about .88 per hour versus the gpu instance which is .65 per hour, wouldn't that be better to use multiple cpu than gpu?
+@timshephard I doubt it, but feel free to run some benchmarks – you can install my AMI (ami-cf5028a5) on a c4.4xlarge and run cifar10_train.py
+Actually, the g2.2xlarge has 8 cpus alongside the GPU.  Going to try that.
+multi threaded CPU is supported , but if you want to do any real training,
+GPU 4 Life, until they release the distributed implementation
+
+On Thu, Nov 12, 2015 at 4:53 PM, Erik Bernhardsson <notifications@github.com
+
+> wrote:
+> 
+> @timshephard https://github.com/timshephard I doubt it, but feel free
+> to run some benchmarks – you can install my AMI (ami-cf5028a5) on a
+> c4.4xlarge and run cifar10_train.py
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/tensorflow/tensorflow/issues/25#issuecomment-156274039
+> .
+I was only getting a 3x speed up for amazon GPU over my windows CPU on docker.  Nice, but that was only 1 of my cores.  All 4 cores on my windows box could probably beat an amazon GPU.
+that's interesting, because with caffe , I didn't do any actual benchmarks,
+but training in CPU mode is horrible, like order of magnitude or more
+difference.  Maybe TF is optimized better in CPU mode - wouldnt surprise
+me.
+
+On Thu, Nov 12, 2015 at 5:01 PM, timshephard notifications@github.com
+wrote:
+
+> I was only getting a 3x speed up for amazon GPU over my windows CPU on
+> docker. Nice, but that was only 1 of my cores. All for 4 cores on my
+> windows box could probably beat an amazon GPU.
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/tensorflow/tensorflow/issues/25#issuecomment-156275410
+> .
+Please bear in mind that the cifar10 tutorial as it is is not meant to be a benchmark. It is meant to show-case a few different features, such as saver and summary. In its current form, it will be CPU-limited, even with GPU. To benchmark, one will have to be more careful and only use essential features.
+Could be just amazon GPUs are slow for some reason https://www.reddit.com/r/MachineLearning/comments/305me5/slow_gpu_performance_on_amazon_g22xlarge/
+Interesting report: "A g2.2xlarge is a downclocked GK104 (797 MHz), that would make it 1/4 the speed of the recently released TitanX and 2.7x slower than a GTX 980."
+fwiw, getting 2015-11-13 00:38:05.472034: step 20, loss = 4.64 (362.5 examples/sec; 0.353 sec/batch)
+now with 7 cpus and cifar10_multi_gpu_train.py.  I changed the all of the device references from gpu to cpu, if that makes sense.  
+
+ok, weird. 2015-11-13 00:43:56.914273: step 10, loss = 4.65 (347.4 examples/sec; 0.368 sec/batch) and using 2 cpus, so clearly something failed here.   Must be using the GPU still.  Interesting that it processes a bit faster than single gpu version of the script.  
+even with erikbern's instructions I am still getting 
+
+AssertionError: Model diverged with loss = NaN when I try cifar_train.py and this when running mnist/convolutional.py
+
+Epoch 1.63
+Minibatch loss: nan, learning rate: nan
+Minibatch error: 90.6%
+Validation error: 90.4%
+Epoch 1.75
+Minibatch loss: nan, learning rate: 0.000000
+Minibatch error: 92.2%
+Validation error: 90.4%
+Epoch 1.86
+Minibatch loss: nan, learning rate: 0.000000
+I got it to run on GPU on AWS, but like the others I am getting unimpressive speeds.
+I was able to get the convolutional.py example running without running out of memory after using the correct fix suggested by @zheng-xq of setting the option when running configure
+The install script provided by @erikbern no longer works as of commit 9c3043ff3bf31a6a81810b4ce9e87ef936f1f529
+
+The most recent commit introduced this bug, @keveman already made a note on the commit here:
+https://github.com/tensorflow/tensorflow/commit/9c3043ff3bf31a6a81810b4ce9e87ef936f1f529#diff-1a60d717df0f558f55ec004e6af5c7deL25
+Hi! I have a problem with compilation of tensorflow with GTX 670. I run 
+
+```
+TF_UNOFFICIAL_SETTING=1 ./configure
+bazel build -c opt --config=cuda //tensorflow/cc:tutorials_example_trainer
+```
+
+I got error:
+
+```
+INFO: Found 1 target...
+INFO: From Compiling tensorflow/core/kernels/bias_op_gpu.cu.cc:
+tensorflow/core/kernels/bias_op_gpu.cu.cc(40): error: identifier "__ldg" is undefined
+          detected during:
+            instantiation of "void tensorflow::functor::BiasOpCustomKernel(int, const T *, const T *, int, int, T *) [with T=float]" 
+(57): here
+            instantiation of "void tensorflow::functor::Bias<tensorflow::GPUDevice, T, Dims>::operator()(const tensorflow::functor::Bias<tensorflow::GPUDevice, T, Dims>::Device &, tensorflow::TTypes<T, Dims, Eigen::DenseIndex>::ConstTensor, tensorflow::TTypes<T, 1, Eigen::DenseIndex>::ConstVec, tensorflow::TTypes<T, Dims, Eigen::DenseIndex>::Tensor) [with T=float, Dims=2]" 
+(69): here
+
+tensorflow/core/kernels/bias_op_gpu.cu.cc(40): error: identifier "__ldg" is undefined
+          detected during:
+            instantiation of "void tensorflow::functor::BiasOpCustomKernel(int, const T *, const T *, int, int, T *) [with T=double]" 
+(57): here
+            instantiation of "void tensorflow::functor::Bias<tensorflow::GPUDevice, T, Dims>::operator()(const tensorflow::functor::Bias<tensorflow::GPUDevice, T, Dims>::Device &, tensorflow::TTypes<T, Dims, Eigen::DenseIndex>::ConstTensor, tensorflow::TTypes<T, 1, Eigen::DenseIndex>::ConstVec, tensorflow::TTypes<T, Dims, Eigen::DenseIndex>::Tensor) [with T=double, Dims=2]" 
+(69): here
+
+2 errors detected in the compilation of "/tmp/tmpxft_000067dd_00000000-7_bias_op_gpu.cu.cpp1.ii".
+ERROR: /home/piotr/tensorflow/tensorflow/tensorflow/core/BUILD:248:1: output 'tensorflow/core/_objs/gpu_kernels/tensorflow/core/kernels/bias_op_gpu.cu.o' was not created.
+ERROR: /home/piotr/tensorflow/tensorflow/tensorflow/core/BUILD:248:1: not all outputs were created.
+Target //tensorflow/cc:tutorials_example_trainer failed to build
+```
+
+Information about my card from NVIDIA samples deviceQuery:
+
+```
+Device 0: "GeForce GTX 670"
+  CUDA Driver Version / Runtime Version          7.5 / 7.0
+  CUDA Capability Major/Minor version number:    3.0
+  Total amount of global memory:                 2046 MBytes (2145235968 bytes)
+  ( 7) Multiprocessors, (192) CUDA Cores/MP:     1344 CUDA Cores
+  GPU Max Clock rate:                            980 MHz (0.98 GHz)
+  Memory Clock rate:                             3004 Mhz
+  Memory Bus Width:                              256-bit
+  L2 Cache Size:                                 524288 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 1 copy engine(s)
+  Run time limit on kernels:                     Yes
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 7.5, CUDA Runtime Version = 7.0, NumDevs = 1, Device0 = GeForce GTX 670
+```
+
+Any ideas why it is not working?
+Thanks!
+the __ldg primitive only exists for 3.5+ I think.  We have an internal fix to support both that we'll try to push out soon.
+
+See https://github.com/tensorflow/tensorflow/issues/320 for more details
+Thanks! Adding fix from #320 helped me, I can compile (with a lot of warnings) and execute 
+
+```
+bazel-bin/tensorflow/cc/tutorials_example_trainer --use_gpu
+```
+
+When I run examples:
+
+```
+tensorflow/models/image/mnist$ python convolutional.py 
+```
+
+I get warning that:
+
+```
+Ignoring gpu device (device: 0, name: GeForce GTX 670, pci bus id: 0000:01:00.0) with Cuda compute capability 3.0. The minimum required Cuda capability is 3.5.
+```
+
+How to enable GPU in examples from tensorflow/models/images?
+@erikbern
+did you figure out multiple GPU issue on Amazon? I am also running CIFAR multiple GPU instance but see no speedup.
+
+Here is the GPU utilization status, it seems like all GPUs are in use but they do not do anything.
+
++------------------------------------------------------+
+| NVIDIA-SMI 346.46     Driver Version: 346.46         |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  GRID K520           Off  | 0000:00:03.0     Off |                  N/A |
+| N/A   54C    P0    55W / 125W |   3832MiB /  4095MiB |     37%      Default |
++-------------------------------+----------------------+----------------------+
+|   1  GRID K520           Off  | 0000:00:04.0     Off |                  N/A |
+| N/A   42C    P0    42W / 125W |   3796MiB /  4095MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   2  GRID K520           Off  | 0000:00:05.0     Off |                  N/A |
+| N/A   46C    P0    43W / 125W |   3796MiB /  4095MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   3  GRID K520           Off  | 0000:00:06.0     Off |                  N/A |
+| N/A   43C    P0    41W / 125W |   3796MiB /  4095MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID  Type  Process name                               Usage      |
+|=============================================================================|
+|    0     60160    C   python                                        3819MiB |
+|    1     60160    C   python                                        3783MiB |
+|    2     60160    C   python                                        3783MiB |
+|    3     60160    C   python                                        3783MiB |
++-----------------------------------------------------------------------------+
+@mhejrati according to a comment on https://news.ycombinator.com/item?id=10555692 it seems like you can't do it in AWS:
+
+> Xen virtualization disables P2P copies ergo GPUs have what we call a "failure to communicate and some GPUs you just can't reach (without going through the CPU that is)."
+
+Not sure how trustworthy HN comments are, but that's all I know so far
+@erikbern @mhejrati I'm not so sure that specific property of Xen is a problem. P2P copies don't seem to be necessary as the cpu can still assign work to each GPU without GPUs needing to communicate to each other. It's still strange that all GPUs on the instance seem to be in this semi-utilized state but work proceeds without error.
+I'll close this bug. Please open a new one with a more specific title if some issues in here remain unresolved.
+Does it means that the last version of tensorflow works on Amazon g2 instances without any hacks? And Does it mean that it works more than one GPU there?
+I'm not sure whether we should call TF_UNOFFICIAL_\* "not a hack", but yes, it _should_ work. If it doesn't, it's likely unrelated to Cuda 3.0 per se, and we should have a more specific bug.
+And is it possible to execute code on two or more GPUs on an amazon instance? For example, data parallelism for training a model like in CIFAR example. Several guys just 5 comments above this comment wrote that it was not possible.
+I don't know. But if that's still an issue with 0.6.0, it should be a bug, just a more specific one about multiple GPUs.
+I am using 0.6.0 on ubuntu, not able to use more than one GPUs. The GPU utilization on one GPU is always 0.
+Just for point of reference, renting a K40 or K80 is not actually prohibitively expensive.  Amazon doesn't have them, but several of the options on http://www.nvidia.com/object/gpu-cloud-computing-services.html do.  (Some for as low as like 3$/hr)
+Theano and Torch have no problem with compute 3.0 whatsoever. Can we expect TensorFlow to support compute 3.0 anytime soon?
+
+Or at least add the ability to override the restriction without having to recompile.
+@Dringite, you can enable Cuda 3.0 using the following: 
+
+TF_UNOFFICIAL_SETTING=1 ./configure
+
+It should be functional. And if it doesn't, feel free to file another issue to track it. 
+The tensorflow install guide now includes a fix for cuda 3.0 as well
+
+On Wed, Feb 10, 2016 at 2:37 PM, zheng-xq notifications@github.com wrote:
+
+> @Dringite https://github.com/Dringite, you can enable Cuda 3.0 using
+> the following:
+> 
+> TF_UNOFFICIAL_SETTING=1 ./configure
+> 
+> It should be functional. And if it doesn't, feel free to file another
+> issue to track it.
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/tensorflow/tensorflow/issues/25#issuecomment-182610763
+> .
+I think current guide does not work for gpu's - the test returns nan's as reported before.
+In particular you still need to do this:
+TF_UNOFFICIAL_SETTING=1 ./configure
+I can't find the install guide including a fix for cuda 3.0, could someone point out for me? THX!
+printf "\ny\n7.5\n\n\n\n3.0\n" | ./configure
+
+7.5 is the cuda version, 3.0 is the compute.
+Still no performance improvement for multiple GPUs at Amazon (CUDA=7.5, cudnn =4.0 ,compute = 3.0) comparing with single GPU.
+anyone succeed on Cuda compute capability 2.0?
+Verified that 'TF_UNOFFICIAL_SETTING=1 ./configure' works on a macbook pro with at GeForce GT 750M.  Thanks!
+Is there an ETA for the official fix? It's really a pain to maintain (e.g. build images with our own dockerfile) in production.
+My laptop gives me this log when I try to run mnist sample :
+"Ignoring gpu device (device:0,name:GeForce GT 635M, pci bus id) with Cuda compute capability 2.1. The minimum required Cuda capability is 3.0 . "
+So does this mean that I can't use GPU version because the minimum Cuda for tensorflow is 3.0 ?
+Thanks
+If you use the prebuilt binaries, yes. If you build from source you can
+build with Cuda 2.1 support but I don't know if that actually works. It's
+likely that the effective minimum is cuda 3.0.
+On Sat, Sep 10, 2016 at 11:51 Mojtaba Tabatabaie notifications@github.com
+wrote:
+
+> My laptop gives me this log when I try to run mnist sample :
+> "Ignoring gpu device (device:0,name:GeForce GT 635M, pci bus id) with Cuda
+> compute capability 2.1. The minimum required Cuda capability is 3.0 . "
+> So does this mean that I can't use GPU version because the minimum Cuda
+> for tensorflow is 3.0 ?
+> Thanks
+> 
+> —
+> You are receiving this because you modified the open/close state.
+> Reply to this email directly, view it on GitHub
+> https://github.com/tensorflow/tensorflow/issues/25#issuecomment-246128896,
+> or mute the thread
+> https://github.com/notifications/unsubscribe-auth/AAjO_RvNrRMQEmsueXWoaU5FX4tWHZq3ks5qovwegaJpZM4Ge0kc
+> .
+@smtabatabaie Have you tried to build cuDNN from source as suggested by @martinwicke, I am facing exactly same issues as yours and it would help me a lot if you share your exprience?
+Some help please. I'm getting the same error message with "Ignoring visible gpu device (device: 0, name: GeForce GT 750M, pci bus id: 0000:01:00.0) with Cuda compute capability 3.0. The minimum required Cuda capability is 3.5."
+
+I've read through the posts from others, the only issue is that this is a direct windows installation and not on AWS as I'm assuming most of the people here have. In the tensorflow website, it's stated that a minimum of 3.0 is required, why am I unable to use this? and how can I get around it? 
+
+Suggestions on how to do this welcome please.@gunan @mrry are the windows packages not built with cuda 3.0? Is that why
+they are so small?
+@martinwicke The nightlies are and rc1 should be too.nightlies yes.
+rc0 I think was 3.5.
+Did we cherrypick the change to use 3.0 to r0.12?We did cherrypick the change.
+@cydal you may use the nightly builds at here:
+http://ci.tensorflow.org/view/Nightly/job/nightly-win/14/DEVICE=gpu,OS=windows/artifact/cmake_build/tf_python/dist/tensorflow_gpu-0.12.0rc0-cp35-cp35m-win_amd64.whl
+
+Or you can wait for 0.12.0rc1, which should be landing in a few days.Thanks guys for the quick response, I wasn't expecting one for a while at least. Sorry if this sounds like a bi of a dumb question, how do I install this? do I simply pip install it? (if so, do I removed the previous tensorflow gpu? or does it do so automatically?) or does it require downloading it and manually installing it in some way? consider me a bit of a newbie.The link points to a "PIP package".
+If you used the `pip install` command, you should be able to use the same command with `--upgrade` flag.
+Or you can run `pip uninstall tensorflow` and then install the package listed above.
+Once you give pip command the URL, it will automatically download and install.
+
+This is all I can give with limited knowledge on your system, your python distribution, etc.
+Consider doing a google search for more details on how pip package installation works with your python distribution.Hi, I simply uninstalled the previous one and reinstalled and it works! Thank you so much, you saved me from buying a new laptop.Hi @gunan with the latest change for 3.5 compatibility, I get following log: 
+```
+>>>> sess = tf.Session()
+I c:\tf_jenkins\home\workspace\nightly-win\device\gpu\os\windows\tensorflow\core
+\common_runtime\gpu\gpu_device.cc:885] Found device 0 with properties:
+name: Quadro K4100M
+major: 3 minor: 0 memoryClockRate (GHz) 0.7055
+pciBusID 0000:01:00.0
+Total memory: 4.00GiB
+Free memory: 3.69GiB
+I c:\tf_jenkins\home\workspace\nightly-win\device\gpu\os\windows\tensorflow\core
+\common_runtime\gpu\gpu_device.cc:906] DMA: 0
+I c:\tf_jenkins\home\workspace\nightly-win\device\gpu\os\windows\tensorflow\core
+\common_runtime\gpu\gpu_device.cc:916] 0:   Y
+I c:\tf_jenkins\home\workspace\nightly-win\device\gpu\os\windows\tensorflow\core
+\common_runtime\gpu\gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (d
+evice: 0, name: Quadro K4100M, pci bus id: 0000:01:00.0)
+E c:\tf_jenkins\home\workspace\nightly-win\device\gpu\os\windows\tensorflow\core
+\common_runtime\gpu\gpu_device.cc:586] Could not identify NUMA node of /job:loca
+lhost/replica:0/task:0/gpu:0, defaulting to 0.  Your kernel may not have been bu
+ilt with NUMA support.
+```
+How can I get around it? Suggestions on how to do this most welcome.@kay10 It looks like it worked. That error message on the last line is innocuous, and going to be removed in the release.As i see in this thread, everyone has a compatibility level 3. For those who has a compability of 2, is there any solution without compiling source code? 
+I tried nightly build shared by @gunan and got the error:
+`tensorflow_gpu-0.12.0rc0-cp35-cp35m-win_amd64.whl is not a supported wheel on this platform.`
+it is not a linux wheel and i realised it a bit soon.
+
+Current situation on a 16.04 Ubuntu.
+`I tensorflow/core/common_runtime/gpu/gpu_device.cc:948] Ignoring visible gpu device (device: 0, name: GeForce GTX 590, pci bus id: 0000:03:00.0) with Cuda compute capability 2.0. The minimum required Cuda capability is 3.0.
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:948] Ignoring visible gpu device (device: 1, name: GeForce GTX 590, pci bus id: 0000:04:00.0) with Cuda compute capability 2.0. The minimum required Cuda capability is 3.0.
+`@batuhandayioglugil too many of our GPU kernels rely on functionality that is only available in in 3.0 and above, so unfortunately you will need a newer GPU.  You might also consider trying one of the cloud services.@vrv i came to this point after spending quite time on these issues and buying a new PSU so it costed me a lot. To avoid further waste of time, i want to ask a question: there are at least 15 deep learning library that i heard. Cuda and cuDNN was necessary for tensorflow. Is this situation (compute capability) special for cuda library? May i have any other chances? if not, i will give up right know and go on to work with CPU (Forgive my ignorence)I think it will be more trouble than it's worth trying to get your 2.0 card working -- it's possible your existing CPU might be as fast or faster than your specific GPU, and a lot less trouble to get started.  I do not know what other libraries require, unfortunately.is it already support GPU compute 3.0?    yes.@martinwicke thank you for fast response. do I still have to build it from source, or just directly pip install it? Im on Arch linux and struggle to build it from source giving error with c compiler.I think it should work from binary.I have the same problem ："Ignoring gpu device (device:0,name:GeForce GT 635M, pci bus id) with Cuda compute capability 2.1. The minimum required Cuda capability is 3.0 ." .  @smtabatabaie @martinwicke @alphajatin. help !!!!Compute capability 2.1 is too low to run TensorFlow. You'll need a newer (or more powerful) graphics card to run TensorFlow on a GPU.The url of answer to the question is invalid. Can you update it?For nightly pip packages, recommended way to install is to use `pip install tf-nightly` command.
+ci.tensorflow.org is deprecated.

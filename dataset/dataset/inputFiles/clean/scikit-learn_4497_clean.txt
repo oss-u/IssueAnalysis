@@ -1,0 +1,434 @@
+This is an issue that I am opening for discussion.
+
+ Problem:
+
+Sample weights in various estimators, group labels for cross validation objects, group id in learning to rank are optional information that need to be passed to estimators and the CV framework, and that need to kept to the proper shape throughout the data processing pipeline.
+
+Right now, the code to deal with this is inhomogeneous in the codebase, the APIs are not fully consistent ie passing sample weights to objects that do not support them will just crash.
+
+This discussion attempt to address the problems above, and open the door to more flexibility to future evolution
+
+ Core idea 
+
+We could have an argument that is a dataframe like object, ie a collection dictionary of 1D array like object. This argument would be sliced and diced by any code that modifies the number of samples CV objects, train test split, and passed along the data.
+
+ Proposal A 
+
+All objects could take as a signature fit X, y, sample props None, with y optional for unsupervised learners.
+
+sample props name to be debated would be a dataframe like object ie either a dict of arrays, or a dataframe. It would have a few predefined fields, such as weight for sample weight, group for sample groups used in cross validation. It would open the door to attaching domain specific information to samples, and thus make scikit learn easier to adapt to specific applications.
+
+ Proposal B 
+
+y could be optionally a dataframe like object, which would have as a compulsory field target, serving the purpose of the current y, and other fields such as weight, group. In which case, arguments sample weights and alike would disappear into it.
+
+People at the Paris sprint including me seem to lean towards proposal 
+ Implementation aspects 
+
+The different validation tools will have to be adapted to accept this type of argument. We should not depend on pandas. Thus we will accept dict of arrays and build a helper function to slice them in the sample direction. Also, this helper should probably accept data frame but given that data frames can be indexed like dictionaries, this will not be a problem.
+
+Finally, the CV objects should be adapted to split the corresponding structure. Probably in a follow up to 4294
+To track the evolution of ideas here previous mentions of related idea:
+ LINKLINK 
+It would fix 2879, and be a clean alternative to 1574 and 3524
+ Sorry to be obtuse, but where does the reticence to depend or better integrate CODESCODES come from? It's hard to find applied examples of CODESCODES in the community that don't include CODESCODES these days, and the marginal dependencies over CODESCODES and CODESCODES are only CODESCODES and CODESCODES. It seems as if we'd have to reinvent much of the masking and group by wheel anyway to support data dependent CV use cases.
+
+
+
+I never use it: my data are images, and images don't fit well in pandas.
+
+
+
+
+Only masking, which is trivial, not group by.
+Proposal A along with dict of arrays seems like a good solution to me. thumbs up 
+ GaelVaroquaux IIRC, you said you were considering a dataset object for out of core learning. If that's indeed the case, this should probably part of our reflexion. 
+ thumbs up for 
+I'm still reflecting whether we need to change the API of all estimators, though. I'd like to avoid that, but I'm not sure it is possible.
+
+I have nothing better than CODESCODES 
+It means that everybody that uses CODESCODES needs to change their code. Which is better than everybody that ever used CODESCODES needs to change their code which they'd have to for B.
+What's the advantage of A over kwargs? 
+can you elaborate?
+A is a dict of names with array values. These variables could be passed directly as kwargs, similarly resulting in a dict, without changing the current sample weight handling.
+So you would add CODESCODES to all fit methods and ignore those that are not used?
+Perhaps not, but I want to know in what ways this is really a worse
+solution than sample props.
+
+On 8 April 2015 at 00:59, Andreas Mueller wrote:
+
+
+
+
+
+
+
+
+
+
+
+Two aspects. 
+ First, it would implie that models tend to swallow arguments without
+ raising errors. For instance if I don't know that Python is case
+ sensitive, I write
+ 
+ fit X, Y y,
+ 
+ I won't be getting an error message that I didn't pass a valid argument
+ Second, exposing sample props as one argument will be making it more
+ obvious that it is a homogenous type. It will also make people's life
+ easier if they are already using pandas. I must say that I am a bit
+ scared of coupling too much with pandas, upgrades to pandas tend to
+ break our code, as in 4540.
+
+I also find that kwargs is harder to understand for someone who is
+not a Python expert.
+I think mostly in being a little stricter with the interface. Also, there could be arguments to fit that are not of length n samples thought we try to avoid them.
+ GaelVaroquaux I think the issue you mentioned is caused by upgrading sklearn, not upgrading pandas thumbs up 
+
+
+
+Well pandas. Series. dtype. kind was certainly present in Pandas 0.14. I
+didn't check for 0.15.
+I just thought it worth raising as devil's advocate, so thanks for the initial responses.
+
+
+
+Sure, though naming errors are as much a real issue with CODESCODES. Indeed a confused user may have CODESCODES or CODESCODES instead of CODESCODES.
+
+Another issue in which all proposed solutions fail but the incumbent approach of pass CODESCODES explicitly works fine: if an estimator does not have CODESCODES support but then it is implemented, its behaviour will change implicitly though the data does not. Is there any way we can avoid this backwards compatibility issue? I don't think the friendly answer is CODESCODES 
+
+
+
+
+
+Yes, I agree. I think that the proposal is slightly better than
+ kwargs in this respect but not much better.
+
+
+
+
+
+
+
+That's a very good point. We could suggest a global flag raise, warn,
+ ignore to deal with unknown sample props, controlled in the same style
+as np. seterr, which is an incredibly useful debugging feature in numpy.
+Somewhat related question: will transformers also output a modified CODESCODES? They must, right?
+Or perhaps we should at least have a way of introspecting which sample
+props an estimator or method knows about so that the user can make
+assertions in upgrades. Too frameworkish?
+
+On 8 April 2015 at 04:06, Andreas Mueller wrote:
+
+
+
+
+
+
+
+
+Fixes 2630, also see LINKLINK 
+To summarize the current state of the discussion, I think something like this would be a nice solution:
+
+Estimator:
+
+ CODELCODEL 
+
+User:
+
+ CODELCODEL 
+
+ ValueError Sample properties 'weights' are missing, unknown sample properties 'weight' 
+
+The only thing that is missing is a good way to document the required and optional sample properties of an estimator. I have no idea how we can do this. An advantage of having CODESCODES as an explicit argument in CODESCODES is that you can directly see that an estimator uses it and it is obvious whether the description in the docstring is missing or not.
+I think just mentioning it in the fit docstring and or the estimator docstring should be fine, shouldn't it?
+I don't think sklearn. seterr raise is good btw. It should be CODESCODES.
+I could see CODESCODES or CODESCODES or convergence issues etc.
+That sounds reasonable. I think this is a more general feature that has an impact on many parts of the library. We should make a separate pull request for it before we deal with the sample properties, shouldn't we? Are there any disadvantages of having such a global state?
+ thumbs up for a separate PR.
+Anything in the way of implementing A? I don't think the error mechanism is a requirement, it is just an added precaution.
+
+
+
+ thumbs up 
+
+
+Maybe the data independent CV should be merged first.
+So, CODESCODES will go to CODESCODES. amueller pointed out that it should be taken and also returned by CODESCODES. Would it also go to CODESCODES? To CODESCODES? I suppose so. LINKLINK, jnothman speculated an estimator that would play nicely with memmapped arrays in multiprocessing by fitting and scoring with cross validation binarized sample weights. If using this in CODESCODES with a custom scorer, it'd need to be passed to CODESCODES. 
+
+This goes back to the routing discussion in 3524. Now, is there any reason why objects doing cross validation searches, cross val score would not slice and route all of these parameters everywhere?
+If there is, we could use the param routing constructor attribute suggested by jnothman. Either way, the slicing and routing code should ideally be in one place.
+
+EDIT: I just realized my comment would maybe be more relevant in 4632. The routing idea could solve the question how to specify whether scoring should be weighted or not? and in learning to rank, CODESCODES definitely needs to be sliced and passed to scoring.
+Not sure whether to post this here or in 4632, but here goes a case study that I think could test the API. 
+
+On Reddit there are many posts, and under each post there are multiple comment threads.
+Let's say I want to learn to rank comments or learn to predict the best comment in a Reddit comment thread.
+ Threads are tree structured, but let's linearize them here for simplicity. 
+
+ CODELCODEL 
+
+All threads under a post are roughly on the same topic, but they are independent conversations. When training, predicting, and scoring I want to only compare samples from the same thread CODESCODES. For cross validation though I'd like to split over posts CODESCODES 
+
+Things I'd need:
+ Group aware scorer that could express things like is the true highest scoring sample among the k best samples my classifier returns among this thread?
+ CODESCODES or preferably just CODESCODES actually that splits across posts.
+ This should mostly look like standard classification, except for the definition of a custom scorer and a custom group aware learner. This would mean support in search objects and things like CODESCODES the latter should take dict of arrays sample props too. So I could do
+
+ CODELCODEL 
+
+This is clearly a desirable use case. How much of this should be in scikit learn's scope? 
+ I'd argue that cross validating by a certain label should be in scope. And I'd like it to be supported by other CV generators, not just the CODESCODES estimators. 
+ Currently none of the estimators support any CODESCODES in predict or score, but they should probably support CODESCODES, so we could allow other props to tag along. This would allow learning to rank, and all sorts of controlled paired classifiers when you don't always want to form all possible pairs. Clearly useful in my research, I wonder how you feel.
+What I wonder is if there is a common case where the CODESCODES for learning to rank is different to that for cross validation; we have a problem here of global namespacing. Would I then need name mangling like CODESCODES and CODESCODES? Or will we just assume that the user will glue things together manually if it doesn't fit into the global meaning of CODESCODES keys?
+regarding
+
+
+
+I get the impression that Gaël's idea of CODESCODES means all these are passed around globally.
+In which case you want the CV object to pick up the CODESCODES and the estimator and scorer to pick up the CODESCODES. This would indeed allow me to implement what I proposed above, even if the CV objects in scikit learn would be hardcoded to use CODESCODES, assuming that the scorer and estimator have to be implemented by me. So I can make them use any CODESCODES I want.
+
+Good point, I guess it kind of works. Until scikit learn will provide some estimator that uses some sort of CODESCODES or CODESCODES.
+
+Am I missing anything? Would passing them around globally break anything?
+
+Also, should CODESCODES then use CODESCODES if a CODESCODES is passed and it's available?
+Alternatively, to avoid the need for any routing or horrible name mangling in the future, any function or object that will look at CODESCODES could have arguments that specify which prop to use. for example CODESCODES. It would add an avoidable arg, but in the context of data coming from some other source such as a pandas DataFrame, this could actually make code more readable.
+I didn't get the argument why the labels are needed for CODESCODES with a custom scorer. The scorer should get the sample weights, right?
+
+I'm not sure I'm entirely following your train of thought vene. The idea was that all sample properties are spliced by cross val core and GridSearchCV. What do you mean by routing? I thought we wanted to pass all properties everywhere.
+
+Why wouldn't this work with sklearn estimators using CODESCODES?
+To provide a good API to the user, the CODESCODES function should be grouping aware. In learning to rank, you would want to return a ranking for each group. Even more, for some models, it would be impossible to predict without having the group labels explicit pairs might need to be formed. The good news is this would only impact CODESCODES which is only called by CODESCODES. But it would still mean a change to all CODESCODES signatures in the code base. At least there is no CODESCODES or CODESCODES.
+
+ EDIT: or just explicitly warning CODESCODES is not supported in CODESCODES, if passed. I'd rather do this, than change all CODESCODES s to add an argument that's not used. 
+
+About the routing, sorry. That part is noise, I think. I had missed that we'd pass all properties everywhere. When Joel pointed that out I realized that my case study would work. But I still think there's value in thinking about a end to end use case like that. It shows that CODESCODES needs changing too, for instance. Therefore so would CODESCODES CODESCODES. And it raises the question whether CODESCODES should look for a CODESCODES and avoid mixing it.
+
+I am not arguing against the proposal, I'm just trying to push it and see how it could be used.
+Change to predict signature will also affect the scorer's call to
+predict decision function.
+
+On 29 April 2015 at 08:05, Vlad Niculae wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Yes, but default scorers could avoid passing the props, and third party estimators that require the props in predict will require custom scorers which they probably will anyway.
+FYI I was working on an implementation of the proposal, but it is a bit stalled as I'm sick thumbs down 
+I'm wondering what we should do with CODESCODES. Should we deprecate the slicing there? It kinda duplicates this functionality, only with the wrong interface.
+Btw, is CODESCODES the name we want to go with? I realize my branch uses CODESCODES because that is what agramfort suggested when I started coding it. If we agree on CODESCODES I can change it now.
+don't always do what I suggest thumbs up 
+
+attributes, sample props, sample info all work for me.
+I would prefer having the word CODESCODES in the name. CODESCODES, CODESCODES, CODESCODES seem a bit better than CODESCODES etc.
+votes on sample props vs sample properties vs sample attrs vs sample attributes?
+Hum, one more thing: if this is added to the interface, all thrid party estimators will break.
+So will we check if fit has it and otherwise raise a deprecation warning? And deprecate all instances of sample weights?
+What would be a good test for the API?
+
+ CODELCODEL 
+
+That is currently not possible, right?
+See 4696 for wip
+
+
+If we ever provide such functionality, I would rather add a new method, like CODESCODES for instance. For the time being, I would require the user to call CODESCODES classifier or CODESCODES regressor on each group to obtain scores and then sort the samples by scores.
+ GaelVaroquaux's proposal is a bit vague w. r. t. the goals. To make it more concrete, I propose these two use cases:
+
+ CODELCODEL 
+
+and
+
+ CODELCODEL 
+
+The second clearly needs the data independent CV, but I think we can still have it in mind.
+
+I'm not sure if we agreed on what should happen with parameters that are not used supported.
+Gael said he doesn't want the estimator to crash. What do we want? Optional warnings? With the default being what?
+In the two examples above, the groups will only be looked at by the CV objects, while the weights will only be looked at by the estimators. How can I make sure that I don't get a warning here, but I would get a warning when using an estimator that doesn't support sample weights?
+Yes, so the nested CV cases is why we might want everything to just be grouped into CODESCODES or similar. A more explicit and hence safe but verbose alternative is:
+
+ CODELCODEL 
+Not to derail the discussion, but is there any long term plan for attaching properties to columns features as well, as it could impact API choices on how this is implemented? eg. categorical variables in 3346 for instance.
+ trevorstephens Very good point. I think we should design a solution that can handle column meta data as well.
+
+One option we haven't discussed yet is creating a Dataset class in scikit learn. The idea would be to pass X as an instance of this object in fit, score, etc. The advantage is that we can encapsulate extra meta data. Of course, NumPy arrays and SciPy sparse matrices would still be supported. In the future, if we want to tackle out of core learning, such a dataset object could be responsible for loading small batches from an on disk dataset. Some algorithms such as SGD could be rewritten to take advantage of this. The dataset could also potentially be used to do cross validation without allocating the sliced dataset, which is something I would like to have. I know that we have been avoiding dataset objects so far but we should at least consider it a small prototype would be nice.
+I am a bit afraid of adding a dataset class. Things seem to be pointing in this direction, though.
+I would really like to ground this discussion in concrete usecases.
+So a dataset class would be nice for online learning. But that could probably also be done by just accepting an iterator, right?
+Iterators would be nice for sequential learning with an iterator you loose the notion of fixed dataset of size n samples x n features. A dataset object would be nice for out of core learning, which is different. But before going into that, we should decide whether a dataset object would solve the present issue better than the sample props approach a dictionary like object containing extra data used for fit score transform. I am not saying that it would, but we should at least discuss the pros and cons. One advantage is that the extra data is encapsulated into the same object as the main data and thus, we don't need to add an extra argument to all methods in the project. Would the dataset approach work for nested CV?
+
+For the dictionary like approach, a better name than CODESCODES would be CODESCODES or CODESCODES or CODESCODES if we want to handle trevorstephens 's use case.
+Well, the condition on the dictionary like approach was somewhat that each value is n sample long.
+So that wouldn't really handle trevorstephens usecase. If we drop this assumption, how are we going to decide what to slice?
+
+The dataset would solve the nested CV.
+Everything that starts with CODESCODES.
+do we have an actual use case for attaching meta data to the columns? so categorical vs numerical for trees? And we want to do that by passing in a dictionary and not using pandas?
+categorical vs. numerical would be useful for OneHotEncoder too, I guess. I think a DataFrame is a dict of 1d arrays of all the same size can't mix n samples arrays and n features arrays. So maybe we need CODESCODES and CODESCODES then thumbs up 
+Maybe we should look more into how R does these things? They already solved all problems, right thumbs up 
+
+We should really come up with a list of requirements, I'd love to get some feedback from GaelVaroquaux who started this thread.
+And does anyone have a better idea on how to be safe than jnothman above?
+I feel jnothman's version is a bit too verbose to be practical, but are we ever going to give helpful error messages without being that explicit? Or do we just give up on that?
+Maybe add a CODESCODES method to CODESCODES? The method would return the routing rules for CODESCODES and CODESCODES by default but could be overridden for returning more. For example, if an estimator needs CODESCODES, it would need to specify the routing rules for it by overriding CODESCODES. Or maybe the method could be added to the dataset object, if we have one.
+For me the problem was more what if I'm passed more than I need. So if the estimator doesn't handle CODESCODES what will happen?
+If you are not passed something that is necessary, you can always just crash.
+
+
+
+
+I agree it's too verbose for what we want! It is less verbose when you
+consider that we will set a backwards compatible sensible default and
+ignore any props that have routing specifications but aren't provided,
+perhaps with a warning that weighted scoring will become default such that
+providing weights but having unweighted scorer will raise exception by
+default, albeit after a slow fit process: s. I only think routing needs to
+be dealt with in metaestimators, such as pipeline where perhaps only some
+transformers want weighting, etc and CV where you may need to pass
+ everything to the base estimator in a nested CV context.
+
+
+
+In sample props approach, the estimator will ignore it silently I presume.
+In a routing approach, if sample weights is provided and the estimator
+doesn't support sample weights then an exception is possible and
+appropriate.
+
+
+
+
+Sure.
+
+The problem is the case of optional support; and worse, the case where no
+support changes to optional support, which I think is a real concern.
+Again, consider the change to weighted scoring.
+
+On 14 May 2015 at 05:37, Andreas Mueller wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I'd be happy to chat maybe jnothman can join us?
+What is not entirely clear to me is: what should CODESCODES do in a pipeline?
+You could warn error if none of the steps support it, or you could warn error if any of the steps doesn't support it. Or you could provide an explicit list of which steps it should be passed to. 
+The last one seems a bit complicated, though.
+when can we skype?
+
+
+I personnally don't think that a skype is a more efficient than a written
+discussion backed by thoughts and constructed arguments. I find that in a
+skype, the flow of thoughts is hard to follow. I also like that in a
+discussion like the one we are having on this issue, it is easy to go
+back and look at the points made by various people. The fact that I am
+not commenting does not mean that I am not reading this thread, trying
+to understand everybody's point of view, and trying to have a big
+picture. I just find it's hard thumbs up.
+ok. I'm fine with either. I agree that in comments it is easier to structure arguments, and share code. I would really appreciate if you could come up with some use cases that you had in mind when writing your original issue.
+Did you guys have time to discuss this?
+Some. The main use case is subsampling and labeled cross validation I believe. I still don't know how to deal with the fact that some attributes are given to the estimator and some to the cross validation.
+
+So the example I gave above is still unclear to me:
+
+ CODELCODEL 
+
+should this warn about anything? If this doesn't warn, can we ever warn without giving very explicit routing? What is sample weights is only supported by some steps in a pipeline? Should we warn?
+
+Also, I am not entirely sold on other properties apart from the labels to split on and sample weights, but that might be because I am not familiar with the ranking setting you mentioned.
+I guess there are two routes as outlined by jnothman above:
+route everything explicitly and give meaningful errors, or pass around CODESCODES to everything and silently ignore things that you don't use. Which will lead to silent behavior changes if we add sample weights support to anything, for example.
+ amueller vene GaelVaroquaux jnothman this will be the next thing I'll work on. Which route do I take?
+ rvraghav93 I think I would rather work on nesting grid search and EstimatorCV. vene what do you think? I have a PR that the sample props partially in 4696. The main issue was that we don't have that many use cases and that we have ill specified requirements. For the nesting grid search and EstimatorCV, it is pretty clear what needs to happen, I think.
+Sorry, I'm catching up still.
+Hi all,
+I saw there is an ongoing discussion on how to include the sample weight option into RFECV, but I'm not sure to understand what the current status is.
+I'm working at my PhD thesis and I need to apply event by event weights to a given sample when using RFECV, in order to take the mis modeling of the generated events into account.
+I attach an example of what I would like to do which is not not working at the moment, since the sample weight option is not recognised.
+Could you help me?
+Not sure what the status of this is, but after reading this discussion I'm using the following on something I'm doing:
+
+ CODELCODEL 
+
+The screened wrapper checks automatically drops any kwargs not supported in the function signature var kwargs imply all kwargs can be supported. It completely ignores the previous API with the special param names, though implementing both would be pretty trivial.
+
+ Caveat utilitor: I think there might be an oddity about how method wrappers are treated back in python 2. 
+Thinking about this again given the merge of 8278, I would like to note a couple of things about my routing proposal:
+ As long as the sample props are always passed, it is generally possible to do routing and renaming of sample props sought by vene by wrappers, mixins and the like: simply remove the CODESCODES column or rename it to opt out of its use.
+ However it remains necessary for compatibility across versions to have an explicit way to specify routing in meta estimators and CV estimators, and default routing needs to maintain former behaviour for example not pass sample weights to CODESCODES scorers, nor transformers in a CODESCODES as clear from an issue like 4632. The only safe wrt backwards compatibility alternative to this is that every time CODESCODES or another attribute support is added to something pre existing, it needs to also add a parameter CODESCODES at least to facilitate deprecation in the short term.
+ The necessity of some kind of routing management is not contingent on a generic sample properties implementation. It applies even in the simple case of enabling weighted scoring in CODESCODES or CODESCODES 4632.
+ In CODESCODES we already have selective passage of CODESCODES parameters using double underscore notation, but this requires that the fit parameter be repeated for each target estimator. I think with these semantics extended to other contexts, this would still have full expressive power of routing, but with a routing parameter in CODESCODES and other meta CV estimators, the routing specification becomes more localised and this multiplication of input parameters not to mention the munging of names is avoided.
+
+So while it's a separate but related issue, I'd like to hear which is preferable: a routing parameter, or always route but require attributes to be ignored by default over a deprecation period.Hi. So is there a way to take sample weights into account for cross validation and gridsearch? Thanks in advance. for fitting, yes, for scoring no. See fit params in cross val score, for
+instance
+If we had a deep approach, where the user needs to explicitly specify the path they want a sample prop to take when passing in the sample prop, would it be acceptable to have non identifier keyword argument names? For example:
+ CODELCODEL 
+Python accepts this. And if we want such a deep path based solution unlike my 9566, we need to express paths with more than just double underscores which should be reserved for nested estimators. I note that such deep property mechanism makes modifying sample properties in resamplers as in 3855 problematic: a resampler would need to return props modified with the fully qualified names. Any updates on being able to use 'sample weights' when performing RFECV?Sigh. No. I would like to be able to spend time on this for 0.21. but I'm
+not sure where that time is going to come from, and I need to get some
+commitment from other core devs that they will review it if I work on it.
+No worries, completely understandable. Thanks for all your hard work on Sklearn library. I love how simple and universal this package is. 
+
+One last question, do you have any suggestions for a quick and dirty way to implement sample weights to RFECV? I just want to mess around with how samples weights change the features I get. Solution here for those interested: LINKLINK 
+
+Basically, you can define your own scorer and do index matching to get the right weights inside that function. GridSearchCV RandomizedSearch won't do the splitting for you yet. Yes, that's quite a neat pandas based hack. Another solution would put the
+weights as a column in X then have a transformer that drops them for
+training.
+I have not read all of the referenced PRs, issues and comments it's a lot but I went over this thread briefly.
+
+One comment I have: would it be possible to introduce this new parameter while keeping the existing CODESCODES, CODESCODES, etc. parameters? Then as things get updated to support the new parameter, there can be a check that raises an error or warning if the user specifies both CODESCODES as it's own parameter and also CODESCODES within CODESCODES. Then once CODESCODES is fully implemented in the ecosystem support for CODESCODES could be dropped, with warning of course.
+
+I am also going to briefly detail my use case and results below to support this feature.
+
+I am working on classifying activity data accelerometer. My data looks something like this:
+ subject walk feature 1 feature 2 y true y pred 
+ 
+ 0 0 0.2784 0.146 1? 
+ 0 0 0.1428 0.1286 1? 
+ 0 1 0.127 0.8127 2? 
+ 1 0 0.8721 0.328 3? 
+ 1 1 0.146 0.376 2? 
+ 1 1 0.4879 0.274 2? 
+
+In this case, CODESCODES would be CODESCODES and CODESCODES are the 'sample properties'.
+I use CODESCODES as the groups in LOGO cross validation because my end goal is to predict for a subject with no existing data. 
+I need to classify each CODESCODES into one of the categories in CODESCODES, but I don't really need to classify each datapoint in reality, I have thousands of datapoints for each walk. So ideally I would group CODESCODES by CODESCODES and select datapoints for each CODESCODES that either have above a certain threshold of prediction probability or pick the top 3 datapoints, etc. The physical reasoning for this is that if the subject did something weird for 1 2 steps I am happy to discard that because I have a lot of other data to work off of.
+I was able to achieve this by essentially copy pasting CODESCODES and hacking it up to passthrough a parameter CODESCODES a CODESCODES to the CODESCODES function, which I made to have the signature CODESCODES.
+
+Doing this increased my cross validation scores considerably, I guess I had a lot of bad data points that I am now discarding.I've not yet looked at all of your contribution yet, adriangb, but you might want to check out the latest proposal at 16079I haven't contributed to scikit learn jnothman, but would love to start! Thanks for referring me to the current discussion, I will comment there.This is a very intricate place to start! It has challenged those of us who
+know scikit learn API deeply for years.
+Well, I don't expect to be able to do too much, but it cant' hurt to try! I was also interested in working on IterativeImputer LINKLINK. That's probably not any easier.IterativeImputer doesn't have as many API quandaries and intricacies
+involved. More algorithmic questions.

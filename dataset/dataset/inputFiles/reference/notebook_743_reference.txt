@@ -1,0 +1,12 @@
+I got this Spark connection issue, and SparkContext didn't work for sc.
+
+The command to initialize ipython notebook:
+
+
+
+Environment:
+Mac OS
+Python 2.10
+Spark 1.1
+java version 1.0 65 
+ 

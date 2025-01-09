@@ -1,0 +1,310 @@
+This error message appeared randomly today when I (as usually) tried to start a notebook via  `jupyter notebook`Did the error show up in a terminal, or somewhere else? What platform are you on?Yep terminal (iTerm), platform is OS X and Browser Chrome.
+
+
+OK, I'll leave it for the Mac users to help with that.Same with built-in Terminal and Safari, macOS 10.12.5.same here with MacOS 10.12.5 Beta (16F67a)Same here, built in Terminal and Google Chrome on Mac OS 10.12.5 (Beta 16F60a)@takluyver Where in the code base is this error thrown? That will help us to diagnose it.That error is not something from our code, as far as I can see.Same here with Mac OS and Google Chrome Canary. Error:
+
+> 0:97: execution error: "http://localhost:8888/tree?token=***" doesn’t understand the “open location” message. (-1708)
+
+Same here with macOS and Chrome.Error:
+```
+0:97: execution error: "http://localhost:8888/tree?    
+token=c9c72f63d8482d80ee7dfd7aacc70c5d3048b6a7626b2859" doesn’t understand the “open location” message. (-1708)
+```This is an Apple event error: "The script doesn’t understand the <message> message. The event was not handled." AppleScript documentation:
+ [https://developer.apple.com/library/content/documentation/AppleScript/Conceptual/AppleScriptLangGuide/reference/ASLR_error_codes.html](url)
+I guess this was caused by recent changes in the latest MacOS revision.
+The 'open location' call run by Jupyter would need to be adapted; meanwhile setting `c.NotebookApp.open_browser = False` in your ` jupyter_notebook_config.py` and manually copying the NB link helps if one finds the error message annoying.
+Same issue, latest OS X, looks like a Mac-side problem. Copy/paste link in browser works every time.Ignore the error. Go to `http://localhost:8888/tree` directly, in your browser.For me, this seems to have started with the upgrade to 10.12.5, which dropped on 15 May. But this thread appeared earlier: can anyone who saw this earlier confirm whether they were on the macOS beta?
+
+(Also, this is clearly a bug, even if it's generated OS-side: "Ignore the error" is only the best solution if it's not fixable...)I was on the beta version when the bug first appeared, don't know which version tough as there were updates since then.Same for me just after upgrade to 10.12.5. 
+However, the link works.For what it's worth, the release notes to [macOS 10.12.5](https://support.apple.com/en-gb/HT207797) and [Safari 10.1.1](https://support.apple.com/en-gb/HT207804) don't appear to have anything listed that would result in this (but my ability to read and understand the security update information is limited).
+
+Also, I just checked in the AppleScript editor, and both Safari and Chrome _do_ understand the "open location http://what.ev.er/" message -- but I note that the error message is the "reverse" of this:
+
+`    0:97: execution error: "http://localhost:8888/tree?token=<removed>" doesn’t understand the “open location” message. (-1708)
+`
+
+I suppose it's worth a look in the jupyter code to see how this actually gets done...
+
+Restarted my laptop to update the system and got this error. Going directly to http://localhost:8888/tree, as kjprice suggests, helps in my case.(Solution at bottom!)
+
+So it seems that the problem is in the Python standard library, and I suppose with its interaction with the macOS update:
+
+```
+In [2]: import webbrowser
+In [3]: browser=webbrowser.get(None)
+In [4]: browser.open("http://python.org")
+   0:33: execution error: "http://python.org" doesn’t understand the “open location” message. (-1708)
+Out[4]: False
+```
+(same behaviour with Python 2 or 3)
+
+However, `browser=webbrowser.get("Safari")` works! 
+
+So, the solution is to explicitly set the browser in `~/.jupyter/jupyter_notebook_config.py` (updated from stupidly incorrect file location):
+
+```
+c.NotebookApp.browser = u'Safari'
+```
+
+
+
+Same here, the error occurs just after macOS 10.12.5 update (Safari 10.1.1).
+
+I'm using Jupyter from Anaconda's distribution and defjaf's solution 
+(c.NotebookApp.browser = u'Safari' in ~/.jupyter_notebook_config.py)
+doesn't seem to work for me.
+I tried to put there another option (c.NotebookApp.open_browser = False) just to avoid the message, but no success either. Looks like the config file is being ignored.
+Any hints?
+
+@ansteam: try saving it in ~/.jupyter/jupyter_notebook_config.py
+Same here after upgrading to 10.12.5@defjaf Hey Andrew, thanks for your solution, it works!I tried
+
+`c.NotebookApp.browser = u'Google Chrome'`
+
+But got
+
+`[W 12:19:50.134 NotebookApp] No web browser found: could not locate runnable browser.`
+
+(Also tried 'Chrome' with the same results.)
+
+What do I need to do to have it launch Chrome?
+@jcrotinger, according to [this Python bug report and fix](https://bugs.python.org/issue24452), it looks like the Chrome problem should be fixed in the next update to all maintained python builds...@jcrotinger:  `c.NotebookApp.browser = u'chrome' ` should do the trick.@defjaf: Thanks Andrew for the Safari browser help!
+
+Here the command to create  ~/.jupyter_notebook_config.py if it does not exist:
+```
+jupyter notebook --generate-config
+```c.NotebookApp.browser = u'chrome' worked for me!@defjaf and @bighomeyg thanks for those steps: solved it for me (after I remembered to also uncomment the config line!).  Problem cropped up when I upgraded just now to macOS 10.12.5.@defjaf and @davidjaimes  the combination of the two solutions worked for me. Thanks!Let's also remember that there is still possibly a bug here: the expectation is that jupyter should use the default browser when `c.NotebookApp.browser` is unset (as used to be the behaviour). Not clear whether this is a python bug, a macOS bug, or a security feature... but it doesn't appear to be something specific to jupyter since `webbrowser.get().open("http://python.org")` fails in python with exactly the error that we all saw.An alternative workaround is to set the BROWSER environment variable. 
+
+For example:
+`export BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome`
+Upon @rmcantin 's suggestion, editing my ~/.bash_profile file to contain the lines:
+
+BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome
+export BROWSER
+
+worked for me (c.NotebookApp.browser = u'chrome', did not for whatever reason)Reported on the Python bug tracker as http://bugs.python.org/issue30392@ andrewjmacrae - your solution worked for me!  Thanks@ andrewjmacrae 你的方法有效，谢谢！As a side note, the 10.12.5 screwed up a lot of my opens. When I tried to open markdown files using ```open markdown_file.md``` it tried to open it using RStudio (it should have used sublime). So I'm inclined to think this is a MacOS bug, not a python one.@andrewjmacrae it worked! Thanks!Guys,
+
+1) Create "jupyter_notebook_config.py"
+2) Write the following routine inside:
+
+import webbrowser
+browser=webbrowser.get("Safari")
+browser.open("http://localhost:8888/tree")
+
+3) save it on path ~/.jupyter (command+shift+G)
+
+Good luck!
+Just for completeness, I'll note that it seems to be a bug in Apple's `osascript` application with the specific `open location` command. See http://bugs.python.org/issue30392. I have also filed an Apple radar.Thanks @arrudadfa ! It works!@arrudadfa I don't understand why `browser=webbrowser.get("Safari")` in that same file doesn't work (which is the "jupyterish/pythonic" way to do it). Note in particular that the notebook *won't* always be at port 8888 -- e.g., if you have more than one running.@defjaf try "chrome" instead of "Safari"Full story at http://www.andrewjaffe.net/blog/2017/05/python-bug-hunt.html@davidjaimes: setting the config file to `safari` works for me.
+Thanks, it helped!@andrewjmacrae 's solution worked. Thanks!`c.NotebookApp.browser = u'Safari'
+`did not work for me
+
+`c.NotebookApp.browser = 'Safari'
+`didFor those who couldn't get it to work with u'Chrome', try
+`c.NotebookApp.browser = u'open -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome %s'`For those who don't want to change `jupyter_notebook_config.py` or `BROWSER` environment variable, specify `--browser` flag when launching `jupyter`, e.g.
+```
+jupyter lab --browser=Chrome
+``` 
+`jupyter notebook  --browser=Chrome` worked for mec.NotebookApp.browser = u'Safari' works for my mac, thank you, Andrew! @defjaf Same here with OS X and Chrome and when I copy and paste the link it works@andrewjmacrae It works :-) Thanks andrew!I‘m sorry. I try to set the browser to Opera or Chrome, but it both can't work(The Chrome can't open it automaticly, but opera just doesn't work ). Only Safari works. Does anyone knows why? thank you very much.@aryamccarthy It works for me.. Thanks Andrew for your idea..@andrewjmacrae Really thanks!!
+How do I specify Firefox Nightly?
+
+`--browser=Nightly` does not workBy the way, I have just found out that if you set the `BROWSER` variable to `open` as:
+```bash
+$ export BROWSER=open
+```
+it automatically detects your default browser when you run `jupyter notebook`. @lmarti That worked for me, thanks.@lmarti That works for me too, and I'm really appreciate for that.I have an issue witht the terminal. Every time i run a command on it, it gives me this `-bash: __git_ps1: command not found`. I don't really understanf what's going onApparently, the underlying `osascript` bug is [fixed in the latest macOS 10.12.6 beta](http://bugs.python.org/issue30392#msg294865), so that part of the problem will be fixed with the next macOS update (the problem with explicitly setting Chrome is separate, but won't be an issue if Chrome is set as the default browser).Thanks @andrewjmacrae, your solution is work.thank you for the update, @defjaf Simply setting ```c.NotebookApp.browser = u'chrome'``` (don't know why I dont have to set the browser in my bash profile though)@ lmarti Thanks! Your way is really convenient!  same error....i just updated the Mac OX,than open the jupyter, it give me this message,but the link works well still@andrewjmacrae Thank you very much !  It works to my MAC!  cheer!@andrewjmacrae Thanks a lot it worked for my MacIf `c.NotebookApp.browser = u'chrome'` doesn't work on your Mac (like it doesn't on mine), try `c.NotebookApp.browser = u'/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome %s'` .  Worked like a charm.Guys let me ask you a question. What happens if you want to run jupyter form inside as virtual env. Even though the  above solutions worked especially when I set the browser in the jupyter config file. But, I've found that the problem is persistent if I want to run jupyter from inside a virtual env. For instance you might want to try some new packages in your virtual env but I keep getting these errors:
+
+```
+Traceback (most recent call last):
+  File "/Users/user/anaconda2/bin/jupyter-notebook", line 4, in <module>
+    import notebook.notebookapp
+  File "/Users/user/anaconda2/lib/python2.7/site-packages/notebook/notebookapp.py", line 27, in <module>
+    import webbrowser
+  File "/Users/user/anaconda2/lib/python2.7/webbrowser.py", line 670, in <module>
+    cmd = _synthesize(cmdline, -1)
+  File "/Users/user/anaconda2/lib/python2.7/webbrowser.py", line 94, in _synthesize
+    if controller and name.lower() == controller.basename:
+```
+
+Any ideas?@lmarti How did you discover that?For anyone who is unable to locate the `jupyter_notebook_config.py` file, the solution posted by @defjaf will still work. However you must first create a file with this name within the following directory:
+
+`/Users/[your_username]/.jupyter`
+
+And once the file is created, you must write the following line to the file:
+
+`c.NotebookApp.browser = u'Safari'`Same problem has folks have noted here - MacOS 10.12.5 upgrade killed it - but adding this to jupyter config did solve the problem:
+
+```
+# Configuration file for jupyter-notebook.
+c.NotebookApp.browser = u'chrome'
+```I think the only solution that is browser agnostic is `export BROWSER=open`When I copy and paste the suggested URL, I still have to go back to the Terminal and copy and paste the token into the password field.@rltbennett because `open` is a macos command that, well, opens what is passed as argument using the app associated with the file type of the argument.> Same problem has folks have noted here - MacOS 10.12.5 upgrade killed it - but adding this to jupyter config did solve the problem:
+    c.NotebookApp.browser = u'chrome'
+
+Thanks, solved the problem for me (after upgrading Sierra and encountering the same issues)! I am not using chrome, but `u'safari'` works equally fine.@Imarti
+$ export BROWSER=open
+It works for me and so simple way. Hi. Please Help Me.
+My MacbookPro2015 Sierra 10.12.5
+Jupyter notebook don't work.
+I read this thread...and done these.
+1) with terminal:  jupyter notebook --generate-config
+2) with editer:   c.NotebookApp.browser = u'Safari'
+
+but don't move jupyter with anaconda...
+ Thanks, Andrew. it worked for me!!@tsatie 
+Did you make sure that you put the config file created from `jupyter notebook --generate-config` into your `~/.jupyter` directory?@rasbt 
+Thanks. 
+Yes. Surely there is `jupyter_notebook_config.py` in `~/.jupyter.`.
+And I rewrote `...=’’ as `#c.NotebookApp.browser` = u'safari'`.
+But trying to select `jupyter notebook` from the Anaconda's menu,
+
+> exit;
+[I 09:48:24.022 NotebookApp] Serving notebooks from local directory: /Users/tsatie
+[I 09:48:24.022 NotebookApp] 0 active kernels 
+[I 09:48:24.022 NotebookApp] The Jupyter Notebook is running at: http://localhost:8888/?token=7c0d.......................................................4
+[I 09:48:24.022 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 09:48:24.023 NotebookApp] 
+>Copy/paste this URL into your browser when you connect for the first time,
+    to login with a token:
+        http://localhost:8888/?token=7c0d.......................................................4
+0:97: execution error: "http://localhost:8888/tree?token=4f834.......................................................5"は“open location”メッセージを認識できません。 (-1708)
+
+”tokenはopen locationメッセージを認識できません。” is Japanese, 
+probably "token can not recognize message open location" in English.
+
+So, with Safari, paste that URL, I can use Jupyter noteook.
+But, can't using `jupyter notebook` from the Anaconda's menu...
+@tsatie make sure that the line in the confit file does *not* start with # -- That makes it a comment.
+Oh! Thanks. Ok.
+well...
+#c.NotebookApp.browser = ''
+delete line's head "#" and change last '(none)' to 'safari'... 
+c.NotebookApp.browser = u'safari'
+I missed about "#"... sorry.
+
+
+@lmarti export BROWSER=open worked for me too! Great work! 👍  @andrewjmacrae Thanks for your solution! It works for me.**TL;DR**:
+
+```
+jupyter notebook --generate-config -y
+
+sed -i '' "s|\#c.NotebookApp.browser = ''|c.NotebookApp.browser = 'safari'|" .jupyter/jupyter_notebook_config.py 
+```Follow this steps:
+
+1. Paste this on Terminal:
+`jupyter notebook --port 8080`
+You can choose other number
+
+2. Now this:
+`jupyter notebook list`
+It will show you some URL's
+
+3. Copy any URL that it shows you on:
+`Currently running servers`
+And paste in your browser
+
+Thanks, it works for me.Here is the solution:
+1. Go to the directory `~/.jupyter`: 
+`cd ~/.jupyter`
+and create jupyter configuration file: 
+`jupyter notebook --generate-config`
+
+2. Now use any editor to open `jupyter_notebook_config.py` file: 
+`nano jupyter_notebook_config.py`
+3. Search for the line `c.NotebookApp.browser` and remove `#` and then add your browser chrome/safari:
+`c.NotebookApp.browser = u'chrome'`
+**NOTE:** For some users, `c.NotebookApp.browser = u'chrome'` doesn't work. In that case use the following: 
+`c.NotebookApp.browser = u'open -a/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome %s'`
+
+Done! Now launch the notebook using `ipython notebook`. This works for me, just slightly modify your answer:
+To create jupyter configuration file:
+```
+cd ~/.jupyter
+jupyter notebook --generate-config
+```Worked for me, thanks !
+And I changed the browser to firefox.
+
+c.NotebookApp.browser = u'firefox'
+
+If you're using environments, chances are the default config file won't work because it's connected to the root condo environment. In this case, you will have to navigate to your environment and use the following commands (replace <username> with whatever your Mac username is.
+
+```
+cd /Users/<username>/.jupyter/ 
+jupyter notebook --generate-config
+```
+
+This will create the Jupiter config file at the following location
+`/Users/<username>/.jupyter/jupyter_notebook_config.py`
+
+To open jupyter notebook in Chrome on a Mac:
+
+1. run this command: `jupyter notebook --generate-config` (if `~/.jupyter/jupyter_notebook_config.py` does not exist)
+2. open `~/.jupyter/jupyter_notebook_config.py` in a text editor
+3. add this line: `c.NotebookApp.browser = u'open -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome %s'`
+4. try to open jupyter again and it should work
+
+Thanks to @tsatie and @huanhock 
+
+P.S. I tried the following and none of them worked:
+- c.NotebookApp.browser = u'chrome'
+- c.NotebookApp.browser = u'Chrome'
+- edit .bash_profile
+
+
+@huanhock , thank you, your solution worked for me as well. See solution on Stack Overflow: https://stackoverflow.com/questions/44057601/ipython-notebook-will-not-start-on-command-line
+
+@lmarti 's solution works for me on mac 10.12.5
+ $ export BROWSER=openIn the terminal window while you are home directory do these:
+-  cd .jupyter 
+-  vi jupyter_notebook_config.py (It opens the config file in vi editor)
+-  find the line c.Notebook.browser = ' '
+- change the c.Notebook.browser = u'chrome' (to change it in edit mode press 'i' letter)
+- delete # at the beginning of the line
+- press esc
+- enter :wq to save and exit the file@lmarti's solution below works for me, make sure to add it to your .bash_profile so you won't have to run it every time you want to open a notebook.
+
+export BROWSER=open🤔 I noticed I only started seeing this error after I changed my default browser from safari to chrome. @lmarti @lancekrogers `export BROWSER=open` worked for me as well.Be aware that `export BROWSER=open` will potentially let Python applications which think they're opening an URL in a "web browser" actually open and potentially run any application or program on your computer, so this isn't really a safe way to address this problem.Welp, I'm getting a new error as a result of my chrome solution posted above: `c.NotebookApp.browser = u'chrome'` seems to be resulting in the following error:
+
+`execution error: Can’t get application "chrome". (-1728)`. For anyone experiencing this, I've found two workarounds to avoid this error: 
+1). Open chrome first, and then launch jupyter from the command line (works just fine!), or 
+2). Switch to Safari with `c.NotebookApp.browser = u'Safari'`. 
+I'm opting for Safari, but curious if anyone finds any Chrome solutions that don't include `export BROWSER=open` which, as @glyph explains, is pretty dangerous.Have you tried u"Google Chrome"? That's the literal name of the app bundle, I believe.I did--it results in a ` No web browser found: could not locate runnable browser` error. u'chrome' is the only chrome/Google Chrome/Google Chrome combination that would work for me. currently experiencing this bug after updating Mac OSX to 10.12.5
+
+`c.NotebookApp.browser = u'Safari'` worked but c9.io gave me an error about Sockets not working properly in Safari 10.1 and suggested that I use Chrome. 
+
+these combinations did not work: `u'chrome'`, `u'Chrome'`, `u'Google Chrome'` and `u'Google\ Chrome'`
+
+This finally worked:
+`c.NotebookApp.browser = u'open -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome %s'`
+
+thanks @tlwillke and @haccks for solution. Is that "%s" being literally interpolated or is it being shell-quoted somehow?macOS 10.12.6 is out and so the underlying osascript bug is fixed (which means that jupyter should use the default browser; the separate problem of specifying Chrome for `c.NotebookApp.browser` may still exist if you want to specify it in `~/.jupyter/jupyter_notebook_config.py`.@glyph ...yes but the other solutions can also be fooled by creating an application named 'Google Chrome' or 'Safari'. In any case, all approaches here are temporary solutions until the real bug is solved.If you're still dealing with this issue, the 10.12.15 system python doesn't like any solution other than (for chrome, insert path to your browser bundle for something else):
+
+`c.NotebookApp.browser = u'open -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome %s'`
+
+If you install either python2 or python3 via brew then setting c.NotebookApp.browser to 'chrome' will work with or without the unicode decorator so:
+
+`c.NotebookApp.browser = 'chrome'`
+
+or
+
+`c.NotebookApp.browser = u'chrome'`Update macOS.  The bug is fixed :).Can confirm upgrading to 10.12.6 fixes the issue. Confirm 10.12.6 fixed that. Please closed this issue.Thanks all. Please open a new issue if you see a similar problem with OSX 10.12.6 or newer.Thanks to @rmcantin . Your solution helps me. 
+```export BROWSER=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome```@rmcantin Your solution worked for me 👍 Please do not use @rmcantin's solution 😢 .  Upgrade macOS.open terminal in Mac
+type` jupyter notebook --generate-config`
+the output is similar to 
+`Writing default config to: /Users/User_name/.jupyter/jupyter_notebook_config.py`
+then type `open /Users/User_name/.jupyter/jupyter_notebook_config.py `to open the python file
+find `#c.NotebookApp.browser = u' '`
+and change it to `c.NotebookApp.browser = u'Chrome '`In addition to the instructions from @Clara-YR you also need to uncomment the line `c.NotebookApp.browser = u'Safari'`. 
+
+Here are clear instructions: https://stackoverflow.com/questions/44057601/ipython-notebook-will-not-start-on-command-line For ***Opera*** users, this worked for me,
+
+`c.NotebookApp.browser = u'open -a Opera %s'`
+
+Also, for other browsers / flavours, [this link](https://gist.github.com/christopheranderton/f96197fad1c4a87ce2d78b8b9622cf86) might be helpful
+
+Thanks all, @arrudadfa Thanks so much.  creating the config file did the trick.  After safari opened up, I had to fetch the token for the jupyter notebook, by typing in the command in terminal:  "jupyter notebook list" .  Safari required that token to load the jupyter notebook.   I also appreciate the shortcut "command-shift-g" to open up a specific path to save the file in for the save as dialog.  Very useful.  Thanks again!
+<img width="761" alt="safari jupyter notebook token" src="https://user-images.githubusercontent.com/30554629/31403775-c8ce9d9c-adbf-11e7-8a0d-f298def2f91d.png">
+
+I've just built a Jupyter/IPython Notebook environment on some older Linux machines, and I was having trouble getting one laptop to launch the webbrowser correctly.  I run Gnome desktop and spent a long time messing about with glib and gtk+, putting the pkgconfig .pc files into /usr/lib/pkgconfig to make sure Firefox would find the right libs when it started, etc.  But I still I kept getting the Jupyter authentication token being displayed when I ran "jupyter notebook", and an error saying that Jupyter could not launch the browser.  I would have to start Firefox, enter "localhost:8888" as a url, and copy the long Jupyter authentication token into the password field to let Firefox access the localhost:8888 url.    It's not supposed to work this way.  When you enter "jupyter notebook" at term shell, the browser should just fire up, and you should see a web-page showing your directory tree you launched from.
+
+The fix turned out to be simple.  I just had to start the Firefox browser from the Gnome/Xwindows desktop, and click the button in Firefox to set Firefox as the default browser.  You can then close the browser.    Once that was done, you can just start a term shell, enter "jupyter notebook", and Jupyter starts and invokes the browser correctly with the authentication token, and you should see your directory tree that you launched from in the intial Jupyter webpage.  This works on my older Fedora Linux platforms, and also on a CentOS box (ver. 6.6, running Gnome 2.28.2, Firefox 31.1 ESR).  
+I am using Ubuntu, and for me worked with:
+`c.NotebookApp.browser = u'google-chrome' `

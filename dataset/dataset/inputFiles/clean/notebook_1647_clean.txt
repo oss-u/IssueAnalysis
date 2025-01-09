@@ -1,0 +1,309 @@
+My experiment may run long time hours. It seems the notebook stop running after the browser tab closed. How to keep it running and updating the notebook?
+
+
+Unfortunately there are no current simple way to do that. We are aware of the issue and working on it. In the meantime, I would suggest wrapping all the computation you are doing in CODESCODES, in order to query for results only interactively. 
+
+CLosing as this is already tracked in many places, but feel free to continue asking questions.
+Thanks for you reply, Carreau. I'm fresh to python notebook and not quite understand the Futures you mentioned. Could you give me a simple example? Great great thanks.
+A future is an object representing a task it provides a way to see if the task is done, and get the result or error when it's finished. They're a general concept, but Python provides an implementation in LINKLINK. They're normally used in code that's doing more than one thing at once.
+
+I think that's probably more complex than you need, though. A cell that you've started running will keep going when you close the browser tab, but the output it produces is lost. The easiest workaround is just to leave the browser tab open tabs are cheap, I've got 50 open now. If you can't do that for some reason, make sure it assigns any results you want to keep to a variable they should still be available when you open it again. You can also use the LINKLINK to store printed output into a variable you can get later.
+I am struggling with this issue as well for some time now. The kernel keeps running your job on the server, but there is no way to see the console output after closing the browser.
+
+My workaround was to write all my logs to a file, so that when my browser closes indeed when a lot of logs come through browser it hangs up too I can see the kernel job process by opening the log file the log file can be open using Jupyter too.
+
+ CODELCODEL 
+
+ thumbs up on this or some kind of long running process managementI'm confused why this is difficult. Since a serialized jupyter notebook contains cell output, it should be possible to keep track of output when a user closes a tab and returns to the notebook by adding to the notebook json as it runs in the background, in which case the output generated while running in the background would be in the notebook. Why can't jupyter just keep writing to the json file?It doesn't write to the JSON files as soon as output is sent by the kernel it is sent to the browser, which adds it in to the notebook document. When you save it or an autosave occurs, the notebook document is converted to JSON and written to disk as a whole.
+
+We're planning to change that so that the server keeps the notebook model and sends updates to the browser, but that's a big change to the architecture.That would be great! Is there an current issue or milestone where I can track the progress?I don't know of one Carreau might be able to give you more info on the progress.That would be great! My group works on remote servers. So being able to reconnect to a session would be very valuable.I'm working on remote servers too. It would be really handy to be able to do this, hope it'll be implemented soon.
+
+As a suggestion, I think that having the possibility to reconnect to a session even if that means to lose all the output when you weren't connected but having the possibility to save the new output would be great and more simple to implement. That way if you're working on a remote server and you have a network disconnection you can still continue the work with little loss.
+
+None AFAICT from the Notebook Lab side. nteract might be closer with CODESCODES. That's probably not going to be implemented soon. Realtime will likely come sooner but will require a running browser. 
+
+so where are the open issues for this? there’s still issues being opened about this for example 2446 and i can’t find the earlier, open ones.Any news about this issue please?
+
+This doesn't help if you are on a flaky connection to the server for example, accessing a remote jupyter server, or tunnelling to one through SSH.
+
+We are aware of the issues there is not much written about it – we should get a comprehensive document about that – but this need a significant reactor of the frontend, plus likely some change in the backend. cocalc. com does allow that but ou need a server side model, and basically you deprecate all the extension for a given frontend – which is easy for cocalc as it is without extensions.
+
+Though it is indirectly moving forward via Jupyterlaband nteract Comutable, and once this is out we can likely start to think about an isomorphicJsApp that keep state and the browser being only a view on this state.
+
+My personal opinion is that this can be done without changes to the protocol as a separate app and anyone is welcomed to chime in, and write up a IPep RFC Prototype that lays out the ground infrastructure. 
+
+It is a significant enough amount of work that we can't just do that on the side, and will need at least a FTE to do that. 
+
+from my understanding, the frontend runs in the browser. so if no tab is open, there is no frontend and there definitely need to be changes in the backend. or do you mean different parts than me?
+
+architecturally, i’d assume that the notebook server needs to start writing responses to the notebook file as long as there’s no browser tab attached. for example instead of receiving the responses in a browser tab and manually saving the notebook, it gets saved automatically after any batch of responses 
+
+You need to move some pieces from frontend to backend. it likely can be done with a proxy server in between notebook server and browser.
+ 
+
+
+Yes and no. The notebook file does not – and cannot – store all the necessary information especially while the kernel is still running for example mapping from message id to handlers. You need an extra store that can be in server RAM and has a richer representation than ipynb. If you have that, then the frontend need to understand this as well which start o be complicated. 
+
+
+
+ Carreau By proxy server, you actually mean something like an off screen browser, right? I'm quite not sure how the interaction of your actual browser and that off screen proxy thing should look like. Do you have any knowledge of any peace of software which can do that? Maybe, a browser which itself renders its interface as HTML and provides it via HTTP?
+
+No, not completely. Browser like imply HTML and rendering. You can store non html models on the proxy server side. I only care about the ipynb+some info on the server side. The rendering is a detail. The point is the state you care about – which is not the HTML rendering should live and be able to be updated without needing to have an open browser. Thing of Google Drive RT API if you wish. 
+
+I've seen things ex mozilla tow truck I think trying to do that with HTML. Any isomorphic App these days does similar things. do we have any update on this, this should be essential for the cloud use case. If you check the 2nd reference, which says This is an intended outcome of the notebook model LINKLINK. So we will get it in jupyterlab, althought reading it I'm thinking it will save the results but it would not let us open again a closed notebook to keep working on it, or check the results after letting it working in background.Is that any hack we can do? 
+
+ for example assign the output of each cell to a internal variable, and when we re connect the kernel, get these variables and display them. idning yes, storing results and outputs in variables continues to work. You can redisplay variables still in memory at any time.
+
+ CODELCODEL 
+
+You can also capture displayed outputs not results with the CODESCODES cell magic:
+
+ CODELCODEL 
+
+However, if it really is a long running computation, avoiding recomputing even when the kernel dies is probably useful. In that case, using a caching scheme such that you write intermediate results to disk and only re execute if the cache doesn't exist on disk is preferable. This is what I have done for my long running notebooks long ago. In this way, re running a whole notebook after it's run once, even with a new kernel, may only take a few seconds and will produce all of the original output. There are lots of ways to do this with different tradeoffs of rigor vs cache performance, which is part of why there isn't a simple example to link to.
+
+Yet another option is to run the notebook entirely headless with nbconvert:
+
+ CODELCODEL 
+
+which will create a new notebook with all of the output in tact.I think the typical use case for that is when running longer computations in the notebook; here, it's important to keep in mind that nbconvert is not very generous with the default timeout limit per cell. E. g. for longer computations, one might want to provide a custom timeout limit, for example, for computations that run for a day, something as follows:
+
+ jupyter nbconvert execute to notebook mynotebook. ipynb ExecutePreprocessor. timeout 86400I have a really hard time understanding why this is a problem. Basically, whatever would be sent to the browser is instead written to a file. When the user logs back in, send it to the browser.Something like that is now implemented messages go into a buffer when there's no client connected, and are replayed when one reconnects. But the details are never as simple as they seem.
+
+I have not seen any reference to this functionality in the docs, maybe we should advertise it a little more?I am deeply interested in this functionality. takluyver, that sound interesting, so when will this function be published? People working on remote cloud engine might need this eagerly.Should be there since 5.2 added in PR 2871 takluyver In this PR, I can only find the demo for network drop off, but CODESCODES issue doesn't seem to be solved. I tested this in my notebook version 5.0, I run the code bellow and then close the chrome tab, when i reopen the notebook, the unsaved changes were all gone including the latest output. 
+
+ CODELCODEL can confirm, have the same issue also v5.0, Safari browser From the server's point of view, I think network issues should have a similar result to closing and reopening a tab. rgbkrk minrk am I right in that? If so, I'm not sure why it wouldn't be working.The state of the notebook is entirely client side, which means that any outputs that come in that aren't captured in the document do not get saved back to disk.
+
+What 2871 did was buffer any outputs and other messages until the user reconnects it will only help you for cases where you're reconnecting the same tab.
+
+Ah, so it doesn't work for closing a tab and reopening it later. I've been misleading people. Thanks Kyle! rgbkrk I feel like that was sort of a shutdown to all the people who want this feature. Furthermore, that may be your model of a notebook, but that is not mine, and clearly not a great many other people's either. Can you direct us to a mission statement or global definition of sorts that defines exactly what a notebook is supposed to be?
+
+Back to the client side the fact is, sometimes the client side needs to close their laptop and go home for the day. That should not prevent them from continuing their client side work after an evening with their family, a good night's sleep, and a fresh cup of coffee in the morning.
+
+Instead of using a notebook, we could start a screen session and run our job in a vanilla Python shell or an IPython shell. But then we lose the wonderful features that Jupyter has to offer.
+
+I misunderstood as well, good that that's cleared up now thumbs up 
+
+ abalter Overall, I agree with you regarding issues with that use case scenario. The reason why I stumbled upon looked for this GitHub issue is not that I want to close browser tabs but to keep things running when I for example, temporarily have to close my laptop with a notebook session running on a different machine. Mainly, I use my laptop for most of my work because of the app ecosystem on macOS, but I also realize that it's not the greatest computing platform so that I run the code mainly on my Linux machine or HPC cluster. The reason why would prefer Jupyter notebooks vs python scripts for that is that I like to collect outputs and create plots of an sequential workflow all in one place. I don't want to sound too demanding though, since I really appreciate that Jupyter Notebook is open source, free software by a non profit organization, it would be nice though if such a feature would exist some time in future. 
+Also, this feature may already supported then via 
+
+
+
+I have to check thumbs up 
+
+Thanks for raising that back up. I'm not stating it as my ideal model either, more of a this is how it works currently. This doesn't get to the true ideal, which is a server side model of the notebook that is synchronized to the frontends. I'm likely to work on that during the coming year, 2871 was a stop gap to help people in a basic way before we re architecture. My opinion is that we can re open this issue, which I'll do now.Could someone please tell me whether this is related to colab. research. google. com? formerly colaboratory. jupyter. org 
+As you might guess, I'm totally new to Jupyter Notebook, although I know Python. The thing is that I'd like to experiment with TensorFlow, but some tasks might run for hours. I was wondering then, if I could run the experiments online instead of locally on my machine. Thanks.Colaboratory is a separate project made by Google which uses Jupyter notebook files on Google drive. It appears that you can run Tensorflow on it. I don't know whether there are any limitations on how long a computation can run for you'd have to ask Google about that. takluyver thanks for the info, it's very much appreciated.Anything like an output log could save much time although not for real solution just for backup.
+Is there a way to dump all text contents sent to the client?
+
+ Unfortunately I'm not familiar with how Jupyter works, but if someone could give me a brief instruction of how I could realize it, I can try to implement it myself There's no option to dump it to a file at the moment. The code that buffers output when there's no browser connected is here:
+
+ LINKLINK  takluyver Wow, thank you! I'll try that when I get some time.Having another machine keep the tab open also seems to allow getting some updates supposing it auto saves. Which also allows getting some progress information for long running tasks.
+
+Could a virtual browser like PhantomJS be a hacky solution? wernight I don't think that's a hacky solution at all. It might be a really simple and direct approach. Jupyter runs in a browser, and if that browser just happens to be virtual, fine. This would just keep updating the JSON version of the notebook, and when you log back in, that file updates the browser. I'm having a hard time understanding why this is difficult.
+SGTM. I've even a Dockerizer PhantomJS if you're interested: LINKLINK  takluyver 
+
+
+I'm not trying to be obnoxious, but tell me where my thinking is wrong here:
+
+ Typical web application function: server receives request from client client side application  server creates response server sends response to client essentially passes it a stream  loop until tab is closed
+
+ Hypothetical way jupyter web app functions: jupyter server receives request from client jupyter notebook due to user input jupyter server creates response for example runs code 
+ jupyter server sends response to client essentially passes it a stream 
+ client responds that message was received
+ client displays output
+ loop until computation finished loop until tab is closed
+
+ Suppose user does not interact with notebook jupyter server receives request from client jupyter notebook  jupyter server creates response for example runs code 
+ jupyter server sends response to client essentially passes it a stream 
+ client responds that message was received
+ client displays output
+ loop until computation finished client responds that message was received
+
+ Suppose tab is currently closed jupyter server receives request from client jupyter notebook  jupyter server creates response for example runs code 
+ jupyter server sends response to client essentially passes it a stream 
+ AND
+ writes response to a file
+ client responds that message was received
+ client displays output
+ loop until computation finished client responds that message was received
+
+ Suppose tab is reopened jupyter server send cached stream to notebook client responds that message was received client displays output jupyter server resumes normal operation
+
+ I can't emphasize enough how important this is to our workflow and that of many others.
+
+ This is a MAJOR shortcoming of Jupyter compared to RStudio Server and should be a top priority.This probably has been said several hundred times already, but once again, I wish to request the kind developers of this project to take this issue on priority.
+
+It's baffling to me how such a basic necessity has not been taken care of for so long. I mean, most jobs with large amounts of data take several hours to run, at the least, on a remote server. I'd have thought this feature is included by default. I was surprised when I kept my server running overnight, logged in and saw that no output was stored. I even couldn't tell which cell was currently executing since all the cells had a blank instead of an which is there when a cell is running.
+
+EDIT: I'd like to add that I realize Jupyter is free software and the developers have other commitments too and only so much time, but I love Jupyter and this feature would make life easier for so many people. Thanks in advance thumbs up To the risk of also repeating ourselves one more time. 
+
+Jupyter is mostly developed by people on their free time, and is given away for free. We do suffer the same bugs and annoyance than you do. We prioritize what we can prioritize, and even for those of us who are allowed to contribute to Jupyter professionally, it is 1 not always their main occupation, 2 have often tasks that are assigned by management or higher ups.
+
+We don't owe features to users, even if we do care, but we do have obligations to finish the projects for which non profit that gave us money – at least for those of us employed totally or partially via these funds.
+
+We cannot – and will not try – to force volunteers to prioritize what they wish to work on. We can try to lead by example and hope this foster collaboration.
+
+It is not because this issue is still open that people are not working on it. We already added a band aid by replaying messages, and there is significant work that is currently done on this front, in part with JupyterLab with a server side model and CRDT.
+
+It is extremely difficult work, especially if you can't spend several hours focused on it, which not many of us can afford. 
+
+So if you wish for this work to go faster, please do not insult us, shout on us or write bold on the internet which is equivalent and find ways to help, even indirectly. 
+
+There are many ways you can do so even if you are not a genius coder:
+
+ Convince your company institution government to donate to numfocus
+
+This will allow us to hire people to work full time with a correct living wages! If we get even more money we could even hire talents that otherwise cross the street to get their salary double, triple or sometime more than quintupled. 
+
+ Convince your company institution government to contribute time
+
+Ask if you or someone else would be allowed to spend 1 afternoon per month helping. If Jupyter is used at your work, your company likely would gain in having an expert, and fixing things upstream. We also have plenty of things that are not code related where we need help legal, design, event planning. 
+
+ Respond to issues on mailing list, help triage. 
+
+You will free us time! Not having to respond to easy issue allow us to sometime get 1 or 2 hours strait where we can attempt difficult work. 
+
+ Contribute code on your free time 
+
+Getting familiar with even small issues will increase your knowledge of the codebase, and who knows after a couple of month you may commit right and can help fix long standing issues like this one. You sometime don't even have to start from scratch, there are many PR that some of us started, but need to polish fix test, rebase, document. with the nice decentralized github you can propose fixes to existing PRs!
+
+ Help manage the community
+
+Twitter, GitHub, Facebook, Youtube, mailing list, Proof read our blog, being friendly and remind people to be respectful to each other.
+
+We are sorry if you are encountering issues, or if you have lost work, but please don't us that as a excuse to suggest that we don't care, are incompetent, haven't thought about how to fix it, how to implement it, and how to not break backward compatibility.
+
+Many thanks, and much love from the Jupyter team, doing their best. 
+
+Also nice reads are LINKLINK and LINKLINK from Brett Cannon
+
+ Carreau You probably didn't read the edit in my comment above. Please read it. I realize Jupyter is free and the developers don't owe us anything. It's just a request.
+
+
+
+I'm sorry if I gave offense. It was totally not my intention. I have utmost respect for you and all the wonderful people who contribute to all OSS. I may have misunderstood the situation, since I read somewhere above that implementing this shouldn't be difficult. But since you have clarified that it's not easy work, I believe you. 
+
+I hope this issue is solved in near future, and once again, thanks for all your work on Jupyter. I really do appreciate it thumbs up 
+I deeply apologize for yelling. Bad choice of typesetting. I wanted to somehow find a way to bump this up on the priority level, but that wasn't the way to do it.
+
+Is there a way to make sure this feature makes it onto the road map?
+
+Is there a priority system for the road map?
+
+Until this feature is ready, it's a big reason to use RStudio Server over Jupyter, and the more people that use Jupyter, the better for the entire project.
+
+Believe me, if I felt confident enough to dive into the code and actually make a difference, I would do that instead of spending time writing long issue comments. Maybe I need to get over that and dive in, but I fear going down a rabbit hole and being of no help to anyone.
+
+Suppose I wanted to join up with a few more experienced programmers to look at this, what would be a way to find those others and form that group?
+
+I think the best way I could contribute would be to help bring outside resources to the Jupyter project. Is there already a task force for that?This is on the roadmap for JupyterLab, cf LINKLINK with more explicit language around this. Essentially, we need a server side representation of the notebook model, which is then rendered by the front end. Please see discussion LINKLINK.
+
+Thank you, I did not in fact saw it, 
+
+
+
+
+
+The response was not target toward abalter or tanmay kulkarni, it just happen to have two comments in a short time and that is often a trigger that let other people also add their comments that degenerate, and was more attempting to defuse and tell people to pay attention.
+
+
+
+Written communication is hard, and many physical cue from in person conversation are not present. Thanks for clarifying your meaning. 
+
+
+
+Have a look at my LINKLINK if you want to get some confidence. Some of the history is not there anymore github didn't kept comments on code at the time. I was putting semi colon at end of line.
+
+Deep code diving is not the only thing that would help, we are for example exploring how to foster community:
+ LINKLINK 
+
+If your contribution for a few weeks is to follow along and send a weekly summary to the advance done on this front and other that would be of tremendous help.
+
+
+
+No, but do you want to try to organise this or make a proposal? See also 641, which seems like it is the same issue.In the meantime, a dirty hack to keep the output from a notebook while the browser is closed is to print to the console rather than the notebook using something like
+
+import sys
+sys. stdout open ' dev stdout', 'w' 
+print 'this is printed in the console' I'm actually thinking of trying a hack when I get time. Start a headless browser in a flask app that communicates with jupyter and regurgitates its current page view to the browser. Then I would interact with the headless browser through that page. The headless browser would pass the interaction on to jupyter and capture the response.You can workaround to the issue for the moment running a container with a browser on the same server where you have your notebook running, and connect to it with VNC. For example LINKLINK already provides Firefox with a VNC server installation that you can expose and connect to. Of course the container with firefox will eat some resources of your server the author of CODESCODES suggest to have at least 2GB of shared memory.
+
+For example on a server where the user is CODESCODES, I have created a folder CODESCODES where I put my noteboks and run the following:
+ CODELCODEL 
+
+Then you can use any VNC client to connect to the browser.
+
+There may be other solutions based on LINKLINK basically using the same basic idea of LINKLINK, but probably the setup would be a little more complicated.
+
+EDIT: one thing I should mention is that you have to be careful with the setup if the server is reachable from the internet. I have in mind a typical scenario where you are using a machine in your local cluster or local network where who can reach the machine is trusted.PhantomJS should use a lot less memory, but you still need to log in and
+keep the same files open. So I don't think it's really a solution for now.
+
+Werner
++41 44 668 01 01
+
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Worth pointing out another workaround: LINKLINK which allows running notebooks through a terminal cli and outputs results in a separate notebook:
+ CODESCODES 
+
+This combined with tmux seems to be a viable workflow for remote running notebooks.This might not be exactly related to the asked question, but still should be a useful trick.
+I call my lengthy text output generating scripts in google colab like this:
+ CODESCODES 
+
+Up until today whenever my laptop went to sleep for example got disconnected from net, the process would die and become irretrievable.
+Today almost randomly I found that having another dummy cell in the same notebook and running it after resuming, not only resurrects the main cell's running process, but also retrieves and displays the text output that was cut right after the apparent death of the process!
+
+The dummy cell can be as simple as:
+ CODESCODES 
+Is it a sensible idea to let our long running cells in a queue system such as LINKLINK? Turning a regular function into a remote functions is not hard at all, it's just one decorator to add. I just wanted to share a simple approach that I've found satisfactory for watching outputs after exiting out of a browser tab. 
+
+This works when print functions are being used to produce output. I define this function and then replace print statements with jprint.
+
+ CODELCODEL 
+The jupyter outputs. txt file must already exist.
+
+Then if I exit out of the browser tab and wish to start watching the output again, I log in via ssh and run something like:
+ CODESCODES 
+
+
+
+This could be a nice strategyWhy can Google Colab make the output cell updating after you closed your browser?
+
+Google miracle!
+I hope the new version of jupyter also has this functionNo news yet? Has updating the output been considered at all here?

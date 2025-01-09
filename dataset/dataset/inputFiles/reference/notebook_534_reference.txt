@@ -1,0 +1,1 @@
+I plan on implementing the hiding of input cells. Might not happen for 4. but I will be optimistic for now.

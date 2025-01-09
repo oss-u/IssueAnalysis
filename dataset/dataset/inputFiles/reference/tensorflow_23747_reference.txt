@@ -1,0 +1,8 @@
+
+
+ SanthoshRajendiran Thank you! It worked perfectly for me.
+Just in case anyone else is interested, I had code that worked with the model from the ios samples: CODESCODES and I wanted to have a model to run on a higher resolution image.
+I downloaded the model CODESCODES from Deeplab model zoo, and converted it to tflite using:
+ CODELCODEL 
+Then the same code that worked for CODESCODES worked on the converted model, just with input image of 513x513 instead 257x257
+

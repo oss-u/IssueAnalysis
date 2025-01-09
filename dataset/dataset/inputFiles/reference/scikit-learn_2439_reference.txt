@@ -1,0 +1,3 @@
+The Mean Square Error returned by sklearn. cross validation. cross val score is always a negative. While being a designed decision so that the output of this function can be used for maximization given some hyperparameters, it's extremely confusing when using cross val score directly. At least I asked myself how a the mean of a square can possibly be negative and thought that cross val score was not working correctly or did not use the supplied metric. Only after digging in the sklearn source code I realized that the sign was flipped.
+
+This behavior is mentioned in make scorer in scorer. py, however it's not mentioned in cross val score and I think it should be, because otherwise it makes people think that cross val score is not working correctly.

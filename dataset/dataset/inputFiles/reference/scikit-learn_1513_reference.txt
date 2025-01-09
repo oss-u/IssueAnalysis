@@ -1,0 +1,2 @@
+Hi amueller and everybody! We saw this thread and decided to implement a sklearn compatible version of the RVM LINKLINK. We based a lot of what we did on the JamesRitchie implementation. It would be great if someone would be willing to take a look at it and feedbacks and contributions themrzmaster are welcome thumbs up 
+We have plans of maintaining this repo, implementing the fast version on version 0.2 and hope that maybe some day this code could be helpful for scikit learn main repository 😊 🍍 

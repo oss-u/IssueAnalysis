@@ -1,0 +1,461 @@
+ CODELCODEL 
+
+When trying to run a t SNE 
+
+ CODELCODEL 
+
+However 
+
+ CODELCODEL 
+
+Full Stack Trace: 
+
+ CODELCODEL 
+Same with 'Scikit Learn', '0.18. dev0' 
+Do you mind sharing your data X with me?
+Sure, where and in what format would you like it?
+
+
+
+
+
+
+
+
+My email is 
+As i know, there is a function numpy. save for saving an array to a binary file in. npy format 
+I test your data in ubuntu 14.04 LTS with
+Python 2.6
+scikit learn 0.17.1
+numpy 1.2
+scipy 0.13.3
+It is fine and doesn't raise the ValueError. The test code is:
+ import numpy
+a numpy. load ' root test. npy' 
+print a. shape
+
+
+
+
+from sklearn. manifold import TSNE
+
+print proj 
+
+ 
+
+Then i upgrade numpy, scipy to 1.11. 0.17.0 and test with the same code and it also doesn't raise any error.
+Reproduced for 3.5 with anaconda under OS X El Capitan.
+
+ CODELCODEL 
+
+Example run:
+
+ CODELCODEL 
+Thanks ivan krukov, but I'm failing to replicate in Python 3. Will try 3.5
+This does not apply to CODESCODES 4.0 21, Ubuntu 16.04 with the same packages under 3.
+I'm on El Capitan, but I'm failing to get a Python 3.5 installation up and running.
+Is there any update on this? 
+
+I have the issue on a dataset of mine, on Anaconda, Py 3. sklearn 0.17. OSX El Capitan.
+I can reproduce the error with the example provided by ivan krukov.
+Same issue. Python 2.6 on OS X El Capitan on 0.17. Tried the same code on Linux using Python 2.6 and 0.17, and it works.
+Same issue.
+OSX El Capitan Python 3.1
+scikit learn 0.17.1
+scipy 0.17.1
+I have the same problem and would really appreciate a fix or workaround? 
+System Version: OS X 10.11.5
+Python 3.1: Anaconda 4.0 x86 64 
+numpy. version. version 1.11.0
+scipy. version 0.17.1
+sklearn. version 0.17.1
+
+I can also reproduce the bug with the code sample from ivan krukov
+Same issue on OS X EI Capitan using Python 3.5
+System Version: OS X 10.11.5
+Python 3.1: Continuum Analytics, Inc.
+numpy. version 1.11.1
+scipy. version 0.16.0
+sklearn. version 0.17.1
+
+Same problem. Though I have noticed that it only occurs for a subset of my dataset and not with the whole thing. That is, if I do TSNE on the whole data set it works, if I do it on a reduced set it does not. 
+O o;; This just in, if I repeat the same 'broken' subset that doesn't work by means of list 10 then it works. Multiplying each individual vector by 10 doesn't work, but duplicating the date does. just doubling the length of the list is insufficient. Maybe this is some kind of degrees of freedom check run amok?
+ ivan krukov I bit the bullet today and installed an El Capitan VM. Unfortunately I can not reproduce your problem.
+
+ Concomitant can you reproduce the error on the stand alone example given in LINKLINK?
+
+
+ jnothman it doesn't seem to be happening only on Python 3.5 so if you could try to reproduce with Python 2.7 snippet: LINKLINK that would be great.
+ lesteve I can reproduce the issue.
+
+ CODELCODEL 
+
+Following the same code, however:
+
+ CODELCODEL 
+
+Bizarre.
+I cannot reproduce either with python 3.1, numpy 1.11. scipy 0.17.1 and scikit learn 0.17.1 from miniconda with MKL on a virtualbox with OSX El Capitan. I will try on a real mac hardware later.
+Also joelkuiper and Concomitant can you please check that you can reproduce the problem on the current state of the scikit learn master branch?
+ lesteve and others I cannot reproduce the error with the LINKLINK on the latest master with python 2.
+
+System info:
+
+ CODELCODEL 
+I tried again on a real mac running OSX El Capitan 10.11.3 with anaconda's latest numpy scipy and scikit learn, same setting as reported by Concomitant in LINKLINK but could not reproduce the problem either tried running the snippet several times.
+
+What is weird though it that the despite the CODESCODES line I get different results for the output of CODESCODES. This might be a bug in itself.
+
+
+Actually I read Concomitant's code snippet too quickly: instead of CODESCODES it should be CODESCODES otherwise the numpy RNG is not reseeded appropriately and one cannot get deterministic results.
+Also I now realized that I read the whole discussion too quickly and that the bug only happens with python 2. Will try again.
+I cannot reproduce either with python 2.12 from conda on OSX 10.11.3 either.
+
+Actually Ekliptor can reproduce the issue with python 3.1 from conda so it's probably not related to the version of Python either. Maybe it depends on the minor version of OSX. Will upgrade and retry.
+I cannot replicate either with OSX 10.11. I tried both with Python 2.12 and 3.2 installed with conda along with numpy 1.11. scipy 0.17.1 and scikit learn 0.17.
+
+I don't know what to do. If one of you can reproduce the problem, please try to find a numpy random seed that trigger the issue using CODESCODES instead of CODESCODES in the above snippet and communicate the value here along with the version of OSX and you python packages.
+I can confirm the issue is fixed with the latest version. I can not reproduce it anymore as before.
+I only updated numpy:
+numpy. version. version 1.11.1
+
+To all people working with Tensorflow I can add:
+
+Thanks Ekliptor for checking that it works with scikit learn master. joelkuiper and Concomitant do you confirm that scikit learn master also work for you? If so we can close this issue.
+I installed master, the code snippet runs cleanly now.
+seems to work for everybody now. closing.
+Sorry, but I still get this on Python 3.1, scikit 0.17, scikit learn 0.18 commit 9e913c04d748, and Numpy 1.11.1 on Mac OS 10.11.
+ dmyersturnbull do you get the error when running the snippet from LINKLINK?
+ lesteve I did with that exact snippet, yes. However, I no longer get it after clearing my Anaconda installation and reinstalling from scratch with Python 3.2.
+I get the same problem with Python 3.2, scikit learn 0.17. scipy 0.17. numpy 1.11.1 on Mac OS X El Capitan 10.11. It works when I have more than 2100 points but fails for lower values.
+
+
+Analogically fails for low points' values 
+
+Reopen, please
+I am getting the same problem on OS X 10.11. python 3.1, sklearn 0.17.1 and numpy 1.11.
+On this dataset: LINKLINK with np. savetxt 
+
+
+ Lucidyan I don't understand what you mean by that.
+
+
+
+
+ pbnsilva can you try this snippet posted below? You may need to run it multiple times because unfortunately the seed is not set appropriately you need to use CODESCODES rather than CODESCODES.
+
+ CODELCODEL 
+
+Bonus points if you can find a seed argument to CODESCODES and a CODESCODES argument to CODESCODES that makes the snippet deterministic.
+
+Alternatively some people reported that this bug was fixed in master. Could you try to build scikit learn master to see whether the problem disappears?
+ lesteve I meant that I get the same error with a small number of instances, with the same system parameters Python 3.2, scikit learn 0.17. scipy 0.17. numpy 1.11.1 on Mac OS X El Capitan 10.11.3 
+
+
+
+I tried it, and it fails with X SIZE 1750 Y SIZE 20, n components 2 became constants. if I start to change the constants increase with fixed X SIZE 1750, it fails too.
+ Lucidyan could you try the same snippet with scikit learn master and see whether it fails too?
+yea not working for me numpy 1.11. El capitan.10.11, sklearn 0.17. python 3.2 annoyingly it has broken old code that did work. what did you guys change.
+ act65 we are more than keen to get to the bottom of this but we haven't been able to reproduce and it seems like we are getting mixed reports from users so far unfortunately.
+
+So if you haven't already unfortunately we are not mind readers and not working for me does not tell us what you tried could you try to run the snippet mentioned above in LINKLINK. Try to run it multiple times just in case because the random seed is not set properly and there may be some randomness left in the snippet.
+
+Then what would be really great if you could try with the 0.18 release candidate which is straightforward to install highly recommended to do it in a separate virtualenv or conda env:
+
+ CODELCODEL 
+
+ Edited: 0.18 has been released so you can just use no need to use CODESCODES: 
+
+ CODELCODEL 
+
+and re run the snippet to see whether it is fixed in 0.18 as some users have reported in this thread already.
+
+0.18 is going to be released in a few weeks if not days so you know what you have to do if you want to help us to get to the bottom of this before the release ;.
+yea my bad, should have been clearer. I had tried roughly the same thing others had, just on MNIST. 
+
+anyway, it works! thanks thumbs up 
+ CODESCODES fixed it
+OK, thanks for reporting back and great to hear that this is fixed for you in the 0.18 release candidate! This seems to match what other have reported when they say it was fixed in master.
+
+Just for completeness though, it is recommended to stick to released versions for production code, so you may need to wait a little bit more until the 0.18 release is out.
+ lesteve 
+I tried the LINKLINK on version 0.18rc2, installed by
+
+
+
+And it seems working! Cheers!
+Thanks Lucidyan for giving it a try.
+Sorry, I'm still getting this error with above code snippet after upgrading to scikit learn 0.18 CODESCODES in conda env.
+
+Here is my system info:
+OS X El Capitan Version 10.11.4
+Python 2.12
+sklearn 0.18 got the the same error on sklearn 0.17.1 as well 
+numpy 1.11.1 got the same error on numpy 1.11.2 as well 
+scipy 0.18.1
+
+However, I ran the same code snippet on Linux system, I didn't get an error.
+The system info of the Linux system is:
+Ubuntu 14.04.5 LTS GNU Linux 3.13.0 91 generic x86 64 
+Python 2.6 
+sklearn 0.18
+numpy 1.11.2
+scipy 0.13.3
+Try uninstalling and reinstalling numpy, scipy and scikit learn. If that still fails, try in a different virtualenv or conda environment if you are using conda to make sure something is not wrong in your Python environment.
+Still get the same error CODESCODES in sklearn 0.18 CODESCODES via conda. The pip wheels seem to work fine though!
+
+
+Hmmm interesting. could you try using conda packages without mkl, for example something like CODESCODES so we can see whether that is a MKL vs openblas thing?
+
+Also bonus points if you can provide a snippet reproducing the problem with a fixed random seed for example using CODESCODES that can be used as a reference snippet going forward. Up until now the snippet we have is non deterministic CODESCODES is used and has no influence of numpy. random seed.
+Sure, no problem. This may be be a BLAS problem indeed, the CODESCODES env works fine.
+
+Regarding the snippet. this gets interesting. E. g. 
+
+ CODELCODEL 
+
+reproduces the problem on my machine. However, when I replace CODESCODES by CODESCODES it seems to be fine. Would be good to find a more light weight example maybe, to add this particular case to the travis tests.
+
+EDIT: Same is true for iris. CODESCODES works in fit transform, a splitted dataset CODESCODES does not. Maybe there's sth funny going on in CODESCODES. However, both CODESCODES and CODESCODES seem to be float 64 arrays. 
+What about the snippet from LINKLINK, you didn't find a way to make it deterministic and still fail on your machine?
+The snippet
+
+ CODELCODEL 
+
+reproduces the error but it works fine on the nomkl env 
+OK thanks a lot for this, at least we have a deterministic snippet now. For the record, can you post the output of this snippet:
+
+ CODELCODEL 
+
+Also, just for the sake of sanity, can you make sure you can reproduce the problem in a fresh conda environment.
+
+To be honest, I am not sure where we go from this. I haven't tried since but I was not able to reproduce on an El Capital Virtual box, ogrisel could not reproduce either on a OSX laptop, so at the time he said there might be some hardware specific problem involved.
+Sure,
+
+the machine that causes this problem:
+
+ CODELCODEL 
+
+ tested it in a fresh conda environment 
+
+
+
+I think you may be onto sth! I tried it on my other mac, and it works fine there. The only difference is to the output above it is running on an older kernel CODESCODES. Haven't updated the second mac to macOS Sierra yet, which is running on the former machine that has this problem. Could be OS related. I will upgrade the second machine to Sierra in the next month or so I am in the middle of a project and don't want to break things, but I can let you know if the update to Sierra leads to this issue on the second machine or maybe someone else with macOS Sierra could test it so that we now if it is an OS thing 
+Given that the problem has been reported on different OSX versions, I kind of doubt this is only a OSX version issue. IIRC ogrisel's hunch was that it was CPU architecture related.
+
+Another more time intensive way to debug this problem would be to track down where the NaNs appear in the code.
+
+
+Hm, how would the conda scikit learn version differ from the pip wheels? Because the latter seem to work on the same machine. Maybe it's somehow related to conda
+
+
+I noticed that the gradient in LINKLINK explodes, until it becomes CODESCODES in one position after the 25th iteration in the LINKLINK for loop
+
+ CODELCODEL 
+
+On the other machine the one that works fine, the gradients are all 0 after the same iteration. So, somehow the CODESCODES function doesn't work properly maybe due to some BLAS thing. 
+
+
+The pip wheels are using OpenBLAS and you don't have the problem when using OpenBLAS with conda through the CODESCODES trick so this does look like a MKL problem, which on top of that is likely CPU specific.
+Great job debugging the issue by the way! Bonus points if you manage to further isolate the problem for example by pickling the data before the iteration CODESCODES appear. The problem arises very likely in some cython code in sklearn manifold barnes hut tsne. pyx.
+Shouldn't this issue be re opened given the latest findings? I hit it as well and also managed to get past it with the nomkl trick, but feels like an active bug vs. a closed one, no?
+
+Others that have been hitting this: LINKLINK You are right, reopening. This one is a serious one, seems hardware specific and none of the core devs could reproduce it. The only way this can get fixed is if people having the issue invest some time in debugging the problem further.
+
+I am happy to look into it further in December after all the November deadlines. However, even this can be further isolated, I am curious if there's a fix for such a hardware specific problem. Maybe, until this is fully resolved, it may be worthwhile to raise a more specific exception warning if the gradient contains infs with a note about this problem?I just created a new conda virtualenv and built a devp version of sklearn from the source code freshly forked from the sciki learn master branch, the error disappeared. Is the devp sklearn built from source code using OpenBLAS instead of MKL?
+
+Sounds great, thanks a lot!
+
+
+
+Not sure about a fix, one hope would be if we can change our cython code to work around problem once we have isolated it. Also it could well be an openblas issue and that would be great reporting it upstream, especially since wheels use openblas.
+
+
+
+Adding some advice to the error message only on OS X, sounds like a good idea, but I am not sure what it should say, maybe consider using conda and install scikit learn with MKL or something like this.
+
+ zhongyuk depends which library you have installed. One way to know once you have built scikit learn from source is to run the equivalent of CODESCODES Google seems to say CODESCODES on CODESCODES name will be different if you are using Python 3, for example something like CODESCODES. On my Ubuntu machine for example, I get this:
+
+ CODELCODEL 
+
+So you can see from the third line, that it is using MKL.
+
+I just wanted to write that I think you got it flipped: the wheels worked find and the issue only occured when I was using it via conda with MKL. Now, I think I have good news in some way: I just wanted to rerun the above example that previously caused this issue to confirm
+
+ CODELCODEL 
+
+and I am no longer getting this problem. I remember that I reininstalled miniconda the other week due to some other problems. Do you think it could be related to some issue in the old conda? Would be great if some other people who had this issue could maybe also try updating reinstalling conda and check if that solves the problem for them. Meanwhile, I will try to see if I can find an old backupstate to find out which conda version I had installed previously. right now, I have conda 4.12 Just wanna say that I ran CODESCODES on CODESCODES I assume this is the t sne. py compiled file? it seems like it's indeed using BLAS. And the one which threw error seems to use MKL.
+
+The conda version I have is 4.13, both the env which throws the error and the env with source built sklearn which does not throw error are inside conda.
+Hm, interesting, so it's not a conda issue after all then. Curious why it works for me now: 
+ all I can think that has changed except for reinstalling conda was rebooting: P 
+
+Yeah, sorry about that. I'll edit the issue title to try to remember it right for next time.
+
+
+ all I can think that has changed except for reinstalling conda was rebooting: P 
+
+Hmmm, random guess maybe the mkl version, although if I believe the output of CODESCODES the latest mkl version 11.3 is from 2016 05 thumbs down 3. zhongyuk try to build scikit learn inside a conda env that uses mkl, I believe this should be enough for mkl to be picked up probably a good idea in this case to do CODESCODES and then CODESCODES to rebuild from scratch. lesteve I built scikit learn in two conda virtual environments from source code branch 0.18 release, the one uses MKL indeed throws the error; the one uses libBLAS does not throw error. 
+
+The output running CODESCODES on CODESCODES is here in case MKL version gives you any clue? 
+
+ CODESCODES ib compatibility version 0.0, current version 0.0 
+ rpath libmkl intel thread. dylib compatibility version 0.0, current version 0.0 
+ rpath libmkl core. dylib compatibility version 0.0, current version 0.0 
+ rpath libiomp5. dylib compatibility version 5.0, current version 5.0 
+ usr lib libSystem. B. dylib compatibility version 1.0, current version 1226.10.1  zhongyuk great! For completeness, can you post the output of CODESCODES in your MKL conda environment? While we are at it your CPU information CODESCODES according to Google and your platform information CODESCODES would be great.
+
+What would be really great is to continue where rabst stopped and further isolate the problem:
+ LINKLINK 
+
+Since this is related to BLAS, my hunch is that something goes wrong in this LINKLINK causing the gradient to have some non finite values. lesteve Output of conda MKL environment info:
+ CODELCODEL 
+
+CPU info: CODESCODES 
+Platform info: CODESCODES 
+
+I'll look into the gradient exploding issue that rabst found in the other comment and the line you pointed out sometime this week and or next week, I'll keep everyone updated with any interesting findings. zhongyuk If it helps, I have a very similar setup can't reproduce the issue anymore since reinstalling miniconda, except that I have macOS Sierra instead of OS X El Capitan and that I have numpy 1.11.2 instead of 1.11. rasbt hmm, I wonder if the problem goes away in Sierra. I don't want to upgrade OS yet b z I thought I read somewhere that TensorFlow doesn't support Sierra yet could be mistaken or no longer be true anymore since I don't remember where or how long ago I read it? And I don't wanna break my projects with TF dependency zhongyuk Hm, I think it's unlikely that it is related. Before I reinstalled miniconda, I also had the problem in macOS Sierra. PS: Tensorflow works fine for me on Sierra, but I only do CPU and prototyping on my macs so I don't know about GPU issues related to Sierra rasbt hmm, that's good to know that TF works fine on Sierra. Do you wanna run CODESCODES on the CODESCODES file in your platform to see which math library sklearn using underneath? At least that way we might know if the problem went away after reinstalling miniconda is fundamentally linked to math library?I am getting the following on CODESCODES:
+
+ CODELCODEL  rasbt Hmm, that's really interesting. It's using MKL as well. I don't know enough about the math library to speculate what does this mean. lesteve probably will be able to infer more from this?
+
+I noticed that in my platform CODESCODES is not loaded. Is it possible that caused the problem?WOW, yes! it is caused by CODESCODES not loaded! I found LINKLINK and then ran CODESCODES, then ran CODESCODES on the CODESCODES file, then CODESCODES loaded up, and ran the code snippet, error went away! Have five team work! rasbt 
+
+If anyone else could check on their platform and see if the error went away after making sure CODESCODES is loaded, that would be great!
+
+ lesteve Since it does look like a lot of ppl has hit this problem, and it does look like it's related to some version of? conda not extracting full MKL libraries my understanding of the situation so far, even though it's not a scikit learn bug, I do think either add some kind of remark or warning or error messages to OS X users would be nice? That way at least they can check if MKL lib is fully extracted in their platform and then fix it if it's not? zhongyuk awesome, glad to hear that you were able to narrow it down! Hopefully, it's just the broken link incomplete install of the CODESCODES that would be awesome in terms of knowing what's going on thumbs up. That would also explain why it works for me now after re installing Miniconda. Would be great if someone else could try the fix. 
+
+If the aforementioned CODESCODES really caused this issue, the remaining question would be how to deal with that in scikit learn. I mean, this bug is kind of hideous and it may be a bit tricky for folks to figure out that it's due to CODESCODES. I probably wouldn't inject an additional if gradient contains inf raise error + message in the code in scikit learn since it could be quite annoying performance wise. However, i think that adding a note or comment in the installation and or T SNE docs would be a good idea.Just want to add a quick update: I had 2 virtual envs in conda both using MKL. One of them is equipped with CODESCODES and the other is equipped with CODESCODES. Running CODESCODES indicated that both of them somehow didn't have CODESCODES loaded. After making sure CODESCODES loaded up, the error disappeared in the virtual env with CODESCODES. However, the error remained appearing in the env with CODESCODES. After upgrading CODESCODES to 1.11. I can no longer reproduce the error in either conda virtual environment. As it sounds complicated and the exact cause of the error is still obscure, I speculate it's probably a complication interweaved by incomplete MKL library loading and scikit learn dependent libraries possibly numpy? Although I haven't tried to create an virtualenv with MKL and CODESCODES to see if this would reproduce the error. 
+
+And I second rasbt suggestion on adding some kind of note, comment or docs! zhongyuk glad you got it fixed! It seems that reinstalling packages with conda may help but I am afraid there doesn't seem to be a very clear picture of the cause of the problem thumbs down.This is a conda bug, right? Or did anyone experience the bug not using conda?I managed to find a way to reproduce I think by installing the numpy wheel and then scikit learn via conda on top of it got the hint from the CODESCODES output in LINKLINK where two CODESCODES are listed.
+
+ CODELCODEL 
+
+then execute the snippet from LINKLINK.
+
+So it seems like this is happening when mixing numpy installed via pip and conda. In my book this is never a good idea to mix pip and conda for a given package but I guess this can happen without realizing it quite easily for example you install a project that depends on numpy via pip, and then scikit learn via conda.
+
+Why this exactly happens I don't know. and it seems to happen only on OSX by the way for example not on my Ubuntu box.
+
+For anyone affected by this, this should fix it:
+
+ CODELCODEL 
+
+Let me know if that doesn't work for you.Thanks for the deep dive again! lesteve I thought we would never get to the bottom of this one to be honest thumbs up! OK it's not quite the bottom but it's low enough as far as I am concerned.
+
+I have to admit I would still like to understand what's happening within the numpy installed with both pip and conda. Hi 
+I tried two setups, where
+
+ TSNE works well with one setup where Tensorflow is de activated, Python 3. x, however,
+
+ TSNE does not work with the other setup where Tensorflow is activated, Python 2. x.
+
+
+ The set up where TSNE works well: 
+
+Terminal:
+ CODELCODEL 
+Jupyer notebook:
+ CODELCODEL 
+
+ CODELCODEL 
+Note: I tried
+ CODELCODEL 
+to make TSNE work well with Tensorflow deactivated.
+However, with the new setup below where I have to use Tensorflow, this does not work any more.
+ 
+
+ The set up where TSNE does not work: 
+
+ Terminal: 
+ CODELCODEL 
+
+ Jupyer notebook: 
+ CODELCODEL 
+
+
+ CODELCODEL 
+
+ Error: 
+ ValueError: array must not contain infs or NaNs
+ 
+
+Any suggestions? Thanks a lotInteresting. I think it has nothing to do with tensorflow; my guess is that
+
+ 
+
+vs
+
+ 
+
+is the culprit!Thanks for response thumbs up Any suggested solutions to do list? 
+
+Need use both
+Tensorflow and
+TSNE
+in Jupyter notebook.
+
+BTW: just tried from future import division in Python 2. x and did not solve the problem.
+Hm, not sure if that helps personally, I am not getting this mysterious issue anymore with 
+
+
+ CODELCODEL 
+
+I am on Tf now 1.0 as well, and I don't have this CODESCODES issue anymorewhen I execute 
+
+ CODELCODEL 
+
+which previously didn't work. 
+
+Maybe try to create a new python 3.5 env and try the above mentioned snippet to see if it works without error:
+
+ CODELCODEL 
+
+Hi rasbt, 
+Yes I made TSNE work on Python 3.
+However, for some other reason I'd better use Python 2. so I have to continue to explore. cross fingers
+
+Thanks for your help.Do you have an old er Miniconda Anaconda 2.7 distro installed? In this case, maybe consider installing one of the more recent ones, or update your conda root or default python and give it another try or create a new py 27 env by substituting the 3.5 by 2.7 in CODESCODES? not sure if this is really the reason, but I think CODESCODES may be an issue; since the error doesn't seem to occur via CODESCODES Update: TSNE perplexity 30, n components 2, init 'pca', n iter 1000, method 'exact' make it worked. 
+ method 'exact' was the trick.
+Also been having this problem. Using method 'exact' seems to works for me, but it is so painfully slow. Is there really no other solution that people have found?Have you read LINKLINK and LINKLINK?
+
+The only way I managed to reproduce this problem was to install numpy with both pip and conda in the same conda environment. If you create a conda environment from scratch you should not have this problem.
+
+In case your problem do not seem to match this description, please post the exact commands you ran to create your conda environment, so we can try to reproduce.
+
+Hi, 
+I read the above comments and can reproduce this. I re ran code from a few weeks ago and now this issue appears. Here's a minimal example that now reproduces this issue:
+ CODELCODEL 
+
+And the output of 
+ CODELCODEL 
+is
+
+ CODELCODEL 
+Again, changing the method to exact CODESCODES gets rid of the error. 
+
+More generally, I have noticed wildly different results when using sklearn's TSNE with identitical perplexity and other parameters from the bh implementation published by Laurens van der Maaten and the MATLAB version. I wonder if there may be a connection?
+
+Did you refer to LINKLINK That fixed it. My apologies I had separately uninstalled an reinstalled numpy, scikit learn and scipy, but not like in 6665. I had the same problem as reported here, and I do not use conda.
+
+My Python version is installed via brew on macOS Sierra 10.12.4
+
+ CODELCODEL 
+
+Adding CODESCODES solved my problem. lesteve: i had this error using the setup you describe two versions of numpy installed. simply updating the conda install of numpy to the same version as the pip install 1.12.1 did the trick for me. i did remove the pip numpy install, though, as i didn't intend to have two versions thumbs up  lesteve: Thank you for the solution! I happened to have this error and then I found this discussion. Fix it right away after remove the duplicated version of numpy. Replicated I have removed pip installs of numpy and updated conda. 
+
+Darwin thumbs down 6.0 x86 64 i386 64bit
+
+ 'NumPy', '1.13.1' 
+ 'SciPy', '0.19.0' 
+ 'Scikit Learn', '0.18.1' 
+
+
+It seems fine on my linux machine Linux:
+Linux 3.101 0.47.71 default x86 64 with SuSE thumbs down 1 x86 64
+
+ 'NumPy', '1.12.1' 
+ 'SciPy', '0.19.1' 
+ 'Scikit Learn', '0.18.1' 
+ wolfiex so you did
+ CODELCODEL 
+Somewhat related I recommend you update to scikit learn 0.19 which has some fixes in t SNEgetting the same error nowHi rahulsnair, do you mind opening a new issue, with reproducible code, your traceback and the versions you are using? This issue is pretty old and the code has changed a lot. Thanks!

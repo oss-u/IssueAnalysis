@@ -1,0 +1,641 @@
+Hi,
+
+```
+conda activate base
+jupyter notebook
+```
+Gives me this message:
+
+```
+Traceback (most recent call last):
+  File "/home/ics_vr/anaconda3/bin/jupyter-notebook", line 7, in <module>
+    from notebook.notebookapp import main
+  File "/home/ics_vr/anaconda3/lib/python3.6/site-packages/notebook/notebookapp.py", line 44, in <module>
+    from zmq.eventloop import ioloop
+  File "/usr/local/lib/python3.5/dist-packages/zmq/__init__.py", line 47, in <module>
+    from zmq import backend
+  File "/usr/local/lib/python3.5/dist-packages/zmq/backend/__init__.py", line 40, in <module>
+    reraise(*exc_info)
+  File "/usr/local/lib/python3.5/dist-packages/zmq/utils/sixcerpt.py", line 34, in reraise
+    raise value
+  File "/usr/local/lib/python3.5/dist-packages/zmq/backend/__init__.py", line 27, in <module>
+    _ns = select_backend(first)
+  File "/usr/local/lib/python3.5/dist-packages/zmq/backend/select.py", line 26, in select_backend
+    mod = __import__(name, fromlist=public_api)
+  File "/usr/local/lib/python3.5/dist-packages/zmq/backend/cython/__init__.py", line 6, in <module>
+    from . import (constants, error, message, context,
+ImportError: cannot import name 'constants'
+```
+I did `pip install pyzmq --install-option="--zmq=bundled"`, but not works.
+I did `conda install -c anaconda pyzmq`, also not works.
+
+Unless @minrk knows better, it looks like your installed package has got corrupted (possibly by mixing conda and pip usage). If so, probably the easiest thing is to remove and reinstall Anaconda.Yeah, right now I could only start jupyter under the virtual environment installed with anaconda full meta package. Base and global is not able to use jupyter.
+
+By the way, I think conda mix a lot of things. 
+
+Like if I install opencv globally and then install a different version in virtual environment, my opencv global will gives me segmentation fault, but it could be used in Base. Further, under the virtual env with diff. opencv, although everything installed, I mean you could fins cv2.so, and libopencv, but you have to cd the PATH to that python site packages, otherwise you are still using Base version opencv. The conda totally not easy my installation, just bring a lot of mess to my my setup work. 
+
+Could I ask you update your documentation with more detail instructions for using conda, if the conda mix so many things together.
+
+Hey , use the following:
+pip uninstall pyzmq
+pip install pyzmq
+
+The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+I have the same issue, I am no able to launch Jupyter notebook. It errors out. 
+I tried a) pip uninstall pyzmq - it errors with access denied.
+I am new and I am afraid, I am in trouble please help. I may have to manually uninstall everything and then reinstall.
+
+C:\ProgramData\Anaconda3\Scripts>pip uninstall pyzmq
+Uninstalling pyzmq-17.1.2:
+  Would remove:
+    c:\programdata\anaconda3\lib\site-packages\pyzmq-17.1.2-py3.7.egg-info
+    c:\programdata\anaconda3\lib\site-packages\zmq\*
+  Would not remove (might be manually added):
+    c:\programdata\anaconda3\lib\site-packages\zmq\backend\cffi\__pycache__\_cffi_ext.c
+Proceed (y/n)? y
+Exception:
+Traceback (most recent call last):
+  File "C:\ProgramData\Anaconda3\lib\shutil.py", line 557, in move
+    os.rename(src, real_dst)
+PermissionError: [WinError 5] Access is denied: 'c:\\programdata\\anaconda3\\lib\\site-packages\\pyzmq-17.1.2-py3.7.egg-info' -> 'C:\\Users\\Rajan\\AppData\\Local\\Temp\\pip-uninstall-n9lr8nr4\\programdata\\anaconda3\\lib\\site-packages\\pyzmq-17.1.2-py3.7.egg-info'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\ProgramData\Anaconda3\lib\site-packages\pip\_internal\basecommand.py", line 228, in main
+    status = self.run(options, args)
+  File "C:\ProgramData\Anaconda3\lib\site-packages\pip\_internal\commands\uninstall.py", line 68, in run
+    auto_confirm=options.yes, verbose=self.verbosity > 0,
+  File "C:\ProgramData\Anaconda3\lib\site-packages\pip\_internal\req\req_install.py", line 661, in uninstall
+    uninstalled_pathset.remove(auto_confirm, verbose)
+  File "C:\ProgramData\Anaconda3\lib\site-packages\pip\_internal\req\req_uninstall.py", line 219, in remove
+    renames(path, new_path)
+  File "C:\ProgramData\Anaconda3\lib\site-packages\pip\_internal\utils\misc.py", line 273, in renames
+    shutil.move(old, new)
+  File "C:\ProgramData\Anaconda3\lib\shutil.py", line 569, in move
+    rmtree(src)
+  File "C:\ProgramData\Anaconda3\lib\shutil.py", line 507, in rmtree
+    return _rmtree_unsafe(path, onerror)
+  File "C:\ProgramData\Anaconda3\lib\shutil.py", line 391, in _rmtree_unsafe
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "C:\ProgramData\Anaconda3\lib\shutil.py", line 389, in _rmtree_unsafe
+    os.unlink(fullname)
+PermissionError: [WinError 5] Access is denied: 'c:\\programdata\\anaconda3\\lib\\site-packages\\pyzmq-17.1.2-py3.7.egg-info\\dependency_links.txt'
+
+C:\ProgramData\Anaconda3\Scripts>pip install pyzmq
+Requirement already satisfied: pyzmq in c:\programdata\anaconda3\lib\site-packages (17.1.2)
+twisted 18.7.0 requires PyHamcrest>=1.9.0, which is not installed.
+You are using pip version 10.0.1, however version 18.1 is available.
+You should consider upgrading via the 'python -m pip install --upgrade pip' command.
+
+C:\ProgramData\Anaconda3\Scripts>python -m pip install --upgrade pip
+Requirement already up-to-date: pip in c:\python27\lib\site-packages (18.1)>           Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+This helped me solve the problem! Many thanks!> 
+> 
+> I have the same issue, I am no able to launch Jupyter notebook. It errors out.
+> I tried a) pip uninstall pyzmq - it errors with access denied.
+> I am new and I am afraid, I am in trouble please help. I may have to manually uninstall everything and then reinstall.
+> 
+> C:\ProgramData\Anaconda3\Scripts>pip uninstall pyzmq
+
+You should be using Anaconda prompt, which is installed by default with Anaconda. And the command should be here:
+`conda uninstall pyzmq` and then `conda install pyzmq`.
+
+It worked for me. When I installed Jupyter Notebooks to a new environment in Anaconda, it updated some other packages. I needed to uninstall pyzmq from Anaconda and reinstall it. The packages were downgraded and now it works fine.
+
+I have installed Anaconda on an SSD drive.  Launching Anaconda Navigator and then VSCode or Spyder was fine.  Jupyter Notebook wouldn't launch and gave the same error as the OP. 
+Using 'conda uninstall pyzmq' uninstalled pyzmq and everything else in Navigator except VS Code.  That was not expected.  I then opened Anaconda Navigator and reinstalled Jupyter Notebook and got the same error as before. ie.
+```
+Traceback (most recent call last):
+File "D:\Dev\Anaconda3\Scripts\jupyter-notebook-script.py", line 6, in 
+from notebook.notebookapp import main
+File "D:\Dev\Anaconda3\lib\site-packages\notebook\notebookapp.py", line 83, in 
+from .services.contents.manager import ContentsManager
+File "D:\Dev\Anaconda3\lib\site-packages\notebook\services\contents\manager.py", line 17, in 
+from nbformat import sign, validate as validate_nb, ValidationError
+ImportError: cannot import name 'sign' from 'nbformat' (unknown location)
+```
+Reinstalling and launching Jupyter Lab gave:
+```
+Traceback (most recent call last):
+File "D:\Dev\Anaconda3\lib\site-packages\jupyterlab_server\server.py", line 20, in 
+from notebook.notebookapp import aliases, flags, NotebookApp as ServerApp
+File "D:\Dev\Anaconda3\lib\site-packages\notebook\notebookapp.py", line 83, in 
+from .services.contents.manager import ContentsManager
+File "D:\Dev\Anaconda3\lib\site-packages\notebook\services\contents\manager.py", line 17, in 
+from nbformat import sign, validate as validate_nb, ValidationError
+ImportError: cannot import name 'sign' from 'nbformat' (unknown location)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+File "D:\Dev\Anaconda3\Scripts\jupyter-lab-script.py", line 6, in 
+from jupyterlab.labapp import main
+File "D:\Dev\Anaconda3\lib\site-packages\jupyterlab\labapp.py", line 12, in 
+from jupyterlab_server import slugify, WORKSPACE_EXTENSION
+File "D:\Dev\Anaconda3\lib\site-packages\jupyterlab_server\__init__.py", line 4, in 
+from .app import LabServerApp
+File "D:\Dev\Anaconda3\lib\site-packages\jupyterlab_server\app.py", line 9, in 
+from .server import ServerApp
+File "D:\Dev\Anaconda3\lib\site-packages\jupyterlab_server\server.py", line 26, in 
+from jupyter_server.base.handlers import ( # noqa
+ModuleNotFoundError: No module named 'jupyter_server'
+```
+
+> I have installed Anaconda on an SSD drive. Launching Anaconda Navigator and then VSCode or Spyder was fine. Jupyter Notebook wouldn't launch and gave the same error as the OP.
+> Using 'conda uninstall pyzmq' uninstalled pyzmq and everything else in Navigator except VS Code. That was not expected. I then opened Anaconda Navigator and reinstalled Jupyter Notebook and got the same error as before. ie.
+> 
+> ```
+> Traceback (most recent call last):
+> File "D:\Dev\Anaconda3\Scripts\jupyter-notebook-script.py", line 6, in 
+> from notebook.notebookapp import main
+> File "D:\Dev\Anaconda3\lib\site-packages\notebook\notebookapp.py", line 83, in 
+> from .services.contents.manager import ContentsManager
+> File "D:\Dev\Anaconda3\lib\site-packages\notebook\services\contents\manager.py", line 17, in 
+> from nbformat import sign, validate as validate_nb, ValidationError
+> ImportError: cannot import name 'sign' from 'nbformat' (unknown location)
+> ```
+> 
+> Reinstalling and launching Jupyter Lab gave:
+> 
+> ```
+> Traceback (most recent call last):
+> File "D:\Dev\Anaconda3\lib\site-packages\jupyterlab_server\server.py", line 20, in 
+> from notebook.notebookapp import aliases, flags, NotebookApp as ServerApp
+> File "D:\Dev\Anaconda3\lib\site-packages\notebook\notebookapp.py", line 83, in 
+> from .services.contents.manager import ContentsManager
+> File "D:\Dev\Anaconda3\lib\site-packages\notebook\services\contents\manager.py", line 17, in 
+> from nbformat import sign, validate as validate_nb, ValidationError
+> ImportError: cannot import name 'sign' from 'nbformat' (unknown location)
+> 
+> During handling of the above exception, another exception occurred:
+> 
+> Traceback (most recent call last):
+> File "D:\Dev\Anaconda3\Scripts\jupyter-lab-script.py", line 6, in 
+> from jupyterlab.labapp import main
+> File "D:\Dev\Anaconda3\lib\site-packages\jupyterlab\labapp.py", line 12, in 
+> from jupyterlab_server import slugify, WORKSPACE_EXTENSION
+> File "D:\Dev\Anaconda3\lib\site-packages\jupyterlab_server\__init__.py", line 4, in 
+> from .app import LabServerApp
+> File "D:\Dev\Anaconda3\lib\site-packages\jupyterlab_server\app.py", line 9, in 
+> from .server import ServerApp
+> File "D:\Dev\Anaconda3\lib\site-packages\jupyterlab_server\server.py", line 26, in 
+> from jupyter_server.base.handlers import ( # noqa
+> ModuleNotFoundError: No module named 'jupyter_server'
+> ```
+
+Same problem> > ```
+> >       Hey , use the following:
+> > ```
+> > 
+> > 
+> > pip uninstall pyzmq
+> > pip install pyzmq
+> > The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+> 
+> This helped me solve the problem! Many thanks!
+
+you resolve my issue. thank youGet pip here: https://bootstrap.pypa.io/get-pip.py
+Run the following command: python get-pip.py
+
+You can verify that Pip was installed correctly by opening a command prompt and entering the following command: pip -V
+
+Now that Pip is installed and configured, you can begin using it:
+
+pip uninstall pyzmq 
+pip uninstall jsonschema
+pip install pyzmq
+pip install jsonschema
+
+Its works for me!
+> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+Thank You)> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+This resolved my issues.  Thank you!> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+This resolved my issue, Thank you.Solved with
+
+> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+Solved! Thanks a lot!!> > I have the same issue, I am no able to launch Jupyter notebook. It errors out.
+> > I tried a) pip uninstall pyzmq - it errors with access denied.
+> > I am new and I am afraid, I am in trouble please help. I may have to manually uninstall everything and then reinstall.
+> > C:\ProgramData\Anaconda3\Scripts>pip uninstall pyzmq
+> 
+> You should be using Anaconda prompt, which is installed by default with Anaconda. And the command should be here:
+> `conda uninstall pyzmq` and then `conda install pyzmq`.
+> 
+> It worked for me. When I installed Jupyter Notebooks to a new environment in Anaconda, it updated some other packages. I needed to uninstall pyzmq from Anaconda and reinstall it. The packages were downgraded and now it works fine.
+
+don't work
+
+![image](https://user-images.githubusercontent.com/58055823/69389001-fca7bd80-0cca-11ea-8e72-924865eab573.png)
+> Get pip here: https://bootstrap.pypa.io/get-pip.py
+> Run the following command: python get-pip.py
+> 
+> You can verify that Pip was installed correctly by opening a command prompt and entering the following command: pip -V
+> 
+> Now that Pip is installed and configured, you can begin using it:
+> 
+> pip uninstall pyzmq
+> pip uninstall jsonschema
+> pip install pyzmq
+> pip install jsonschema
+> 
+> Its works for me!
+this is the log when i start notebook
+
+
+Traceback (most recent call last):
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\tornado\web.py", line 1699, in _execute
+    result = await result
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+    type=mtype))
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+    kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+    self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 209, in wrapper
+    yielded = next(result)
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+    super(MappingKernelManager, self).start_kernel(**kwargs)
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+    km.start_kernel(**kwargs)
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+    self.write_connection_file()
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 476, in write_connection_file
+    kernel_name=self.kernel_name
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 141, in write_connection_file
+    with secure_write(fname) as f:
+  File "C:\Users\Feko\Anaconda3\lib\contextlib.py", line 112, in __enter__
+    return next(self.gen)
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\jupyter_core\paths.py", line 424, in secure_write
+    win32_restrict_file_to_user(fname)
+  File "C:\Users\Feko\AppData\Roaming\Python\Python37\site-packages\jupyter_core\paths.py", line 359, in win32_restrict_file_to_user
+    import win32api
+ImportError: DLL load failed: %1 non è un'applicazione di Win32 valida.
+Hi @niko-gallo - You're encountering a different issue: https://github.com/jupyter/notebook/issues/5074#issuecomment-557304858![Calc](https://user-images.githubusercontent.com/57954267/70520212-dc3e8680-1b45-11ea-8c42-704ca6401289.jpg)
+помогите пл> ![Calc](https://user-images.githubusercontent.com/57954267/70520212-dc3e8680-1b45-11ea-8c42-704ca6401289.jpg)
+> помогите пл
+
+ты внутри backend.py пытаешься импортировать backend.py)
+И в backend у тебя в принципе нет obj
+
+Возможно ты хочешь сделать: from frontend import obj as calculator
+
+
+> > ![Calc](https://user-images.githubusercontent.com/57954267/70520212-dc3e8680-1b45-11ea-8c42-704ca6401289.jpg)
+> > помогите пл
+> 
+> ты внутри backend.py пытаешься импортировать backend.py)
+> И в backend у тебя в принципе нет obj
+> 
+> Возможно ты хочешь сделать: from frontend import obj as calculator
+
+![Calc](https://user-images.githubusercontent.com/57954267/70523944-c41e3580-1b4c-11ea-89dc-a11a6f6cf30e.jpg)
+> > > ![Calc](https://user-images.githubusercontent.com/57954267/70520212-dc3e8680-1b45-11ea-8c42-704ca6401289.jpg)
+> > > помогите пл
+> > 
+> > 
+> > ты внутри backend.py пытаешься импортировать backend.py)
+> > И в backend у тебя в принципе нет obj
+> > Возможно ты хочешь сделать: from frontend import obj as calculator
+> 
+> ![Calc](https://user-images.githubusercontent.com/57954267/70523863-920cd380-1b4c-11ea-9cb7-14759baccaac.jpg)
+
+Еще пишут main а не mane)> > > > ![Calc](https://user-images.githubusercontent.com/57954267/70520212-dc3e8680-1b45-11ea-8c42-704ca6401289.jpg)
+> > > > помогите пл
+> > > 
+> > > 
+> > > ты внутри backend.py пытаешься импортировать backend.py)
+> > > И в backend у тебя в принципе нет obj
+> > > Возможно ты хочешь сделать: from frontend import obj as calculator
+> > 
+> > 
+> > ![Calc](https://user-images.githubusercontent.com/57954267/70523863-920cd380-1b4c-11ea-9cb7-14759baccaac.jpg)
+> 
+> Еще пишут main а не mane)
+
+![Calc](https://user-images.githubusercontent.com/57954267/70524059-10697580-1b4d-11ea-8f3d-41a4864ab23a.jpg)
+
+
+
+
+> > > > > ![Calc](https://user-images.githubusercontent.com/57954267/70520212-dc3e8680-1b45-11ea-8c42-704ca6401289.jpg)
+> > > > > помогите пл
+> > > > 
+> > > > 
+> > > > ты внутри backend.py пытаешься импортировать backend.py)
+> > > > И в backend у тебя в принципе нет obj
+> > > > Возможно ты хочешь сделать: from frontend import obj as calculator
+> > > 
+> > > 
+> > > ![Calc](https://user-images.githubusercontent.com/57954267/70523863-920cd380-1b4c-11ea-9cb7-14759baccaac.jpg)
+> > 
+> > 
+> > Еще пишут main а не mane)
+> 
+> ![Calc](https://user-images.githubusercontent.com/57954267/70524059-10697580-1b4d-11ea-8f3d-41a4864ab23a.jpg)
+
+Не совсем понимаю откуда и зачем тебе str_operation...
+
+
+BACKEND:
+-------------------------------------------------
+from frontend import obj as calculator
+
+
+def run():
+    try:
+        first = float(input('->>'))
+        operation = input('operation->>')
+        second = float(input('->>'))
+        result = calculator[operation](first, second)
+        print(result)
+    except Exception as e:
+        print(e)
+        pass
+
+
+if __name__ == "__main__":
+    run()
+
+
+-------------------------------------------
+FRONTEND:
+--------------------------------------------
+def add(a, b):
+    return a + b
+
+
+def sub(a, b):
+    return a - b
+
+
+def div(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError as e:
+        return e
+
+
+def mul(a, b):
+    return a * b
+
+
+obj = {'+': add,
+       '-': sub,
+       '/': div,
+       '*': mul
+       }
+------------------------------------
+
+> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+Thankyou very much, this problem wasted alot of my timepip uninstall pyzmq
+pip install pyzmq
+did not work for me.
+I tried :- pip install --upgrade pyzmq jupyterlab jupyter --force-reinstall
+use --user if not using a virtual environment in conda or virtualenv> pip uninstall pyzmq
+> pip install pyzmq
+> did not work for me.
+> I tried :- pip install --upgrade pyzmq jupyterlab jupyter --force-reinstall
+> use --user if not using a virtual environment in conda or virtualenv
+
+thx. work for me on windows command prompt 
+> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+This worked for me! Thanks!!> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+this works thanksss> > Hey , use the following:
+> > pip uninstall pyzmq
+> > pip install pyzmq
+> > The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+> 
+> this works thanksss
+
+Yep, just used this - thank you!C:\Users\Ashmeet>cd AppData\Local\Programs\Python\Python35-32\Scripts
+
+C:\Users\Ashmeet\AppData\Local\Programs\Python\Python35-32\Scripts>jupyter-noteb
+ook.exe
+Traceback (most recent call last):
+  File "c:\users\ashmeet\appdata\local\programs\python\python35-32\lib\runpy.py"
+, line 170, in _run_module_as_main
+    "__main__", mod_spec)
+  File "c:\users\ashmeet\appdata\local\programs\python\python35-32\lib\runpy.py"
+, line 85, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\Ashmeet\AppData\Local\Programs\Python\Python35-32\Scripts\jupyt
+er-notebook.exe\__main__.py", line 4, in <module>
+  File "c:\users\ashmeet\appdata\local\programs\python\python35-32\lib\site-pack
+ages\notebook\__init__.py", line 25, in <module>
+    from .nbextensions import install_nbextension
+  File "c:\users\ashmeet\appdata\local\programs\python\python35-32\lib\site-pack
+ages\notebook\nbextensions.py", line 605, in <module>
+    from .extensions import (
+  File "c:\users\ashmeet\appdata\local\programs\python\python35-32\lib\site-pack
+ages\notebook\extensions.py", line 8, in <module>
+    from tornado.log import LogFormatter
+  File "c:\users\ashmeet\appdata\local\programs\python\python35-32\lib\site-pack
+ages\tornado\log.py", line 34, in <module>
+    from tornado.escape import _unicode
+  File "c:\users\ashmeet\appdata\local\programs\python\python35-32\lib\site-pack
+ages\tornado\escape.py", line 27, in <module>
+    from tornado.util import unicode_type
+  File "c:\users\ashmeet\appdata\local\programs\python\python35-32\lib\site-pack
+ages\tornado\util.py", line 21, in <module>
+    from typing import (
+ImportError: cannot import name 'Type'
+
+C:\Users\Ashmeet\AppData\Local\Programs\Python\Python35-32\Scripts>
+
+Cant open jupyter notebook > > pip uninstall pyzmq
+> > pip install pyzmq
+> > did not work for me.
+> > I tried :- pip install --upgrade pyzmq jupyterlab jupyter --force-reinstall
+> > use --user if not using a virtual environment in conda or virtualenv
+> 
+> thx. work for me on windows command prompt
+
+That work for me on anaconda prompt (win10): pip install --upgrade pyzmq jupyterlab jupyter --force-reinstall> > pip uninstall pyzmq
+> > pip install pyzmq
+> > did not work for me.
+> > I tried :- pip install --upgrade pyzmq jupyterlab jupyter --force-reinstall
+> > use --user if not using a virtual environment in conda or virtualenv
+> 
+> thx. work for me on windows command prompt
+
+Worked for me too! thanksGood success. Time to close. Thanks everyone.conda uninstall pyzmq      
+conda install pyzmq
+
+or
+pip uninstall pyzmq      
+pip install pyzmq
+
+This works for me!> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+Worked for me..!!> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+It saves me a lot of time in 2020. Thak you a lot!> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+Thank you. I had the same issue but bot solved after uninstall and reinstall pyzmq. Unable to launch Jupyter notebook. getting below error
+I tried below still not working
+pip uninstall pyzmq
+pip install pyzmq
+
+
+
+Traceback (most recent call last):
+File "C:\anaconda1\Scripts\jupyter-notebook-script.py", line 6, in 
+from notebook.notebookapp import main
+File "C:\Users\pdeshpan\AppData\Roaming\Python\Python37\site-packages\notebook\notebookapp.py", line 49, in 
+from zmq.eventloop import ioloop
+File "C:\Users\pdeshpan\AppData\Roaming\Python\Python37\site-packages\zmq\__init__.py", line 47, in 
+from zmq import backend
+File "C:\Users\pdeshpan\AppData\Roaming\Python\Python37\site-packages\zmq\backend\__init__.py", line 40, in 
+reraise(*exc_info)
+File "C:\Users\pdeshpan\AppData\Roaming\Python\Python37\site-packages\zmq\utils\sixcerpt.py", line 34, in reraise
+raise value
+File "C:\Users\pdeshpan\AppData\Roaming\Python\Python37\site-packages\zmq\backend\__init__.py", line 27, in 
+_ns = select_backend(first)
+File "C:\Users\pdeshpan\AppData\Roaming\Python\Python37\site-packages\zmq\backend\select.py", line 28, in select_backend
+mod = __import__(name, fromlist=public_api)
+File "C:\Users\pdeshpan\AppData\Roaming\Python\Python37\site-packages\zmq\backend\cython\__init__.py", line 6, in 
+from . import (constants, error, message, context,
+ImportError: cannot import name 'constants' from 'zmq.backend.cython' (C:\Users\pdeshpan\AppData\Roaming\Python\Python37\site-packages\zmq\backend\cython\__init__.py)
+@harsh23tyagi Thanks bro is go !>  pip install pyzmq
+
+This helped me , Thank you > Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+Muito obrigado! Funcionou!Check the environment.
+you probably have more than one version installed of pyzmq
+just uninstall the later version
+only use 
+pip uninstall pyzmq> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+thanks a lot it worked
+> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+hey, thank you. it still works with the same issue> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+HEY IT WORKED FOR ME!!!! THANKS A BUNCH!!!> 
+> 
+> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+After using this I can able to run it it browser but not in VS code . getting error as below
+![image](https://user-images.githubusercontent.com/56887373/99769736-cc3c6e80-2b2c-11eb-845b-cd789fe16933.png)
+![image](https://user-images.githubusercontent.com/56887373/99769902-0efe4680-2b2d-11eb-9394-cc71b8944d61.png)
+> 
+> 
+> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+This really helps! Many thanks> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+Thank you, it worked for me > Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+Nice Work Bro, Thank You very Much
+> 
+> 
+> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+Thanks, it's working for me.> Hey , use the following:
+> pip uninstall pyzmq
+> pip install pyzmq
+> 
+> The thing with conda is that it has a lot of conflicts, you might be having a conflict. Using simple pip command would help you to remove those conflicts. I mean it worked for me. I hope it helps
+
+this worked awesome! thanks

@@ -1,0 +1,278 @@
+``` py
+from sklearn.preprocessing import Imputer
+import numpy as np
+
+X_train = np.array([[1, np.NaN], [1, 1]])
+X_test = np.array([[1, 1], [1, 1]])
+
+imputer = Imputer(add_indicator_features=True)
+X_train_imp = imputer.fit_transform(X_train)
+print(X_train_imp.shape)
+
+X_test_imp = imputer.transform(X_test)
+print(X_test_imp.shape)
+```
+#### Expected Results
+
+(2, 3)
+(2, 3)
+#### Actual Results
+
+(2, 3)
+(2, 2)
+#### Versions
+
+Linux-3.13.0-54-generic-x86_64-with-Ubuntu-14.04-trusty
+Python 3.4.3 (default, Oct 14 2015, 20:28:29) 
+[GCC 4.8.4]
+NumPy 1.11.0
+SciPy 0.17.0
+Scikit-Learn 0.18.dev0
+Hi, thanks for the report. In the documentation for the imputer, it is mentioned
+
+> If True, the transformed X will have binary indicator features appended. These correspond to input features with at least one missing value marking which elements have been imputed.
+
+So in the present use case, in the first case there is one feature with a missing value, hence an additional column is appended. And in the second case, since there is no missing value in any feature, no new column is appended.
+
+Hope it helps and please do share if you have any inputs to explicitly mention this behaviour. Thanks.
+Sorry, the actual problem is not clearly visible from the way I posted the issue.
+
+The python code I posted aren't two use cases, they are the same use case, namely fitting a machine learning pipeline and using that later on to predict for unseen values. What's happening is that after calling fit_transform(), I have more features than after calling fit(), something which breaks a classifier used afterwards.
+
+Actually, you are doing the very same in the examples you have checked in: https://github.com/scikit-learn/scikit-learn/blob/18396be8cb03ac9ed7fbceb9c52a2b1a206f79c4/examples/missing_values.py#L81. Therefore, I think this behaviour is wrong, and transform() should always output the same amount of features as fit_transform().
+Sorry if I am understanding it wrong here. But the fit_transform is called on X_train while the transform is called on X_test, at least in the above mentioned snippet. Is there a case where fit_transform and transform are giving different shapes for the same input ? If so, that is definitely wrong and can you kindly give a reproducible example demonstrating that behaviour ? Thanks.
+And sorry if I treated them as separate use cases. I understand that fit and transform are part of the pipeline and the example was on that lines. But the part I was referring to is that the input being transformed are different in the two imputations being performed. Hope I got it right now.
+No, there is no case where it happens that the same input leads to different output shapes. After looking at the code, and the use case I see for the Imputer, what I'm trying to say is that the array `imputed_features_` should be set in the `fit` method and then be re-used in the `transform` and `fit_transform` method. This ensures that each call to `transform`, for different inputs X, results in the same amount of features. What the code right now is doing is learning which value to use for imputation, but adding the indicator features only if an imputation takes place. In order to use it in a pipeline, I would have to write custom code to ensure the output array always has the same length.
+
+You can also reproduce the problem I have with the example `missing_values.py` by changing the missing rate to `0.01`.
+
+To help me understand your point of view, could you please give me an example in which it is useful to have a different amount of features in `transform` depending on the given input?
+EDIT: I updated the title to make the issue more descriptive.
+Thank you so much for the clarification. I understand that custom code needs to be written since the output shape depends basically on the array being transformed rather than the one being used for fit. As you rightly pointed out, the array used for fit is just used to calculate the statistics and the array used for transform decides the shape of the output since it is the one being imputed. This was the approach taken in the implementation. Apologies for my ignorance but I don't have a convincing example to put across my point since it was suggested as an improvement by the core devs.
+Indeed, the output shape needs to depend on the array it was _fit_ on, not the array being transformed. Thank you for the bug report @mfeurer, and sorry we somehow missed this in the implementation of `add_indicator_features`. And apologies to @maniteja123 if you were led to believe this was correct operation.
+@jnothman No problem. Should I work on this on Monday?
+If you would like to. It may be easier for @maniteja123 to fix it up as the original implementer.
+Hi, thanks @jnothman for clarifying. It is me who needs to apologise for misinterpreting the function of imputed feature indicator. Thanks @mfeurer for detailed explanation for the correct implementation. Please feel free to fix the issue but I would be glad to get it done if it fine by you. Thanks.
+I'm totally fine if you fix this @maniteja123 
+In general Maniteja, the number of features output by `transform` must be
+the same as `fit_transform`
+
+On 8 May 2016 at 03:53, Matthias Feurer notifications@github.com wrote:
+
+> I'm totally fine if you fix this @maniteja123
+> https://github.com/maniteja123
+> 
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/6767#issuecomment-217656086
+Thanks @mfeurer and @jnothman for giving clarity over the issue. Basically, IIUC the statistics along with the indicator_features mask should be evaluated at the fit time. Is it fine if I fix it by tomorrow ?
+That'd be great, thanks!
+
+On 8 May 2016 at 14:07, Maniteja Nandana notifications@github.com wrote:
+
+> Thanks @mfeurer https://github.com/mfeurer and @jnothman
+> https://github.com/jnothman for giving clarity over the issue.
+> Basically, IIUC the statistics along with the indicator_features mask
+> should be evaluated at the fit time. Is it fine if I fix it by tomorrow ?
+> 
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/6767#issuecomment-217690219
+Hi, just have a question regarding the case when `axis=1`. Since the statistics are calculated during the transform time rather than fit, what is the approach to be taken to build the indicator matrix in this case ? Thanks.
+Unless I'm mistaken, in the `axis=1` case, the existing imputer already does nothing with the fit-time statistics. They tell us nothing about the test data.
+Yeah yeah you are right. Sorry for not being clear, but to build the mask the statistics are used. But how can I do that at fit time if statistics are evaluated during transform ?
+You don't do it at fit time in the axis=1 case.
+Sorry for pestering you, but just one last question - the shape of transformed output in axis=1 will be independent of input during fit but dependent on the input during transform, right ?
+Hmm... Interesting question. The shape of transformed output needs to be
+invariant from transform to transform. So I guess you must add an indicator
+for every input column, regardless of whether you've seen values missing
+there on the current transform. There should be a test to that effect.
+
+On 10 May 2016 at 10:55, Maniteja Nandana notifications@github.com wrote:
+
+> Sorry for pestering you, but just one last question - the shape of
+> transformed output in axis=1 will be independent of input during fit but
+> dependent on the input during transform, right ?
+> 
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/6767#issuecomment-218031820
+I don't really get why we're supporting axis=1 imputation anyway, but let's
+go with it.
+
+On 10 May 2016 at 11:00, Joel Nothman joel.nothman@gmail.com wrote:
+
+> Hmm... Interesting question. The shape of transformed output needs to be
+> invariant from transform to transform. So I guess you must add an indicator
+> for every input column, regardless of whether you've seen values missing
+> there on the current transform. There should be a test to that effect.
+> 
+> On 10 May 2016 at 10:55, Maniteja Nandana notifications@github.com
+> wrote:
+> 
+> > Sorry for pestering you, but just one last question - the shape of
+> > transformed output in axis=1 will be independent of input during fit but
+> > dependent on the input during transform, right ?
+> > 
+> > —
+> > You are receiving this because you were mentioned.
+> > Reply to this email directly or view it on GitHub
+> > https://github.com/scikit-learn/scikit-learn/issues/6767#issuecomment-218031820
+Thanks for clarifying. So IIUC the size of imputer matrix is always (n_samples, n_features) then right ?
+not sure what "imputer ma" is, but probably...
+Sorry typing from phone, typo !
+Thanks, will change the behaviour, modify tests and also add new tests if necessary. I will try to send a PR as soon as possible. Hope it is okay.
+Sorry one more question, what should `imputed_features_` be representing now ? Thanks 
+I don't think imputed_features_ is applicable to the axis=1 case.
+
+On 10 May 2016 at 22:06, Maniteja Nandana notifications@github.com wrote:
+
+> Sorry one more question, what should imputed_features_ be representing
+> now ? Thanks
+> 
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/6767#issuecomment-218137915
+Thanks. So will make it available only for axis=0 case.
+Sorry for the delay. In case of the indicator matrix, it should be of the whole input, but again for axis=1, the fit is also being done during transform. So, then it depends on X given as input of transform. Can you please let me know how to proceed here ? Thanks.
+You can presume that the X input to each successive transform has an
+identical number of features.
+
+On 12 May 2016 at 00:28, Maniteja Nandana notifications@github.com wrote:
+
+> Sorry for the delay. In case of the indicator matrix, it should be of the
+> whole input, but again for axis=1, the fit is also being done during
+> transform. So, then it depends on X given as input of transform. Can you
+> please let me know how to proceed here ? Thanks.
+> 
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/6767#issuecomment-218476386
+Oh okay, even if we assume the shape to remain consistent, the contents of the matrix will now be populated with the mask for the input of transform then ?
+Sorry, unnecessary question. I suppose that will be the case now. But still the fact that input of fit is totally disregarded for axis=1 is just a bit confusing. Wouldn't it be better to more explicitly document this behaviour ? Thanks.
+You're welcome to document that fact. Most people using an imputer will use
+it in a pipeline, so they want it to behave sensibly with respect to
+fitting and predicting/transforming in an entire pipeline. Not doing
+anything on fit for axis=1 is sensible.
+
+On 12 May 2016 at 10:55, Maniteja Nandana notifications@github.com wrote:
+
+> Sorry, unnecessary question. I suppose that will be the case now. But
+> still the fact that input of fit is totally disregarded for axis=1 is just
+> a bit confusing. Wouldn't it be better to more explicitly document this
+> behaviour ? Thanks.
+> 
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/6767#issuecomment-218632108
+Sorry but it is getting a bit confusing here, what should be the indicator matrix and imputer features be when the input for fit has a column of all missing values and axis=0 ?
+... then you want to keep current behaviour: drop the column.
+Thanks but then the column will be dropped during transform but the approach we want to fit the indicator features during fit. That was my confusion here ?
+Yes, it will be dropped during transform, and it will have no indicator
+feature column. I think there should be a RuntimeWarning if there are any
+non-missing values in that column at transform time.
+
+I hope you're writing test cases along with asking these questions.
+
+On 14 May 2016 at 21:25, Maniteja Nandana notifications@github.com wrote:
+
+> Thanks but then the column will be dropped during transform but the
+> approach we want to fit the indicator features during fit. That was my
+> confusion here ?
+> 
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/6767#issuecomment-219215146
+Thanks for patiently answering and apologies for too many questions. I
+needed to clarify this since now the method to generate indicator features
+will change because during fit time the column with all missing values will
+still be existing in the input array.
+
+And I will make sure to cover all these scenarios in the test cases.
+On 14 May 2016 5:18 pm, "Joel Nothman" notifications@github.com wrote:
+
+> Yes, it will be dropped during transform, and it will have no indicator
+> feature column. I think there should be a RuntimeWarning if there are any
+> non-missing values in that column at transform time.
+> 
+> I hope you're writing test cases along with asking these questions.
+> 
+> On 14 May 2016 at 21:25, Maniteja Nandana notifications@github.com
+> wrote:
+> 
+> > Thanks but then the column will be dropped during transform but the
+> > approach we want to fit the indicator features during fit. That was my
+> > confusion here ?
+> > 
+> > —
+> > You are receiving this because you were mentioned.
+> > Reply to this email directly or view it on GitHub
+> > <
+> > https://github.com/scikit-learn/scikit-learn/issues/6767#issuecomment-219215146
+> 
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/6767#issuecomment-219216021
+> now the method to generate indicator features will change because during fit time the column with all missing values will still be existing in the input array
+
+I don't get what you mean. The column with all missing features should be dropped in `fit_transform`, or in `transform`.
+Sorry, I meant in case the feature has non-missing values, you said it should be RunTimeWarning. But if there are non-missing values, the `features_with_missing_values` will have that column since it is evaluated using the mask of X still having the missing values (since it is now being done during fit) but `valid_idx` won't have it since it depends on statistics, which discards the feature with no missing values [This](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/preprocessing/imputation.py#L357) line will thus give an IndexError here. Should I make `features_with_missing_values` discard that feature in such a case ?
+I have pushed the changes temporarily at https://github.com/maniteja123/scikit-learn/commit/e015eca52b93d73bc1c73a0e2e403ed3e5a14e69. As of now, the `valid_idx` is generated from statistics, which discards the feature with all missing values, but `features_with_missing_values_` will not take that into account since it is done during fit when the column is not yet dropped from X. Hope I am able to convey it right now.
+Please just submit a PR. Unless I'm mistaken, _of course_ you should make `features_with_missing_values` discard that feature in such a case.
+
+Again, the principle is: the data input to `fit` and `transform` will look similar (same `shape[1]`), and the data output from `fit_transform` and every subsequent will look similar `transform`. You collect whatever statistics you need in `fit` (although this happens to be nothing in the `axis=1` case). Almost all of these decisions derive from this basic definition of Transformer operation.
+Thanks again for patiently bearing with my questions. Apologies for wasting so much of your time. But the changes needed me to change many parts of the code and I was hoping to do it with minimal digression from the present behavior and code flow. I have submitted a PR at #6782 . Kindly have a look at it and let me know if it fixes this bug and functions as expected. Thanks.
+PING - any news on this? Can I help you guys in fixing this issue?
+Thanks for the ping, @mfeurer. I think this is an important one to get into 0.18. @maniteja123 are you still working on this?
+Hi,  sorry for the delay. I would be glad  to complete the  work on it. The tests are failing for the sparse case in some previous versions. I would be thankful if someone has more insight into the reason. I will try to fixing the errors. Besides the error, it would be helpful if the functionality is the expected one now. Thanks! 
+A design decision. When a feature has missing values in `transform` but not in `fit` should we:
+1. have indicator features only for those features with missing values in training
+2. have an indicator for all features
+3. allow the user to specify the set of features for an indicator and otherwise default to 1 or 2
+4. have a further "any feature has missing" indicator feature to handle this case
+
+In a traditional fit/predict pipeline, some indicator features created by {2,3} may be constantly 0 at fit time, and so have no impact on the fitted model. However, these could benefit in a `partial_fit` approach... Option 4 actually allows the model to exploit knowledge of data absence in general, and indeed could be offered alongside any of the prior options.
+
+@mfeurer, @amueller, your opinions?
+I agree on your point why Option 1 is a bad idea and I think Option 4 is some kind of 'meta'-information which shouldn't be added by the imputer. My favourite is Option 3, with a fallback to Option 2.
+Deleted
+I don't particularly like option 2, because certainly in the dense data case, you can waste a lot of space when only a few features are liable to be missing.
+
+I actually do quite like option 4 -- I think its benefits from a learning perspective are most clear -- but maybe it needs another parameter, `add_global_indicator_feature` (yuck name!) to switch on.
+
+Practically, I'd be happy to have option 1 or 2 implemented now by default in #6782, and then 3 and 4 can come through additional parameters later.
+
+I don't know which test failures you're referring to.
+Five hours later, Option 1 makes more sense than Option 2 :)
+
+Option 3 would then override Option 1, right?
+
+I also deleted the previous comment, sorry for that.
+Well it seems that I ask questions to then work out the answer for myself. But even better if there's consensus!
+How about failing on transform if indicator features are enabled and new features have missing values and no set was specified?
+I think we can leave the global for now. too many options :(
+> Option 4 is some kind of 'meta'-information which shouldn't be added by the imputer.
+
+I agree, option 4 is basically a compounded feature. Not sure if we want to do that at imputer?
+
+Option 1 feels implicit...
+
+Option 3 (provisioned via a list attr `missing_features`) with a fallback to Option 2 (when `missing_features` is `None`) looks good to me. It is more explicit.
+
+When the feature is a constant 0, most estimators ignore it. _Maybe_ if you want it removed, we could add a `RemoveConstantFeature` transformer?
+
+Option 4 is a separate feature request. Maybe should be raised as a separate issue?
+> How about failing on transform if indicator features are enabled and new features have missing values and no set was specified?
+
+With no other option implemented to suppress that error, _I think_ simply raising an error would give them no control other than to add dummy rows (to their `fit` data) with missing values in features that may go missing at `transform`.
+Pretty late reaction but Ouch!
+Having reverted the feature, this is no longer an issue. Thanks for the input; we'll work on building it better next time.
+And thanks so much to @mfeurer for bringing this to our attention.

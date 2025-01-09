@@ -1,0 +1,486 @@
+
+ System information 
+ Have I written custom code as opposed to using a stock example script provided in TensorFlow:
+Yes, modified inference code from tflite gpu delegate android sample with additional code from LINKLINK.
+ OS Platform and Distribution: Android 8.0
+ Mobile device: OnePlus 3
+ TensorFlow version: 12.0
+
+ Describe the current behavior 
+The tensorflow lite gpu delegate documentation has provided a sample code for running the tflite inference efficiently on android, avoiding CPU GPU memory copying with the help of opengl and SSBO in a egl context. However, this method does not seem to give any performance gains; rather it degraded the inference performance in terms of speed. The documentation mentions a method 'interpreter. runInference null, outputArray ' for running the inference in this case. Is this method same as the basic run method i. e interpreter. run inputTensor, outputTensor. There seems to be no method in the current api called 'interpreter. runInference'. Is the method suggested currently supported in the experimental gpu delegate api i. e accessing input image from opengl ssbo directly for running the inference? How can we ensure that the model takes the input from this SSBO in GPU memory?
+
+ Expected behaviour 
+The tflite inference using opengl ssbo should be faster than the basic gpu delegate inference, where data is copied every time from cpu to gpu.
+
+ Other info logs 
+We measured the time for the 'tflite. run' method in android studio. The input was in the recommended ByteBuffer format.
+
+Error: Cannot resolve method runInference null,  anilsathyan7 
+
+Thanks for trying out the GPU delegate.
+
+Can you provide a little bit more context in terms of timing, for example how many milliseconds seconds was it before and after?
+
+What kind of network are you using? Specifically, are all ops supported?
+
+Have you written a custom shader code to copy camera texture into SSBO, or are you just dumping CPU memory to SSBO by yourself? If it's the former, you're doing things right and it should get faster. If it's the latter, it's only going to get slower.
+
+Model: Similar to the Official LINKLINK. model inference graph attached as image. The last three additional nodes are not supported by gpu delegate, it seems. The input image size is 129 129.
+
+Phone: OnePlus 3, GPU: Adreno 530
+
+Timings: 
+CPU Inference: 60 70 ms
+GPU Inference: 40 50 ms
+GPU Inference SSBO: 80 90 ms
+
+
+
+Here is the method that we used to copy camera texture into SSBO: 
+
+ CODELCODEL 
+ LINKLINK 
+
+
+
+
+
+
+ anilsathyan7 
+
+Apologies for the delayed response. For some reason, I just got this in my inbox 
+
+Quick question re: your code:
+
+Doesn't it have to be 
+
+ CODESCODES 
+?
+
+Also, do you have the luxury to make the input SSBO of shape 1x129x129x4? Then you could eliminate one hidden memcpy inside.
+
+From the graph you shared btw, nice visualization; appreciate that, it indeed looks like everything would be handled until the last ResizeBilinear. The shape of it is also not too bad 129x129x2, in terms of, it has too many channels etc. So I wouldn't expect any slow down.
+
+Did you properly call CODESCODES before CODESCODES? Can you share the shader code that converts your texture to SSBO? I was doing something like:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+for MobileNet. Might not be directly applicable, but you roughly get the idea. Not officially announced yet, but FYI: GPU code is now visible at:
+
+ LINKLINK 
+
+if you need the code for better insight what is happening.Hi impjdi,
+ Can you just share the sample classification app using ssbo or atleast the opengl related code?
+We used the following shader code based on your inputs. But we encountered some LINKLINK related to shader version, which we could not resolve being opengl beginners.
+
+ CODELCODEL 
+
+ CODELCODEL 
+
+ CODELCODEL 
+ anilsathyan7
+
+I am out of office on vacation this week with limited network access and there's a good chance I'll forget about this. Could you please nudge me again next week?Sure porygon. 😉Hi impjdi,
+ Can you help us with the ssbo tflite inferecne issue? We could not run the tflite inference using ssbo in android. Can you just share the sample classification app using ssbo or atleast the opengl related code? How much speed up can we expect in this scenario?Hi impjdi,
+I'll second a request for a demo illustrating SSBO inference.
+
+Maybe I should open a separate issue. We're attempting to use a GLSurfaceView in our app, alongside the tflite GPUDelegate. Our renderer works fine until CODESCODES is called, which results in a black screen. No glErrors are produced. Its difficult to understand how commenting uncommenting the above line changes the behaviour, even after looking at the newly released GPU delegates source.
+
+A working example might clear things up. 
+
+Thank you! anilsathyan7 
+
+Heh, I missed the porygon part earlier thumbs up 
+
+The below is in C++, but should be similar in Java too.
+
+ glActiveTexture GL TEXTURE0 + 0 ;
+ glBindTexture GL TEXTURE 2D, your gl texture that has the image ;
+ glBindBufferRange GL SHADER STORAGE BUFFER, 1, your ssbo, 0, size in bytes ;
+ glUseProgram the program above ;
+ glDispatchCompute width 16, height 16, 1 ; these are work group sizes
+ glBindBuffer GL SHADER STORAGE BUFFER, 0 ; unbind
+ glBindTexture GL TEXTURE 2D, 0 ; unbind ktgordon 
+
+Hm, the only official example code is the TFLite demo app that is in the TF repository. As an Android app consists of a lot more than just a single Java file, that'd be difficult unless I start up a whole new git repo with the files. Unfortunately, on top of that, I'm not a real mobile app developer; I do most of my stuff in Android C++ without cameras. I'll see whether I can cook up a C++ binary that can do all this in a single C++ file That discussion aside. 
+
+ CODESCODES hanging sounds like you have an issue somewhere else. Make sure that your CODESCODES is called before CODESCODES, and that your SSBO is already created. The flow of the program with CODESCODES is as follows:
+
+ CODESCODES Java 
+ CODESCODES C++ 
+ CODESCODES C++ 
+ CODESCODES C++ 
+
+You can probably trace back what is causing the hanging. anilsathyan7 
+
+Did things work out? Can this issue be closed?The code is working fine; but we are not able to get correct output using the ssbo as input. The output seems to be black i. e output is all zeroes. We are not able to ensure that data is correctly copied into ssbo or whether it is correctly accessed by tensorflow; even though it is running without errors. It seems there is no way to debug and see shader codes GLSL in android.Attached with this is the logfile containing the errors when we tried to use SSBO with the tflite model.
+The code works properly in Mobiles with Adreno GPU without any errors but no output is visualized. But in phones with Mali GPU, there are some issues even before the model comes into picture.
+
+The errors vary between Mali Devices, whereas the output is not getting visualized in Adreno Devices. 
+The devices used in the below testing are:
+
+ Mali Error logs are attached with the issue: mali gpu ssbo errorlog. txt 
+ Samsung A8+ 
+ Honor Play 
+ Moto C plus 
+
+ Adreno Error Logs are attached: adreno gpu ssbo errorlog. txt 
+ Poco F1 
+
+ LINKLINK 
+
+ LINKLINK 
+
+ impjdi Could you have a look at it. And it would be better if you could share with us the working app code for reference. impjdi Any updates on SSBO?
+
+
+
+
+
+
+
+
+
+
+We did find a workaround. I'm assuming you're using the Java API and bringing in gpu delegates via 
+ CODESCODES 
+
+
+
+
+
+Managing the egl context was handled by reusing code from LINKLINK.
+
+This got us passed the black screen problem anyways. 
+
+I am doing exactly what you said here as I based on TFLite demo which uses TextureView. Mainly the following: Create gl context, set gl viewport, etc. Stores eglDisplay, eglSurface, eglContext. Make call to CODESCODES. Set the eglContext, eglSurface, eglDisplay as current using CODESCODES 
+
+The draws using CODESCODES, results in black. Interestingly, if step 1 & step 2 is swapped in sequence, everything works.
+
+The Grafika code was also referenced as well. 
+
+Will try to setup a dummy context next. 
+Hi ktgordon, gnsmrky, 
+ Are you suggesting that ssbo method would not work with normal GLSurfaceView? What about something like GLTextureView LINKLINK, LINKLINK?
+
+Finally, are you able to achieve any speedup compared to normal GPU inference? If so, can you share a basic working demo app? Just to clear things up.  ktgordon Just got it working! Indeed, the dummy shared context is the key to make it work. I guess the GLES context setting switching can be a lot more complicated than one can imagine. 
+
+ anilsathyan7 I based on the LINKLINK, which is the main sample project that LINKLINK provides. This sample project uses CODESCODES. Don't know if SSBO works with other surface types. I would imagine it should as CODESCODES takes CODESCODES, CODESCODES, CODESCODES or a CODESCODES, according to LINKLINK. GLTextureView from your link extends SurfaceTexture, should work as well.
+
+The performance gain is significant. I was trying a 448x448 image. Trying a larger image to amplify the copy time. The time it takes w o SSBO Image2D copy shader is around 900ms on a Snapdragon 808. Using copy shader the time comes down to 20ms!
+
+ gnsmrky Could you share your repo, so that it could be a better thing for everyone to start exploring ssbo with that. 
+
+ SanthoshRajendiran Trying to find the time to do that. The code is very messy now and unreadable. Will get it cleaned up as soon as I get spare cycles.  gnsmrky impjdi Any updates on the repo? Can you provide some code fragments on where the changes need to be incorporated in the mobile app?  gnsmrky thank you so much for your efforts. let us know when you are adding sample code here.  SanthoshRajendiran soham24 Plan to publish the repo over the weekend. Still doing some tweaks. thumbs up  SanthoshRajendiran 
+
+I bubbled up this request in last couple of meetings. The example will be added to the TFLite demo app, but I have some deadline coming up, so it will be a couple months until I can get to it thumbs down  SanthoshRajendiran soham24 impjdi 
+I just put up the repo at LINKLINK. Should just open the project in Android Studio to build and run. Once in the app on the phone, select CODESCODES and CODESCODES to see the CODESCODES for the time it takes to copy a frame to SSBO.
+
+The code is still very rough. But should serve the purpose to get started playing around SSBO in TFLite GPU delegate.
+
+ Snapdragon 808, the time it takes to copy a 224x224 pixel buffer is reduced significantly. From 180ms 200ms Java ByteBuffer CODESCODES copy, down to 1ms shader + SSBO. As LG G4 is a relatively an old phone 5 years now, the time it saves on a more recent phone may not be as significant. But really, if G4 can do a frame copy in 1ms, surely any other Android phone can do better. thumbs up 
+
+
+ Switch to Context A when camera surface texture SSBO.
+ Switch to Context B when calling TFLite CODESCODES.
+
+
+
+Haven't got the time to put up a readme. Just take a look into the LINKLINK. Should be fairly straightforward to figure out what's in there. Hope this helps to clarify a few things about TFLite + GPU delegate + SSBO.
+
+Let me know if it works out for you guys. 
+ gnsmrky Congrats and thanks for the amazing work on SSBO. We tried out the application in some of our mobile phones. The working methodology on various phones is discussed below:
+
+1 Oneplus 3 Model running time is around 40ms, the same as without SSBO. Copy time is around 0 or 1 in all cases
+2 Poco F1 Model running time is around 25ms, But we are not able to get the actual output from the app.
+3 Samsung A8+, Honor Play The apps are crashing with linkage error, saying maximum number of work group invocations. We modified the sizes for work group to 8, and we obtained a model running time of 5ms, but we were not able to get proper output from the model. gnsmrky thank you so much. I will let you know about working after implementation. gnsmrky Great work. thank you so much! Did you try deeplab segmentation model?
+
+
+
+So it is only working and have proper output on OnePlus 3 among these phones? Let me see if I can get hold of a Snapdragon 845 phone. 
+
+
+ junhwanjang I haven't tried deeplab yet. But I did try the output SSBO with other models, which works correctly as well. Does deeplab work with GPU Delegate fully yet, do you know?
+ SanthoshRajendiran I just updated the repo. Seems like compute shader needs a real on display surface on some devices. I added a 1dp x 1dp view to the asset to associate it with gles surface. Can you give the updated repo another try on your phones again?
+
+Here is the latest LINKLINK.
+
+BTW, the Cam SSBO copy does not take transformation from CODESCODES into account. You may need to position your phone counter clock wise for example bottom of the phone points to the right to have correct inference result.
+ gnsmrky Thanks for the update. With POCO F1 Adreno 630, Snapdragon 845, the output is coming now around a speed of 20 30ms and copy time is around 0 thumbs down ms. 
+Still the problem persists in Mali GPU Devices tested on Honor Play 
+Attached below is the error log with Honor Play:
+
+ LINKLINK 
+ SanthoshRajendiran Have you tried setting work group to 8, or even 4, for Mali devices? Here are the 2 lines you should change CODESCODES to CODESCODES or CODESCODES. 
+ LINKLINK 
+ LINKLINK  gnsmrky We tried setting work groups as both 4 and 8 in Samsung A8+, the model is not running properly even when we tried it in landscape mode. When we change the work groups, the app crashes within some time due to GL out of memory error.
+
+
+E AndroidRuntime: FATAL EXCEPTION: CameraBackground
+ Process: android. example. com. tflitecamerademo, PID: 23378
+ java. lang. IllegalArgumentException: Internal error: Failed to run on the given Interpreter: Next operations are not supported by GPU delegate:
+ SQUEEZE: Operation is not supported.
+ First 29 operations will run on the GPU, and the remaining 2 on the CPU. TfLiteGpuDelegate Invoke: There is not enough memory left to execute the command. Node number 31 TfLiteGpuDelegate failed to invoke.
+ 
+ at org. tensorflow. lite. NativeInterpreterWrapper. run Native Method 
+ at org. tensorflow. lite. NativeInterpreterWrapper. run NativeInterpreterWrapper. java:149 
+ at org. tensorflow. lite. Interpreter. runForMultipleInputsOutputs Interpreter. java:275 
+ at org. tensorflow. lite. Interpreter. run Interpreter. java:249 
+ at com. example. android. tflitecamerademo. ImageClassifierFloatMobileNet. runInference ImageClassifierFloatMobileNet. java:101 
+ at com. example. android. tflitecamerademo. ImageClassifier. classifyFrameSSBO ImageClassifier. java:167 
+ at com. example. android. tflitecamerademo. Camera2BasicFragment. classifyFrameSSBO Camera2BasicFragment. java:967 
+ at com. example. android. tflitecamerademo. Camera2BasicFragment. access 1200 Camera2BasicFragment. java:91 
+ at com. example. android. tflitecamerademo. Camera2BasicFragment 8. run Camera2BasicFragment. java:785 
+ at android. os. Handler. handleCallback Handler. java:873 
+ at android. os. Handler. dispatchMessage Handler. java:99 
+ at android. os. Looper. loop Looper. java:214 
+ at android. os. HandlerThread. run HandlerThread. java:65 
+I Process: Sending signal. PID: 23378 SIG: 9 gnsmrky By default in models like deeplab models not fully capable of running in GPU, there is a fallback happening in GPU Delegate from GPU to CPU. Does this behavior change in SSBO and how do we get the data if it is falling back to CPU?  gnsmrky thanks. this worked like charm on low end devices. 
+One question, It's true that we have to rotate the phone counter clockwise. Can I add the rotating logic in the shader.
+ref link: LINKLINK  gnsmrky Could you give insight on what changes have to be done in your application code if I want to get an image output from the tflite model, with respect to SSBO.
+
+
+ SanthoshRajendiran I just updated the repo with few tweaks. Should lower the memory requirement a big. Use FP16 precision. Use CODESCODES as workgroup size. Add a check for SSBO buffer size upon creation.
+
+The CODESCODES error you are seeing may due to the failure when creating SSBO buffer. Are you running the repo as is?
+
+Let me know if the updated repo works out for you.
+
+
+
+ SanthoshRajendiran The SSBO in the repo is only for input buffer. Nothing is changed for output buffer. So the code for getting the output data should be the same way as you do with CPU for example ByteBuffer.
+
+I haven't got my hands on deeplab yet. Do you know which op it is causing the CPU fallback?
+
+
+
+
+
+
+ soham24 The transformation happens when you use the regular glViewPort, glDraw, etc. with corresponding vertexfragment shader. The SSBO code in the repo is a simple memory float copy and does not involve any vertex fragment shader. If we do the transformation on per float basis, it will most likely slow things down. 
+
+The best way to do it is to draw the camera texture to another texture, with the desired transformation, and then do texture SSBO copy. That would take some efforts. Will need to find more time to do that.
+
+
+
+
+ SanthoshRajendiran What do you want to do with the image output? Creating an SSBO and bind it to TFLite GPU delegate is as easy as creating one and call CODESCODES to the output tensor CODESCODES, as says in LINKLINK.
+
+
+
+
+
+
+
+Thanks gnsmrky. It will be great if you update the sample with desired transformation. 
+  gnsmrky We figured out the issue with Squeeze operation not getting supported. It is because, by default the Squeeze operation is not working in GPU on Mali Devices verified with benchmark tool. Hope, we will open a separate issue for that, or since impjdi is linked with the thread, he will handle that. Other than that, the repo works as it is. In our case, we are handling a full GPU supported model and getting an image output to be rendered on to the surface, and so, we are going on with the SSBO output too. SanthoshRajendiran I have a doubt. Are you resizing input size texture before passing it to tflite?
+op will be resized. How you will render it directly via texture?  soham24 Input to the model we are resizing in order to make sure the model is running. The output of the model we will resize it to the desired size that we will need to render. 
+
+ SanthoshRajendiran It sounds odd to me as well. What I was trying to say is that if the size is not correct for SSBO, GPU delegate will then say SQUEEZE has problem, even though it is not the case.
+
+
+
+Work in progress, albeit very slowly. In the current version of the app, it is developed with EGL Surface. We tried using GL Surface View, but it is not working. Is there any work around that can be done to facilitate the ssbo output to be rendered directly on a GL Surface View?  gnsmrky We tried figuring out Output SSBO, but we are unable to do it correctly. Could you tell us the exact places we need to make the changes in order to make it working.
+
+Basically, we made these modifications.
+1 Initialized tflite instance by setting setAllowBufferHandleOutput true as per the tflite gpu documentation.
+2 Binded buffer output to model SSBO using gpuDelegate. bindGlBufferToTensor outputTensor, outputSsboId ;
+
+3 Rendered the output on the mobile screen.
+
+Could you check if SSBO output is working in your case. Or some changes that were done previously like rotating the screen or something is needed now too to visualize the output on screen.
+
+Herewith, I have attached the tflite we used for testing output SSBO, wherein we are not doing anything, but just resizing an image from 197 to 257 using a ResizeBilinear operation. 
+
+ LINKLINK 
+
+
+
+ SanthoshRajendiran I did not do anything for output SSBO in the repo I posted here. But I output SSBO does work. So it may be something in your shader code that moves data from SSBO to texture buffer for drawing on screen.
+
+What I would suggest is to try out an op that does not change any shapes. CODESCODES op as one example, which is an unary op that does not change tensor shape. Fill in values that's predictable, say CODESCODES, the result should be CODESCODES. That was how I worked on both input output SSBO at the beginning. 
+
+Most problems I ran into was not on TFLite GPU delegate part of the code, but on OpenGL ES in Android. Just needed to dissect the code piece by piece to get it to work correctly from SSBO to screen.
+
+Hope this helps. 
+
+BTW, try not to use Bilinear Resize with non integral resizing first. Try something like CODESCODES as scaling factor. So CODESCODES will be resized to CODESCODES. It may help. 
+
+
+
+
+
+
+Hello, gnsmrky:
+ I test your code in two different devices and it seems to use GPU only randomly. Most of the time while in GPU mode it does nothing. I tried less working groups 8 or 4 but doesn't make any difference. 
+
+ Do you have any idea about why this is happening?
+
+ Thanks in advance.
+
+ jsolves Can you elaborate more? Did you mean Camera SSBO does not work, or GPU delegate? How did you observe whether it works or not?
+ I hope i could tell you more. But every mode in the app works correctly until it goes GPU. Most of the time, classifies everything as 0 or near 0 and device gpu utilization doesn't goes up. Only in a few ocassions gpu classification goes well and gpu utilization goes up, accordingly.
+
+ I tried other gpu apps and they worked as intended. I don't know how to determine if the problem is Camera SSBO or GPU delegate or something related with shaders. Do you know anything I can try to see if the problem is one of those things?
+
+ Thanks for your answer.
+
+ jsolves What you can definitely try is the original LINKLINK, which already has GPU supported. My SSBO repo only adds the camera SSBO based on this repo. You can see if GPU in the TFLite Android repo has faster inference time.
+
+Ah, sorry, I'm a little tired with this problem. Yes, GPU Delegate works correctly in original repo and in my own custom apps. It gives faster inference time than CPU inference.
+
+So the problem is in the camera SSBO part, then?
+
+ jsolves The main purpose for SSBO is to reduce the pixel copy time from Camera to input SSBO for TFLite. GPU inference time should not be affected at all. 
+
+Do you see copy time when you run the app when running in GPU mode? 
+
+Also, how did you check GPU utilization? Are you getting expected inference output when GPU utilization is low?
+ Yes, I know. In GPU with SSBO the copy time is very low 0 2 but there is no right classification it goes random values or all 0s most of the time.
+
+ In device configuration, there is an option like show gpu utilization and in the few times that the app works fine with GPU, that gpu indicator goes up.
+
+ It's like if the image camera doesn't always go to SSBO or some initialization trouble. But my Android Fu isn't strong enough to get it. thumbs down  jsolves As I tested gpu inference with basic 3 channel input model, I couldn't get right results. 
+However, when I changed model with 3 channel into fake 4 channels input using new Input and strided slice ops, finally get right results thumbs up 
+Intriguing. How do you make that fake 4 channels, setting the fake alpha to 1 in every pixel?
+
+Thanks in advance. CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+
+I converted the model as follows. Create fake inputs including strided slice operation  Change previous 3 channel input into fake inputs as above in graph should aware of previous input names if possible  Convert TFLite model
+I think LINKLINK does this.  soham24 I went through mediapipe, but could not understand how this works. The tflite provided by mediapipe team, has ops that are not supported by TFLite GPU, nor those were even tensorflow operations as it is. Can anyone provide suggestions on how to train the segmentation model based on the mediapipe architecture. SanthoshRajendiran Even I am trying to figure out pipeline by looking at mediapipe code. 
+IT will be great if guys at tf help us  SanthoshRajendiran soham24 
+
+Yes, MediaPipe probably uses all features of the GPU delegate and is a good place to start I used to work on MediaPipe a couple years ago: D. I agree that the GPU path is not super easy to read, but is still a decent place to start. If you look at the CODESCODES, first of all, you will see tons of CODESCODES thing, that ensures you stay in the same GL context. Then, all it really does is, copy input SSBO, run inference, and copy output SSBO. I think there is still room for improvement, which is going to happen very soon tm. Well, that's on my plate for next 3 months: P 
+
+For the segmentation model, you want to check in the MediaPipe github page and ping those guys.Can we have update on this?
+Ummm, can you elaborate what kind of update you expect? Do you want us to walk through another open source software?I’ve tried to associate my custom tflite model to SSBO in android as gnsmrky did, but I couldn’t make it work so far.
+ By the way, the latest tflite seems not to support bindGlBufferToTensor but the official tflite gpu delegate document still introduces bindGlBufferToTensor in using SSBO. 
+Anyway I’ve built tensorflow from LINKLINK and managed to run the image classification demo with SSBO. Even if it shows different results compared to CPU version and official GPU version without SSBO, it’s at least working it has prediction values and copy time has reduced.
+But as I changed the provided mobilenet model to my custom model I’ve tried even a very simple model with add operation only, it looks like working but the output gets all zeroes, or it sometimes produces error that Tensor is not bound to a buffer handle depending on the used model. 
+Since I’ve tried models with the same 224x224x3 input as the original demo and changed nothing except for the model path, I’d like to know if there is any other modification I should take care of when I change or make a model.
+Below are some examples of the simple models I’ve tried. Visualized by Netron 
+ LINKLINK 
+ LINKLINK 
+It would be great if TensorFlow offers an official SSBO demo with the latest tflite.tensorflow lite ssbo tensorflow lite java demo app src main java com example android tflitecamerademo ImageClassifier. java:212: error: cannot find symbol
+ gpuDelegate. bindGlBufferToTensor inputTensor, inputSsboId ;
+ 
+ symbol: method bindGlBufferToTensor Tensor, int 
+ location: variable gpuDelegate of type GpuDelegate
+ jmhodges gnsmrky I don't work in Java lands, and thus I don't know which delegate Java APIs are using, but bindGlBufferToTensor got renamed in the deprecated GL delegate, and removed in the new GPU delegate. Check out CODESCODES & CODESCODES. impjdi jmhodges gnsmrky 
+My model input pixel value is float with range 0.0 1.0 1.0 255 can use ssbo?
+How to dump a ssbo buf to cpu for evaluating?You're looking for CODESCODES  LINKLINK 
+Why transformedData print out zero value after glDispatchCompute invoked 
+Where is wrong?
+I need to inpect the ssbo value after copyCamtextToSsbo if has an better method?
+ impjdi svenstaro bmabey Not super familiar with Java CODESCODES and CODESCODES, but aren't you missing a CODESCODES before you start reading from the memory location? impjdi svenstaro ktgordon SanthoshRajendiran gnsmrky 
+You can think FloatBuffer as a float pointer buffer in c++
+I have tried with glFinish but the same result 
+but if I add follow code:
+GLES31. glBufferData GL SHADER STORAGE BUFFER, ssboSize, ssboData, GL STREAM COPY ;
+I can get ssboData content with glMapBufferRange why?
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+I want to evaluate out data. elements content is correct? after dispatchcomute is done.
+I have googled for two days but not found solution for it
+
+
+Not talking about the why part, but isn't your problem solved if you can access CODESCODES?
+
+I also remember that I couldn't find enough examples on the web to make reasonable progress. What you're asking right now seems slightly out of scope for TFLite GPU support, as you're asking pure OpenGLES compute shader questions. I suggest asking Khronos forums and or follow the code paths inside TFLIte GPU and MediaPipe; these two frameworks use SSBO and textures a lot. I'm sure you will find your use case there. impjdi svenstaro ktgordon SanthoshRajendiran gnsmrky
+
+I m a newbie for opengl es.
+
+I have viewed MediaPipe and Tflite GPU to try solved it but failed
+
+I m curious how to debug compute shader in android to you
+
+it has few stuff on the network about ssbo
+
+The code is provided by LINKLINK 
+
+Sorry for my english if you do not understand Stop highlighting me. svenstaro Very sorry for disturbing you impjdi 
+I finally located why glmapbufferrange return all zero. 
+GL OES EGL image external essl3 not working with some android device
+ LINKLINK 
+
+Ah, thanks for the update and sharing!I followed the official documentation for android for the GPU delegate and got stuck at the bindBuffer step, too.
+
+
+
+I checked out the current master and there is no gpu delegate. cc? only a gpu delegate jni. cc. Did you mean that?
+
+Anyways, I found that TfLiteGpuDelegateBindBufferToTensor seems to be an exported symbol of the library and we can get the native handle of the delegate so we might be able to call that method directly from java.Sorry, the last file should have been CODESCODES. We were internally trying to use CODESCODES without the delegate API, but with GPU internal functions directly and saw that the new API is a bit broken, so that it's not usable with the new API. Someone is working on fixing those. For now, if you want to use CODESCODES, I guess you are stuck with the old API, for example CODESCODES. impjdi Thanks for the update. Does that mean the SSBO route is currently only available with the C bindings or not at all?I haven't checked Java, but if Java has migrated to the new API delegate. cc, your assessment is correct.
+
+For C++, it's only available in v1 gl delegate. cc, but not in v2 delegate. cc.
+
+ impjdi is the SSBO bindBuffer issue in v2 delegate resolved? The current plan is not to support bindBuffer in delegate v2. impjdi we have our image frame in GPU memory. Should we move it to CPU just to start inference, which will move it to GPU again? The time spent doing this would waste the benefits of gpu inference in many cases. impjdi Could you share anything information about why bindBuffer will not be supported in delegate v2? I believe that it improves gpu end to end inference time by eliminating memcpy actions. Does tflite team run into some unresolvable issues or the decision is made only by product requirements?There are many advanced usages of the mobile GPU inference, and for each of those, GPU delegate needs helper functions like CODESCODES because it doesn't fit in the delegate framework. After adding a bunch of support for extended usages either through the helper functions or options, we decided it's no more maintainable with the combinatoric growth and gives an inconsistent look even within the GPU delegates OpenCL, OpenGL, Metal, etc. Note that, we have to wrap it up with a Java API. With the majority of the users wanting the GPU delegate as just a quick blackbox accelerator, we made the final decision that the delegate API will stay simple and clean. For advanced usages that supports a streamlined GPU execution pipeline, we will still have an example code through, for example MediaPipe's CODESCODES. Note that it's not there yet, as it still uses the v1 delegate and thus has access to CODESCODES. impjdi This information is helpful. Another question is when will MediaPipe delegate v2 integration be released? Thank you.Someone's working on it thumbs up Has anyone managed to bind the buffer with the v2 delegate?
+
+It seems to me that mediapipe is already using it, see LINKLINK. This runner is used LINKLINK mentioned by impjdi under the CODESCODES flag. It replaces the interpreter delegate flow and uses low level components instead.
+
+This is very unfriendly for those who want to have the SSBO utility without maintaining their own interpreter, but going deeper, the bind logic is in LINKLINK and simply calls CODESCODES.
+
+The v2 delegate owns an CODESCODES itself so maybe a small patch to the v2 delegate could add the required CODESCODES or output call. But I haven't tested, setting this up would be hard for me at the moment.
+
+ impjdi, any word of guidance would be helpful here. Is this correct? Can we simply patch the v2 delegate with a InferenceRunner: SetInputObject call, and invoke it instead of the v1 bindBuffer? I don't think I'm on the right track, but I do think it would be very useful to the community if we could achieve a patch file and share it here.
+ natario1 I think impjdi explained that CODESCODES APIs don't fit in the v2 delegation design. The key difference between v1 & v2 delegate is v2 supports both OpenCL and OpenGL backend while v1 only supports OpenGL. This will affect how Tflite handles data ownership exchange. Moreover, many devices on the market don't fully support OpenCL OpenGL interoperability. I've also tried the CODESCODES flag in MediaPipe, the app crashes when I turn it on. So I think it's not a trivial patch for v2 delegate to support CODESCODES features. If you need this feature, I think the most simple solution is stick to mediapipe with opengl backend. Thanks for your comment brucechou1983. A simpler solution for me is to stick to v1 delegate, but to be honest it doesn't seem like mediapipe runner is doing anything complex fancy, other than calling CODESCODES and CODESCODES when preparing. I understand that it might not be ready yet though, as it is under a flag.
+
+The v2 delegate also does the same object objectdef calls, but the difference is that it uses CODESCODES instead of CODESCODES like mediapipe does.
+
+I don't know what's the support of OpenCL in Android, but OpenGL works just fine, so we could have a flag in v2 delegate options that tells the delegate to not try OpenCL and go with OpenGL. It's something that the TF team could add to ease the v1 v2 transition I think, since people who were using v1 likely have a SSBO set up. natario1 If a flag for only using OpenGL is what you need, it's already LINKLINK though it's still experimental. You can set the flag to CODESCODES.
+
+However, when you need realtime 30fps semantic segmentation and or face mesh running on a 200 dollar phone, choosing a right GPU backend in tflite runtime for efficient execution is really not a trivial problem. I do see the value of using OpenCL for some MALI gpu devices. The CODESCODES execution is 2x 3x faster than OpenGL ES. Although I have to copy the data to from the tensors, the overall performance is still better. I think tflite team is trying to design the v2 delegate as a blackbox accelerator for general purpose arbitrary IoT device easy to use, while creating interfaces for other frameworks like MediaPipe to optimize for specific usage like streamlined GPU execution on mobile desktop. natario1 I see you did your homework there, good job thumbs up 
+
+You might have noticed, but TFLite is adding bunch of delegates for various accelerators or APIs. Each of them having custom helper functions didn't help usage, but makes it more confusing for 99 of the users who want to use TFLite GPU delegate just as a magic box doing GPU accelerated inference. So the final decision we made was to keep the TFLite GPU delegate as simple as possible, but leave the room open for advanced users who want to do real performant things.
+
+The team that delivers TFLite GPU and MediaPipe are sister teams sharing one manager. Having said that, TFLite GPU won't break MediaPIpe, and that's a guarantee. And in that sense, going deeper and using advanced internal APIs like CODESCODES the way MediaPipe uses it is safe. Of course, because it's not the public API, but an advanced internal one, there might be API changes that may break you every once in a while, but you will always have the MediaPipe's reference implementation.I understand the situation impjdi. Would you consider something like CODESCODES? So that we can call CODESCODES or whatever else from outside the delegate. This makes all the difference, because we'd still have to do our homework for integration and maintenance, but at least we don't have to fork Tensorflow or use a bazel patch, which is honestly a big burden, although MediaPipe helps.
+
+You say that CODESCODES and CODESCODES APIs are advanced and they are to some extent, but at the same time, it makes all the sense that to bind a tensor to something, one has to specify its data layout, size, object type and so on. They're actually very elegant and easy to understand with respect to CODESCODES, which from my point of view, was just doing some obscure magic under the hood which I couldn't really grasp.
+
+
+
+Apart from this, I'll try to use these low level APIs this weekend and see if I manage to get v2 working. Thanks for helping!
+
+ Edit: After spending the weekend on it I realized this suggestion was not possible, but I hope you can consider something like LINKLINK which is clean and keeps the delegate header untouched. impjdi any suggestions on how to fix this error? It seems to be an issue with the BHWC BHWC4 conversion, but I have no clue at how to address it. It happens in ToTensorConverter.
+
+ CODELCODEL 
+
+I create the object def and tensor object as follows:
+
+ CODELCODEL 
+
+Then pass both to the delegate before CODESCODES. They are correctly passed to the inference runner and the runner builder, however I get that converter error.
+
+TF version is 2.0 and the model I am using is extremely simple, takes a 400x400x1 image and calculates the average intensity, returning a single float. I am trying to use a SSBO object for the input only.
+
+Also I'm running the OpenGL backend, OpenCL not available on my phone.After many hours, I think I hit a bug that is still present in 2.0, but was fixed in master by these commits: LINKLINK LINKLINK 
+
+For those who are interested, in short, the fact that I'm using BHWC with 1 color channel instead of 4, requires the gl engine to do a conversion and this conversion before LINKLINK and LINKLINK is completely broken, because CODESCODES is hardcoded to true LINKLINK but when CODESCODES is true, the engine will not bother to create the output GL buffer LINKLINK, so the C C4 conversion can't happen.
+
+By cherry picking LINKLINK and LINKLINK into v2.0 and exposing the necessary APIs, I'm able to do SSBO I O with the v2 delegate. These commits are pretty old so I hope they can make it into next release.
+
+These are the changes I had to make to expose the necessary APIs: LINKLINK. I don't know C++ so there might be errors, but the point is to create an interface that the V2 delegate extends. This interface can be retrieved from the delegate using a separate C++ header delegate core. h so the high level delegate is still a black box. anilsathyan7 Could you please try on latest stable version of tf 2.5 or 2.1 and let us know if this is still an issue. Thanks!This issue has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you.
+Closing as stale. Please reopen if you'd like to work on this further.
+Are you satisfied with the resolution of your issue?
+ Yes 
+ No 

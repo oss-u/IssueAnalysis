@@ -1,0 +1,258 @@
+ 6372 adds CODESCODES to CODESCODES. It accepts a list of names of CODESCODES or substitutes with defaults and constructs feature name strings that are human readable and informative. Similar support should be available for other transformers, including feature selectors, feature agglomeration, CODESCODES, and perhaps even PCA giving the top contributors to each component. CODESCODES should be modified to handle the case where an argument is supplied. A proposal for support in CODESCODES is given in 6424.
+
+Modelled on 6372, each enhancement can be contributed as a separate PR. Note that default names for features are CODESCODES 
+ CODESCODES amueller 6372
+ feature selection and randomized L1 yenchenlin1994 
+ feature agglomeration yenchenlin1994 
+ CODESCODES nelson liu 6431
+ scalers, normalizers and imputers: should be trivial like CODESCODES 6431
+ CODESCODES 6431
+ CODESCODES 6441
+ CODESCODES yenchenlin1994 
+ PCA?
+ CODESCODES?
+ CODESCODES?
+ other transformers?
+ jnothman May I try this?
+On which family of estimator?
+ Hi jnothman, I am interested in taking this issue. Could you please suggest how I can get started on this issue?
+I'll handle implementing this for CODESCODES for now, and we'll see if there's more classes to implement this in after I'm done thumbs up 
+ jnothman I'll modify the CODESCODES.
+
+
+
+Is feature agglomeration here refering to CODESCODES?
+ yenchenlin1994 I assume so?
+ nelson liu Thx!
+
+If so, I would also love to implement it for CODESCODES.
+I have added an extended list of transformers where this may apply and noted the default feature naming convention though maybe its generation belongs in CODESCODES 
+Hello jnothman,
+
+What should CODESCODES do when input features passed into CODESCODES is None? 
+
+ CODESCODES doesn't suffer from this since it set both CODESCODES and CODESCODES during CODESCODES.
+
+Maybe CODESCODES should set CODESCODES too during CODESCODES?
+Fair question, which I don't currently have an answer for. One option is for it to just return CODESCODES even if that means returning CODESCODES.
+Oh and even if CODESCODES passed into CODESCODES of CODESCODES is not None,
+I guess what it can do is to return CODESCODES, which is the same with CODESCODES in this case?
+yes, trivial, as noted in the issue description
+
+On 24 February 2016 at 00:01, Yen wrote:
+
+
+
+
+
+
+
+
+
+
+Oh okay!
+I will also do scalars, normalizers and imputers and Binarizer.
+Will send a PR right away.
+
+Thanks for your clarification.
+Hello jnothman,
+about 
+
+
+
+Do you mean all classes listed here:
+ LINKLINK 
+
+It seems that all these classes may be put into CODESCODES and therefore need CODESCODES too.
+Please correct me if I'm wrong. Thanks!
+Yes, I mean those.
+
+On 24 February 2016 at 17:44, Yen wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hi everyone, if it is fine I too would like to work on this issue. Would be helpful if the estimators which are currently worked on could be mentioned, so that I can try something which does not overlap. Thanks!
+I think I can also work on 
+
+
+
+ maniteja123 from CODESCODES to the end of the issue description is not yet done
+ yenchenlin1994, thanks for letting me know. 
+ jnothman It would be of great help if you could confirm if the output for PCA needs to have shape CODESCODES where each element is the input feature having the maximum contribution. Should the case of multiple features having high contribution along one component be handled? Thank you!
+I'm really not sure about PCA. Try make something useful. If you think it
+will be helpful to users to have names for projection style features,
+submit a PR. There is definitely a component of art to this.
+
+On 25 February 2016 at 01:12, Maniteja Nandana 
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+Thanks for the reply. My doubt is mainly about choosing dominant features and also that all the components are not equally significant. Since multiple features can have almost same contribution along a component, there might be need for some threshold to figure out the number of input features to be considered. Anyway I will create a initial PR with just the most dominant feature along the component and continue the discussion there. Hope it is fine.
+ yenchenlin1994 one more question. I am not sure how to handle this for CODESCODES and CODESCODES. Have you worked already on all of these?
+
+
+
+
+
+If you have already started working, will be waiting for your PRs thumbs up Thanks!
+I've started, thanks!
+for PCA I'm not sure if we want CODESCODES or if we want CODESCODES I can see both being useful, but the second one can become very verbose very quickly.
+pca currently implements both and switches using a function parameter. However, that will be hard to do in a pipeline, right? Or do we have one argument for the whole pipeline and propagate it through?
+Should we have this for all transformers in the decomposition module? It's kinda weird to have it for PCA but nothing else. 
+ I think this will be most helpful for feature extraction and feature selection, but possibly useful beyond 
+
+
+
+I'd actually would like to put an embargo on any of the
+ get feature names that are poping up everywhere, and have a design
+discussion enhancement proposal, rather than fixing things here and
+there.
+
+I am having a hard time seeing the big picture across the entirety of
+scikit learn. For instance, last week, I was struggling with feature
+names and the Imputer which was removing some features due to too many
+missing data. While these are not directly related problems, it would be
+good to think about how we design a consistent API.
+
+I think that the right way to tackle that is to list a set of example
+problems, and possible solutions, and then break this into atomic tasks,
+which all get a PR. WDYT?
+
+I'm sorry, I didn't reply, because I felt that I needed to free time to
+think about this to be able to have a constructive comment, but it didn't
+happen, and I am drowning, so it won't happen before this week end.
+We did discuss the design in another place before. I think it's pretty straight forward for feature extraction and feature selection. I'm unsure about the rest, but don't think that's a blocker.
+There was discussion here: 5172 there seems to be decent consensus.
+
+I think the tasks are:
+ add the functionality to all transformers
+ add the functionality to pipelines
+
+the questions are:
+ what do transformers that create linear combinations do?
+ what do transformers that create arbitrary functions RBMs, kernel pca, spectral embedding do?
+ how does that fit with the RFE model? For some reason, RFE, in contrast to other modle based feature selection methods, does not have a transform, and assumes that the model that is used for feature selection is the same that is used for predicting. Maybe that's a design problem with RFE?
+
+The open questions seems to be relatively unrelated to adding the functionality to the places where it's obvious what to do.
+
+I think there is basically one use case:
+ having a pipeline with a model at the end, find out what the coefficients feature importances mean.
+
+example:
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+
+btw, I gave the use cases already in 5172
+actionable input: do the obvious CODESCODES ones, and think about the linear non linear features ones.
+ GaelVaroquaux: Admittedly I was being a bit sneaky by putting together this issue. I suspected that embargo was inevitable, but wanted to see what contributors and review came up with rather than design without implementations to critique. I think we should avoid merging these PRs until we're ready, or perhaps merge them into a branch where we can continue to refine, but use the PRs to try to get a consensus on each family of transformers of what we think would be useful. With amueller and jakevdp starting the ball rolling, I was hoping to approximate agility with this approach! P
+
+Along those lines, and replying to amueller's Should we have this for all transformers in the decomposition module? It's kinda weird to have it for PCA but nothing else. I suggested PCA as a testbed before someone got carried away with code duplication.
+
+I think there is no doubt that in simple cases this is something that users have sought and will make model inspection somewhat more accessible. I might go as far as to say we need something like this. The details will be disputed, but I also think it's reasonable to allow CODESCODES to have parameters that tweak the output for example for decomposition, and which can be underscore prefixed in CODESCODES CODESCODES is unlike CODESCODES, CODESCODES, CODESCODES in that it does not involve sample correlated input, and has only parameters we don't care to set with model search.
+the underscore prefixed version of the parameters sounds verbose but sensible. Better than anything I could come up with.
+So not merge 6372?
+I think this is a something we urgently need.
+
+It looks to me all linear decomposition methods can have a common CODESCODES if they all use CODESCODES correctly.
+
+The discussion has been open in 5172 since 9 month, with the only disagreement on whether the function should be public or private, as far as I can see. I realized public would indeed be better, so I went ahead thumbs up 
+Not sure you actually mean 5172 there. 
+
+By urgently you mean you need it merged before the book goes to press? p
+Maybe thumbs up I tried to write a book chapter that explains feature extraction without it, but I was too embarrassed by the current interface of CODESCODES. I actually use pandas for one hot encoding currently in the book because OneHotEncoder is soo bad I put vighneshbirodkar on a mission to fix that.
+
+But also something I'm asked for basically every time I give a talk. The two most common questions are why are categorical variables so hard and why is using column names so hard. Well maybe additionally why is inspecting models so hard.
+
+I meant these comments: LINKLINK LINKLINK 
+Sorry for nitpicking but what is wrong with RFE? It has a transform that is inherited from CODESCODES right?
+ MechCoder you're right, I overlooked that.
+ GaelVaroquaux did you have time to think about the issue?
+I keep finding that I need something like this. I'm working with heterogeneous data like electronic medical records, with patient attributes, clinical notes, medical terminology entries. I need to be able to inspect a model consisting of nested pipelines and feature unions. I am sure that for other users, lacking feature name information leads to breaches of best practice: either giving up on model inspection, or not using pipelines and hence perhaps leaking data from test into train.
+
+I very strongly believe we should go ahead and implement this, in lieu of a straightforward alternative. The main problem I see with it is the arbitrary string based representation, and nesting of transformers annotating those string representations, and any backwards compatibility concerns with that.
+
+ GaelVaroquaux, will you consent to merging the enhanced CODESCODES with an Experimental: the API and output of this method may change in future versions tag? And if we really want to hedge our bets, we can make this contingent on the user importing CODESCODES. I'd also be most interested in kmike's opinion on what better feature name support for pipelines should look like, whether aiming for perfection or aiming for agility. kmike's comment at LINKLINK might suggest that in practice an interface like CODESCODES saves computation and memory costs:
+
+ CODELCODEL 
+
+Then a CODESCODES can with enough information stored only query the necessary constituent transformers.
+
+But I'm sure this involves more scaffolding work than CODESCODES as proposed here does.Hey,
+
+Here are the bits of structured information we missed recently. Maybe they are a bit too specific, but anyways:
+ For CountVectorizer, HashingVectorizer and TfIdfVectorizer we needed start, end spans which map feature names back to the input text. It required quite a lot of copy paste to implement: LINKLINK, and then you need to pass this information using a side channel. This allows to implement highlighting like that: 
+ LINKLINK 
+ For FeatureHasher and HashingVectorizer there can be several sub feature names for a single dimension when recovering possible features from a corpus there can be collisions. Each sub feature name also has a sign. For each dimension we're showing such sub feature names sorted by their frequency in the corpus; if the top first sub feature name is negative then the whole feature is treated as negative, and signs of all other sub feature names are inverted. Collisions are also truncated for display with an option to expand if there is too may of them. For FeatureUnion it'd be nice to map feature names back to transformers, for example to know which transformer is responsible for a feature; currently this is done with CODESCODES. Ideally, it'd be nice to have the whole chain, along with meta information, available in a structured form. For pipelines it'd be nice to preserve meta information about feature names, for example spans from 1 if CountVectorizer is followed by TfIdfTransformer.
+
+All of the above is unconvenient and hacky to implement with feature names as strings.
+
+Also, as jnothman said, performance can be a problem sometimes for example if you're building feature names for HashingVectorizer then the dimension is huge, and most feature names but not all are empty or auto generated. Another use case is FeatureUnion of several transformers where some of them don't have get feature names defined; that's nice to still be able to inspect feature names which are defined, and have some kind of auto generated names for undefined ones. This It is not a super big deal, but it may cause several seconds delays in interactive usage; it could add up quickly if scikit learn start to use auto generated feature names everywhere.
+
+That said, I see the appeal of plain string feature names; they are much easier to understand and implement.Somehow this turned into an eli5 wishlist to scikit learn?
+
+
+
+Hmm. Can we leave that out of the picture for now? Or do you just mean that this is part of a structured representation you would appreciate in eli5?
+
+
+
+I'm not sure what exactly you mean by this. I proposed an age ago having an attribute on a CODESCODES to describe which output features come from which constituent transformer. It's easy to get that information when CODESCODES is called, but not when CODESCODES is called without CODESCODES ; hence its design is trickier than it looks.
+
+
+
+So you mean a structured feature description? I can see the need for this, but designing it would be a big effort, and still best if it remains marked experimental.
+
+I would rather have something that provides the user with information for basic cases, but could be expanded later.
+
+Heh, right. I don't have a good API feedback, so I just enumerated related problems we had.
+
+
+
+Sure, this is just an example of structured feature name representation. Actually it is no longer 'feature names' that's some structured object which describes where the feature came from, like a link to the transformer in case of FeatureUnion. It could be a naming issue; structured representation could be irrelevant if we're talking only about feature names.
+
+
+
+All of this can be expanded later by adding new methods which return information for example in lists of the same length as CODESCODES. So yeah, structured representation is not a blocker for get feature names improvements.For my work, I've created a module that monkey patches scikit learn transformers with a CODESCODES method that can generate feature names for a pipeline featureunion construction: LINKLINK Never mind that; I should have used CODESCODES there instead of monkey patching and have updated it accordingly.
+
+More importantly, I've submitted a patch to eli5 which should handle explaining feature importances in pipelines LINKLINK. I hope eli5, particularly with its prolific use of singledispatch, is able to adopt this with greater agility than scikit learn.A flaw with this design: I would like to build a transformer which selects or excludes features by name. It can be designed as a meta transformer which gets the transformed feature names from the base transformer. However, doing this properly requires that the input feature names are known at fit time:
+
+ CODELCODEL 
+
+For this application, it is necessary to pass the feature names alongside CODESCODES.
+
+Can you get rid of that with a CODESCODES ColumnTransformer CODESCODES? I guess the question is a bit whether it's always possible to have the CODESCODES ColumnTransformer CODESCODES be right at the beginning of the pipeline, where we still know the names positions of the columns. kmike Are the structured annotations mostly needed because of the ranges?
+
+Also, GaelVaroquaux any more opinions on this? I doing the easy cases like feature selection and imputation which might drop columns, in addition to having some support in FeatureUnion and Pipeline and ColumnTransformer will be very useful. amueller once feature names get more complex for example pca on top of tf idf, showing them as a text gets more and more opinionated, and maybe problem specific. How concise should be a feature name, for example should we show only top PCA components how many? or all of them? Note the amount of bikeshedding jnothman got from me at LINKLINK. 
+
+It seems the root of the problem is that formatting a feature name is not the same as figuring out where feature comes from. 
+
+This is where structured representation helps. Full information all PCA components, or start, end ranges in case of text vectorizers can be excessive for a default feature name, but it allows richer display: highlighting features in text, showing the rest of the components on mouse hover click.  kmike thanks for the explanation thumbs up Maybe doing strings first would still work. For PCA I would just basically do CODESCODES pca1 CODESCODES, CODESCODES pca2 CODESCODES etc for now aka punt  jnothman GaelVaroquaux should we include this in the Townhall meeting?feature names DataFrames come together to some extent, so yes.
+
+
+Yes
+Any news? kiros32 13307 i think CODESCODES can be added to this list

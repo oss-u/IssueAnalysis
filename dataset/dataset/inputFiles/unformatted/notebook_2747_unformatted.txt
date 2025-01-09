@@ -1,0 +1,89 @@
+After upgrading to the notebook from master ('5.1.0.dev'), I get a popup error saying that the notebook failed to load:
+
+![](https://d.pr/i/Zujuuq+)
+
+the underlying notebook is also truncated at the second cell, when in fact it is quite a large notebook.
+
+If I close the notebook, and re-open it (without restarting it), it renders fine. The only thing unusual I notice in the console is:
+
+    [I 08:37:27.331 NotebookApp] Adapting to protocol v5.1 for kernel 515185bf-a09c-44c5-80c9-53390ff1b98eSimilar: https://github.com/jupyter/notebook/issues/2733I will investigate that "adapting to protocol 5.1" message...
+
+Was this notebook already open in your browser and you just refreshed after the upgrade? Perhaps some 5.0 JS was being loaded from cache?
+
+What browser are you using? Would you happen to have LastPass extension installed?I am running on Firefox 55 on macOS. Not using LastPass, but do have 1Password.
+
+If I use a different conda env with an older version of the notebook, the notebook runs fine.Ok, you're seeing the `Adapting to protocol v5.1` message because `protocol_version != client_protocol_version`, which leads me to believe that the browser is loading 5.0 JS vs. 5.1. Try clearing the cache and/or doing a hard refresh.Just got this after clearing the browser cache:
+
+![](http://d.pr/i/dlZvUl+)
+
+Happens for some, not all, notebooks. Here is the same notebook under 5.0.0:
+
+![](http://d.pr/i/zbbAn0+)Hmmm... So when you close the notebook (I assume when you close the tab) and re-open, you don't get the error?Actually, it sometimes errors again, but in some cases the error goes away. Also, if I use Safari this does not seem to happen. I will try switching back to Safari as my regular browser and see if it ever comes up.I had the same error once, and only once,  on 5.1.0rc1, on windows10/jupyter-5.1/chrome/very_slow_pc (zero plugins). Just restarting the kernel solved it. 
+
+I would (blindly, as I'm not expert at all) bet on a slowness, or some remains of a previous widgets/whatever versions that are cleared with the relaunch.
+
+In the past, there were some bigger cash-clearance issues when we were upgrading, so it could be the same thing ?I've now seen the issue pop up in Safari:
+
+![](http://d.pr/i/a6lrtE+)
+
+Closing the notebook tab and reopening it loaded the notebook properly.When you hit the error, is there any more detail in the browser's JS console?It just occurred again in Safari, and the JS console reads as follows:
+
+![](http://d.pr/i/23EoM0+)Those are just source maps so they shouldn't be causing any problems (although we should figure out how to avoid this error message)...I believe that the "Can't make callback..." error is coming from Mathjax, but I don't understand how - I don't think we have changed anything significant in our use of Mathjax, and I've never run into this error myself.
+
+You mentioned that it affects some notebooks but not others. Are there any of those notebooks which you could share?It seems to happen somewhat randomly. I can almost never reproduce it with a particular notebook, but it does keep occurring from time to time. And again, closing and reopening the tab makes the problem temporarily go away. Next time it happens I can post the notebook though.OK, just occurred with [this notebook](http://d.pr/f/crQ6ea).I couldn't reproduce it in a clean conda env with notebook 5.1rc1 installed. 😕 
+
+If it's related to Mathjax, and it only affects some notebooks, I would have expected it to affect notebooks with maths expressions in to be rendered. As far as I can see, that notebook doesn't, which is puzzling. Is it possible that it only affects notebooks with *no* maths expressions for Mathjax to act on?Looking at the code, I also don't follow how it can give that error dialog without also logging to the console `Notebook failed to load from JSON`.
+
+The only thing I can think of that might fit the symptoms is a JS caching issue. We've run before into caching issues which seem resilient to hard-refreshes and manually clearing the cache. I thought we had worked around the worst of them, but perhaps they're biting us again. The things we usually try in this case include:
+
+- A different browser: you've already tried this, and it did seem to help, which supports my theory.
+- A private browsing session: this can bypass the cache
+- Running the notebook server on a different port than usual - I think browsers cache per-port.
+
+@willingc also had the same symptoms which seemed to be related to a browser extension (Lastpass). You're not using the same browser or the same extension, but it could be that a different extension is having a similar effect.OK, thanks, Actually, I'm getting just as many occurrences in Safari as I did with Firefox now. I did try clearing the cache on FF, but that didnt help. 
+
+I can try disabling 1Password and see if that fixes things.Can whoever is seeing this try using a private browsing mode/incognito mode, to make *sure* that there are no problems with extensions, cached data, cookies, etc?@jasongrout When I saw this in an earlier issue, the same behavior was seen in Safari's private mode too. Disabling LastPass worked for me on the notebooks that had the issue. Was the extension the root cause? I don't know. Grant just released a second release candidate. We don't think we've made any change that should fix it, but can anyone experiencing this upgrade and let us know whether it still occurs?Same issue on second release candidate. I've been trying to troubleshoot. This very old IPython/mathjax issue https://github.com/ipython/ipython/pull/2349 seems closely related (same message being displayed "Type markdown..." and error message box). cc @gnestor @takluyver
+
+https://github.com/ipython/ipython/pull/2349#issuecomment-9643485
+and David Ketcheson's message a few below that.Good find! It sounds like then it was due to caching issues and an outdated version of Mathjax. That was before we bundled Mathjax with the notebook.
+
+The "Type markdown and Latex" message is what an empty, rendered Markdown cell shows. It looks like it's adding that cell, but the error is stopping it before it sets its content.It does seem like a caching or browser issue.  I experienced similar issue.  Kernel message keeps flickering, "Adapting to protocol v5.1 for kernel eb3544e4..." message keeps showing.
+
+Switching from Chrome to IE solved it.
+
+Anaconda jupyter-notebook --version
+5.0.0
+
+Switching browsers will work temporarily, but I found that it cropped up again as usage of that browser increased.I agree with @fonnesbeck. I'm not convinced the browser change is a long term fix.@asears Are you running notebook 5.0.0 or 5.1.0rc*? 
+
+If this is affecting 5.0.0 too, then we shouldn't hold off on releasing 5.1.0 on account of this issue (not to say that we shouldn't get to the bottom of this and resolve it).Sounds like a race condition, where what's in the browser's cache affects the order things happen. :disappointed: 
+
+Agreed that if this is happening on 5.0 we should go ahead with the release, but for both @willingc and @fonnesbeck seemed to start seeing it on upgrade. It might be that changes in the upgrade make something which was previously rare more common.@takluyver I didn't see this behavior until the rc releases.I think I might have tracked this down - see #2792 .Nice work! I will test the PR to see if it does the trick.I noticed also, under master, that notebooks will lock up during use on Safari making the browser unresponsive for several minutes. Looking at the console afterwards shows similar information:
+
+![](http://d.pr/i/YxwblL+)Can you open a new issue for debugging that?Actually, it appears that your branch this too. I take that back. It just occurred with your PR. I will start a new issue.I notice I have the same message when I open a notebook, not even starting to execute it, wait the kernel to say "ready", then trying as first action a  "File->Make a Copy" (in Notebook-5.1rc2)
+![notebook-5 1rc2](https://user-images.githubusercontent.com/4312421/30223272-726d718e-94ca-11e7-9c0b-95684571f95d.PNG)
+
+applying #2792 (in " Lib\site-packages\notebook\static\base\js" ?) doesn't change anything.I've just released rc3, which includes a change to hopefully fix this error (I could never reproduce it, so it's hard to tell if it's fixed). Can you try upgrading and see if it works?@takluyver I haven't seen the error in a while since your last fix #2792. I briefly tested rc3 and it's looking fine for me. Will let you know if I see it in the future.@fonnesbeck Can you try installing rc3 and let us know if it resolves this issue: `pip install notebook --upgrade --force-reinstall --pre`Yes, running it now. Will see what happens over the next few hours/days.No issues after a couple days of continuous use. Thanks!Thanks Chris! I will close this issue, then. We can reopen it if someone finds they can reproduce it.
+
+@gnestor I think this is the last issue tagged for 5.1. Is there anything else you're aware of that we should do before the release?Nope, just https://github.com/jupyter/notebook/pull/2752 and it looks like that was just merged! 👍Well, problem still persists, is there any real fix for that problem ?
+I've installed anaconda on two different computers (Win7 and RHEL) with no internet connection and Jupyter notebook just don't work.
+![jupyter 2](https://user-images.githubusercontent.com/9149327/36015413-5ac8c19a-0d7f-11e8-8a27-c3c4ad2231b3.png)
+![jupyter](https://user-images.githubusercontent.com/9149327/36015422-65e7bda6-0d7f-11e8-99ec-e097dc6dc8f5.png)
+But, sometimes it runs correctly, without any reason, it happen when I enable internet connection/run jupyter lab/wait for jupyter to load notebook longer then usual, but none of these actions fixes problem permanently so I guess it's more of a random coincidence.
+
+By the way, I cannot repeat this problem on my own machine (OS X, pip(no anaconda), Safari & chrome)It turns out that Jupyter have connection between kernels on different ports (not 8888), so when heavy firewall installed, it blocks such connections as suspected danger and kernels don't receive messages between each other and so Jupyter doesn't work.
+Simplest solution for this is running notebook on port 8889 or any other. That explains why running jupyter lab temporary solves the problem, as it runs on 8889 when 8888 is busy.
+
+**Short answer: change port from 8888 to 8889**Security software has been a recurring problem, unfortunately. No idea why 8888 vs 8889 makes a difference.Hi there, i've tried most of the fixes suggested in #2708, #2752, and #2747 by updating notebook, pyzmq, using an older version of tornado, to fix this issue and I have had no luck. I even tried changing the port, but I'm still hitting this error and I can't run anything. 
+
+
+![image](https://user-images.githubusercontent.com/9383119/39432254-f7a9a6d0-4c60-11e8-9c73-40a912012db4.png)
+The "adapting to protocol..." message is not an error. What is actually going wrong?
+So to clarify, the main issue is that I will try running cells in my notebook like @shigabeev above and they won't actually run. The star will be present but it's not running the cell or yielding an output. I've changed the port and am still encountering the issue. The only message I get is the one I posted earlier. Borrowing from the troubleshooting doc I'm adding in #3584:
+
+# Jupyter doesn't load or doesn't work in the browser
+
+* Try in another browser (e.g. if you normally use Firefox, try with Chrome). This helps pin down where the problem is.
+* Try disabling any browser extensions and/or any Jupyter extensions you have installed.
+* Some internet security software can interfere with Jupyter. If you have security software, try turning it off temporarily, and look in the settings for a more long-term solution.
+* In the address bar, try changing between ``localhost`` and ``127.0.0.1``. They should be the same, but in some cases it makes a difference.

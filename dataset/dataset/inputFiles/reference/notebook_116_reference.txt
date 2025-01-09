@@ -1,0 +1,10 @@
+Re reading this from the future, and I want to add some clarification to this comment that prompted closing:
+
+
+
+JupyterLab does not solve this. I think it would be more accurate to say that JuptyerLab has instead committed to not solving this issue. The JupyterLab approach to extensions makes solving these target use cases that prompted this issue more difficult to impossible:
+
+ installing a kernel package not in the server env wants to deliver the required js at a minimum, requires runtime loaded js 
+ two kernels require incompatible versions of the same extension, for example myextension 2.0 and myextension 1.0 requires being able to load different versions of the same library in different notebooks, which is possible via nbextensions if installed with a version in the path, but impossible in JupyterLab, in my understanding, due to the monolithic app bundle 
+
+Instead, I would say that JupyterLab draws a more explicit line, that kernel packages and frontend packages are fundamentally separate, and to install a tool that has both frontend and backend components will always require two separate, explicit installation steps which may be encapsulated in a single metapackage install in the common case where the kernel and server are in the same env. I think the JupyterLab position is that kernel packages should never be able to deliver javascript to the frontend, and instead choose to communicate with mime types and protocols. There are plenty of reasons for working this way, but we shouldn't claim to have a solution to this issue.

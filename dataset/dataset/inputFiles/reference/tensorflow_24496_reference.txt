@@ -1,0 +1,26 @@
+ Please make sure that this is a bug. As per our LINKLINK, we only address code doc bugs, performance issues, feature requests and build installation issues on GitHub. tag: bug template 
+
+ System information 
+ Have I written custom code as opposed to using a stock example script provided in TensorFlow: Yes and No described below 
+ OS Platform and Distribution for example, Linux Ubuntu 16.04: Manjaro
+ Mobile device for example iPhone 8, Pixel 2, Samsung Galaxy if the issue happens on mobile device:
+ TensorFlow installed from source or binary: tf nightly gpu Dec 19, r1.13 
+ TensorFlow version use command below: 1.13.0 dev20181219
+ Python version: 3.1
+ Bazel version if compiling from source:
+ GCC Compiler version if compiling from source:
+ CUDA cuDNN version: CUDA 10 with cuDNN 7.1
+ GPU model and memory: RTX 2070 8GB
+
+ Describe the current behavior 
+I'm running the CNN model on MNIST. When I'm running with the GPU, I am encountering
+ CODELCODEL 
+
+I did some digging and realized that it is a memory issue which shouldn't be the case as I have 32GB of RAM and 64GB of swap. I ran htop when running the model and I have 20+GB free, which is more than enough to fit the 8GB vRAM mappings. 
+
+Using the CODESCODES gets the model to work properly, and setting CODESCODES also works. This means that I AM facing a memory issue, but I don't see how. 
+
+Also, using CODESCODES does not fix the same issue when trying to run tensorflow models official mnist model, which should have a similar behavior with my code. 
+
+ Code to reproduce the issue 
+ CODELCODEL 

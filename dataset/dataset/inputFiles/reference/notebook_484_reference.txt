@@ -1,0 +1,17 @@
+When I'm working in a notebook jupyter 4.6 in Safari, OSX 10.5 I periodically get a message saying the file has changed from disk, do I want to reload or overwrite. I m certain there are no other kernels or notebooks running. I usually just say overwrite but why does this happen?
+One more bit of info: I'm running the notebook as a publicly accessible server so I can access it from my labtop and all the files live on a locally mounted server.
+here is the terminal output:
+iMac: jupyter notebook
+ Serving notebooks from local directory: Users dosc3612
+ 0 active kernels
+ The IPython Notebook is running at: https:8888 
+ Use Control C to stop this server and shut down all kernels twice to skip confirmation.
+ Kernel started: ec591d51 c03c 44fc 86bf a221c0e1b0a7
+
+
+
+
+
+
+
+ LINKLINK 

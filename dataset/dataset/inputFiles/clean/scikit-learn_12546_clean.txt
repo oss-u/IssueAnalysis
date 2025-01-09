@@ -1,0 +1,224 @@
+! 
+If your issue is a usage question, submit it here instead:
+ StackOverflow with the scikit learn tag: LINKLINK 
+ Mailing List: LINKLINK 
+For more information, see User Questions: LINKLINK 
+ 
+
+ 
+
+ Description Parallelism n jobs thumbs down in grid search cv is stopping with a permission error.
+ 0 
+
+ Steps Code to Reproduce 
+
+ CODELCODEL 
+
+! 
+Example:
+ CODELCODEL 
+If the code is too long, feel free to put it in a public gist and link
+it in the issue: LINKLINK 
+ 
+
+ Expected Results: No error is expected
+ 
+
+ Actual Results
+
+ CODELCODEL 
+ 
+
+ Versions
+Windows thumbs down 0 thumbs down 0.17134 SP0
+Python 3.3 Anaconda custom 64 bit default, Oct 15 2017, 03:27:45 
+NumPy 1.15.2
+SciPy 1.0
+Scikit Learn 0.20.0
+! 
+Please run the following snippet and paste the output below.
+For scikit learn 0.20:
+
+For scikit learn 0.20:
+
+import sys; print Python, sys. version 
+import numpy; print NumPy, numpy. version 
+import scipy; print SciPy, scipy. version 
+import sklearn; print Scikit Learn, sklearn. version 
+ 
+
+
+ 
+can you please try with current master? amueller Thanks for the reply, do you mean to update the version? I dont know what is meant by current master.Yes, update the version to the development version that's on github right now.I actually remembered that this is happening since i upgraded the version to 0.20 so i downgraded it and its working now. Thanks for the helpThere are issues in 0.20.0 with joblib. Downgrading is a work around but hopefully this will also be solved in 0.20.1 to be release later this week or the current development versionUsing Parallel with CODESCODES is also a possible work around as this disables memmapping of large array. However I am not sure this is doable with GridSearchCV.Hi! I have same problem in version 0.20. How can I solve this problems?
+ LINKLINK 
+ tolikkansk it would be great if you could provide a small example reproducing the PermissionError? Also do you know if it's a random failure or if it happens every time you run your code? albertcthomas Today this failure happens every time you run your code today. I ran into this problem yesterday firstly, before scrpit worked correctly, also I added part of pipeline which I run from main. py:
+
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+
+
+Windows thumbs down 0 HOME v.1709 16299.847
+Python 3.4 Anaconda custom 64 bit default, Jan 16 2018, 10:22:32 on win32
+Scikit Learn 0.20.2Thanks! Instead of sending pictures, readability and reusability of your code can be greatly improved if you LINKLINK your code snippets and complete error messages appropriately. For example:
+
+ CODELCODEL 
+generates:
+ CODELCODEL 
+And:
+
+ CODELCODEL 
+generates:
+ CODELCODEL 
+
+Also, if the code is very long you can link to it like LINKLINK.
+
+You can edit your comments at any time to improve readability. This helps maintainers a lot.
+Is there a solution for this issue? 
+
+ amueller albertcthomas I am working with the downgraded version 0.19. as mentioned by Sai Macharla, and so far so good. But both for 0.20.1 and.2 this issue wasnt resolved, right?
+I don't think it's resolved in either 0.20.1 or 0.20.
+Is it possible for you to give us a reproducible example?Also I don't know what makes it work in 0.19.2 but not in 0.20. The default joblib backend is now loky but this seems to be an issue related to memmaping.Currently that code in disk. py catches CODESCODES. Would it be reasonable even without understanding the source of the problem to just add CODESCODES so that at least this is handled with a retry rather than immediate failure?Actually CODESCODES is an CODESCODES according to LINKLINK and the CODESCODES is raised after 5 attempts to delete the folder according to the user warning:
+
+ CODELCODEL 
+
+From what I experimented you sometimes need to wait a few minutes before being able to delete the folder, see LINKLINK in the related joblib issue joblib joblib 806Sorry, I missed the warning.
+
+I am working with the LINKLINK and sklearn 0.20.2
+
+ CODELCODEL 
+
+This returns me the following error:
+
+ CODELCODEL Thanks a lot lucascolz!Interestingly,
+ CODELCODEL 
+always fails never at the first iteration of the for loop. Note the use of a pandas dataframe for CODESCODES.
+
+However when CODESCODES is a numpy array
+ CODELCODEL 
+does not fail. lucascolz do you see the error every time you run your code?
+
+Can you try by passing numpy arrays instead of pandas dataframes?
+ CODELCODEL  albertcthomas 
+I tried today the same code I have provided and also both codes you have provided with and without the use of a dataframe structure.
+All of them ran without errors in a different computer, which is strange.
+
+When I am able to use again the same computer, I can tell if the error persists.thanks lucascolz. albertcthomas Thanks for providing the snippets.
+By me both pieces of code, with numpy arrays and dataframes I get an error.
+
+With dataframe as X train:
+
+ CODELCODEL 
+
+The run with numpy arrays:
+
+ CODELCODEL 
+
+In scikit learn 0.19. I tried running the code you provided, so:
+
+ CODELCODEL 
+
+It runs the random search without error.
+
+Have to check the library dependancies, as in another computer it run smoothly with 0.20.
+
+If you have any idea what I can still try, I am open to suggestions. In the meanwhile, I will continue with 0.19Thanks for the report. lucascolz just to confirm: on your other computer you are also using Windows? albertcthomas Yes, I am using Windows 10 64 bits in all machines.Actually, when in the same ipython session I first run the snippet with CODESCODES as a pandas dataframe and then the snippet with CODESCODES as a numpy array I get the error for both. But if quit the ipython session, restart a new one and run the snippet with CODESCODES as a numpy array I don't have an error.
+
+This tends to happen to me also. I think I will stick to the numpy array structure for as long as I can, or use the 0.19. I wasnt able to debug why exactly this problem happens.
+Thanks albertcthomas for your time.
+
+So you are saying that when you use numpy arrays you don't have the permission error?
+
+Thanks lucascolz for helping us investigating this issueYes, in my last tests it happened the same as you mentioned. Numpy arrays work at least on the implementation I am working and if I try a dataframe, it tends to raise an error after the fifth iteraction.This might be useful information for joblib dev ogrisel tomMoral Sai Macharla could you let us know if you were working with pandas dataframes or numpy arrays for CODESCODES or CODESCODES when you had the PermissionError?
+
+Actually even if CODESCODES is a pandas dataframe, CODESCODES should be a numpy array. Maybe CODESCODES is a pandas dataframe?I also have this problem, using
+ CODESCODES, CODESCODES, CODESCODES, CODESCODES.
+
+My workaround was to comment out CODESCODES:
+ CODELCODEL 
+in CODESCODES. This is a quick and dirty fix, but at least I get my results this way the crash happening at the end, when you trained your model for 12h is very frustrating, and I delete the folder in CODESCODES myself, which didn't pose any problem until now. Just writing this here if anyone is in the same situation, this is clearly not a good fix.Please offer your comment at joblib.
+I have this error on Python 3.8 scikit learn 0.21.1 and joblib 0.13.2 Window 64 
+I did not find solution to fix it.
+Can you help?Downgrading joblib to 0.11 might be the simplest fix
+This issue is tracked upstream in LINKLINK please add any additional comments there instead.Thank you very much.
+It works with joblib 0.11
+
+
+écrit:
+
+
+
+
+
+
+
+
+
+
+
+
+
+Changing the backend to 'threading' worked for me:
+
+ CODELCODEL  dhbrand 'threading' suffers from the Python Global Interpreter Lock.
+
+
+
+
+My intuition is that pandas is generating cyclic references to the memmapped large numpy array which is therefore collected with a delay. Let me try to write a minimal reproduction case.
+
+
+
+ ogrisel This LINKLINK contains a reproduction case, but we might be able to have a smaller one, only involving joblib.Yes this is what I am looking for.I cannot reproduce the error in the reproduction case above with scikit learn 0.21.3 and joblib 0.14. I have set up a windows VM to debug this but unfortunately I cannot get: LINKLINK to fail on this machine which is going to make things harder to debug and fix on my end.
+
+I will still try to come up with a blind minimal reproducing example with the reference cycle hypothesis.Yes I cannot reproduce the error either. I also tried with previous scikit learn versions 0.20 and 0.19.The fact that I cannot reproduce with a VM might be caused by the fact that memory mapped files might behave differently in a VM.
+
+I will try to reproduce with a CI worker in this PR: LINKLINK I think we can close this issue as I cannot reproduce on Windows with scikit learn 0.21. pandas 0.25.1 and joblib 0.14.0 and the associated test was not failing on Appveyor in the related joblib PR see joblib joblib 942.Indeed it seems that it's no longer possible to reproduce the original issue with the latest versions of pandas scikit learn joblib. We will still work on a redesign of how the temporary folder cleanup happens in joblib with the loky backend so as to fix the two minimal reproducing examples reported as joblib joblib 942 and joblib joblib 944 but those specific cases do not seem to be triggered when using the scikit learn estimator API.I was able to replicate this issue with the following error code: CODESCODES 
+
+The issue appears to be somehow when loading the CODESCODES files. It does not occur if you create them in memory. See reproducible code below. I didn't include the imports since code is already long.
+
+python 3.5
+scikit learn 0.21.3
+pandas 0.25.3
+numpy 1.17.4
+joblib 0.14.1
+PyCharm Pro 2019.2 using a script in debug mode.
+
+Here is the code:
+First I created and saved the feature arrays:
+ CODELCODEL 
+
+Now load and pass to model:
+
+ CODELCODEL 
+Output:
+
+ CODELCODEL 
+
+Note, this does not appear to cause an error if you just use the arrays as is and don't save load them. In my case, it's pretty expensive to create those arrays each time, which was why I was saving loading them.
+Please try with scikit learn 0.22
+Same issue on Windows 10 GridSearchCV and XGBoost while using n jobs thumbs down in GSCV
+
+
+
+python 3.6
+scikit learn 0.22.1
+numpy 1.18.0
+pandas 0.22.0
+joblib 0.14.1
+xgboost 0.90This error is likely to be fixed by the work being currently done on the joblib loky side.
+
+In the meantime, mannyfin can you please edit your comment?
+ Using
+
+ CODELCODEL 
+
+that will generate something easier to read:
+ CODELCODEL  Adding the missing imports and the missing parts in the creation of the arrays.
+Thanks!
+
+
+
+i am running with scikit learn 0.21.2
+and it didnt workHi, the same problem still continues today. Also, the problem is not specific to GridSearchCV. MultiOutputClassifier has the same problem. I use both GridSearchCV and MultiOutputClassifier and I tried all combinations of GridSearchCV and MultiOutputClassifier for example, both are n jobs thumbs down, or only one of them is n jobs thumbs down. For instance, if I make only MultiOutputClassifier n jobs thumbs down, I receive that error immediately. As I make n jobs smaller, for example, thumbs down 1, the error pops up at a later time. 
+I am also on Windows 10 and have the latest packages such as joblib 0.14.joblib 0.15.0 should fix the remaining CODESCODES on Windows.

@@ -1,0 +1,6 @@
+Ok after playing extensively with different random seeds and platforms mkl vs openblas PCA for the init I think that 0.9 is just too strict. We could keep the 0.9 threshold and stabilize this test by:
+
+ running TSNE on larger datasets in which case the trustworthiness score gets more stable 
+ running the tests several times with different random seeds and make an assertion on the median score.
+
+However both approaches are too expensive in my opinion. While running my test with several hundred seeds on the original 50 samples random dataset I have never seen this score go below 0.87. So I think setting it to 0.85 should fix the issue. I will submit a PR.

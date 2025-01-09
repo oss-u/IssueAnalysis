@@ -1,0 +1,517 @@
+I installed tf nightly build and I get the following error on import of tensorflow.
+ CODESCODES.
+
+If I check for cuda 9, I get the following:
+ CODELCODEL 
+I that due to a name mismatch. CODESCODES? And if so how can we overcome this?I think this is due to the fact that you have CUDA 9.1 and not 9. I am facing exactly the same issue. Timonzimm I know and I think the whole issue is this f naming libcublas. so. xxx that nvidia puts. This inherently is mismatch on linux systems whenever that number changes, so since it can not find the exact matches then it thinks the file doesn't exist and throws the error.I think you should use symbol link from ''cuda '' to ''cuda 9. or your cuda version is too new to tensorflow master branch burui11087 I completely forgot about symlinking. Thanks for reminding me.Seems like this is resolved and the root cause was a version mismatch of CUDA 9.0 vs 9.
+Closing this out since I understand it to be resolved, but please let me know if I'm mistaken.
+
+FYI gunan av8ramit who are working on the upcoming 1.5 release I also occur the exactly same problem with kirk86. For me, I installed cuda toolkit 8. and cudnn 5.
+Then I did what you guys said above, all of them does not work. For using nightlies, you have to have CUDA 9.0 and cudnn 7 installed.
+ yangfengKAUST with the current version of cuda and cudnn installed TF is just complaining that it cannot find the versions it is expecting. Timonzimm I am facing the same issue. Have you figured it out? I have 8. 9. 9.1 installed + cudnn versions which seem specific to each. The sym linking didn't work from the 9.1 libs. I suspect that sometimes the symlink in the LD LIBRARY PATH doesn't work either when I switch versions on the usr local cuda link. I ended up just doing it the low tech way to get the libraries loaded into my java program until I can figure out a cleaner way to handle the paths inside of Eclipse. 
+
+	 try 
+	 System. load usr local cuda lib64 libcublas. so.0 ;
+	 System. load usr local cuda lib64 libcusolver. so.0 ;
+	 System. load usr local cuda lib64 libcudart. so.0 ;
+	 System. load usr local cuda lib64 libcufft. so.0 ;
+	 System. load usr local cuda lib64 libcurand. so.0 ;
+
+	 System. load home greg Desktop platform tensorbuilder jni libtensorflow jni. so ;
+	 catch UnsatisfiedLinkError e 
+
+	 System. exit 1 ;
+	 .  asimshankar Would like to know that in your above comment you mean that we should downgrade cuda to 9.0 and tensorflow 1.5 doesn't work with cuda 9. 
+
+You have closed this issue but its not clear what is the correct action that we should take!
+
+Note: I also have cuda 9.1 installed instead of cuda 9. Just FYI, I have both installed. Building from scratch will work w either, but the nightly binaries use 9.  AwasthiMaddy Yes TensorFlow 1.5 release binaries are built for CUDA 9.Have you solved it? This problem is caused tensorflow gpu thumbs down.5 required cuda 9. so you should install tensorflow gpu thumbs down. And rember uninstall tensorflow gpu thumbs down. Please use this pip install upgrade tensorflow gpu 1.4  aipeteryao Thank you. Someone needs to fix the LINKLINK page if this is true, I just followed its instructions exactly, and tells you to install CUDA 8.0 specifically, not latest CUDA.
+
+Then as soon as you're done, you get this error it is looking for cublas 9. which, from what I can read here, would not have worked either, as CUDA 9.1 is the default you get from NVIDIA.
+
+Either the webpage instructions should work with the default latest of everything, or it should tell you explicitly to install tensorflow gpu thumbs down.4 for example and not tensorflow gpu.Seconding bwesons's comment. I have CUDA 8.0 and Tensorflow 1. I followed the current install instructions for TF 1.5 GPU, ubuntu, virtualenv and it breaks as described above. Reverting to TF 1.3 until this is resolved. aipeteryao This fixed it, thanks! I ended up uninstalling the latest version and installing 1. in my virtualenv.
+
+ CODELCODEL 
+
+The install page for Ubuntu should be updated: LINKLINK 
+Since TensorFlow 1.5 is expecting Cuda 9.0 NOT 9. as well as cuDNN 7In fact, we should view the official document of tensorflow, it give tensorflow‘s envirment include python, gcc, cuda, cudnn, an so on. bwesen yes, you were right. My computer installed CUDA 8. cudnn 6. tensorflow 1.I think this issue should still be open. bwesen's LINKLINK is correct. LINKLINK tell you to install Cuda 8.0 and use CODESCODES. Right now that gives you tensorflow 1.5 which does not work with Cuda 8.0
+
+pinging asimshankar I have the same issue with cuda 9.1 + tensorflow 1. I think to resolve it, one option is that to downgrade cuda to 9. The other option would be to downgrade both cuda to 8.0 and tensorflow to 1. If you have already installed cuda 8. you only need to modify CODESCODES and CODESCODES environment variable to point to cuda 8.0 directory for example CODESCODES.I'm getting this issue Cuda 9.85, cuDNN 7.05 
+
+Tried with tensorflow 1. it broke. Uninstalled, installed 1.4 with CODELCODEL, still broke. DylanDmitri 1.5 expects Cuda 9. not 9.1
+
+Have you tried with Cuda 9.0 drivers?  DylanDmitri mkaze You need Cuda 9.
+
+Also, for anyone having trouble installing requirements, I suggest double checking your cuDNN installation. The. deb file didn't work for me because it did not copy files to the right place. I had to use the. tgz file and manually copy files according to nVidia's directions in order to get a working installation.Why not just install cuda 9 0?
+ Go here: LINKLINK 
+ Then, for me: Download deb network 
+ CODELCODEL 
+
+ abrahamrhoffman That's easy for anyone who has sudo privileges but what about people on a shared system like a cluster environment with simple user privileges. In those cases even if you ask from the sys admin to install any libraries most probably the answer is gonna be NO! Since they are afraid that might interfere with other users' settings and environments.
+
+ abrahamrhoffman Would you also mind providing a justification on the down vote?
+I installed cuda 9.0 and still it does not work. This is really irritating.Please make sure to set your PATH variable appropriately, such as described here: LINKLINK 
+
+ CODELCODEL cuda 9.1 is the current version. I want TF to use it. How to?Even tf nightly gpu is not looking for cuda 9. MehI tried symbolic links from all the 9.0 filenames to all the 9.1 filenames and it didn't work. In the end, TF knows the true version. The repo doesn't even have 9.0 anymore so I'm afraid I'll break my nvidia stuff if I remove 9.1 and then manually install 9.I fix him for now by:
+
+Download deb network from: LINKLINK 
+
+Then: CODESCODES 
+
+Then: aptitude update
+
+Then: aptitude install cuda 9 0First I've installed tensorflow 1. it broke, and I get the following error:
+ CODESCODES 
+then I uninstalled, installed 1.4 with pip install upgrade tensorflow gpu 1. it did't work, and I get the following error:
+ CODESCODES 
+ xiezhongzhao What version of Cuda are you using? For tensorflow 1.5 you must have installed the Cuda 9.0 and for tensorflow 1.4 you must use cuda 8. If the the tensorflow version and cuda version are compatible, then check the environment variables for example CODESCODES and CODESCODES. mkaze I used Cuda9.1 xiezhongzhao Install Cuda 9.0 and you should be fine. Tensorflow 1.5 does not work with Cuda 9. mkaze Thank you very muchI am also getting this issue and struggling to resolve it. 
+ CODELCODEL 
+I installed following these instructions
+ LINKLINK 
+
+I believe I installed the right versions from nvidia. filenames were 
+ CODESCODES 
+and CODESCODES version 7.5 
+
+I set the path as per those instructions on the tensorflow docs and also tried the instructions that CODESCODES gave above.
+
+When I run ldconfig v I get some 9.0 libs, but do not see libcublas. so.0
+ CODELCODEL 
+
+I did not install 9. at least not intentionally. This is on a amazon ec2 instance with stock ubuntu 16.04. 
+nvidia smi also returns a gpu, this is a g3.4xlarge instance
+
+any guidance is greatly appreciated. Per the CUDNN guide at:
+
+ LINKLINK 
+
+You need to copy the unpacked files from the directory you ran CODESCODES or similar into CODESCODES subdirectories:
+
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+Thank you for the reply entropy43. 
+
+I should have been more specific. I did those two CODESCODES and the CODESCODES commands after CODESCODES. When I look in the folder cuda folder for where I ran the tar command like CODESCODES I see
+ CODELCODEL 
+
+I tried this section as well from the nvidia LINKLINK 
+ CODESCODES 
+
+and the tests pass here in CODESCODES 
+
+Any advice to get that lib is appreciated Could someone please summarize where this currently stands? I am using TF1.3 + cuda 8 with no problem. I'd like to upgrade but it seems like the install process for newer versions is completely broken. Advice?Similar to what yazabazra is asking above:
+TF1.6 Ubuntu 16.04
+nvcc V
+nvcc: NVIDIA R Cuda compiler driver
+Copyright c 2005 2017 NVIDIA Corporation
+Built on Fri Nov 3 21:07:56 CDT 2017
+Cuda compilation tools, release 9. V9.85
+Which requited a Nvidia display driver 390+
+Critical to see: LINKLINK 
+
+whelp to add to it all, After a major amount of hassle I got the Nvidia updated to the newest release see above, as the TF doc indicated that there were bugs in an earlier release. 
+
+Now I'm getting the: 
+ImportError: libcublas. so.0: cannot open shared object file: No such file or directory
+Failed to load the native TensorFlow runtime.
+
+Which appears to be a mismatch between 9.0 TF wants vs 9.1 Which is most current Nvidia.
+It would seem better to run with 9.1 but I'd rather avoid building TF from source and it seems that may not fix it anyhow.
+
+Can this combo be made to work with a binary package?
+TF 1.6 Cuda 9.
+Further note and caution to those looking here. after upgrading my Nvidia stuff my older versions of TF in separate conda env's no longer work as the older TF wants: ImportError: libcublas. so.0: cannot open shared object file: No such file or directory
+so 9.1 won't cut it. how about specifying greater than? vs specific versions? just a suggestion. In the meantime I'm dead in the water.
+And this is why availability of a binary that supports 9.1 would be nice: from the TF1.6 release notes 
+
+Using XLA: GPU with CUDA 9 and CUDA 9.1 results in garbage results and or
+CUDA ILLEGAL ADDRESS failures.
+
+Google discovered in mid December 2017 that the PTX to SASS compiler in CUDA 9
+and CUDA 9.1 sometimes does not properly compute the carry bit when
+decomposing 64 bit address calculations with large offsets for example load into 32 bit arithmetic in SASS.
+
+As a result, these versions of ptxas miscompile most XLA programs which use
+more than 4GB of temp memory. This results in garbage results and or
+CUDA ERROR ILLEGAL ADDRESS failures.
+
+A fix in CUDA 9.121 is expected in late February 2018. We do not expect a
+fix for CUDA 9. x. Until the fix is available, the only workaround is to
+downgrade to CUDA 8. x
+or disable XLA: GPU.
+
+Maybe one of the nightlies does it?Another solution? can one install multiple revisions of Cuda since TF seems to search for specific Rev's? If so, any advice as to how to? 
+
+So Ideally I'd be able to to run TF 1.4 which currently requires Cuda 8.0 in one conda environment and TF 1.6 which currently requires Cuda 9.0 in another?So I just added sudo apt get y install cuda toolkit 9.0 and I'm up and running with TF1.6 dartdog after installing cuda toolkit 9. did you face the issue CODESCODES?  dartdog 
+ CODELCODEL This is definitely supposed to be included in the tensorflow documentation, as said by bwesen. It should also be included in the errors list. Is it possible for us do this in anyway? I think I am going to open a new issue, requesting to either add support for cuda 9. or mention that you need cuda 9.0 specifically in the docs, and also include this in the errors listOk, guys. I have now opened a new issue at LINKLINK.I was handling with this issue as well. What worked for me with tensorflow gpu 1.
+ I downloaded the toolkit from the LINKLINK as 9.0 but it got installed as 9.1 I do not know why. 
+ Still not found libcublas. so.0
+ Run: CODESCODES as suggested at the end of the installation instructions.
+ The issue seems to have been solved.If you want to have tensorflow work with your CUDA version, you need to first uninstall it then compile it from source and specify the CUDA version while running. configure
+Detailed information can be found here: url I am trying this which builds tensorflow manually LINKLINK 
+
+Might take a while longer but you can define the minor versions this way.  mldm4 actually, the command CODESCODES probably installed 9.1 for you because you also had that in your system. I had the same problem, and I did CODESCODES to install a specific version I had also downloaded from the archive.
+I think the commad you did CODESCODES also downloads cuda 9.
+This issue is not solved, as I mentioned at issue 17629, I know the problem is that TensorFlow expects version 9. while I had 9. The issue is to mention this more clearly in the docs and include it in the common installation problems in the bottom of the docs, or update tensorflow to accept Cuda 9.so no solution yet? thread:
+
+ Please read through the posts carefully! The answer is posted. 
+
+ It is your job to read the thread, and discover the solution; not simply scroll to the end.  abrahamrhoffman that's rude.
+
+I just changed my batchrc from cuda 9.1 to just cuda. Then my tensorflow is able of finding the libcublas. so.0just fyi: nvidia website for downloading cuda 9.0 is actually downloading cuda 9. LINKLINK  DanlanChen That is probably because you also have 9.1 installed. To install 9. in the steps to download, do CODESCODES instead of CODESCODES. cubetastic33 I downgraded my tensorflow version and use cuda8. thank you anyway. DanlanChen but then, I guess it is preffered to use the latest version. So, if you ever want to upgrade, you now know what to do! smile:Im facing the same issue, but I am trying to run tensorflow using nvidia docker. I have cuda 9 0 installed on the host, but when I try to run my docker container I get
+
+ CODESCODES  magick93 and all that turn up here!
+
+LISTEN! Anything you need is downgrade your cuda 9.1 cuda 9. That's it! Just do it if you downloaded cuda 9.1 before that you can execute following command in your terminal:
+
+ CODESCODES and remove cuda 9.1 by rm rf.
+
+Btw, don't forget to change PATH in your CODESCODES 9.1 9.Hi Oktai15 
+
+
+
+Yes, I have done this many times. 
+
+ CODELCODEL 
+
+ CODELCODEL 
+
+Yet I cant even run this simple tensorflow script, as it results I get CODESCODES 
+
+ CODELCODEL 
+I had the same issue everybody is having here, installing 9.0 did help but then I got other issues.
+Then I followed LINKLINK and it finally worked for me.  Oktai15 doesn't CODESCODES delete your system? Please be more clear here, because people might try it without going into the required directory, and end up emptying their home folder. magick93 your issue seems to be something else, not the CUDA version.I had same issue, I think I solved by some changing, this combination works for me
+
+Ubuntu 16, cuda 9. cudnn 7. python 3, tensorflow 1.6
+
+If you install new cuda while you still have previous version please make sure to specify the path like this
+
+ CODELCODEL  Abduoit your Ubuntu version doesn't really matter. The thing is, TensorFlow 1.6 expects CUDA to be version 9. and cuDNN to be version 7.4 yes, the 0.4 does matter Traceback most recent call last:
+ File utils. py, line 15, in 
+ import tensorflow as tf
+ File home sagar miniconda2 lib python2.7 site packages tensorflow init. py, line 24, in 
+ from tensorflow. python import 
+ File home sagar miniconda2 lib python2.7 site packages tensorflow python init. py, line 49, in 
+ from tensorflow. python import pywrap tensorflow
+ File home sagar miniconda2 lib python2.7 site packages tensorflow python pywrap tensorflow. py, line 74, in 
+ raise ImportError msg 
+ImportError: Traceback most recent call last:
+ File home sagar miniconda2 lib python2.7 site packages tensorflow python pywrap tensorflow. py, line 58, in 
+ from tensorflow. python. pywrap tensorflow internal import 
+ File home sagar miniconda2 lib python2.7 site packages tensorflow python pywrap tensorflow internal. py, line 28, in 
+
+ File home sagar miniconda2 lib python2.7 site packages tensorflow python pywrap tensorflow internal. py, line 24, in swig import helper
+ mod imp. load module ' pywrap tensorflow internal', fp, pathname, description 
+ImportError: libcublas. so.0: cannot open shared object file: No such file or directory
+
+
+Failed to load the native TensorFlow runtime.
+
+See LINKLINK 
+sudo apt get install cuda 7 0
+vim. bashrc
+export PATH usr local cuda 7.0 bin PATH: PATH 
+export LD LIBRARY PATH usr local cuda7.0 lib64 LD LIBRARY PATH: LD LIBRARY PATH 
+export PATH usr local cuda 9.0 bin PATH: PATH 
+export LD LIBRARY PATH usr local cuda9.0 lib64 LD LIBRARY PATH: LD LIBRARY PA
+
+As pascalwhoop mentioned, I followed the instructions in here LINKLINK to build Tensorflow from source. 
+
+Whenever it said cuda 9.0 I changed to 9. and cudnn 7.0 I put 7.2.
+
+Worked fine, so far! SAGGSOC why are you installing cuda 7. You need CUDA 9.0 and CuDNN 7.4Everyone who's been having issues: who's up for turning this into a solid docker image that's shared with the community. Rather do a 6gb image pull once that works than DLing 5 versions of CuDNN before stuff works. 
+
+ LINKLINK 
+
+I started a while back but stopped because of shifting project focuses. But I think it's worth pursuing. Keeps the whole trouble of finding a the right combination of 17 moving parts away from most ppl. Just to clarify a few things for anyone who might stumble on this post. I have in my system installed cuda 8. cuda 9. cuda 9. You don't have to remove anything to make it work with tensorflow. Instead if you are missing cuda 9.0 from your system, as other have already pointed then you'll need to install it that is a prerequisite for tensorflow to work properly.
+
+If you have cuda 9.0 installed on you system and tensorflow is complaining about CODESCODES again as others have said expose that during runtime through your CODESCODES environment variable in your CODESCODES make it point to CODESCODES. This should be working even for tensorflow 1.
+
+What I have tried and failed to accomplish is build from source. For some reason bazel always exits with an error. If you try to build with cuda 9.0 cuda 9.1 and cudnn7 it complains about gcc7. Using gcc5 compilation seems to be working fine but then at the end I always get an error and the build is unsuccessful. 
+
+My question is if anyone has managed to compile from source with cuda 9.1 cuda 9.0 without problems?This worked for me:
+
+Download CUDA Toolkit 9.0 from NVidia previous releases section.
+Then:
+
+ CODELCODEL 
+
+Notice 9.0 at the last line above.
+
+ export LD LIBRARY PATH usr local cuda 9.0 lib64
+ 
+
+My setup
+Tensorflow 1.7
+cuDNN 7.2
+Ubuntu 16.04
+etemiz, 
+I've got the same setup and it works for me too. 
+
+Thank you for your post thumbs up 
+I had teh same situation. I had cuda 9. and tensorflow would not find libraries for cuda 9.
+
+I have installed cuda 9.0 with command: sudo apt get install cuda libraries 9 0
+
+That solved my problem.With cuda 8 and 9.0 installed, setting CODESCODES in CODESCODES and CODESCODES not work. So, I set 
+ CODESCODES in pycharm Environment variable field and it works. the above worked for installing on Ubuntu Server 17. namely,
+
+ installing cuda 9.0 NOT 9.1 
+ cuDNN v7.2 Mar 21, 2018 for CUDA 9.0
+ everything else according to the official tf installation instructions
+
+much easier than compiling.be careful conda users. i hit the same problem and was scratching my head for two days, until finally i discovered that local copy of libcudnn. so was used by conda, under:
+ miniconda3 lib libcudnn. so which pointed to libcudnn. so.7 which pointed to libcudnn. so.0.5
+i don't remember who and how placed it there but pretty much it overloaded the system default libcudnn. so.1.
+
+once removed, everything works like a charm:
+tensorflow 1.7 or 1.8 nightly, cuda 9. cudnn 7.2 on ubuntu 16.04
+Somehow, I solved this by installing:
+cuda 9.1 from package manager, 
+cudnn 7.1 for 9.1
+and from anaconda:
+by using this default command 'conda install c anaconda tensorflow gpu'
+cudatoolkit 9. 
+tensorflow 1.
+tensorflow gpu 1.7
+
+I used Antergos linux, GTX 1060 in my PC. It worked as well in my notebook Xubuntu 18.04, GT 840m. In my notebook i used:
+cuda 9.1 from nvidia ppa, cudnn 7.1 for 9.1 from nvidia web, and the rest was the sameThanks Suananda! It works like magic.If you have old version of CUDA, the library link may point to the old library even you install the newer CUDA especially if you install it manually. Try delete your old installation, and then sudo ldconfig to update the dynamic links.No solution yet!For anyone that might stumble on this I have released a community wheel of latest tensorflow 1.0 rc1 built with cuda 9. You can find it LINKLINK!I have find the reason is ldconf, ldconfig is a dynamic link library management command whose purpose is to allow the dynamic link library to be usedby the system.
+
+The default ldconf only search lib and usr lib, as well as the library file under the directory listed in the configuration file etc ld. so. conf.
+
+so all of this is caused by the dynamic library of CUDA in the installed CUDA path such as: path cuda 9.0 lib64 or path cuda 9.0 lib. for eample my CUDA is installed in usr local cuda 9.0 
+ if you install the CUDA manual, then after install, you should add the path of cuda lib64 to etc ld. so. conf file 
+ CODESCODES 
+then 
+ CODESCODES 
+
+ of course, you can add the path manual, like:
+ CODESCODES 
+ then add the path ' usr local cuda 9.0 lib64' at the end. 
+ CODESCODES 
+ after the operation, reopen the ipython or pycharm, 
+ import tensorflow as tf 
+ wow, you will enjoy it!
+ if you install the CUDA by command such as 'dpkg i cuda repo ubuntu1604 9.176 thumbs down amd64. deb' or others, it may add the cuda lib path to the etc ld. so. conf automatically. but to be on the safe side, check the etc ld. so. conf and see if the path add to it.
+
+ NYcleaner 
+On Ubuntu, there is a CODESCODES file containing: 
+ CODESCODES 
+
+Is this enough or do I need to add the directory CODESCODES to it? sebma 
+you should add the CODESCODES path to it， the. so files are in the lib64 CODELCODEL 
+from LINKLINK  mashu Well the other option is that the community provides pre built LINKLINK. If you read 2 3 threads above you'll also see that mentioned again. Suananda Thanks, it works for me in a tensorflow conda environment. 
+Suggest the official guys to modify the installation guide LINKLINK, step 4 of Anaconda installing, from pip install ignore installed upgrade tfBinaryURL to conda install c anaconda tensorflow gpu Softlink seems not solve this issue:
+
+ CODELCODEL 
+
+Still got:
+
+ CODELCODEL when I run my code on the linux environment directly, everything is OK. But when I run on the local pycharm through the remote interpreter, I encounter the problem: CODESCODES export PATH PATH: usr local cuda 9.0 bin
+export CUDA HOME CUDA HOME: usr local cuda: usr local cuda 9.0
+export LD LIBRARY PATH LD LIBRARY PATH: usr local cuda 9.0 lib64
+export LD LIBRARY PATH LD LIBRARY PATH: usr local cuda extras CUPTI lib64
+
+if use pycharm add it to interpreterwhat about f I just only want to use tensorflow1.8 and cuda9. dongzhuoyao So what's the problem? look at my comment 6 threads above and you'll find your solution there!I guess the problem has cropped up again with CODESCODES and CODESCODES. In a virtualenv, I get:
+ CODELCODEL 
+My CODESCODES folder has the following libcublas:
+ CODELCODEL 
+Versions:
+ CODELCODEL 
+We'll need an update to tensorflow gpu to use cuda 9.
+
+Also, if I were to downgrade to cuda 9. would I have to first remove cuda 9.2 or just install 9.0 straight away? Would I have conflicting installations? mebble Here you go: LINKLINK. That's tf 1.8 wheel for cuda 9.
+
+
+
+Don't downgrade. Install whatever other version you want they'll get installed at CODESCODES Thanks! I forgot to mention that im using CODESCODES and pip CODESCODES. I think the wheel is for python 3.6 so the install doesn't work. Do you have one for 3.5 as well? kirk86 after installing the whl you gave it throws a similar error for libmpi. so.40
+I'm on CentOS and K80 GPU, cuda 9.2 and cudnn v7.1 Suggestion
+As far as I know you can have sub packages xxx, yyy, zzz etc. and install them as follow
+ CODELCODEL 
+This way different co existing back ends can be provided. Tensorflow can be build with different options, so at least a couple of cuda toolkit builds could be provided this way.
+
+The whole point of package is to save time of building, but package build for very specific set of libraries that installs fine, but does not work is counter productive. It would be better off not to have such package in the first place. mebble just make a conda virtual environment for python 3. Make sure that you also have installed on your system openmpi. pavan 08 Install openmpi on your system also nccl 2. x whatever is the latest from nvidia. I've compiled tf with most of the packages and libraries, so it can be used hdfs, kafta, aws, etc. That's why is asking libmpi. so because it's from openmpi library.With cuda 9.2 and tensorflow gpu 1.8 I cannot build tensorflow
+
+declared output 'external local config cuda cuda cuda lib libcudnn. so.7' is a dangling symbolic link
+
+
+The symlink exists
+
+Versions:
+
+Ubuntu 17.10
+cuda 9.2
+cudnn 7.4
+tensorflow gpu 1.0
+
+This works for me tensorflow gpu 1.0 and cuda version is 9. install in anaconda 
+ CODELCODEL 
+suggestion from: LINKLINK  Jackiexiao Yea, that's what I was going to say. I'm using a workstation, so for me all I needed to do was use CUDA 9.0 instead of 9.2 since multiple versions of CUDA were installed This worked for me:
+Because Tensorflow 1.4 requires CUDA 9, I uninstalled all CUDA versions:  sudo rm rf usr local cuda  dpkg l grep cuda awk ' print 2 ' xargs n1 sudo dpkg purge
+
+Install excatly CUDA 9.0 and CuDNN 7. x and reboot. Please refer LINKLINK.
+
+This error happens majorly due to incorrect version combinations of Nvidia driver, CUDA, CuDNN and Tensorflow gpu
+ LINKLINK 
+Thank u！
+
+
+ 
+杨康
+ 
+ 
+ 
+ 
+
+签名由 网易邮箱大师 定制
+
+On 08 18 2018 08:00, Dhruv Srivastava wrote:
+
+Please refer combinations of CUDA and CuDNN.
+
+This error happens majorly due to incorrect version combinations of Nvidia driver, CUDA, CuDNN and Tensorflow gpu
+
+
+ 
+You are receiving this because you commented.
+Reply to this email directly, view it on GitHub, or mute the thread. dhruvhacks Good. I think people should install the right version of tensorflow gpu with the right version cuda.I am on Ubuntu 18.08, and had Cuda 9.0 installed at:
+
+ CODELCODEL 
+
+I decided to look for the CODESCODES:
+
+ CODELCODEL 
+
+That told me the file was in CODESCODES, which helped me realize I had two problems: In CODESCODES I had set: CODESCODES, but my file was in the CODESCODES directory, so I needed to use:
+
+ CODELCODEL 
+
+Finally, CODESCODES was owned by root, so I changed the permissions and the owner of the file:
+
+ CODELCODEL 
+
+And all was well!
+
+
+Exactly, Thanks so much for solving the problem, I have spent days to crack this up. really appreciate mateI encounter this problem as well when I use PyCharm to debug my code at remote server aws deep learning ami. The cuda version is 9.0 and the cudnn is 7.4 and tensorflow is 1.10.0 for gpu. I can import tensorflow normally by terminal connected to my server but fail to import tensorflow in the python console of PyCharm. The problem occurs at this time. Therefore, I cannot debug with PyCharm. 
+ My solution is: input this line in terminal after connecting to your server
+ CODELCODEL 
+And I referenced LINKLINK  NYcleaner Thanks a lot! It helps! and i found just use symbolic link also works. 
+sudo echo usr local cuda lib64 etc ld. so. conf
+sudo ldconfigThis is still an issue with Cuda 9.1 and Tensorflow 1.11cuda 10.0 tensorflow 1.11Even better solution remove tensorflow, install pytorch
+Why tensorflow can brake so easily?
+Why can't I just install it and run? 
+Why is it so easy with pytorch and unpredictable with tf? Wtf is wrong with it?
+
+
+
+
+
+
+Under ubuntu 18.04 cuda 9 0 is not officially available. It works, though.
+Hi all, 
+I use PyTorch as much as possible, but for a particular project where i need to export a Keras model to tensorflowjs, I'm forced to use tf. The only solution which has worked well for me has been to build from source, after installing CUDA from the Ubuntu multiverse, as described here:
+
+ LINKLINK 
+
+Bonne chance! LINKLINK 
+
+ LINKLINK 
+
+Can we get an official CUDA 10 support for tensorflow soon?
+
+
+
+
+Stupid solutionI have installed Cuda 10 and the latest version of Tensor Flow, but I have received CODESCODES, I have made the downgrade and I still receiving this message. 
+
+Could you tell us the OS version and the exact command you issued to downgrade?I tried Deepin 15.8 and Mint 19. I'm going to test Windows 10 later. The command CODESCODES, I tried the LINKLINK versions: 1.0, 1.10. 1.11.0 and 1.12. The LINKLINK version and the drivers:
+
+ LINKLINK  Sphinxs, in my opinion you have two ways: a to recompile the python wheel locally so it points to the installed cuda version or b LINKLINK as I did for my 18.04 installation and it's still working after months.
+
+
+
+
+the man has got a point. TF CAN be compiled to work with more modern CUDA versions. why not just offer that to most people with a CODESCODES package or something temporary until the library can figure out the underlying cuda version dynamically?
+
+
+
+
+I am sick of it!
+
+This comment does not add anything to the issue. Also no one forces anyone to use TF, but If you really need to and can't get pip packages working, why not to build it yourself? That's what I ended up doing at some point. I saw there are also community supported builds here
+ LINKLINK just scroll down.
+Maybe build for your GPU and contribute?
+
+
+
+
+
+
+
+This is an issue page. Please, state your issues so they can be fixed, or, even better, help fixing them.
+ raphaunix may I ask where this chart comes from?I got Tensorflow 1.11.0 working by running the following commands:
+
+ CODELCODEL 
+I have find the reason is ldconf, ldconfig is a dynamic link library management command whose purpose is to allow the dynamic link library to be usedby the system.
+
+The default ldconf only search lib and usr lib, as well as the library file under the directory listed in the configuration file etc ld. so. conf.
+
+so all of this is caused by the dynamic library of CUDA in the installed CUDA path such as: path cuda 9.0 lib64 or path cuda 9.0 lib. for example my CUDA is installed in usr local cuda 9.0 
+
+1. if you install the CUDA manual, then after install, you should add the path of cuda lib64 to etc ld. so. conf file
+ sudo echo usr local cuda 9.0 lib64 etc ld. so. conf
+ 
+then
+ sudo ldconfig
+ 
+of course, you can add the path manual, like:
+vim etc ld. so. conf
+then add the path ' usr local cuda 9.0' at the end.
+then update it
+ sudo ldconfig
+ 
+after the operation, reopen the ipython or pycharm,
+ import tensorflow as tf
+ 
+wow, you will enjoy it!
+
+if you install the CUDA by command such as 'dpkg i cuda repo ubuntu1604 9.176 thumbs down amd64. deb' or others, it may add the cuda lib path to the etc ld. so. conf automatically. but to be on the safe side, check the etc ld. so. conf and see if the path add to it. jabalazs Instead of CODESCODES I tried CODESCODES but this didn't work, do you know why?I found that my runtime on colab was not using GPU that's how come I got my error
+
+
+
+
+Good solution dodler! but I think you are missing the commands to make this great advice easy to follow through xD.
+
+ CODELCODEL 
+
+Happy coding!I faced this same error trying to use Thundersvm to speedup NuSVR with GPUs on Google Colab. 
+Installing Cuda 9.0 solved the problem to me.
+Just follow:
+
+ CODESCODES 
+
+ CODESCODES 
+
+ CODESCODES 
+
+ CODESCODES 
+
+ CODESCODES 
+
+ CODESCODES 
+
+ CODESCODES 
+ conda install cudatoolkit 8.0
+
+solves my problem. CODESCODES solved it for me!
+
+
+This solution worked for me. Thanks for this solution. My TensorFlow and TensorFlow gpu are 1.12.0 and CUDA 11.0 and I am facing this issue 
+
+ CODELCODEL 
+
+Someone please help. I have been struggling for days!'  meghbhalerao I guess your problem's cause is tensorflow and cuda version mismatch. Check LINKLINK. Have you tried to installed different cuda or tensorflow versions?

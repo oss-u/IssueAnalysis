@@ -1,0 +1,737 @@
+<em>Feature request, requesting an android application for Deeplab tag:feature_template</em>
+
+
+**System information**
+- TensorFlow version (you are using): Tensorflow 1.12 [tensorflow-lite-1.12 ]
+- Model Information: Deeplab V3 MobilenetV2
+- Are you willing to contribute it (Yes/No): No
+- Android API Version: API 24 (Android Nougat)
+
+
+
+**Feature Current Behavior**
+There is no mobile application to test out the working of Deeplab tflite model in Android or IOS. This seems as a direct need for developers and it will be helpful for knowing the parsing mechanism for tflite where we get semantic predictions as an output, as there is an unclear way of parsing the specific data type in android and ios(prediction?) as it involves pixel data.
+
+**Current API: Need of change**
+We are in need of new API model to help in with parsing the model input. Could be released as a subsequent fix. 
+
+**Beneficiaries**
+People who are developing camera applications can directly benefit from this as it involves playing with segmentation on android devices.
+
+**Other information.**
+We are trying building the application tweaking with available applications. We are currently facing up some issues. Hereby with, we are attaching the issue links.
+
+[https://stackoverflow.com/questions/53228969/unable-to-test-and-deploy-a-deeplabv3-mobilenetv2-tensorflow-lite-segmentation-m](https://stackoverflow.com/questions/53228969/unable-to-test-and-deploy-a-deeplabv3-mobilenetv2-tensorflow-lite-segmentation-m)
+
+[https://stackoverflow.com/questions/53236290/unable-to-load-tflite-deeplab-segmentation-model-in-android-application-error](https://stackoverflow.com/questions/53236290/unable-to-load-tflite-deeplab-segmentation-model-in-android-application-error)+ @jdduke 
+
+@SanthoshRajendiran : We have demo apps: 
+One example:
+https://github.com/tensorflow/tensorflow/tree/master/tensorflow/lite/java/demo
+The 2 issues that you reference seem to be due to model conversion.
+Can you attach your TF lite model with this issueI believe @suharshs has looked into Deeplab support with TensorFlow Lite.Thanks for the prompt response @shashishekhar @jdduke. I have gone through the app link you have provided. That is specific for Image Classification, I think it cannot be directly used for image segmentation. 
+
+With response to your query, I am attaching here both the frozen graph (From the official repo - both 8MB and 3MB) and the tflite we created from the 8MB model. We have not been able to convert the 3MB Model. Will be helpful if you could support us with the conversion command for 3MB model.
+
+The command for conversion to tflite, is given in the stackoverflow link provided above
+
+[deeplab_tflite_issues.zip](https://github.com/tensorflow/tensorflow/files/2598408/deeplab_tflite_issues.zip)
+Hello guys. Waiting for your reply.. Any improvements as of now. Do you need any help from our side??I have the same issue with you on model convert. for the real time segmentation you can ref to https://github.com/tantara/JejuNet, seems that project has successfully converted the model to tflite. but the accuracy is not that good.Hi @kismeter . Ya. I happened to see the code in Jejunet, but could not find it useful with relevance to the provided deeplab model. It seems that the model is tweaked in various stages to make it run on the device. Anyway, in Jejunet, only tflite is available, no references to Deeplab or pb file. I am in need of converting pb file to tflite and deploying it on the device.I am also facing the same issue. Specifically I'm trying to convert
+
+http://download.tensorflow.org/models/deeplabv3_mnv2_cityscapes_train_2018_02_05.tar.gz
+
+into a tflite file. Optimally also quantization but before that I already ran onto this problem
+
+using this:
+```
+
+tflite_convert --output_file model/test2.tflite
+ --graph_def_file deeplabv3_mnv2_cityscapes_train_2018_02_05/deeplabv3_mnv2_cityscapes_train/frozen_inference_graph.pb  
+
+--input_arrays ImageTensor 
+
+--output_arrays SemanticPredictions 
+
+--input_shapes=1,513,513,3
+```
+
+I get 
+
+`Check failed: array.data_type == array.final_data_type Array "ImageTensor" has mis-matching actual and final data types (data_type=Uint8, final_data_type=Float).`
+
+any help would be highly appreciated.
+
+Hi @normandra 
+We are going through the same process. Actually, we have been able to overcome the same issue you are facing, by providing the parameters: inference-input type and inference type. For the conversion command, do check out the stack overflow link mentioned above. Actually, we are facing some other issue in tflite conversion as discussed above and are currently waiting for @suharshs to reply back. 
+
+In your case, if you have not explicitly mentioned the inference type parameter. by default it will take the input type as inference input type. By default, FLOAT becomes the inference type (You can set it to QUANTIZED UINT8 also). Actually, updates in tflite conversion. forces on usage of Quantized UINT8 and Float data types.@tensorflowbutler @suharshs Any updates on the feature request???watching this...Thanks for the info @SanthoshRajendiran . I already tried specifying the input / inference type and I seem to be getting either the same error or the Nonetype error. 
+
+EDIT: Okay now I'm facing the exact same problem you are ( ByteBuffer is not a valid flatbuffer model ).
+I guess we can only wait now.Hi sorry for the delay, thanksgiving holidays and such. We will take a look into reproducing your issue. Thanks!@sandeepngupta  @normandra 
+Hi I found it is easy to solve the problem. In my case tf.image.ResizeMethod.NEAREST_NEIGHBOR and the slice operator are not supported, therefore when exporting the model with export_model.py, I do not include the two operators. Below is how I modify the code to export proper '.pb'.
+```
+    # Crop the valid regions from the predictions.
+    # enable tflite for exporting tflite model
+    if not FLAGS.tflite:
+        semantic_predictions = tf.slice(
+            predictions[common.OUTPUT_TYPE],
+            [0, 0, 0],
+            [1, resized_image_size[0], resized_image_size[1]])
+
+    # Resize back the prediction to the original image size.
+    def _resize_label(label, label_size):
+      # Expand dimension of label to [1, height, width, 1] for resize operation.
+      label = tf.expand_dims(label, 3)
+      resized_label = tf.image.resize_images(
+          label,
+          label_size,
+          method=tf.image.ResizeMethod.NEAREST_NEIGHBOR,
+          align_corners=True)
+      return tf.squeeze(resized_label, 3)
+    if FLAGS.tflite:
+        semantic_predictions = tf.cast(predictions[common.OUTPUT_TYPE], tf.uint8)
+        semantic_predictions = tf.squeeze(semantic_predictions)
+    else:
+        semantic_predictions = _resize_label(semantic_predictions, image_size)
+
+    semantic_predictions = tf.identity(semantic_predictions, name=_OUTPUT_NAME)
+```
+
+The operators not supported can be implemented in your Java or Python code.Thanks for sharing @melody-rain ,
+
+do you mind on elaborating how to implement the unsupported ops in java / python ? I'm hit with a segenv in my android wrapper so I'm not sure what to do there. Testing in python for some weird reason regardless of what my input tensor is set to i get the same output.
+
+![whitenoise](https://user-images.githubusercontent.com/8277940/49375664-53586800-f705-11e8-807d-0b4d6d745e1a.jpg)
+
+
+EDIT: I guess not exactly the same everytime but very similiar@normandra 
+slice op is used to crop the image, so you can use python's slice. 
+resize can also be replace with opencv's resize. Okay but at what point would I implement those? My output from the model currently is a 513x513 tensor pictured above.Seems like there are number of subproblems in this issue. I'm trying to convert the 3MB mobilenetv2_dm05_coco_voc_trainval model and see what may be missingFor the 3MB model, I found the cause of the TOCO error. I'm working with internal engineers to figure out what the proper fix is.I am also running into issues with converting the frozen graphs, although they're a bit different depending on which graph i try to convert to tensorflow lite. When converting the graph found from http://download.tensorflow.org/models/deeplabv3_mnv2_pascal_train_aug_2018_01_29.tar.gz via TOCO with the command:
+```
+tflite_convert \
+  --output_file=test.lite \
+  --graph_def_file=frozen_inference_graph.pb \
+  --input_arrays=ImageTensor \
+  --output_arrays=SemanticPredictions \
+  --input_shapes=1,513,513,3 \
+  --inference_input_type=QUANTIZED_UINT8 \
+  --inference_type=FLOAT \
+  --mean_values=128 \
+  --std_dev_values=128
+```
+I get no issues in the conversion. But when i try and implement it in my app on Android I get the `java.lang.IllegalArgumentException: Internal error: Failed to run on the given Interpreter: tensorflow/contrib/lite/kernels/depthwise_conv.cc:99 params->depth_multiplier * SizeOfDimension(input, 3) != SizeOfDimension(filter, 3) (0 != 32)Node number 30 (DEPTHWISE_CONV_2D) failed to prepare.` error.
+
+However when i try to retrain the model on my local machine with `tensorflow 1.12` using the `local_test_mobilenetv2.sh` script in the tensorflow-models repo for Deeplab i get the following error when trying to convert the exported graph with the same `tflite_convert` command: 
+```
+2018-12-07 10:29:51.195230: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+Traceback (most recent call last):
+  File "/usr/local/bin/tflite_convert", line 11, in <module>
+    sys.exit(main())
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/contrib/lite/python/tflite_convert.py", line 412, in main
+    app.run(main=run_main, argv=sys.argv[:1])
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/platform/app.py", line 125, in run
+    _sys.exit(main(argv))
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/contrib/lite/python/tflite_convert.py", line 408, in run_main
+    _convert_model(tflite_flags)
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/contrib/lite/python/tflite_convert.py", line 162, in _convert_model
+    output_data = converter.convert()
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/contrib/lite/python/lite.py", line 453, in convert
+    **converter_kwargs)
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/contrib/lite/python/convert.py", line 342, in toco_convert_impl
+    input_data.SerializeToString())
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/contrib/lite/python/convert.py", line 135, in toco_convert_protos
+    (stdout, stderr))
+RuntimeError: TOCO failed see console for info.
+2018-12-07 10:29:53.090897: I tensorflow/contrib/lite/toco/import_tensorflow.cc:1080] Converting unsupported operation: ResizeNearestNeighbor
+2018-12-07 10:29:53.104921: I tensorflow/contrib/lite/toco/graph_transformations/graph_transformations.cc:39] Before Removing unused ops: 811 operators, 1236 arrays (0 quantized)
+2018-12-07 10:29:53.131609: I tensorflow/contrib/lite/toco/graph_transformations/graph_transformations.cc:39] After Removing unused ops pass 1: 801 operators, 1217 arrays (0 quantized)
+2018-12-07 10:29:53.160096: I tensorflow/contrib/lite/toco/graph_transformations/graph_transformations.cc:39] Before general graph transformations: 801 operators, 1217 arrays (0 quantized)
+2018-12-07 10:29:53.186542: F tensorflow/contrib/lite/toco/graph_transformations/propagate_fixed_sizes.cc:624] Check failed: input_shape.dims().size() == op->size.size() (4 vs. 3)
+
+None
+```
+
+This is the same error i get when i try to run the `tflite_convert` command on the frozen graph from http://download.tensorflow.org/models/deeplabv3_mnv2_dm05_pascal_trainaug_2018_10_01.tar.gz. 
+
+Also just a side note: I tried running the `tflite_convert` command on the frozen graph from http://download.tensorflow.org/models/deeplabv3_pascal_train_aug_2018_01_04.tar.gz just to see what would happen, and the conversion seemed to work. But i got to the same error point when actually running inference in the app with the model with nearly the same error message `java.lang.IllegalArgumentException: Internal error: Failed to run on the given Interpreter: tensorflow/contrib/lite/kernels/depthwise_conv.cc:99 params->depth_multiplier * SizeOfDimension(input, 3) != SizeOfDimension(filter, 3) (0 != 64)Node number 33 (DEPTHWISE_CONV_2D) failed to prepare.` Just a difference of `SizeOfDimension(filter, 3) (0 != 64)` vs ` SizeOfDimension(filter, 3) (0 != 32)` in the mobilenetsv2 model.
+
+I'm relatively new to TensorFlow/ML so forgive me for any extraneous info or misuse of terminology. I'm just trying to start out with trying to implement the Deeplabv3+ model on Android with a pretrained model for now. Not sure if there is a workaround? I looked at https://github.com/dailystudio/ml/tree/master/deeplab implementation of the Deeplab model on Android, but it appears to use the soon to be deprecated version Tensorflow Mobile API as opposed to Tensorflow Lite. I also am unsure as to whether a model that is trained with the current version of Tensorflow would work with this demo app (I'll soon try) since this codebase is from May (not sure which version was used to generate the graph that was used in the demo).So I did follow @melody-rain's advice and added their code into `export_model.py` and ran the `tflite_convert` command on the frozen graph. Had to make some other adjustments to my java code and got the model to successfully run in my android app without crashing/raising errors. The resulting graph for the tflite conversion appears to produce something... i'm just not sure what.
+
+here is an inference result from the frozen graph without the lite conversion, which i ran via python on my Macbook Pro:
+![test-something](https://user-images.githubusercontent.com/6912634/49668614-b7906a00-fa2c-11e8-99af-1c1a32a9d71b.jpeg)
+
+and here is the same inference result from the graph with the conversion, which i ran through my android app on a Samsung Galaxy Tab A:
+![tf-pixpic_1544210110162](https://user-images.githubusercontent.com/6912634/49668457-27522500-fa2c-11e8-8f62-1e1ed761d5c8.jpg)
+
+Its an improvement from not working at all, however i'm not sure what exactly the results from the lite conversion means. The results from the non converted model are pretty decent. Not sure if my conversion from the output results in the java code is working incorrectly or if it is just an issue with the conversion. @SirNeuman: Just to confirm, have you tried without enabling quantization during conversion (i.e., using the float path)?Sorry. I was actually messing up my input image when i resized it for running through the inference on mobile. It actually works quite well now. This is a different input image running for inference, but you can see that the results actually make a bit more sense and is close to what i'm trying to achieve:
+![tf-quantized-20181210_104010](https://user-images.githubusercontent.com/6912634/49747841-4b06ac80-fc72-11e8-877c-c911b11189cf.jpg)
+
+
+I still need to implement the java code for scaling the output image...
+
+@jdduke: I assume you mean changing `--inference_input_type=QUANTIZED_UINT8` to `--inference_input_type=FLOAT` in my conversion command? I just went ahead and tried it to see what the results would be like. I had to change the `input_image` when exporting the model from type `uint8` to `float32` to get the conversion to run. I then also had to update my convertBitmapToByteBuffer method when running the image through the model in the app. I ended up getting it to run without errors and ended up with pretty similar results (not sure if it's more accurate but it definitely runs inference faster?). Just to note this produces an 8.5mb lite graph as opposed to a 2.2mb lite graph that my original conversion produced:
+![tf-20181210_104010](https://user-images.githubusercontent.com/6912634/49747875-5bb72280-fc72-11e8-8b00-9c529cbe27e8.jpg)
+
+Here's with the unconverted (non-lite) model for reference:
+![api-test-2](https://user-images.githubusercontent.com/6912634/49747909-71c4e300-fc72-11e8-8dca-db19465b7e1f.jpeg)
+
+Also the time for inference with the original uint8 type was 10335 ms, while the time for inference with the float type was 4455ms on my Galaxy Samsung Tab A. Which does seem strange to me that the quantized version performs worse, but once again I'm relatively new to this so perhaps i'm either doing something wrong or i'm misunderstanding the changes i'm making.
+> For the 3MB model, I found the cause of the TOCO error. I'm working with internal engineers to figure out what the proper fix is.
+
+Hello @alanchiao , we are keen to know the response from your internal engineers team for the TOCO error. How long do you think you need to provide a solution to successfully convert 3MB pb model into tflite? Thanks for your continued support.> Sorry. I was actually messing up my input image when i resized it for running through the inference on mobile. It actually works quite well now. This is a different input image running for inference, but you can see that the results actually make a bit more sense and is close to what i'm trying to achieve:
+> ![tf-quantized-20181210_104010](https://user-images.githubusercontent.com/6912634/49747841-4b06ac80-fc72-11e8-877c-c911b11189cf.jpg)
+> 
+> I still need to implement the java code for scaling the output image...
+> 
+> @jdduke: I assume you mean changing `--inference_input_type=QUANTIZED_UINT8` to `--inference_input_type=FLOAT` in my conversion command? I just went ahead and tried it to see what the results would be like. I had to change the `input_image` when exporting the model from type `uint8` to `float32` to get the conversion to run. I then also had to update my convertBitmapToByteBuffer method when running the image through the model in the app. I ended up getting it to run without errors and ended up with pretty similar results (not sure if it's more accurate but it definitely runs inference faster?). Just to note this produces an 8.5mb lite graph as opposed to a 2.2mb lite graph that my original conversion produced:
+> ![tf-20181210_104010](https://user-images.githubusercontent.com/6912634/49747875-5bb72280-fc72-11e8-8b00-9c529cbe27e8.jpg)
+> 
+> Here's with the unconverted (non-lite) model for reference:
+> ![api-test-2](https://user-images.githubusercontent.com/6912634/49747909-71c4e300-fc72-11e8-8dca-db19465b7e1f.jpeg)
+> 
+> Also the time for inference with the original uint8 type was 10335 ms, while the time for inference with the float type was 4455ms on my Galaxy Samsung Tab A. Which does seem strange to me that the quantized version performs worse, but once again I'm relatively new to this so perhaps i'm either doing something wrong or i'm misunderstanding the changes i'm making.
+
+@SirNeuman Did you include any custom implementations for Slice and Resize operators which were excluded in export_model.py file?
+Can we please know the Samsung Tab A device specifications, as we are equally surprised to know the long inference times?@Srinivas-Introtuce: since the day I provided the last response, I've been trying to verify the below analysis and fix with a SWE from another team and unfortunately they haven't gotten back. Provided it is correct, it would expect it to take at most two days after, including a day to a day and a half for code review. 
+
+If you're not familiar with or interested in TOCO internals, please ignore the following:
+
+In a build of the latest source code, I saw the following error: Check failed: input_shape.dims().size() == op->size.size() (4 vs. 3) at propagate_fixed_sizes.cc:625. 
+
+propagate_fixed_sizes is a graph transformation that takes the shapes of the model input tensors and propagates them throughout the graph to compute the shapes of each op's input and output tensors. 
+
+The error is thrown for the Slice Op that follows an Argmax Op. For this graph, the argmax input shape is [1, 513, 513, 21] and the computed output shape from propate_fixed_sizes.cc is [1, 513, 513, 1]. This input shape goes to the slice op (input_shape.dims().size() = 4 with the 4 elements), with the existing size param = [1, 256, 256] (op->size.size = 3 with the 3 elements), leading to the 4 != 3 error.
+
+Typically, for argmax, the output shape would be [1, 513, 513], but I'm guessing that the 1 was appended to the end of the output shape since TOCO's in-memory representation works with 4D tensors. The fix would to be to modify the Slice operator's in-memory representation to match the Argmax behavior.> The error is thrown for the Slice Op that follows an Argmax Op. For this graph, the argmax input shape is [1, 513, 513, 21] and the computed output shape from propate_fixed_sizes.cc is [1, 513, 513, 1]. This input shape goes to the slice op (input_shape.dims().size() = 4 with the 4 elements), with the existing size param = [1, 256, 256] (op->size.size = 3 with the 3 elements), leading to the 4 != 3 error.
+
+Hi @alanchiao - Thank you very much for the response. Yes myself and my team got fair understanding of the error based on your detailed description. We are looking forward to receive the respective fix and waiting to successfully convert 3mb pb file into tflite. Again, thank you for the continued support.@Srinivas-Introtuce yeah. i just cropped and resized the image before/after running the image through the graph in our android application code. 
+
+My GalaxyTab A specs are:
+Model Sm-T580
+1.6GHz Octa Core Processor
+2GB RAM
+Android 8.1
+Finally after fiddling around I was able to make my implementation work as well.
+
+Interestingly enough my result is also similar to @SirNeuman 's where the float model performed faster than the quantized one.
+
+On a HTC U11 (Snapdragon 835)
+https://www.gsmarena.com/htc_u11-8630.php
+
+with the input_size set to 300x300 I was able to reach:
+~470ms on the float model (8.5 mb)
+~830ms on the Quantized model (2.2 mb)If you don't mind sharing your converted .tflite model (either here or sending to me directly), we'd be happy to dive into performance issues.
+
+Otherwise, it might be helpful if you could profile the model per [these instructions](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/lite/tools/benchmark) (under the "Profiling model operators" section). Thanks!@normandra , @Srinivas-Introtuce : to make sure, when you say quantized model, you are referring to models generated using the post_training_quantize flag right?  
+
+For performance, are you measuring with single-threaded performance? It makes a difference between with post_training_quantize, we currently don't support multithreading whereas we do for the float model. This is because in practice on a user's phone with various other applications running, multithreading is often slower than single threaded performance due to the contention.Yes, I will upload my converted tflite tomorrow
+
+On Dec 13, 2018 7:27 PM, alanchiao <notifications@github.com> wrote:
+
+@normandra<https://github.com/normandra> , @Srinivas-Introtuce<https://github.com/Srinivas-Introtuce> : to make sure, when you say quantized model, you are referring to models generated using the post_training_quantize flag right?
+
+—
+You are receiving this because you were mentioned.
+Reply to this email directly, view it on GitHub<https://github.com/tensorflow/tensorflow/issues/23747#issuecomment-447069814>, or mute the thread<https://github.com/notifications/unsubscribe-auth/AH5PtKHVKa2e-dreNqYBt8IDOwFCkUsCks5u4pwMgaJpZM4YeDVJ>.
+
+So here are the two models:
+
+[models.zip](https://github.com/tensorflow/tensorflow/files/2679973/models.zip)
+
+So I used the tip from @melody-rain to remove the unsupported ops and to convert the models.
+
+To convert the model I used:
+
+`tflite_convert --output_file 300_quantized.tflite --graph_def_file 300.pb --input_arrays ImageTensor --output_arrays SemanticPredictions --input_shapes=1,300,300,3 --inference_input_type=QUANTIZED_UINT8 --inference_type=FLOAT --mean_values=128 --std_dev_values=128 --post_training_quantize
+`
+
+and for the other without the --post_training_quantize flagHi @normandra ,
+
+We tried running your tflite model on OnePlus 3 (Snapdragon 820) and the inference time was around 2000 ms (both for single and double threaded execution) for 2.2 Mb model. How did you measure the execution time (is it just the running time for 'tflite.run()' of tflite intrepreter)?Also did you use nnapi (HTC U11 seems to support Android Pie) and how many threads were used in your case?
+
+(So far the best performance that we found in terms of speed, is around 150 ms  using [Jejunet](https://github.com/tantara/JejuNet) with input size of 256*256 and and INT64 output )@anilsathyan7 I used 4 Threads. NNAPI doesn't seem to make any difference whatsoever on this device. To test the runtime I have made an app similiar to the one used in Jejunet which again is similiar to the one from the tflite / tfmobile demo provided by the tensorflow team.
+
+Something to note about Jejunet is that its a modified version of deeplab. Some layers are missing there (Batchnormalization for example) presumably to boost the speed. It also seem that the model was trained from scratch. @alanchiao I did test the quantized model on a single threaded run, and the quantized model did not perform better there.Hello @alanchiao . Any updates on the feature request?? And thanks @normandra for the information.@melody-rain 
+I followed your code and modified the export_model.py file accordingly
+
+but got an error
+```INFO:tensorflow:Prepare to export model to: /home/jayanthl/Documents/ai/tensorflow_models/models/research/deeplab/datasets/pascal_voc_seg/exp/train_on_trainval_set_mobilenetv2/export/frozen_inference_graph.pb
+INFO:tensorflow:Exported model performs single-scale inference.
+WARNING:tensorflow:From /home/jayanthl/Documents/ai/tensorflow_models/models/research/deeplab/core/feature_extractor.py:160: to_float (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.cast instead.
+WARNING:tensorflow:From /home/jayanthl/.pythonvenv/lib/python3.7/site-packages/tensorflow/python/framework/op_def_library.py:263: colocate_with (from tensorflow.python.framework.ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Colocations handled automatically by placer.
+Traceback (most recent call last):
+  File "/home/jayanthl/Documents/ai/tensorflow_models/models/research/deeplab/export_model.py", line 166, in <module>
+    tf.app.run()
+  File "/home/jayanthl/.pythonvenv/lib/python3.7/site-packages/tensorflow/python/platform/app.py", line 125, in run
+    _sys.exit(main(argv))
+  File "/home/jayanthl/Documents/ai/tensorflow_models/models/research/deeplab/export_model.py", line 142, in main
+    semantic_predictions = tf.cast(predictions[common.OUTPUT_TYPE], tf.uint8)
+  File "/home/jayanthl/.pythonvenv/lib/python3.7/site-packages/tensorflow/python/ops/array_ops.py", line 618, in _slice_helper
+    _check_index(s)
+  File "/home/jayanthl/.pythonvenv/lib/python3.7/site-packages/tensorflow/python/ops/array_ops.py", line 516, in _check_index
+    raise TypeError(_SLICE_TYPE_ERROR + ", got {!r}".format(idx))
+TypeError: Only integers, slices (`:`), ellipsis (`...`), tf.newaxis (`None`) and scalar tf.int32/tf.int64 tensors are valid indices, got 'semantic'```@SirNeuman 
+Can you please post the tflite_convert command which you used to convert the model ?@melody-rain 
+if i use python 3.6.8 i get the following error
+```INFO:tensorflow:Prepare to export model to: /home/jayanthl/Documents/ai/tensorflow_models/models/research/deeplab/datasets/pascal_voc_seg/exp/train_on_trainval_set_mobilenetv2/export/frozen_inference_graph.pb
+INFO:tensorflow:Exported model performs single-scale inference.
+Traceback (most recent call last):
+  File "/home/jayanthl/Documents/ai/tensorflow_models/models/research/deeplab/export_model.py", line 166, in <module>
+    tf.app.run()
+  File "/home/jayanthl/.source_pythonvenv/lib/python3.6/site-packages/tensorflow/python/platform/app.py", line 125, in run
+    _sys.exit(main(argv))
+  File "/home/jayanthl/Documents/ai/tensorflow_models/models/research/deeplab/export_model.py", line 142, in main
+    semantic_predictions = tf.cast(predictions[common.OUTPUT_TYPE], tf.uint8)
+  File "/home/jayanthl/.source_pythonvenv/lib/python3.6/site-packages/tensorflow/python/ops/array_ops.py", line 491, in _slice_helper
+    end.append(s + 1)
+TypeError: must be str, not int
+```
+
+@SirNeuman 
+can you please post the export_model.py file ?
+
+*** Update ***
+It was my fault, figured it out.@Jayanth-L 
+
+Change
+```
+    predictions = tf.cast(predictions[common.OUTPUT_TYPE], tf.float32)
+```
+to:
+```
+    if not FLAGS.tflite:
+        semantic_predictions = tf.slice(
+            predictions[common.OUTPUT_TYPE],
+            [0, 0, 0],
+            [1, resized_image_size[0], resized_image_size[1]])
+
+```@SanthoshRajendiran : starting to code the fix now. Apologize for the delayHi guys, you guys might need to see this post.
+https://groups.google.com/a/tensorflow.org/forum/?utm_medium=email&utm_source=footer#!msg/discuss/rzLivfAUGLk/EOZN2LyWCgAJ
+
+One guy release tf-lite model of segmentationI took a look at it. Aside from the final Reshape layer that model is pretty much identical with the one from JeJunet. So I guess to speed up the model we probably have to remove the BatchToSpaceNd + Mul + Add blocks in the feature extraction part. Some advice to do so would be great.@Srinivas-Introtuce @SanthoshRajendiran : after [this commit](https://github.com/tensorflow/tensorflow/commit/1d0552e94d4e091ce03248675ac92c1e1e0accae), you'll be able to convert the 3MB Deeplab TF graphdef to a TFLite model. I unfortunately don't have the cycles right now to hook everything up into the demo app.We tried the official tensorflow experimental gpu backend for inference on andorid by following the following links:-
+1. https://medium.com/tensorflow/tensorflow-lite-now-faster-with-mobile-gpus-developer-preview-e15797e6dee7
+2. https://www.tensorflow.org/lite/performance/gpu
+
+The speed up for mobilenet v1 and mobilenet v2 was around '2x' when compared to float model
+on OnePlus3(Snapdrahon 820, Adreno 530).Here are the benchmarks for mobilenet v2:-
+
+Quantized CPU: 80 ms
+Float CPU: 80ms
+Float GPU:40ms
+
+However when we tried the given deeplab segmentation model, the time taken for a frame was around
+500ms in CPU float and 400ms in GPU on this device.This is still less than jejunet quantized inference(150ms).
+
+We hope these are some other techniques for improving  the performance
+1.Training using a single class.(application specific)
+2.Converting output from 1*256*256*21 to 1*65536 (jejunet style)
+3.Removing some layers or operators (as per previous comments)
+
+Our target is 30 FPS on android.Are there any other ways the improve the performance?
+
+@anilsathyan7 Did you implement android code with deeplabv3_257_mv_gpu.tflite? I did try but time taken 900ms.
+
+I had a problem to inference. Can you see my code and give me comment? 
+
+Please reference below.
+
+https://github.com/tensorflow/tensorflow/issues/25193
+
+thanks.Added iOS example, waiting for [pull request 25785 approve](https://github.com/tensorflow/tensorflow/pull/25785).  
+
+![real-time](https://github.com/VolodymyrPavliukevych/DeepLabApp/raw/master/real_time.gif)
+
+![static-image](https://github.com/VolodymyrPavliukevych/DeepLabApp/raw/master/static_images.gif)
+> I am also running into issues with converting the frozen graphs, although they're a bit different depending on which graph i try to convert to tensorflow lite. When converting the graph found from http://download.tensorflow.org/models/deeplabv3_mnv2_pascal_train_aug_2018_01_29.tar.gz via TOCO with the command:
+> 
+> ```
+> tflite_convert \
+>   --output_file=test.lite \
+>   --graph_def_file=frozen_inference_graph.pb \
+>   --input_arrays=ImageTensor \
+>   --output_arrays=SemanticPredictions \
+>   --input_shapes=1,513,513,3 \
+>   --inference_input_type=QUANTIZED_UINT8 \
+>   --inference_type=FLOAT \
+>   --mean_values=128 \
+>   --std_dev_values=128
+> ```
+> I get no issues in the conversion. But when i try and implement it in my app on Android I get the `java.lang.IllegalArgumentException: Internal error: Failed to run on the given Interpreter: tensorflow/contrib/lite/kernels/depthwise_conv.cc:99 params->depth_multiplier * SizeOfDimension(input, 3) != SizeOfDimension(filter, 3) (0 != 32)Node number 30 (DEPTHWISE_CONV_2D) failed to prepare.` error.
+> 
+
+How did you resolve this issue @SirNeuman ? I am having the same problem trying to inference Deeplab v3+ ResNet 101 variant in tflite format. Conversion is succesful with no errors and the model works fine before conversion. I tried to adjust the export_model file according to melody-rain's tips, but it did not fix the problem.Could someone provide the command to convert deeplab pb file into a fully quantized tflite, along with some insights on the mean, std_dev_values and min-max ranges.for quantized runtime I believe you also need to do quantization aware training, see https://github.com/tensorflow/tensorflow/issues/20867#issue-341770125> With response to your query, I am attaching here both the frozen graph (From the official repo - both 8MB and 3MB) and the tflite we created from the 8MB model. We have not been able to convert the 3MB Model. Will be helpful if you could support us with the conversion command for 3MB model.
+
+
+@SanthoshRajendiran . Can you attach here a link (wget "https:/...") to small_frozen_inference_graph.pb file whose size is 3mb I am having hard time locating it on tensorflows official websitecould tflite use gpu of phone?
+> > With response to your query, I am attaching here both the frozen graph (From the official repo - both 8MB and 3MB) and the tflite we created from the 8MB model. We have not been able to convert the 3MB Model. Will be helpful if you could support us with the conversion command for 3MB model.
+> 
+> @SanthoshRajendiran . Can you attach here a link (wget "https:/...") to small_frozen_inference_graph.pb file whose size is 3mb I am having hard time locating it on tensorflows official website
+
+
+[http://download.tensorflow.org/models/deeplabv3_mnv2_dm05_pascal_trainaug_2018_10_01.tar.gz](http://download.tensorflow.org/models/deeplabv3_mnv2_dm05_pascal_trainaug_2018_10_01.tar.gz)
+
+These models are available in [deeplab model zoo page](https://github.com/tensorflow/models/blob/master/research/deeplab/g3doc/model_zoo.md)> could tflite use gpu of phone?
+
+Yes. It can use the Phone GPU, using TFLite GPU Delegate. Make sure that the operators in your TFLite model are supported by TFLite GPU delegate.@SanthoshRajendiran  can the checkpoints derived from this 3mb model-directory be used to custom train your own data-set ?
+
+> http://download.tensorflow.org/models/deeplabv3_mnv2_dm05_pascal_trainaug_2018_10_01.tar.gz
+
+I used similar approach and used checkpoints from the 8mb model directory to train my own dataset without any trouble
+
+The command I use in both the cases is this:
+
+```
+python3 deeplab/train.py \
+    --logtostderr \
+    --train_split="train" \
+    --training_number_of_steps=1000 \
+    --model_variant="mobilenet_v2" \
+    --output_stride=16 \
+    --train_crop_size=600 \
+    --train_crop_size=450 \
+    --train_batch_size=1 \
+    --dataset="testset" \
+    --tf_initial_checkpoint=deeplab/deeplabv3_mnv2_dm05_pascal_trainaug/model.ckpt\
+    --train_logdir=deeplabdeeplab/dm05_pascalvoc/ \
+    --dataset_dir=deeplab/datasets/CamVid/tfrecord \
+    --initialize_last_layer=False \
+    --last_layers_contain_logits_only=False \
+    --fine_tune_batch_norm=False
+```
+
+However for 3mb model I get an error:
+
+> ```python
+>     sess = tf.Session()
+>     with sess.as_default():
+>         tensor = tf.range(10)
+>         print_op = tf.print(tensor)
+>         with tf.control_dependencies([print_op]):
+>           out = tf.add(tensor, tensor)
+>         sess.run(out)
+>     ```
+> Additionally, to use tf.print in python 2.7, users must make sure to import
+> the following:
+> 
+>   `from __future__ import print_function`
+> 
+> INFO:tensorflow:Initializing model from path: deeplab/deeplabv3_mnv2_dm05_pascal_trainaug/model.ckpt
+> Traceback (most recent call last):
+>   File "deeplab/train.py", line 500, in <module>
+>     tf.app.run()
+>   File "/home/ubuntu/anaconda3/envs/tensorflow_p36/lib/python3.6/site-packages/tensorflow/python/platform/app.py", line 125, in run
+>     _sys.exit(main(argv))
+>   File "deeplab/train.py", line 467, in main
+>     ignore_missing_vars=True)
+>   File "/home/ubuntu/ajinkya/models/research/deeplab/utils/train_utils.py", line 174, in get_model_init_fn
+>     ignore_missing_vars=ignore_missing_vars)
+>   File "/home/ubuntu/anaconda3/envs/tensorflow_p36/lib/python3.6/site-packages/tensorflow/contrib/framework/python/ops/variables.py", line 686, in assign_from_checkpoint
+>     % (ckpt_name, str(ckpt_value.shape), str(var.get_shape())))
+> ValueError: Total size of new array must be unchanged for MobilenetV2/Conv/weights lh_shape: [(3, 3, 3, 16)], rh_shape: [(3, 3, 3, 32)]
+> 
+
+Any suggestion on how do I resolve thisYou need to include one more parameter, in command you use for training 3MB model.. Depth multiplier is used in this case.. And so, you have to include an additional parameter.. 
+
+--depth_multiplier=0.5
+
+thank you that worked
+@SanthoshRajendiran did you have any luck running tflite model on android. I converted the frozen inference graph to tflite graph using 
+
+> tflite_convert \
+>   --output_file=test.lite \
+>   --graph_def_file=frozen_inference_graph_3mbvoc.pb \
+>   --input_arrays=ImageTensor \
+>   --output_arrays=SemanticPredictions \
+>   --input_shapes=1,600,450,3 \
+>   --inference_input_type=QUANTIZED_UINT8 \
+>   --inference_type=FLOAT \
+>   --mean_values=128 \
+>   --std_dev_values=128
+
+When I ran it on android I get:
+
+`Caused by: java.lang.IllegalStateException: Internal error: Unexpected failure when preparing tensor allocations: third_party/tensorflow/lite/kernels/unpack.cc:54 NumDimensions(input) > 1 was not true.Node number 4 (UNPACK) failed to prepare.`
+
+Any idea whats happening here, and how to resolve it ?@ajinkya933 would you mind sharing the .tflite model you've converted? And/or the saved model you used for conversion?@jdduke saved model used for conversion is available [here](https://drive.google.com/file/d/1_pEkX6BZZjyrHkytiN83rueOniNa1POX/view?usp=sharing). tflite model that I have converted is available [here](https://drive.google.com/file/d/1x-tPCGjGcirxeMpjee_NE3MkiQuBYX0p/view?usp=sharing). Please let me know if you cannot access the links. Training set Images width =600, height =450The model is to detect credit card from images. I am resizing the image to 513X385 in android studio and running inference on this resized image. I tried putting --input_shapes=1,450,600,3 \, and --input_shapes=1,513,385,3 \ It removes the above error in both cases but it dosent seem to produce any output. This is very strange as the " .pb" file for the same model is working perfectly alright using tf-mobile on android. I want inference to be faster in milliseconds than tfmobile thats why I am trying tflite
+Thanks for the repro steps, we're investigating internally.@jdduke thanks, this may add a more clear picture. Please take a look at image below:
+
+![Screenshot from 2019-04-23 14-42-20](https://user-images.githubusercontent.com/17012391/56710895-f443d000-6745-11e9-815d-1ffe673a1c9e.png)
+
+The graph on left is my [tflight-graph](https://drive.google.com/file/d/1uWcOCAHBcYwwf0yQSIJLlrctFNSr91oq/view). and the graph on right is googles [tflight-graph](https://drive.google.com/file/d/1wJ9RMFuZqs_TOW27ZPK6feToqmnNbepw/view).
+
+How is googles tflight-graph created from " .pb" file? how can I replicate this process so that my graph on left looks like googles graph on the right? My assumption is that if I create graph same as google it may give me semantic predictions on my custom trained objects properly. This assumption my be incorrect.
+Google's tflite graph does not have post processing as well as pre-processing. In case if you want to replicate the same, strip your frozen graph from sub_7 to ResizeBilinear_2, and then do the tflite conversion.@SanthoshRajendiran   I researched, there isn't a clean way to remove nodes from a graph, so removing a subgraph isn't practicalHope you would have gone through graph transformations, there you can do all the required stuff to meet your needs. @VolodymyrPavliukevych 
+sir, if you don't mind I want to ask you about your app , using tflite deeplab model on ios application,is there any blog should I follow?Hi, I meet the same problems like this when I'm trying to convert frozen_graph to tfLite:
+
+`Traceback (most recent call last):
+  File "tfdm.py", line 12, in <module>
+    tflite_model = converter.convert()
+  File "/home/zhoukeyang/anaconda3/envs/tf2/lib/python2.7/site-packages/tensorflow/contrib/lite/python/lite.py", line 453, in convert
+    **converter_kwargs)
+  File "/home/zhoukeyang/anaconda3/envs/tf2/lib/python2.7/site-packages/tensorflow/contrib/lite/python/convert.py", line 342, in toco_convert_impl
+    input_data.SerializeToString())
+  File "/home/zhoukeyang/anaconda3/envs/tf2/lib/python2.7/site-packages/tensorflow/contrib/lite/python/convert.py", line 135, in toco_convert_protos
+    (stdout, stderr))
+RuntimeError: TOCO failed see console for info.
+2019-06-24 19:49:16.463291: I tensorflow/contrib/lite/toco/graph_transformations/graph_transformations.cc:39] Before Removing unused ops: 852 operators, 1282 arrays (0 quantized)
+2019-06-24 19:49:16.486382: I tensorflow/contrib/lite/toco/graph_transformations/graph_transformations.cc:39] After Removing unused ops pass 1: 842 operators, 1263 arrays (0 quantized)
+2019-06-24 19:49:16.513770: I tensorflow/contrib/lite/toco/graph_transformations/graph_transformations.cc:39] Before general graph transformations: 842 operators, 1263 arrays (0 quantized)
+2019-06-24 19:49:16.537679: I tensorflow/contrib/lite/toco/graph_transformations/graph_transformations.cc:39] After general graph transformations pass 1: 102 operators, 256 arrays (0 quantized)
+2019-06-24 19:49:16.539015: I tensorflow/contrib/lite/toco/graph_transformations/graph_transformations.cc:39] After general graph transformations pass 2: 102 operators, 256 arrays (0 quantized)
+2019-06-24 19:49:16.539768: F tensorflow/contrib/lite/toco/graph_transformations/propagate_fixed_sizes.cc:624] Check failed: input_shape.dims().size() == op->size.size() (4 vs. 3)
+Aborted (core dumped)`
+
+Could you please give me some advice about fixing it? Thanks a lot.@SirNeuman 
+
+> tflite_convert \
+  --output_file=test.lite \
+  --graph_def_file=frozen_inference_graph.pb \
+  --input_arrays=ImageTensor \
+  --output_arrays=SemanticPredictions \
+  --input_shapes=1,513,513,3 \
+  --inference_input_type=QUANTIZED_UINT8 \
+  --inference_type=FLOAT \
+  --mean_values=128 \
+  --std_dev_values=128
+
+> Sorry. I was actually messing up my input image when i resized it for running through the inference on mobile. It actually works quite well now. This is a different input image running for inference, but you can see that the results actually make a bit more sense and is close to what i'm trying to achieve:
+
+I want to make sure if is it work for you on android with 513 as a crop_size??
+because when i export and convert to tflite with 257 it works fine for me but when I changed to 513 or higher value it doesn't predict anything 
+knowing that i need to use 3041 as crop size
+did you now what i suppose to do ??> @SirNeuman
+> 
+> > tflite_convert 
+> >   --output_file=test.lite 
+> >   --graph_def_file=frozen_inference_graph.pb 
+> >   --input_arrays=ImageTensor 
+> >   --output_arrays=SemanticPredictions 
+> >   --input_shapes=1,513,513,3 
+> >   --inference_input_type=QUANTIZED_UINT8 
+> >   --inference_type=FLOAT 
+> >   --mean_values=128 
+> >   --std_dev_values=128
+> 
+> > Sorry. I was actually messing up my input image when i resized it for running through the inference on mobile. It actually works quite well now. This is a different input image running for inference, but you can see that the results actually make a bit more sense and is close to what i'm trying to achieve:
+> 
+> I want to make sure if is it work for you on android with 513 as a crop_size??
+> because when i export and convert to tflite with 257 it works fine for me but when I changed to 513 or higher value it doesn't predict anything
+> knowing that i need to use 3041 as crop size
+> did you now what i suppose to do ??
+
+@essalahsouad Does your model works fine? Could you please share your model and provide your way of converting to tflite?@alexkartsev 
+no ,unfortunately my model does not predict correctly 
+i used the model for an ios application TensorFlow Lite GPU delegate
+and i still have a bad segmentation mobile
+ my tflite conversion is:
+`tflite_convert ----output_format=TFLITE --inference_type=FLOAT --inference_input_type=FLOAT --input_arrays=sub_2 --input_shapes=1,257,257,3 --output_arrays=ResizeBilinear_2 --output_file=frozen.tflite --graph_def=rozen.pb --mean_values=128 --std_dev_values=127 --allow_custom_ops --post_training_quantize`
+@ajinkya933 
+
+> The graph on left is my tflight-graph. and the graph on right is googles tflight-graph.
+> How is googles tflight-graph created from " .pb" file? how can I replicate this process so that my graph on left looks like googles graph on the right? My assumption is that if I create graph same as google it may give me semantic predictions on my custom trained objects properly. This assumption my be incorrect.
+
+i have the same problem as you, i even don(t know if this is a problem my model contains sub_2 instead f sub_7 and ResizeBilinear_2 instead of ResizeBilinear 
+i tried to use the converted tflite model on ios with tflite gpu delegate but i got a slow resualt compared to the original deeplab model 
+`nference_input_type=FLOAT --input_arrays=sub_2 --input_shapes=1,257,257,3 --output_arrays=ResizeBilinear_2 --output_file=frozen.tflite --graph_def=rozen.pb --mean_values=128 --std_dev_values=127 --allow_custom_ops --post_training_quantize`
+did you have any idea?
+@SanthoshRajendiran 
+> Google's tflite graph does not have post processing as well as pre-processing. In case if you want to replicate the same, strip your frozen graph from sub_7 to ResizeBilinear_2, and then do the tflite conversion.
+
+i don't get it what do you mean by that ??
+my trained model contains sub_2 instead of sub_7 and resizeBilinear_2 instead of resizeBilinear_3
+and i converted to tflite for integrated it on mobile but the result was slow comparing to the original  TensorFlow model
+i don't know if the problem was because of my model architecture ??@melody-rain 
+Could you please share how to properly run export_model.py. I'm trying to avoid the issue with tf.image.ResizeMethod.NEAREST_NEIGHBOR.
+Also I'm trying to export it with checkpoint trained on ade20k dataset.
+Here the command I use to get .pb file
+```
+python models-master/research/deeplab/export_model.py \
+  --logtostderr \
+  --checkpoint_path=./deeplabv3_mnv2_ade20k_train_2018_12_03/model.ckpt \
+  --export_path=./deeplabv3_mnv2_ade20k_train_2018_12_03/frozen_inference_graph_2.pb \
+  --num_classes=151 \
+  --crop_size=257 \
+  --crop_size=257 \
+  --model_variant="mobilenet_v2" \
+  --output_stride=16 \
+  --dataset="ade20k" \
+  --inference_scales=1.0
+```
+Here the command I use to convert it to .tflite
+```
+tflite_convert \
+  --output_file=./deeplabv3_mnv2_ade20k_train_2018_12_03/deeplabv3_mnv2_ade20k_2.tflite \
+  --graph_def_file=./deeplabv3_mnv2_ade20k_train_2018_12_03/frozen_inference_graph_2.pb \
+  --input_arrays=ImageTensor \
+  --output_arrays=SemanticPredictions \
+  --input_shape=1,257,257,3 \
+  --inference_input_type=QUANTIZED_UINT8 \
+  --inference_type=FLOAT \
+  --mean_values=128 \
+  --std_dev_values=127
+```
+I'm getting the following error when I run on ios device:
+```
+tensorflow/lite/kernels/unpack.cc:39 NumDimensions(input) > 1 was not true.
+Node number 4 (UNPACK) failed to prepare.
+```
+What I'm doing wrong here?Finally, I converted the model using the following command:
+```
+tflite_convert \
+  --output_file=./deeplabv3_mnv2_ade20k.tflite \
+  --graph_def_file=./frozen_inference_graph.pb \
+  --input_arrays=ImageTensor \
+  --output_arrays=ExpandDims_1 \
+  --input_shapes=1,257,257,3 \
+  --inference_input_type=QUANTIZED_UINT8 \
+  --inference_type=FLOAT \
+  --mean_values=128 \
+  --std_dev_values=127
+```
+ExpandDims_1 as output_arrays also works quite good> Google's tflite graph does not have post processing as well as pre-processing. In case if you want to replicate the same, strip your frozen graph from sub_7 to ResizeBilinear_2, and then do the tflite conversion.
+
+@SanthoshRajendiran 
+Hi SanthoshRajendiran. Thans so much!   
+Following your suggestion above, I have solved this problem: tensorflow/lite/kernels/depthwise_conv.cc:99 params->depth_multiplier * SizeOfDimension(input, 3) != SizeOfDimension(filter, 3) (0 != 32) Node number 30 (DEPTHWISE_CONV_2D) failed to prepare.
+hope to help more people!> > @SirNeuman
+> > > tflite_convert
+> > > --output_file=test.lite
+> > > --graph_def_file=frozen_inference_graph.pb
+> > > --input_arrays=ImageTensor
+> > > --output_arrays=SemanticPredictions
+> > > --input_shapes=1,513,513,3
+> > > --inference_input_type=QUANTIZED_UINT8
+> > > --inference_type=FLOAT
+> > > --mean_values=128
+> > > --std_dev_values=128
+> > 
+> > 
+> > > Sorry. I was actually messing up my input image when i resized it for running through the inference on mobile. It actually works quite well now. This is a different input image running for inference, but you can see that the results actually make a bit more sense and is close to what i'm trying to achieve:
+> > 
+> > 
+> > I want to make sure if is it work for you on android with 513 as a crop_size??
+> > because when i export and convert to tflite with 257 it works fine for me but when I changed to 513 or higher value it doesn't predict anything
+> > knowing that i need to use 3041 as crop size
+> > did you now what i suppose to do ??
+> 
+> @essalahsouad Does your model works fine? Could you please share your model and provide your way of converting to tflite?
+
+I've found a great example for iOS application with using semantic segmentation, you can try it
+https://github.com/makeml-app/MakeML-Nails@fly-butterfly thanks for the reply
+I've already resolved my issue, but this app looks promising. did you get a pretty result from makeml app?> @fly-butterfly thanks for the reply
+> I've already resolved my issue, but this app looks promising. did you get a pretty result from makeml app?
+
+yes, I've used it and got the tflite model.
+there are not a lot of custom settings, but you can create the model without code at all. btw you can markup images there @fly-butterfly 
+sorry for my question but I want to know if is it for free?> @fly-butterfly
+> sorry for my question but I want to know if is it for free?
+
+labeling images - yes
+training - one month ago was subscription about 10$ for unlimited trainings on their GPUs, but I had promo code for 5$, can try to find it if you want> Google's tflite graph does not have post processing as well as pre-processing. In case if you want to replicate the same, strip your frozen graph from sub_7 to ResizeBilinear_2, and then do the tflite conversion.
+
+@SanthoshRajendiran Thank you! It worked perfectly for me.
+Just in case anyone else is interested, I had code that worked with the model from the ios samples: `deeplabv3_257_mv_gpu.tflite` and I wanted to have a model to run on a higher resolution image.
+I downloaded the model `deeplabv3_mnv2_dm05_pascal_trainval` from Deeplab model zoo, and converted it to tflite using:
+```
+tflite_convert \
+    --output_file=./deeplabv3_513.tflite \
+    --graph_def_file=frozen_inference_graph.pb \
+    --input_arrays=sub_7 \
+    --output_arrays=ResizeBilinear_2 \
+    --input_shapes=1,513,513,3 \
+    --inference_type=FLOAT
+```
+Then the same code that worked for `deeplabv3_257_mv_gpu.tflite` worked on the converted model, just with input image of 513x513 instead 257x257
+
+> > Google's tflite graph does not have post processing as well as pre-processing. In case if you want to replicate the same, strip your frozen graph from sub_7 to ResizeBilinear_2, and then do the tflite conversion.
+> 
+> @SanthoshRajendiran Thank you! It worked perfectly for me.
+> Just in case anyone else is interested, I had code that worked with the model from the ios samples: `deeplabv3_257_mv_gpu.tflite` and I wanted to have a model to run on a higher resolution image.
+> I downloaded the model `deeplabv3_mnv2_dm05_pascal_trainval` from Deeplab model zoo, and converted it to tflite using:
+> 
+> ```
+> tflite_convert \
+>     --output_file=./deeplabv3_513.tflite \
+>     --graph_def_file=frozen_inference_graph.pb \
+>     --input_arrays=sub_7 \
+>     --output_arrays=ResizeBilinear_2 \
+>     --input_shapes=1,513,513,3 \
+>     --inference_type=FLOAT
+> ```
+> 
+> Then the same code that worked for `deeplabv3_257_mv_gpu.tflite` worked on the converted model, just with input image of 513x513 instead 257x257
+
+Thanks so much. Simply stripping unsupported nodes away when doing TF-Lite conversion really helps. Your solution is so simple that it makes me angry at myself, really. I wasted days trying to modify export_model.py, load graph_def up, exporting to TF-Lite, tweak things here and there only to end up running into a new problem after fixing another one.Buenas he intentado entrenar mi propio modelo y lo he convertido a TFLITE pero todas mis pruebas Dan error, alguien podría ayudarme con mi aplicación quiero poder entrenar y compilar mi modelo Deeplab en TFLITE con éxito If anyone is trying to convert a frozen.pb model into tflite , [this](https://github.com/PINTO0309/PINTO_model_zoo/tree/master/01_deeplabv3/) repo have some frozen model model along with converted tflite modelshttps://www.tensorflow.org/lite/models/segmentation/overview Is this helpful?@SanthoshRajendiran the increasing the resolution to 513x513 work for me. Any idea how to make it work for 1025x1025?
+when I have change the command 513 to 1025 it's giving below error
+`ValueError: The shape of tensor 'sub_7' cannot be changed from (1, 513, 513, 3) to [1, 1025, 1025, 3].`> > Google's tflite graph does not have post processing as well as pre-processing. In case if you want to replicate the same, strip your frozen graph from sub_7 to ResizeBilinear_2, and then do the tflite conversion.
+> 
+> @SanthoshRajendiran Thank you! It worked perfectly for me.
+> Just in case anyone else is interested, I had code that worked with the model from the ios samples: `deeplabv3_257_mv_gpu.tflite` and I wanted to have a model to run on a higher resolution image.
+> I downloaded the model `deeplabv3_mnv2_dm05_pascal_trainval` from Deeplab model zoo, and converted it to tflite using:
+> 
+> ```
+> tflite_convert \
+>     --output_file=./deeplabv3_513.tflite \
+>     --graph_def_file=frozen_inference_graph.pb \
+>     --input_arrays=sub_7 \
+>     --output_arrays=ResizeBilinear_2 \
+>     --input_shapes=1,513,513,3 \
+>     --inference_type=FLOAT
+> ```
+> 
+> Then the same code that worked for `deeplabv3_257_mv_gpu.tflite` worked on the converted model, just with input image of 513x513 instead 257x257
+
+@ValYouW @Dr-Champ would you mind sharing you converted tflite model with 513x513 input?
+Thank you!@josefgrunig I uploaded one to [this](https://github.com/ValYouW/tflite-win-c) repo which also includes a working sample in c++...> @josefgrunig I uploaded one to [this](https://github.com/ValYouW/tflite-win-c) repo which also includes a working sample in c++...
+
+Thank you @ValYouW, 
+when using your tflite model on the mobile example I see it is missing the 4th dimension in the output:
+
+`Error occurred when initializing ImageSegmenter: Output tensor is expected to have 4 dimensions, found 3.`
+
+Can I ask from which frozen graph you created this model from? 
+
+Meanwhile, I managed to get **tflite_convert** working too and successfully converted this graph http://download.tensorflow.org/models/deeplabv3_mnv2_dm05_pascal_trainval_2018_10_01.tar.gz into a 513x513 tflite model with metadata (I use TensorFlow Lite Task Library)
+
+I am trying to obtain the same quality of the deprecated TensorFlow Mobile (not Lite) model: some how the lite version lost accuracy for a faster computation time, GPU compatibility (which is not my priority here). Here is the comparison of the two models: https://github.com/dailystudio/ml/tree/master/deeplab
+
+Thank you
+@josefgrunig It depends what you choose as your last layer (OutputArrays) when converting, if you choose `ResizeBilinear_2` then the output layer will be 4 dimensions, where the 4th dimension is 21 values which is the score per "class", and you will have to select the class with the highest probability yourself. If you choose `ArgMax` as the output layer, then the output is 3 dimensions where the 3rd dimension is the class with highest probability (which is what I used in the my project mentioned above).
+
+As for quality, I did a quick test (using cpu) and was able to get similar results to TF_MOBILE (I dilate and blur the mask a bit):
+![image](https://user-images.githubusercontent.com/4539636/112859437-83d52480-90bb-11eb-8710-99ad910185c7.png)
+
+NOTE: The model you are using is `dm05` (depth multiplier = 0.5) which is less accurate (but smaller and probably faster), the model I have in my repo is with "depth multiplier=1"Seems promising @ValYouW, will go through the full conversion process again starting from a frozen graph with dm=1. 
+Unfortunately cannot find the .pb file you started from in your repo. Can you point me at the right path?
+Is there a better dataset than another for recognising portrait figures from the background?
+Thank you for your support, I still have a lot to learn.@josefgrunig I believe I took it here from [here](https://github.com/tensorflow/models/blob/71943914beaa3a0a74c073657193f7e31a3b1b0e/research/deeplab/g3doc/model_zoo.md), it is the `mobilenetv2_coco_voc_trainval` model.
+I once wrote a [blog post](https://www.thecodingnotebook.com/2020/05/converting-to-tensorflow-lite-models.html) on the conversion process (which uses TF 1.x).
+
+If you find something better for portraits would appreciate if you can share.> @josefgrunig I believe I took it here from [here](https://github.com/tensorflow/models/blob/71943914beaa3a0a74c073657193f7e31a3b1b0e/research/deeplab/g3doc/model_zoo.md), it is the `mobilenetv2_coco_voc_trainval` model.
+> I once wrote a [blog post](https://www.thecodingnotebook.com/2020/05/converting-to-tensorflow-lite-models.html) on the conversion process (which uses TF 1.x).
+> 
+> If you find something better for portraits would appreciate if you can share.
+
+Thank you @ValYouW for pointing me in the right direction!
+Starting from mobilenetv2_coco_voc_trainval dataset and converting into a tflite model I am getting good results. Also the resulting segmentation masks is no more binary, but somehow smoothed on the edges. Is is due to the depth multiplier?
+Thank you again, its the best result I have seen so far on mobile.@josefgrunig As far as I understand the model output is not a "mask" per-se, but just a matrix with the detected classId per pixel (i.e whether it belongs to a dog/horse/person etc). It is up to you to create an image mask from it....@ValYouW I understood the reason for the blurred mask image: its the small output size of the mask image. Converting the mobilenetv2_coco_voc_trainval model I get an output mask of 65*65 pixels only, while my target is to reach 513x513. The mobilenetv2_dm05_coco_voc_trainval model has an output shape of 513x513 but a lower depth multiplier. Are you sure your model comes from the mobilenetv2_coco_voc_trainval frozen graph? Looking at your blog post seems you used mobilenetv2_dm05_coco_voc_trainval. Thank youIt was long time ago but I'm quite positive... you can find the converted model in [this](https://github.com/ValYouW/tflite-win-c) repo (file: deeplabv3_mnv2_pascal.tflite)
+
+When you inspect your converted model in Netron, what do you see as output size?
+This is what I get in Netron:
+![image](https://user-images.githubusercontent.com/4539636/114108176-40f52700-98db-11eb-9be3-674ca56f17e0.png)
+I confirm that your model is 513x513, but as last node it uses ArgMax while I need a 4 dimensional output (ResizeBilinear_2).
+For this reason I started from the frozen graph and converted the model to tflite, but I get a 65x65 output
+<img width="487" alt="Screenshot 2021-04-09 at 09 17 17" src="https://user-images.githubusercontent.com/32868530/114144340-83d3f080-9915-11eb-871a-964c6fc8b8dc.png">
+
+Your model seems also to be working on 65x65 and being scaled before output to 513x513:
+<img width="1016" alt="Screenshot 2021-04-09 at 09 20 04" src="https://user-images.githubusercontent.com/32868530/114144525-b67de900-9915-11eb-8179-94f799fb0749.png">
+
+Its it possible to change the output size while converting the frozen graph? if both graph work on 65x65 would it give an effective quality improvement? 
+
+Thank you for your time @ValYouW 
+I'm really not familiar with the model architecture... You can use ResizeBilinear_3 as output which has 4 dimensions ( 1x513x513x21 ) but I really don't know if it will improve quality, but it still has nothing todo with the "blur". The model doesn't output an "image", but just numbers, it's up to you to build the mask image... So using ResizeBilinear_3 as your output layer you'll be able to build a binary mask (no blur) of size 513X513
+(BTW, not sure this discussion is related to this thread, please feel free to contact me via email).

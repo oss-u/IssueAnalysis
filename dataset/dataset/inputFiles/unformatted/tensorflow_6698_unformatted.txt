@@ -1,0 +1,1523 @@
+Tensorflow (GPU) was imported successfully, but when running a session that involves a convolutional neural network (CNN), Python crashes with the following message:
+
+    E tensorflow/stream_executor/cuda/cuda_dnn.cc:385] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+    E tensorflow/stream_executor/cuda/cuda_dnn.cc:352] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+    F tensorflow/core/kernels/conv_ops.cc:605] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms) 
+
+The problem persists on any combination of CUDA toolkit 7.5/8.0 and Tensorflow installed from pip/source. Test sessions that do not use CNNs are run successfully.
+
+### What related GitHub issues or StackOverflow threads have you found by searching the web for your problem?
+
+The issue is similar to https://github.com/tensorflow/tensorflow/issues/6586, where I first commented. But since I experience the problem on a Mac, I was suggested to open a separate issue.
+
+### Environment info
+Operating System: macOS Sierra 10.12.2
+Xcode version 8.2 (8C38) (When I later tried CUDA 7.5, I installed Command Line Tools version 7.3.1 because CUDA 7.5 lacked support of the more recent compilers.)
+Python 3.5.2 (anaconda)
+
+Installed version of CUDA: tried both 8.0 (initially) and 7.5 (reported here, toolkit only -- the driver is still 8.0)
+Installed version of cuDNN: 5.1 (different installations according to CUDA versions)
+(please attach the output of `ls -l /path/to/cuda/lib/libcud*`):
+
+    lrwxr-xr-x  1 root   wheel        33  5 Jan 20:33 /usr/local/cuda/lib/libcuda.1.dylib -> /usr/local/cuda/lib/libcuda.dylib
+    -rwxr-xr-x@ 1 root   wheel      8280 13 Apr  2016 /usr/local/cuda/lib/libcuda.dylib
+    lrwxr-xr-x@ 1 root   wheel        45 13 Apr  2016 /usr/local/cuda/lib/libcudadevrt.a -> /Developer/NVIDIA/CUDA-7.5/lib/libcudadevrt.a
+    lrwxr-xr-x@ 1 root   wheel        50 13 Apr  2016 /usr/local/cuda/lib/libcudart.7.5.dylib -> /Developer/NVIDIA/CUDA-7.5/lib/libcudart.7.5.dylib
+    lrwxr-xr-x@ 1 root   wheel        46 13 Apr  2016 /usr/local/cuda/lib/libcudart.dylib -> /Developer/NVIDIA/CUDA-7.5/lib/libcudart.dylib
+    lrwxr-xr-x@ 1 root   wheel        49 13 Apr  2016 /usr/local/cuda/lib/libcudart_static.a -> /Developer/NVIDIA/CUDA-7.5/lib/libcudart_static.a
+    lrwxr-xr-x  1 root   wheel        16  5 Jan 17:14 /usr/local/cuda/lib/libcudnn.5 -> libcudnn.5.dylib
+    -rwxr-xr-x@ 1 ymfa   staff  58975112 10 Jun  2016 /usr/local/cuda/lib/libcudnn.5.dylib
+    lrwxr-xr-x@ 1 ymfa   staff        16 10 Jun  2016 /usr/local/cuda/lib/libcudnn.dylib -> libcudnn.5.dylib
+    lrwxr-xr-x  1 root   wheel        16  5 Jan 17:14 /usr/local/cuda/lib/libcudnn5.dylib -> libcudnn.5.dylib
+    -rw-r--r--@ 1 ymfa   staff  56392320 10 Jun  2016 /usr/local/cuda/lib/libcudnn_static.a
+
+I tried both installing from pip and source. I first installed from binary pip package:
+
+1. A link to the pip package you installed:
+`tensorflow-gpu`
+2. The output from `python -c "import tensorflow; print(tensorflow.__version__)"`.
+`0.12.head`
+
+Later I installed from source (the pip package was uninstalled):
+
+1. The commit hash (`git rev-parse HEAD`)
+`d67c09d98a576e1fbf2f3609ddb842e53890f31c`
+2. The output of `bazel version`
+
+    Build label: 0.4.3-homebrew
+    Build target: bazel-out/local-opt/bin/src/main/java/com/google/devtools/build/lib/bazel/BazelServer_deploy.jar
+    Build time: Thu Dec 22 15:20:15 2016 (1482420015)
+    Build timestamp: 1482420015
+    Build timestamp as int: 1482420015
+
+### If possible, provide a minimal reproducible example
+
+I made a minimal example by simplifying the network and reducing the training data to only twenty images and two classes for classification. [issue.zip](https://github.com/tensorflow/tensorflow/files/691561/issue.zip) contains the Python code and the data. I wrote two convolutional layers because I found the network with only one convolutional layer runs without problem.
+
+### Complete log using CUDA 7.5 and Tensorflow compiled from source
+
+    I tensorflow/stream_executor/dso_loader.cc:125] successfully opened CUDA library libcublas.7.5.dylib locally
+    I tensorflow/stream_executor/dso_loader.cc:125] successfully opened CUDA library libcudnn.5.dylib locally
+    I tensorflow/stream_executor/dso_loader.cc:125] successfully opened CUDA library libcufft.7.5.dylib locally
+    I tensorflow/stream_executor/dso_loader.cc:125] successfully opened CUDA library libcuda.1.dylib locally
+    I tensorflow/stream_executor/dso_loader.cc:125] successfully opened CUDA library libcurand.7.5.dylib locally
+    W tensorflow/core/platform/cpu_feature_guard.cc:95] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
+    W tensorflow/core/platform/cpu_feature_guard.cc:95] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
+    W tensorflow/core/platform/cpu_feature_guard.cc:95] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+    I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:874] OS X does not support NUMA - returning NUMA node zero
+    I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 0 with properties: 
+    name: GeForce GT 650M
+    major: 3 minor: 0 memoryClockRate (GHz) 0.9
+    pciBusID 0000:01:00.0
+    Total memory: 1023.69MiB
+    Free memory: 740.18MiB
+    I tensorflow/core/common_runtime/gpu/gpu_device.cc:906] DMA: 0 
+    I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 0:   Y 
+    I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 650M, pci bus id: 0000:01:00.0)
+    E tensorflow/stream_executor/cuda/cuda_dnn.cc:385] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+    E tensorflow/stream_executor/cuda/cuda_dnn.cc:352] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+    F tensorflow/core/kernels/conv_ops.cc:605] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms) 
+
+### Complete log using CUDA 8.0 and Tensorflow installed from pip
+
+    I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcublas.dylib locally
+    I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcudnn.dylib locally
+    I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcufft.dylib locally
+    I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcuda.1.dylib locally
+    I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcurand.dylib locally
+    I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:901] OS X does not support NUMA - returning NUMA node zero
+    I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 0 with properties: 
+    name: GeForce GT 650M
+    major: 3 minor: 0 memoryClockRate (GHz) 0.9
+    pciBusID 0000:01:00.0
+    Total memory: 1023.69MiB
+    Free memory: 590.00MiB
+    I tensorflow/core/common_runtime/gpu/gpu_device.cc:906] DMA: 0 
+    I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 0: Y 
+    I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 650M, pci bus id: 0000:01:00.0)
+    E tensorflow/stream_executor/cuda/cuda_dnn.cc:385] could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+    E tensorflow/stream_executor/cuda/cuda_dnn.cc:392] error retrieving driver version: Invalid argument: expected %d.%d or %d.%d.%d form for driver version; got ""
+    E tensorflow/stream_executor/cuda/cuda_dnn.cc:352] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+    F tensorflow/core/kernels/conv_ops.cc:532] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms)
+```
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcublas.so locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcudnn.so locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcufft.so locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcuda.so.1 locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcurand.so locally
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 0 with properties:
+name: GeForce GTX 1080
+major: 6 minor: 1 memoryClockRate (GHz) 1.835
+pciBusID 0000:02:00.0
+Total memory: 7.92GiB
+Free memory: 3.76GiB
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:906] DMA: 0
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 0:   Y
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1080, pci bus id: 0000:02:00.0)
+E tensorflow/stream_executor/cuda/cuda_dnn.cc:385] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+E tensorflow/stream_executor/cuda/cuda_dnn.cc:352] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+F tensorflow/core/kernels/conv_ops.cc:532] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms)
+```
+I met exactly the same problem as you do with CUDA8 and TF r0.12.1.
+@EncodeTS I just added a minimal reproducible example to my first post. Could you check if it reproduces the problem on your machine? On my machine, one convolutional layer works but not two convolutional layers, which led me to think that the problem might be caused by some resource limitations.I can confirm that @ymfa minimal example fails on MacOS NVidia 750, but also same example works on Linux/Titan XThe minimal example works on my Ubuntu. It looks like the issue I had encountered has a very low occurrence probability on my computer.I'm encountering the same problem. The graph will run fine when forced to the cpu, but crashed on the gpu.
+
+### Environment
+OS: macOS 10.12.2
+GPU: GeForce GT 750M
+TF: 0.12.1 (pip install)
+Python: 3.6.0
+CUDA: 8.0
+cuDNN: 5.1
+
+(output of `ls -l /path/to/cuda/lib/libcud*`):
+```
+lrwxr-xr-x  1 root  wheel     33 Dec 14 14:25 /usr/local/cuda/lib/libcuda.1.dylib -> /usr/local/cuda/lib/libcuda.dylib
+-rwxr-xr-x  1 root  wheel  13504 Dec  2 16:48 /usr/local/cuda/lib/libcuda.dylib
+lrwxr-xr-x  1 root  wheel     45 Nov  3 11:40 /usr/local/cuda/lib/libcudadevrt.a -> /Developer/NVIDIA/CUDA-8.0/lib/libcudadevrt.a
+lrwxr-xr-x  1 root  wheel     50 Nov  3 11:40 /usr/local/cuda/lib/libcudart.8.0.dylib -> /Developer/NVIDIA/CUDA-8.0/lib/libcudart.8.0.dylib
+lrwxr-xr-x  1 root  wheel     46 Nov  3 11:40 /usr/local/cuda/lib/libcudart.dylib -> /Developer/NVIDIA/CUDA-8.0/lib/libcudart.dylib
+lrwxr-xr-x  1 root  wheel     49 Nov  3 11:40 /usr/local/cuda/lib/libcudart_static.a -> /Developer/NVIDIA/CUDA-8.0/lib/libcudart_static.a
+lrwxr-xr-x  1 root  wheel     47 Dec 14 10:21 /usr/local/cuda/lib/libcudnn.5.dylib -> /Developer/NVIDIA/CUDA-8.0/lib/libcudnn.5.dylib
+lrwxr-xr-x  1 root  wheel     45 Dec 14 10:21 /usr/local/cuda/lib/libcudnn.dylib -> /Developer/NVIDIA/CUDA-8.0/lib/libcudnn.dylib
+lrwxr-xr-x  1 root  wheel     48 Dec 14 10:21 /usr/local/cuda/lib/libcudnn_static.a -> /Developer/NVIDIA/CUDA-8.0/lib/libcudnn_static.a
+```
+
+### Example
+The minimal example provided by @ymfa both fails and succeeds on my setup. The following are three outputs that have been produced.
+**fail(1)**
+```
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcublas.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcudnn.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcufft.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcuda.1.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcurand.dylib locally
+I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:901] OS X does not support NUMA - returning NUMA node zero
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 0 with properties: 
+name: GeForce GT 750M
+major: 3 minor: 0 memoryClockRate (GHz) 0.9255
+pciBusID 0000:01:00.0
+Total memory: 2.00GiB
+Free memory: 1.76GiB
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:906] DMA: 0 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 0:   Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:01:00.0)
+Training...
+E tensorflow/stream_executor/cuda/cuda_dnn.cc:385] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+E tensorflow/stream_executor/cuda/cuda_dnn.cc:352] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+F tensorflow/core/kernels/conv_ops.cc:532] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms) 
+Abort trap: 6
+```
+**fail(2)**
+```
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcublas.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcudnn.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcufft.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcuda.1.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcurand.dylib locally
+I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:901] OS X does not support NUMA - returning NUMA node zero
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 0 with properties: 
+name: GeForce GT 750M
+major: 3 minor: 0 memoryClockRate (GHz) 0.9255
+pciBusID 0000:01:00.0
+Total memory: 2.00GiB
+Free memory: 1.53GiB
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:906] DMA: 0 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 0:   Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:01:00.0)
+Training...
+E tensorflow/stream_executor/cuda/cuda_blas.cc:372] failed to create cublas handle: CUBLAS_STATUS_NOT_INITIALIZED
+W tensorflow/stream_executor/stream.cc:1390] attempting to perform BLAS operation using StreamExecutor without BLAS support
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1021, in _do_call
+    return fn(*args)
+  File "/usr/local/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1003, in _run_fn
+    status, run_metadata)
+  File "/usr/local/Cellar/python3/3.6.0/Frameworks/Python.framework/Versions/3.6/lib/python3.6/contextlib.py", line 89, in __exit__
+    next(self.gen)
+  File "/usr/local/lib/python3.6/site-packages/tensorflow/python/framework/errors_impl.py", line 469, in raise_exception_on_not_ok_status
+    pywrap_tensorflow.TF_GetCode(status))
+tensorflow.python.framework.errors_impl.InternalError: Blas SGEMM launch failed : a.shape=(20, 400), b.shape=(400, 2), m=20, n=2, k=400
+	 [[Node: MatMul = MatMul[T=DT_FLOAT, transpose_a=false, transpose_b=false, _device="/job:localhost/replica:0/task:0/gpu:0"](Flatten/Reshape, Variable_4/read)]]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "issue.py", line 52, in <module>
+    sess.run(training_operation, feed_dict={x: X, y: Y})
+  File "/usr/local/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 766, in run
+    run_metadata_ptr)
+  File "/usr/local/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 964, in _run
+    feed_dict_string, options, run_metadata)
+  File "/usr/local/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1014, in _do_run
+    target_list, options, run_metadata)
+  File "/usr/local/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1034, in _do_call
+    raise type(e)(node_def, op, message)
+tensorflow.python.framework.errors_impl.InternalError: Blas SGEMM launch failed : a.shape=(20, 400), b.shape=(400, 2), m=20, n=2, k=400
+	 [[Node: MatMul = MatMul[T=DT_FLOAT, transpose_a=false, transpose_b=false, _device="/job:localhost/replica:0/task:0/gpu:0"](Flatten/Reshape, Variable_4/read)]]
+
+Caused by op 'MatMul', defined at:
+  File "issue.py", line 43, in <module>
+    logits = SimpleNet(x)
+  File "issue.py", line 34, in SimpleNet
+    logits = tf.matmul(fc1, fc1_W) + fc1_b
+  File "/usr/local/lib/python3.6/site-packages/tensorflow/python/ops/math_ops.py", line 1729, in matmul
+    a, b, transpose_a=transpose_a, transpose_b=transpose_b, name=name)
+  File "/usr/local/lib/python3.6/site-packages/tensorflow/python/ops/gen_math_ops.py", line 1442, in _mat_mul
+    transpose_b=transpose_b, name=name)
+  File "/usr/local/lib/python3.6/site-packages/tensorflow/python/framework/op_def_library.py", line 759, in apply_op
+    op_def=op_def)
+  File "/usr/local/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 2240, in create_op
+    original_op=self._default_original_op, op_def=op_def)
+  File "/usr/local/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 1128, in __init__
+    self._traceback = _extract_stack()
+
+InternalError (see above for traceback): Blas SGEMM launch failed : a.shape=(20, 400), b.shape=(400, 2), m=20, n=2, k=400
+	 [[Node: MatMul = MatMul[T=DT_FLOAT, transpose_a=false, transpose_b=false, _device="/job:localhost/replica:0/task:0/gpu:0"](Flatten/Reshape, Variable_4/read)]]
+```
+**pass**
+```
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcublas.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcudnn.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcufft.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcuda.1.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:128] successfully opened CUDA library libcurand.dylib locally
+I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:901] OS X does not support NUMA - returning NUMA node zero
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 0 with properties: 
+name: GeForce GT 750M
+major: 3 minor: 0 memoryClockRate (GHz) 0.9255
+pciBusID 0000:01:00.0
+Total memory: 2.00GiB
+Free memory: 1.71GiB
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:906] DMA: 0 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 0:   Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:01:00.0)
+Training...
+Training complete!
+```Automatically closing due to lack of recent activity. Please update the issue when new information becomes available, and we will reopen the issue. Thanks!Not so fast, I see this crash too. Macbook pro, geforce 650. TF v1. Running via jupyter kernels, which I have to frequently restart. Maybe this graphics card is just too weak? Seeing as how the op uses the same card: likely.
+
+```
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcublas.8.0.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcudnn.5.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcufft.8.0.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcuda.1.dylib locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcurand.8.0.dylib locally
+...
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 0 with properties: 
+name: GeForce GT 650M
+major: 3 minor: 0 memoryClockRate (GHz) 0.9
+pciBusID 0000:01:00.0
+Total memory: 1023.69MiB
+Free memory: 870.46MiB
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:906] DMA: 0 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 0:   Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 650M, pci bus id: 0000:01:00.0)
+E tensorflow/stream_executor/cuda/cuda_dnn.cc:397] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+E tensorflow/stream_executor/cuda/cuda_dnn.cc:364] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+F tensorflow/core/kernels/conv_ops.cc:605] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms) 
+```
+I have the same problem with GTX 960m, cudnn5.1.5 and cuda-8.0.44.Have the same problem with centOS, titan XHave the same problem with ubuntu(14.04) and GRID K520 (aws g2.2)Have the same problem windows 10 cudnn 5.1 cuda 8 gtx 1060.  Program works on cpu version of tensor flow but get these same errors with the gpu version.I had the same issue with gtx1060, win8.1, cuda8.0.60, cudnn5.0. Upgraded to the latest stable tensorflow-gpu nightly build (currently http://ci.tensorflow.org/job/nightly-win/133/) and cudnn5.1. Problem solved. Same issue here. 
+
+I was having this issue with the software versions listed below, except TF was version 1.0.0. I then upgraded to TF 1.0.1. I ran the same program once and **it worked**. I then ran it again and it **didn't work** -- it produced the same error as before.
+
+Tensorflow-gpu 1.0.1
+Mac OS X 10.12.3
+Cuda 8.0.61
+CuDNN 5.1
+GeForce GT 750Mhaving the same problem with gtx650, ubuntu 16.04, CUDA Version 8.0.61, TF version 1.0.0
+it was working just now, but giving some low memory warnings. However, it was running
+Now it doesn't run at all, giving me same Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms) errorHaving the same issue with gtx 1080 ti, windows 10, CUDA Version 8.0.61, TF version 1.0.1, 5.1 Cudann, cuda 8.0.61I was able to get a program to work by limiting the gpu usage.  In my case with a 3gb gtx 1060 on ubuntu 16.04, if I set gpu option per_process_gpu_memory_fraction to .7 it works.  Anything higher, I get these errors 
+
+E tensorflow/stream_executor/cuda/cuda_dnn.cc:397] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+E tensorflow/stream_executor/cuda/cuda_dnn.cc:364] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+F tensorflow/core/kernels/conv_ops.cc:605] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms) 
+
+It could be a case of bad error reporting by tensorflow.  Seems completely unrelated.  Maybe it is a clue to getting this resolved in a better manner?@zheng-xq is there an obvious setup issue?Same issue too. I'm on Windows 10, GTX1070, CUDA 8.0, cuDNN 5.1.
+
+> E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:359] could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+> E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:366] error retrieving driver version: Unimplemented: kernel reported driver version not implemented on Windows
+> E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:326] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+> F c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\kernels\conv_ops.cc:659] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms)
+If it helps anyone, seems there are sometimes zombie processes left which prevent from tf to start again properly and gave me this error. killing them work around the issue. Here is a bit more info on how I temporarily resolved it.  I believe these issues are all related to GPU memory allocation and have nothing to do with the errors being reported.  There were other errors before this indicating some sort of memory allocation problem but the program continued to progress, eventually giving the cudnn errors that everyone is getting.  The reason I believe it works sometimes is that if you use the gpu for other things besides tensorflow such as your primary display, the available memory fluctuates.  Sometimes you can allocate what you need and other times it can't.
+
+From the API 
+https://www.tensorflow.org/versions/r0.12/how_tos/using_gpu/
+"By default, TensorFlow maps nearly all of the GPU memory of all GPUs (subject to CUDA_VISIBLE_DEVICES) visible to the process. This is done to more efficiently use the relatively precious GPU memory resources on the devices by reducing memory fragmentation."
+
+I think this default allocation is broken in some way that causes this erratic behavior and certain situations to work and others to fail.
+
+I have resolved this issue by changing the default behavior of TF to allocate a minimum amount of memory and grow as needed as detailed in the webpage.
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.Session(config=config, ...)
+
+I have also tried the alternate way and was able to get it to work and fail with experimentally choosing a percentage that worked.  In my case it ended up being about .7.
+
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.4
+session = tf.Session(config=config, ...)
+
+Still no word from anyone on the TF team confirming this but it is worth a shot to see if others can confirm similar behavior.I am also getting the `CUDNN_STATUS_NOT_INITIALIZED` error. Here is the full error log:
+```
+2017-04-26 00:08:57.526234: I c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:977] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1080, pci bus id: 0000:01:00.0)
+2017-04-26 00:09:01.111706: E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:359] could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+2017-04-26 00:09:01.111805: E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:366] error retrieving driver version: Unimplemented: kernel reported driver version not implemented on Windows
+2017-04-26 00:09:01.114040: E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:326] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+2017-04-26 00:09:01.114232: F c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\kernels\conv_ops.cc:659] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms)
+```
+
+I am on Windows 10, CUDA 8.0, cuDNN 5.1 . Can anything be done to avoid these? I was able to run earlier some other tensorflow tests and it worked fine (including conv op), but now it doesn't work on this new test...
+
+@serans1 What zombie processes are you referring to?
+
+Please let me know if there is a workaround for this. Thank you!
+
+**EDIT** This might have been a newbie mistake, but I will just mention it here, in case someone else runs in the same issue:
+My problem was that I already had running an instance of a Jupyter Python Notebook (whose cells were all ran already, hence loaded in the memory), and also some other process that was taking up GPU memory (minimized video game). Therefore, when I checked the memory usage on my GPU, it was already at around 4+GB (50+%). I closed the Jupyter Notebook and the other application, and re-ran my tensorflow test. Now everything ran smoothly :) Also, while running I noticed that at peak it uses up to 90% of my GPU memory, and thus it makes sense why it couldn't initialize CUDNN when it had less than 50% available in my initial situation.
+
+Sorry again for my mistake! I'm just at the beginning of playing around with this :)**The same problem,is there any solution to it ?**
+
+I c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:885] Found device 0 with properties: 
+name: GeForce GTX 960M
+major: 5 minor: 0 memoryClockRate (GHz) 1.176
+pciBusID 0000:01:00.0
+Total memory: 4.00GiB
+Free memory: 3.35GiB
+I c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:906] DMA: 0 
+I c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:916] 0:   Y 
+I c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 960M, pci bus id: 0000:01:00.0)
+E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:586] Could not identify NUMA node of /job:localhost/replica:0/task:0/gpu:0, defaulting to 0.  Your kernel may not have been built with NUMA support.
+E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:385] could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:392] error retrieving driver version: Permission denied: could not open driver version path for reading: /proc/driver/nvidia/version
+E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:352] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+F c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\kernels\conv_ops.cc:532] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms) I have exactly same issue. 
+But I can run my codes with root access(with sudo).
+Currently I'm working on Ubuntu 16.04 with GTX 960.
+My CUDA version is 8.0 and I'm using tensorflow 1.01Windows 10 / Tensorflow 1.01
+I was using it perfectly but now accidentally the same error happen to me
+
+name: GeForce GTX 1070
+major: 6 minor: 1 memoryClockRate (GHz) 1.7715
+pciBusID 0000:03:00.0
+Total memory: 8.00GiB
+Free memory: 6.68GiB
+2017-05-08 21:12:16.103654: I c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:908] DMA: 0
+2017-05-08 21:12:16.105184: I c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:918] 0:   Y
+2017-05-08 21:12:16.106710: I c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\common_runtime\gpu\gpu_device.cc:977] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1070, pci bus id: 0000:03:00.0)
+2017-05-08 21:12:24.395060: E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:359] could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+2017-05-08 21:12:24.395177: E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:366] error retrieving driver version: Unimplemented: kernel reported driver version not implemented on Windows
+2017-05-08 21:12:24.396636: E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:326] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+2017-05-08 21:12:24.396846: F c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\kernels\conv_ops.cc:659] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms)@strickon's method worked for me. Seems like tensorflow is trying to hog way too many resources at once and can't which crashes the operation. I specifically used:
+
+config.gpu_options.allow_growth = TrueConfirming @strickon 's suggestion works for me. 
+
+Am running https://github.com/awjuliani/DeepRL-Agents/blob/master/Double-Dueling-DQN.ipynb and was getting the failures mentioned in this thread on the first call to sess.run within the update block ( The line:  ` Q1 = sess.run(mainQN.predict,feed_dict={mainQN.scalarInput:np.vstack(trainBatch[:,3])}) `. 
+
+Adding the allow_growth flag (as per below) got me past this bump - the code is currently running in the background, we'll see how far it goes.
+
+```python
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+sess = tf.Session(config=config)
+```
+
+Stack: 
+* MacBook Pro, running Sierra  10.12.4, with NVIDIA GeForce GT 750M 2048 MB. Typically only have 1.7GB free. 
+* [TensorFlow  1.1](https://storage.googleapis.com/tensorflow/mac/gpu/tensorflow_gpu-1.1.0-py3-none-any.whl) Using Anaconda install instructions.
+* Python 3.6, not virtual (Anaconda)
+* CUDA 8 / cuDNN 5
+
+I'd be fine with dumping more stats on request.
+I was working with two terminals at the same time and had same issue. It was solved by closing one terminal.Automatically closing due to lack of recent activity. Please update the issue when new information becomes available, and we will reopen the issue. Thanks!After implementing the changes suggested by @strickon, I began to see a new set of info logs show up: 
+```
+2017-06-23 04:45:57.156787: I c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\35\tensorflow\core\common_runtime\gpu\pool_allocator.cc:247] PoolAllocator: After 3205 get requests, put_count=2333 evicted_count=1000 eviction_rate=0.428633 and unsatisfied allocation rate=0.615289
+2017-06-23 04:45:57.156880: I c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\35\tensorflow\core\common_runtime\gpu\pool_allocator.cc:259] Raising pool_size_limit_ from 100 to 110
+step 0 - loss = 5.632, (19.351 sec/step)
+```
+Unsure if related.Same error here.
+
+Windows 10 x86_64, GeForce GTX 970, drivers 376.53, Cuda 8.0, cuDNN 5.1., tensorflow-gpu 1.2.0 from pip, python 3.6
+
+I am trying to run the default example from the tutorials section of the website: 
+
+https://www.tensorflow.org/tutorials/image_recognition
+
+`python classify_image.py`
+
+I have the same error: 
+
+`
+```
+(C:\ProgramData\Anaconda3) C:\Users\Locky\Google Диск\MachineLearning\Tensorflow-Tutorials\Repo\models\tutorials\image\imagenet>python classify_image.py
+2017-06-25 18:36:32.318287: W c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-25 18:36:32.318514: W c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-25 18:36:32.323556: W c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE3 instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-25 18:36:32.323719: W c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-25 18:36:32.323834: W c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-25 18:36:32.323930: W c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-25 18:36:32.324205: W c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-25 18:36:32.324351: W c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\platform\cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use FMA instructions, but these are available on your machine and could speed up CPU computations.
+2017-06-25 18:36:32.707933: I c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:940] Found device 0 with properties:
+name: GeForce GTX 970
+major: 5 minor: 2 memoryClockRate (GHz) 1.253
+pciBusID 0000:01:00.0
+Total memory: 4.00GiB
+Free memory: 3.31GiB
+2017-06-25 18:36:32.708332: I c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:961] DMA: 0
+2017-06-25 18:36:32.713764: I c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:971] 0:   Y
+2017-06-25 18:36:32.713991: I c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\common_runtime\gpu\gpu_device.cc:1030] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 970, pci bus id: 0000:01:00.0)
+2017-06-25 18:36:34.854555: W c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\framework\op_def_util.cc:332] Op BatchNormWithGlobalNormalization is deprecated. It will cease to work in GraphDef version 9. Use tf.nn.batch_normalization().
+2017-06-25 18:36:35.836895: E c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\stream_executor\cuda\cuda_dnn.cc:359] could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+2017-06-25 18:36:35.837068: E c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\stream_executor\cuda\cuda_dnn.cc:366] error retrieving driver version: Unimplemented: kernel reported driver version not implemented on Windows
+2017-06-25 18:36:35.841593: E c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\stream_executor\cuda\cuda_dnn.cc:326] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+2017-06-25 18:36:35.841690: F c:\tf_jenkins\home\workspace\release-win\m\windows-gpu\py\36\tensorflow\core\kernels\conv_ops.cc:671] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms)
+
+(C:\ProgramData\Anaconda3) C:\Users\Locky\Google Диск\MachineLearning\Tensorflow-Tutorials\Repo\models\tutorials\image\imagenet>
+
+````In my case, this happened because other tensorflow instances were holding the GPU. (Other scripts running.)
+
+Could I propose a better error messages? Say, "Error: other tensorflow instances running, while only a single one is supported."
+I have the same issue. Running macOS 10.12.5 GT 750M 2GB
+
+```
+python neural_style.py --content /Users/qinyuhang/Pictures/0.jpeg  --styles IMG_1105.JPG --output 1.out.jpg --iterations 500
+2017-07-05 22:16:54.531699: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:857] OS X does not support NUMA - returning NUMA node zero
+2017-07-05 22:16:54.532257: I tensorflow/core/common_runtime/gpu/gpu_device.cc:940] Found device 0 with properties: 
+name: GeForce GT 750M
+major: 3 minor: 0 memoryClockRate (GHz) 0.9255
+pciBusID 0000:01:00.0
+Total memory: 2.00GiB
+Free memory: 1.54GiB
+2017-07-05 22:16:54.532435: I tensorflow/core/common_runtime/gpu/gpu_device.cc:961] DMA: 0 
+2017-07-05 22:16:54.532461: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 0:   Y 
+2017-07-05 22:16:54.532471: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:01:00.0)
+2017-07-05 22:17:07.284016: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:01:00.0)
+2017-07-05 22:17:44.973549: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 750M, pci bus id: 0000:01:00.0)
+Optimization started...
+Iteration    1/ 500
+2017-07-05 22:17:47.485948: E tensorflow/stream_executor/cuda/cuda_dnn.cc:359] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+2017-07-05 22:17:47.485977: E tensorflow/stream_executor/cuda/cuda_dnn.cc:326] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+2017-07-05 22:17:47.485983: F tensorflow/core/kernels/conv_ops.cc:671] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms) 
+[1]    66448 abort      python neural_style.py --content /Users/qinyuhang/Pictures/0.jpeg --styles   
+
+```Solved it (at least for me). The error message does not lead you to the right problem. I had this error from 2 different sources:
+
+First (like  @lockywolf said):
+I use jupyter notebook and sometimes the TF kernel wont free the GPU memory and you have to **restart the jupyter to get it to work again**. This happens generally after run-time errors or improper kernel restarting...
+
+Second:
+Sometimes you get greedy with the GPU memory and try things like this:
+```
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
+sess = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
+```
+This was fatal to my configuration and started to get this error. The solution was to **use the default way to start the interactive session**:
+`sess = tf.InteractiveSession()`
+
+
+System:
+
+Ubuntu 14.04
+GeForce GTX 780
+CUDA Driver Version = 8.0
+CUDNN Version = 5.1
+TensorFlow Version = 1.2.1
+I've the same issue running my own scripts now.
+I think it is the same reason like @lockywolf described:
+
+> In my case, this happened because other tensorflow instances were holding the GPU. (Other scripts running.)
+
+I had this error quite often but irregular, then i followed @RawthiL 's lead and added a session to my script. However, i executed the script successfully restarted the kernel and got the same error message again. Is there any solution to open the session, claim the GPU and close it after the calculation is done?
+
+cheers! 
+
+**Edit:**
+Beside @RawthiL 's solution i followed the [Keras TF introduction](https://blog.keras.io/keras-as-a-simplified-interface-to-tensorflow-tutorial.html) where they say:
+
+> We should start by creating a TensorFlow session and registering it with Keras. This means that Keras will use the session we registered to initialize all variables that it creates internally.
+> 
+> import tensorflow as tf
+> sess = tf.Session()
+> 
+> from keras import backend as K
+> K.set_session(sess)Same problem. Been fighting uphill to get this working all day.
+
+```
+$ ~/neural-style$ python neural_style.py --content ~/Documents/8UhFDcjT.jpg --styles ~/Documents/9odz6-jbngd.png --output ./Documents/Scott.png
+2017-07-26 20:57:08.373361: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
+2017-07-26 20:57:08.373397: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-07-26 20:57:08.373413: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+2017-07-26 20:57:08.373417: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-07-26 20:57:08.373421: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use FMA instructions, but these are available on your machine and could speed up CPU computations.
+2017-07-26 20:57:08.431319: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:893] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2017-07-26 20:57:08.431630: I tensorflow/core/common_runtime/gpu/gpu_device.cc:940] Found device 0 with properties: 
+name: GeForce GTX 870M
+major: 3 minor: 0 memoryClockRate (GHz) 0.967
+pciBusID 0000:01:00.0
+Total memory: 2.95GiB
+Free memory: 2.53GiB
+2017-07-26 20:57:08.431664: I tensorflow/core/common_runtime/gpu/gpu_device.cc:961] DMA: 0 
+2017-07-26 20:57:08.431674: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 0:   Y 
+2017-07-26 20:57:08.431690: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 870M, pci bus id: 0000:01:00.0)
+2017-07-26 20:57:11.692616: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 870M, pci bus id: 0000:01:00.0)
+2017-07-26 20:57:19.800938: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 870M, pci bus id: 0000:01:00.0)
+Optimization started...
+Iteration    1/1000
+2017-07-26 20:57:20.535515: E tensorflow/stream_executor/cuda/cuda_dnn.cc:359] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+2017-07-26 20:57:20.535573: E tensorflow/stream_executor/cuda/cuda_dnn.cc:326] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+2017-07-26 20:57:20.535588: F tensorflow/core/kernels/conv_ops.cc:671] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms) 
+```I found that in some cases resetting the jupyter kernel wont work. Actually it happened to me while using jupyterhub.
+I restarted the kernel, deactivated my virtualenv and the GPU memory was still being held by some process. The` nvidia-smi` command said that there was no process using the GPU and when I  tried to reset it with `sudo nvidia-smi --gpu-reset -i 0` (for the 0 gpu core) it said the following:
+
+> Unable to reset this GPU because it's being used by some other process (e.g. CUDA application, graphics application like X server, monitoring application like other instance of nvidia-smi). Please first kill all processes using this GPU and all compute applications running in the system (even when they are running on other GPUs) and then try to reset the GPU again.
+> Terminating early due to previous errors.
+
+So there was some process holding the GPU, and I looked for them using `sudo fuser -v /dev/nvidia*` which said that there was actually something holding the GPU... python itself... killing it and re-launching virtualenv and jupyter did the trick.
+I might not be the best way to solve this, but is better than resetting the computer when all other options fail.Have the same issue. GPU is GTX 1070 and CUDA 8.0 and CUDNN 5.1 for CUDA 8.0.
+
+Issue does not depend on user code, it depends on hardware or Nvidia or Google software state. This error can start rising at any time and reboot can fix it with the same user code.
+
+Same issue with Windows 10, GTX770, CUDA 8.0, CUDNN 5.1, TF-GPU 1.1.0, not sure where to get the device driver version but Windows Device Manager reports 21.21.13.7651 for the display driver.
+
+```
+connect  84557d348c06492e80ff0304d516367b
+2017-08-11 15:51:41.974028: E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:359] could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+2017-08-11 15:51:41.974536: E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:366] error retrieving driver version: Unimplemented: kernel reported driver version not implemented on Windows
+2017-08-11 15:51:41.974923: E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:326] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+2017-08-11 15:51:41.975194: F c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\kernels\conv_ops.cc:659] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms)
+```
+Same issue with Windows 10, GTX770, CUDA 8.0, CUDNN 5.1, TF-GPU 1.1.0, not sure where to get the device driver version but Windows Device Manager reports 21.21.13.7651 for the display driver.
+```
+connect  84557d348c06492e80ff0304d516367b
+2017-08-11 15:51:41.974028: E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:359] could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+2017-08-11 15:51:41.974536: E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:366] error retrieving driver version: Unimplemented: kernel reported driver version not implemented on Windows
+2017-08-11 15:51:41.974923: E c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\stream_executor\cuda\cuda_dnn.cc:326] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+2017-08-11 15:51:41.975194: F c:\tf_jenkins\home\workspace\release-win\device\gpu\os\windows\tensorflow\core\kernels\conv_ops.cc:659] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms)
+```
+@ggranum's fix worked for me:
+```
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+sess = tf.Session(config=config)
+```
+
+In my case the same issue was resolved by updating the NVIDIA gpu driver.Has this issue been completely resolved. I am running TF 1.3.0 on Ubuntu 16.04 with CUDA 8.0 and cuDNN 5.1. I used Anaconda to install my packages. Randomly 4 days ago, I too experienced this error
+
+`name: GeForce GTX 1080 Ti
+major: 6 minor: 1 memoryClockRate (GHz) 1.582
+pciBusID 0000:05:00.0
+Total memory: 10.91GiB
+Free memory: 10.30GiB
+2017-09-05 07:47:05.397839: W tensorflow/stream_executor/cuda/cuda_driver.cc:523] A non-primary context 0x30028e0 exists before initializing the StreamExecutor. We haven't verified StreamExecutor works with that.
+2017-09-05 07:47:05.401343: I tensorflow/core/common_runtime/gpu/gpu_device.cc:955] Found device 1 with properties: 
+name: GeForce GTX 1080 Ti
+major: 6 minor: 1 memoryClockRate (GHz) 1.582
+pciBusID 0000:06:00.0
+Total memory: 10.91GiB
+Free memory: 10.75GiB
+2017-09-05 07:47:05.658932: W tensorflow/stream_executor/cuda/cuda_driver.cc:523] A non-primary context 0x2ffe910 exists before initializing the StreamExecutor. We haven't verified StreamExecutor works with that.
+2017-09-05 07:47:05.659690: I tensorflow/core/common_runtime/gpu/gpu_device.cc:955] Found device 2 with properties: 
+name: GeForce GTX 1080 Ti
+major: 6 minor: 1 memoryClockRate (GHz) 1.582
+pciBusID 0000:09:00.0
+Total memory: 10.91GiB
+Free memory: 10.75GiB
+2017-09-05 07:47:05.898536: W tensorflow/stream_executor/cuda/cuda_driver.cc:523] A non-primary context 0x2ffa940 exists before initializing the StreamExecutor. We haven't verified StreamExecutor works with that.
+2017-09-05 07:47:05.899294: I tensorflow/core/common_runtime/gpu/gpu_device.cc:955] Found device 3 with properties: 
+name: GeForce GTX 1080 Ti
+major: 6 minor: 1 memoryClockRate (GHz) 1.582
+pciBusID 0000:0a:00.0
+Total memory: 10.91GiB
+Free memory: 10.75GiB
+2017-09-05 07:47:05.903197: I tensorflow/core/common_runtime/gpu/gpu_device.cc:976] DMA: 0 1 2 3 
+2017-09-05 07:47:05.903209: I tensorflow/core/common_runtime/gpu/gpu_device.cc:986] 0:   Y Y Y Y 
+2017-09-05 07:47:05.903215: I tensorflow/core/common_runtime/gpu/gpu_device.cc:986] 1:   Y Y Y Y 
+2017-09-05 07:47:05.903218: I tensorflow/core/common_runtime/gpu/gpu_device.cc:986] 2:   Y Y Y Y 
+2017-09-05 07:47:05.903223: I tensorflow/core/common_runtime/gpu/gpu_device.cc:986] 3:   Y Y Y Y 
+2017-09-05 07:47:05.903236: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:05:00.0)
+2017-09-05 07:47:05.903242: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:1) -> (device: 1, name: GeForce GTX 1080 Ti, pci bus id: 0000:06:00.0)
+2017-09-05 07:47:05.903248: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:2) -> (device: 2, name: GeForce GTX 1080 Ti, pci bus id: 0000:09:00.0)
+2017-09-05 07:47:05.903252: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:3) -> (device: 3, name: GeForce GTX 1080 Ti, pci bus id: 0000:0a:00.0)
+2017-09-05 07:47:20.297138: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:05:00.0)
+2017-09-05 07:47:20.297190: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:1) -> (device: 1, name: GeForce GTX 1080 Ti, pci bus id: 0000:06:00.0)
+2017-09-05 07:47:20.297206: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:2) -> (device: 2, name: GeForce GTX 1080 Ti, pci bus id: 0000:09:00.0)
+2017-09-05 07:47:20.297220: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:3) -> (device: 3, name: GeForce GTX 1080 Ti, pci bus id: 0000:0a:00.0)
+2017-09-05 07:47:24.845499: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:05:00.0)
+2017-09-05 07:47:24.845534: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:1) -> (device: 1, name: GeForce GTX 1080 Ti, pci bus id: 0000:06:00.0)
+2017-09-05 07:47:24.845542: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:2) -> (device: 2, name: GeForce GTX 1080 Ti, pci bus id: 0000:09:00.0)
+2017-09-05 07:47:24.845548: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:3) -> (device: 3, name: GeForce GTX 1080 Ti, pci bus id: 0000:0a:00.0)
+2017-09-05 07:47:34.884524: E tensorflow/stream_executor/cuda/cuda_dnn.cc:371] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+2017-09-05 07:47:34.884597: E tensorflow/stream_executor/cuda/cuda_dnn.cc:338] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+2017-09-05 07:47:34.884616: F tensorflow/core/kernels/conv_ops.cc:672] Check failed: stream->parent()->GetConvolveAlgorithms( conv_parameters.ShouldIncludeWinogradNonfusedAlgo<T>(), &algorithms)`
+
+I have 4 1080ti GPUs. During the running of my model I monitored nvidia-smi and got 
+
+-----------------------------------------------------------------------------+
+| Processes:                                                                               GPU Memory |
+|  GPU       PID  Type  Process name                                               Usage      |
+|=============================================================================|
+|    0      1422    G   /usr/lib/xorg/Xorg                                                 279MiB |
+|    0      3530    G   compiz                                                                195MiB |
+|    0     11249    C   /home/simon/anaconda3/bin/python             10157MiB |
+|    1     11249    C   /home/simon/anaconda3/bin/python             10611MiB |
+|    2     11249    C   /home/simon/anaconda3/bin/python             10611MiB |
+|    3     11249    C   /home/simon/anaconda3/bin/python             10611MiB |
++-----------------------------------------------------------------------------+
+
+
+So for some reason Python is hogging memory. Of course if I kill this, it kills my jupyter notebook. I have no zombie processes running. I have tried.
+
+`gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.1)
+sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))`
+
+which does reduce the GPU usage but I still get the same cuDDN handle error. I've reinstalled TF. CUDA, cuDNN, Anaconda with no impact on the problem. 
+
+Why does this error occur randomly and how can this be solved. TensorFlow 1.3 is built against cuDNN 6.
+Please upgrade your cuDNN installation.Thanks, Gunan - that makes no difference, unfortunately. Even with cuDNN 6, I am still getting the cuDNN cannot create handle error. Even setting the GPUptions directly doesn't prevent the error, although it does reduce the amount of GPU memory used. The GPU memory is taken up by Python, so if I shut this down, it closes my Jupyter notebook. I have been stuck on this for nearly 4 days now and seem to have exhausted all the suggestions I have seen online. Could this be a TF 1.3 issue?Just for those who are driven mad by this:
+
+I occasionally got a CUBLAS error as well. So I did this:
+
+`cd /usr/local/cuda/samples/7_CUDALibraries/simpleCUBLAS`
+`make`
+`./simpleCUBLAS`
+
+and discovered that I could not initialise CUBLAS
+
+So next I did this (based on advice)
+
+`sudo rm -f ~/.nv`
+
+And it worked. Cheers.....thats 4 days wasted. Hope this saves someone else@SimonWalsh1000 That worked!! thankscheck your .theanorc in your home path(if Ubuntu), and set the cnmem smaller....maybe cnmem=0.8, and it worked for me nowI got it working perfectly under Windows 10 with GTX 1070. 
+I was using cudnn 7.0.2 
+Downgrading to vs 6.0 solved me problems:
+
+```
+cuda_8.0.61_win10.exe
+cudnn-8.0-windows10-x64-v6.0.zip
+python-3.6.2-amd64.exe
+```
+
+Posted the whole installation process here:
+[http://klaatuveratanecto.com/installing-tensorflow-gpu-windows-10-running-image_retraining/](http://klaatuveratanecto.com/installing-tensorflow-gpu-windows-10-running-image_retraining/)Hi, I got the same question. However, I found the reason is that I used tensorflow twice at the same time. 
+
+For example, I usually used the Jupyter notebook for the simple script and used the PyCharm for the project. If I didn't shut down the jupyter notebook , I could meet this error in the Pycharm. 
+
+Wish this could help. 
+
+------------------
+WIndows10 64, 
+NVIDIA TitanX , 
+Driver 385.41, 
+Cuda 8.0.60
+Cudnn 6.0
+Python 3.5.2
+Tensorflow 1.3I agree with @strickon : it seems to be an memory allocation issue. 
+I had a notebook with tensorflow program running and I tried to run a python + tensorflow in another Windows terminal and got the error. Then I restarted my notebook (release GPU memory) and tried to run the python on Windows terminal again and it worked! I think that tensorflow should provide a better error message to advise the user with a more detailed explanation.I am on windows 10 , cuda 8 and cudnn 6   with : 
+
+name: Quadro K620
+major: 5 minor: 0 memoryClockRate (GHz) 1.124
+pciBusID 0000:01:00.0
+Total memory: 2.00GiB
+Free memory: 1.66GiB
+
+Pretty much same steps worked out for me too, I have little understanding how that worked. I just close all the windows, closed python terminal opened on pycharm --including those windows opened by the earlier execution of the same program to plot progress in the training and reopen and run  -  it works with no error.  The earlier errors reported seems to give no direct clue --- 
+Hello,
+I had the same problem, running python with sudo solved my problem.
+@SimonWalsh1000  You are my hero !!   It works for me as well !@hesamaraghi Running with `sudo` also helped us. We were able to run as non-root by adding our non-root user to `nvidia-persistenced` group. See my original comment: https://github.com/tensorflow/tensorflow/issues/14048#issuecomment-340898847I had the same problem in Ubuntu 16.04 and cuda-8.0 (with GTX1080Ti). I'd just like to inform any of you with the same problem that the solution given by @SimonWalsh1000 worked for me perfectly (i.e., the CUBLAS initialisation problem was solved by `sudo rm -rf ~/.nv/`). So, many thanks @SimonWalsh1000, it did cost me some hours...@SimonWalsh1000 It really works. Thanks so much!@SimonWalsh1000 it works like a charm, thank you !!!!I had the same problem in on Windows 10, CUDA 8.0, cuDNN 6.1 with GTX1070Ti.
+I find the reason: i have runned tensorflow code in annconda spyder IDE, after that I run another tensorflow code in annconda prompt.
+solve it by closing spyder IDE
+@lockywolf is right
+I had the same problem. I try the @strickon 's method, and I don't know about "nvidia-smi" maybe it is a command on Linux. I solved this problem through update the **cuDNN 6.0 for CUDA8.0**  to **cuDNN 7.0 for CUDA8.0**
+
+**system at begin:**
+- Windows10
+- CUDA8.0
+- cuDNN6.0
+- Anaconda3.5(python3.5)
+- GeForce 840M major: 5 minor: 0 memoryClockRate(GHz): 1.124
+- 2.00GiB freeMemory: 1.66GiB
+
+**system after solved:**
+- Windows10
+- CUDA8.0
+- **cuDNN7.0**
+- Anaconda3.5(python3.5)
+- GeForce 840M major: 5 minor: 0 memoryClockRate(GHz): 1.124
+- 2.00GiB freeMemory: 1.66GiB
+
+I think this problem may be caused by the mismatch of the version of library and hardware. @chleibig also solve this by update GPU driver. Hope this can be helpful.For me putting: **config.gpu_options.allow_growth = True** in the tensorflow session fixed the problem.
+Cuda 8, tf 1.4, cudnn 6run this fix the issue.
+
+sudo rm -rf ~/.nvsame question. Is there any solution to solve the problem?
+My situation is:
+name: GeForce GTX 1080
+totalMemory: 7.92GiB  freeMemory: 2.50GiB
+tensorflow: gpu-1.4.0
+
+I'm testing one gpu but running three tensorflow instance.
+in my code like this: 
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.3)
+sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+
+the other two tensorflow instances running fine, but only the last one run error like this:
+
+E tensorflow/stream_executor/cuda/cuda_dnn.cc:371] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR 
+E tensorflow/stream_executor/cuda/cuda_dnn.cc:338] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+F tensorflow/core/kernels/conv_ops.cc:672] Check failed: stream->parent()->GetConvolveAlgorithms( conv_parameters.ShouldIncludeWinogradNonfusedAlgo<T>(), &algorithms)
+
+why? Is gpu config too small: gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.3)
+I'm not sure. want some suggestion. I'll try.
+
+Check out my solution....
+
+On 19 December 2017 at 08:20, tbchj <notifications@github.com> wrote:
+
+> same question. Is there any solution to solve the problem?
+> My situation is:
+> name: GeForce GTX 1080
+> totalMemory: 7.92GiB freeMemory: 2.50GiB
+> tensorflow: gpu-1.4.0
+>
+> I'm testing one gpu but running three tensorflow instance.
+> in my code like this:
+> gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.3)
+> sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+>
+> the other two tensorflow instances running fine, but only the last one run
+> error like this:
+>
+> E tensorflow/stream_executor/cuda/cuda_dnn.cc:371] could not create cudnn
+> handle: CUDNN_STATUS_INTERNAL_ERROR
+> E tensorflow/stream_executor/cuda/cuda_dnn.cc:338] could not destroy
+> cudnn handle: CUDNN_STATUS_BAD_PARAM
+> F tensorflow/core/kernels/conv_ops.cc:672] Check failed:
+> stream->parent()->GetConvolveAlgorithms( conv_parameters.
+> ShouldIncludeWinogradNonfusedAlgo(), &algorithms)
+>
+> why? Is gpu config too small: gpu_options = tf.GPUOptions(per_process_gpu_
+> memory_fraction=0.3)
+> I'm not sure. want some suggestion. I'll try.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/6698#issuecomment-352670885>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AJq-HpINYs1Uae6ghIW3qKCD56SUDhFeks5tB3HZgaJpZM4Lc7S1>
+> .
+>
+
+
+
+-- 
+Best
+Simon
+
+SLFWalsh MD MRCP FFRRCSI
+slfwalsh@gmail.com
+In my case, I was running torch on a background and have the same problem.
+I think... CUDNN_STATUS_INTERNAL_ERROR can happen when other program using cudnnIn my case, I can run the cudnn in ipython environment, however, I got the same error messages when I tried to run the code in jupyter notebook Hi, I'm having the same problem and none of the suggestions so far has helped me to solve it.
+I'm using an Asus Zenbook Pro laptop with Windows 10 with the following specs:
+
+![imagen](https://user-images.githubusercontent.com/6187545/35390462-571504bc-01ba-11e8-9fb9-647b218f9ae9.png)
+
+My GPU specs are the following:
+
+![imagen](https://user-images.githubusercontent.com/6187545/35390360-e6a49abc-01b9-11e8-8daa-4458a8e492b6.png)
+
+I'm following this tutorial: https://www.tensorflow.org/get_started/mnist/pros, in which you have to implement and train 1) a softmax regression and 2) a multilayer CNN with the MNIST dataset.
+
+These are my codes: [MNIST_Tutorial.zip](https://github.com/tensorflow/tensorflow/files/1664160/MNIST_Tutorial.zip). The zip has 2 files: MNIST_softmax_regression.py and MNIST_multilayer_CNN.py.
+
+1) When I run MNIST_softmax_regression.py, it works fine:
+![imagen](https://user-images.githubusercontent.com/6187545/35392138-ab475648-01bf-11e8-930b-65119023b363.png)
+As you can see, the GPU is getting used and the final accuracy is about 92% as expected according to the tutorial.
+
+2) However, when I run MNIST_multilayer_CNN.py, python crashes:
+![imagen](https://user-images.githubusercontent.com/6187545/35392589-2a6bad7e-01c1-11e8-8428-5872d0015023.png)
+
+I tried 2 workarounds based on previous suggestions:
+```
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+with tf.Session(config=config) as sess:
+```
+and
+
+```
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.8
+with tf.Session(config=config) as sess:
+```
+None of them worked, although the second one produces the following output:
+
+![imagen](https://user-images.githubusercontent.com/6187545/35392215-f4289412-01bf-11e8-8c08-bae791a6f334.png)
+
+as you can see, tensorflow first tries to allocate memory multiple times (CUBLAS_STATUS_ALLOC_FAILED) until it apparently succeeds but then the CUDNN_STATUS_NOT_INITIALIZED error appears and everything fails again.
+
+Btw, I installed tensorflow according to the alternative approach at the end of these instructions: http://www.python36.com/install-tensorflow-gpu-windows/
+![imagen](https://user-images.githubusercontent.com/6187545/35392828-d6b849fc-01c1-11e8-9918-c67bb0ad726f.png)
+
+I used this CUDA installer: 
+![imagen](https://user-images.githubusercontent.com/6187545/35392911-24d21014-01c2-11e8-95fe-472639e57d6b.png)
+![imagen](https://user-images.githubusercontent.com/6187545/35393565-102aafde-01c4-11e8-86ce-5551c496d233.png)
+
+And used this .whl file to install tensorflow:
+![imagen](https://user-images.githubusercontent.com/6187545/35393014-7f212b54-01c2-11e8-81ed-7070c2346d75.png)
+
+Here some more info about python, pip and conda:
+![imagen](https://user-images.githubusercontent.com/6187545/35394028-6997dbf4-01c5-11e8-9be2-9a9bc4989733.png)
+
+Any help will be deeply appreciated.
+Thanks in advance.Hello,
+I'm facing the same issue on two different machines:
+
+Setup 1:
+Windows 10 Pro 64bit
+[GPU Info](http://gpuz.techpowerup.com/18/01/26/mm7.png)
+Cuda 8.0
+cudnn 6.0
+Tensorflow 1.4
+Python 3.6.4
+
+Setup2:
+Windows 10 Pro 64bit
+[GPU Info](http://gpuz.techpowerup.com/18/01/26/das.png)
+CUDA 8.0
+cudnn 6.0
+Tensorflow 1.4
+Python 3.6.2
+
+Any updates?Have very similar set up to above, running on:
+
+windows 10
+GPU
+tensorflow 1.5
+CUDA 9.0.176
+cudnn 7
+python 3.6.4, anaconda
+
+I tried the config changes and I'm still getting the "CUDNN_STATUS_NOT_INITIALIZED" set of errors.
+
+I'm not sure where the equivalent of the .nv folder resides on windows, so I wasn't able to run the @SimonWalsh1000 solution.
+
+@HeinzBenjamin, any success?
+
+EDIT: Still stumped, could it be because I'm on tensorflow 1.5 & CUDA 9?I've met the same issue.
+However, I found that after I installed CUDA 9.0, my driver will not be the latest version.
+SO, try to update your Nvdia driver to the latest version and restart your PC. It works for me!yesterday my code was working just fine, there was an update to ubuntu this morning and now my code produces this. nothing else has changed.
+
+2018-02-11 07:54:57.097712: E tensorflow/stream_executor/cuda/cuda_dnn.cc:385] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+2018-02-11 07:54:57.097756: E tensorflow/stream_executor/cuda/cuda_dnn.cc:352] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+2018-02-11 07:54:57.097767: F tensorflow/core/kernels/conv_ops.cc:667] Check failed: stream->parent()->GetConvolveAlgorithms( conv_parameters.ShouldIncludeWinogradNonfusedAlgo(), &algorithms)
+
+I have rebooted the system a dozen times.
+after a few reboots, the error changed to
+
+2018-02-11 07:19:33.487404: I tensorflow/stream_executor/cuda/cuda_dnn.cc:393] possibly insufficient driver version: 384.111.0 2018-02-11 07:19:33.487423: E tensorflow/stream_executor/cuda/cuda_dnn.cc:352] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM 2018-02-11 07:19:33.487439: F tensorflow/core/kernels/conv_ops.cc:667] Check failed: stream->parent()->GetConvolveAlgorithms( conv_parameters.ShouldIncludeWinogradNonfusedAlgo(), &algorithms)
+
+but after upgrading to 390.25 it now produces the first error again.
+
+my other tensorflow code works just fine.
+
+i also tried removing the nv directory but that had no effect 
+
+ubuntu 17.10, gtx 1060 6gbI got this error on Windows 10 with CUDA 9.0 and a GT 750M I solved it by limiting the GPU usage to 0.7 with: config.gpu_options.per_process_gpu_memory_fraction = 0.7
+
+As someone else posted, anything higher than 0.7 crashes Python.
+
+After also receiving the trinity of errors:
+
+```
+CUDNN_STATUS_BAD_PARAM
+CUDNN_STATUS_NOT_INITIALIZED
+conv_parameters.ShouldIncludeWinogradNonfusedAlgo(), &algorithms)
+```
+
+Tried @zzhang68 's[ solution](https://github.com/tensorflow/tensorflow/issues/6698#issuecomment-364702793)...Updated drivers after 9.0 installed older drivers.
+ **_And it worked!_**
+
+Windows 10 | GTX 980 Ti
+[CUDA 9.0](https://developer.nvidia.com/cuda-90-download-archive?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exelocal) (which came with outdated drivers!!!!)
+[\cudnn-9.0-windows10-x64-v7\cuda\bin  (cudann64_7.dll) in PATH](https://developer.nvidia.com/compute/machine-learning/cudnn/secure/v7.0.5/prod/9.0_20171129/cudnn-9.0-windows10-x64-v7)
+
+python 3.6 miniconda
+tensorflow-gpu 1.5.0 
+
+face same problem. tf1.5 py2.7 titan x cuda8. 
+`config.gpu_options.allow_growth = True `
+not workI got this error on windows 10 with CUDA 9.0 and GTX 1060.
+python 3.5
+tensorflow-gpu 1.5.0
+I find a easy way to solve it : update my NVIDIA Display Driver to the newest version,reboot PC 
+then it worked!@SimonWalsh1000 , it really works for me, thanks a lot!The solution from @strickon and @ggranum plus a driver update resolved this for me. My guess is that some people have customized power configurations that deflate some functionality until it's needed.updating my gpu driver solved this issue for me. my gpu driver was december 2017 and the latest was 26 feb 2018. 
+
+you need to have the correct tensorflow, CUDA version, cuDNN version and gpu driver in order to avoid this issue
+
+my spec:
+tensorflow 1.6
+cuDNN v7.0.4 (Nov 13, 2017), for CUDA 9.0 (i had to use this version for my TF to work)Here's how I fixed it. I had both CUDA 9.1 and CUDA 9.0 installed. Like others, I had to upgrade my GPU drivers again after installing CUDA (via the Geforce Experience program). Keras' backend TensorFlow is using CUDA 9.0 as of today's date, so make sure you have that installed. Then, download cuDNN 7.0.5 (not the latest 7.1 version) from https://developer.nvidia.com/rdp/cudnn-download and then extract it and copy the bin, include, etc folders over to your C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0 folder. Now it should work.Thanks for all this help and after I try degradating my cuCNN from cnDNN-9.1 into cnDNN-9.0 and it works.
+My enviroment is Centos7 + CUDA 9.0 + Tensorflow 1.6Same error on Python3.5, ubuntu 16.04, tf1.5
+Updating the gpu driver to version of 390.42 solved this issue for me.
+Hi Guys,
+
+
+I have just got the same problem 
+    **"  E tensorflow/stream_executor/cuda/cuda_dnn.cc:385] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+E tensorflow/stream_executor/cuda/cuda_dnn.cc:352] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+F tensorflow/core/kernels/conv_ops.cc:605] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms) "**
+
+
+and solved by:
+ 1- Updating the NVIDIA Geforce920M's driver
+ 2- Setting properly the tf session as follows:
+          config = tf.ConfigProto()
+          config.gpu_options.allow_growth = True
+          sess = tf.Session(config=config)
+3-    Restarting the Pc
+
+After that I got a more precised error message:
+**"cuDNN7.1 found, but cuDNN7.0 expected. Upgrade"**
+
+And solved by:
+instead of upgrading the rest(tf,cuda,..) to meet cuDNN, I rather downgraded cuDNN7.0 to meet the rest.
+ (downgrading cuDNN from 7.1 to 7.0.4 ) and it worked good.I also encountered this error when I was running [The Cnn_Mnist.py](https://github.com/tensorflow/tensorflow/blob/r1.6/tensorflow/examples/tutorials/layers/cnn_mnist.py)
+
+
+## environment INFO：
+
+* Window10 + tensorflow_gpuV1.6 + cudav9.0， cudnnv7.0  + Python3.5（Anaconda）+ GeForce 920MX
+
+```
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 385.54                 Driver Version: 385.54                    |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name            TCC/WDDM | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  GeForce 920MX      WDDM  | 00000000:01:00.0 Off |                  N/A |
+| N/A   37C    P0    N/A /  N/A |     84MiB /  2048MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
+|    0     11988      C   ...naconda3\envs\tensorflow_GPU\python.exe N/A      |
++-----------------------------------------------------------------------------+
+```
+## Error INFO:
+
+```
+2018-03-20 13:38:27.439071: E C:\tf_jenkins\workspace\rel-win\M\windows-gpu\PY\35\tensorflow\stream_executor\cuda\cuda_dnn.cc:385] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+2018-03-20 13:38:27.443473: E C:\tf_jenkins\workspace\rel-win\M\windows-gpu\PY\35\tensorflow\stream_executor\cuda\cuda_dnn.cc:352] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+2018-03-20 13:38:27.449591: F C:\tf_jenkins\workspace\rel-win\M\windows-gpu\PY\35\tensorflow\core\kernels\conv_ops.cc:717] Check failed: stream->parent()->GetConvolveAlgorithms( conv_parameters.ShouldIncludeWinogradNonfusedAlgo<T>(), &algorithms)
+```
+## Sincerely hope to get everyone's help  :D
+In my case (Windows 10), this problem was caused by using the wrong version of cuDNN. Although I followed TensorFlow's official instructions closely, I accidentally had downloaded version 7.0.5 for CUDA 9.1, while TF calls explicitly for CUDA 9.0.
+
+As soon as I corrected the cuDNN mistake, my convnets started working 💯 👍 🥇 :)Same issue tf 1.2, cuda 8.0, cudnn 5.1
+Nvidia updated driversWell, I managed to  update the nvidia driver to the last version according to cuda, and it works. So, you can try this method. 
+
+Well, Well. It can't work well. The problem occurs againUsing: cudnn-9.0-windows10-x64-v7 and tensorflow-gpu==1.7.0
+
+tutorials\image\imagenet>python classify_image.py
+fails with error: could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+
+Adding the three lines of code from ggranum above solves the problemFor me the problem was using wrong cudnn lib
+I used cudnn for cuda 9.1 when I had cuda 9.0. So i reinstalled cudnn for cuda 9.0 and everything worked.Got the same problem with Win10/Anaconda3/tf-1.3/keras-2.1.3
+add the following code to the very beginning of the .py file, which solves my problem.
+
+```
+from __future__ import print_function, division
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session  
+config = tf.ConfigProto()  
+config.gpu_options.allow_growth = True  
+set_session(tf.Session(config=config)) 
+```
+@serans1 
+This works for me :)Thank you @zzhang68 . Your solution worked for me.Adding this in the begining of the file worked for me:
+
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+sess = tf.Session(config=config)GTX 1070. Was getting this issue. My driver was last updated at 2017. Updated it to the latest driver (May 2018), reset my computer and stopped getting the problem. Hope this helpsworks for me too with @zzhang68 solution.
+Ubuntu16.04, tensorflow1.7, nvidia1080, cuda9.0, cudnn7.05.
+After updating driver to 390.59, the problem disappeared.Another option for win10 using tensorflow cpu...try 
+
+def run_inference_for_single_image(image, graph):
+  with graph.as_default():
+    config = tf.ConfigProto(
+        device_count = {'GPU': 0}
+    )
+    with tf.Session(config=config) as sess:
+@lwd1132438569  May I ask which "latest version" do you mean? I also encounter this problem with my Ubuntu, and I have python 3.5.2, CUDA 9.0,  tensorflow-gpu 1.9.0, the Driver is 390.48 right now.
+I wanna try, but I am afraid tensorflow won't support the 'latest' version now....
+Thanks1 @vburca thank you so much. I did not realize that having another jupyter noteboook would use up GPU memory. Thanks a lot!!!I faced the same problem. I my case I downgraded the tensorflow's version and it worked for my application.I found the same problem. In my case, that reason was system memory shortage. When I finished other app running, that problem had gone.```
+2018-09-03 22:50:26.576765: E tensorflow/stream_executor/cuda/cuda_dnn.cc:352] Could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+2018-09-03 22:50:26.576831: E tensorflow/stream_executor/cuda/cuda_dnn.cc:360] Possibly insufficient driver version: 390.77.0
+[1]    8515 segmentation fault (core dumped)  python3 training.py
+
+```
+
+GTX1070
+CUDA9.0
+CUDNN7.1 for CUDA9.0
+TensorFlow 1.10.1
+Runing a simple tensorflow like hello world without problem.
+Nowhere to know why this happen.................definitely cuda related memory problem, kill all other cuda related process and train/test ur model, that should solve the problem @drproy2k solution seems effective for me as well. The problem was that I was running another jupyter notebook instance with keras, and I was trying to run keras training in Pycharm. So simply closing jupyter notebook and killing this process solved this problem.[Solved] In my case, I had installed CUDA v9.2 and the corresponding cuDNN, but had not correctly installed cuDNN specific to CUDA v9.0 which tensorflow requires. 
+
+Ensure that you download the correct version of cuDNN from here: https://developer.nvidia.com/rdp/cudnn-archive
+
+and **NOT** the one from here: https://developer.nvidia.com/cudnnThe golden trick, restart everything, worked for me.**Restart** did the trick for me too 👍 
+(But an explanation why this happens would be really nice)> cuDNN
+
+I was facing the same problem. Models with convolution layers would not work. 
+I downloaded cuDNN version 7.0 for CUDA 9.0 .  After replacing the file cudnn64_7.dll , I can use convnets without any hassles.
+
+Version of the DLL causing problems=> **6.14.11.9020**
+Version of the DLL which solved the problem=> **6.14.11.9000**
+Tensorflow GPU version=> **1.11.00**
+CUDA version=> **9.0**
+Python version=>**3.5**
+OS=>**Windows 10**
+Other steps=> Create a BAT file to append to the PATH variable and then launch CMD.EXE with /k option
+thanks all.
+> I was able to get a program to work by limiting the gpu usage. In my case with a 3gb gtx 1060 on ubuntu 16.04, if I set gpu option per_process_gpu_memory_fraction to .7 it works. Anything higher, I get these errors
+> 
+> E tensorflow/stream_executor/cuda/cuda_dnn.cc:397] could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+> E tensorflow/stream_executor/cuda/cuda_dnn.cc:364] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+> F tensorflow/core/kernels/conv_ops.cc:605] Check failed: stream->parent()->GetConvolveAlgorithms(&algorithms)
+> 
+> It could be a case of bad error reporting by tensorflow. Seems completely unrelated. Maybe it is a clue to getting this resolved in a better manner?
+
+Great,when i decrease the gpu_memory_fraction from 0.8 to 0.7,it  start working!I faced this issue after **accidentally upgrading tensorflow-gpu** from version 1.6.0 to 1.18.0. This caused instability due to the versions both of CUDA and cuDNN. The solution was rolling back to tensorflow-gpu 1.6.0.
+
+This was the solution to my problems:
+
+https://stackoverflow.com/questions/50622525/which-tensorflow-and-cuda-version-combinations-are-compatible
+
+Whenever you start facing facing this kind of issues, before you upgrade your NVIDIA dependencies, **ALWAYS** try to solve the problem by uninstalling the versions of tensorflow and installing a version compatible with your CUDA dependencies first. 
+
+**Step 1:** Check your tensorflow packages versions. If you have GPU, I recommend uninstalling the cpu-version of tensorflow in order to avoid conflicts.
+
+`pip list | grep tensorflow`
+
+**Step 2:** Uninstalling tensorflow-gpu. 
+
+`pip uninstall tensorflow`
+
+**Step 3:** Check your CUDA and cuDNN versions. You may need to adjust these paths.
+
+-- CUDA
+`cat /usr/local/cuda/version.txt`
+In case this fails, find your cuda version text file using:
+`sudo find / -name version.txt `
+
+-- cuDNN
+`cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2`
+In case this fails, find your cuda version text file using:
+`sudo find / -name cudnn.h `
+
+**Step 4:** Check if your tensorflow-gpu, cuda and cudnn versions match this table.
+![image](https://user-images.githubusercontent.com/22535074/47266659-9c77a280-d531-11e8-9fe3-d1c154ecde71.png)
+
+In my case, I needed **tensorflow-gpu 1.6.0** in order to match the other requirements. 
+
+So I installed this version using:
+`
+pip install tensorflow-gpu==1.6.0
+`
+these are the specifications that worked!
+
+**OS:** Ubuntu 16.04 
+**CUDA Version:** 9.0, V9.0.176
+**cuDNN Version:** 7.0
+**Tensorflow-gpu Version:** 1.6.0
+**Python Version:** 3.5.0
+
+Good luck!
+In my case, I forgot to close jupyter notebook when I started to run another piece of code in VS code, Close jupyter notebook fixed the problem.I faced this same problem.
+In my case i was running Jupyter notebook while training my network.
+Closing Jupyter notebook fixed my problem.
+
+(I think it might have to do something with too high demands of my GPU)
+
+Hope this helped!
+hi,guys,i faced the same issues.i using win10 tensorflow-gpu1.8.0 cuda 9.0 NVIDA gtx1050Ti ,when i change the version of cudann from 7.0 to 7.1,the problem solvedI faced the same problem today (gtx1080, cuda 9.2, tfversion = 1.12.0). So in my case, I was running Jupyter notebook , and then I tried running my other script, that's when the error was thrown. What Solved is, like @RoytenBerge said, shutting down the jupyter kernal.  
+
+
+it worked for me when adding these lines of code to the begining of  script    @Codersadis
+
+add the following code to the very beginning of the .py file, which solves my problem.
+
+from __future__ import print_function, division
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session  
+config = tf.ConfigProto()  
+config.gpu_options.allow_growth = True  
+set_session(tf.Session(config=config)) and Thanks@Codersadis@drproy2k thank you, it worked for me too. i was running anaconda prompt while spyder is running. after i shut down spyder, it worked perfectly!This error is due a RAM memory issue. Suggest you increase to 32GB or 64GB of DDR3 or DDR4 RAM.
+Also reduce the quantity/size of data that is being inferenced.
+
+Its not the GPU. I have 2 X 1080Ti cards in SLI.
+I followed version installation guide to resolve this-
+https://www.tensorflow.org/install/source#tested_source_configurations. The compatible configuration:-
+TF 1.12
+TF-gpu 1.9 
+CUDA 8
+
+same issue with GeForce GTX 970, CUDNN 7.4.1, CUDA 9.0.176, TF-gpu 1.12.0I was facing the same problem when using the community supported version of tensorflow inside a conda environment (i.e. using > conda install tensorflow-gpu )
+
+Turns out this version is not actually good in all situations (even though I've been using it on other machines). The best version to use is the pip installable version https://www.tensorflow.org/install/pip inside a conda environment. When I did this everything worked.I didn't realize that I had the Cuda 10.0 version of the CUDNN lib installed alongside the CUDA 9.0 that I had installed presently. Once I downloaded and replace the V10 CUDNN with the V9.0 CUDNN everything worked just fine!
+This was an overlook from failing to install things correctly, and looking back I can see why... If you've made it this far and are tired of experimenting, I've written a blog post at https://aaronjencks.blogspot.com/2019/03/the-ultimate-guide-to-installing.html that will walk you through the entire process of getting tensorflow and all of its dependencies to work from start to finish@kheffah  having same problem within conda. Already using pip for installing TF and Keras.
+GPU GT 840M, compute compatible 5.0, CUDA 9, cuDNN 7.4.2, TF 1.12.0. Windows 8 x64
+
+testing code run just fine
+```
+a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a')
+b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
+c = tf.matmul(a, b)
+```
+
+this is the error in spyder. already try the memory 0.7 and growth trick. no luck
+```
+classifier.fit_generator(training_set,
+                    steps_per_epoch=32,
+                    epochs=25,
+                    verbose=1,
+                    validation_data=test_set,
+                    validation_steps=6.25)
+Epoch 1/25
+Traceback (most recent call last):
+
+  File "<ipython-input-4-6d704090deaf>", line 11, in <module>
+    validation_steps=6.25)
+
+  File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\keras\legacy\interfaces.py", line 91, in wrapper
+    return func(*args, **kwargs)
+
+  File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\keras\engine\training.py", line 1418, in fit_generator
+    initial_epoch=initial_epoch)
+
+  File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\keras\engine\training_generator.py", line 217, in fit_generator
+    class_weight=class_weight)
+
+  File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\keras\engine\training.py", line 1217, in train_on_batch
+    outputs = self.train_function(ins)
+
+  File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\keras\backend\tensorflow_backend.py", line 2715, in __call__
+    return self._call(inputs)
+
+  File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\keras\backend\tensorflow_backend.py", line 2675, in _call
+    fetched = self._callable_fn(*array_vals)
+
+  File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\tensorflow\python\client\session.py", line 1439, in __call__
+    run_metadata_ptr)
+
+  File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\tensorflow\python\framework\errors_impl.py", line 528, in __exit__
+    c_api.TF_GetCode(self.status.status))
+
+UnknownError: Failed to get convolution algorithm. This is probably because cuDNN failed to initialize, so try looking to see if a warning log message was printed above.
+	 [[{{node conv2d_1/convolution}} = Conv2D[T=DT_FLOAT, _class=["loc:@training/Adam/gradients/conv2d_1/convolution_grad/Conv2DBackpropFilter"], data_format="NCHW", dilations=[1, 1, 1, 1], padding="VALID", strides=[1, 1, 1, 1], use_cudnn_on_gpu=true, _device="/job:localhost/replica:0/task:0/device:GPU:0"](training/Adam/gradients/conv2d_1/convolution_grad/Conv2DBackpropFilter-0-TransposeNHWCToNCHW-LayoutOptimizer, conv2d_1/kernel/read)]]
+	 [[{{node loss/mul/_91}} = _Recv[client_terminated=false, recv_device="/job:localhost/replica:0/task:0/device:CPU:0", send_device="/job:localhost/replica:0/task:0/device:GPU:0", send_device_incarnation=1, tensor_name="edge_609_loss/mul", tensor_type=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:CPU:0"]()]]
+```Switch to tensorflow 1.7
+
+On Thu., 3 Jan. 2019, 19:29 maxi.wu <notifications@github.com wrote:
+
+> @kheffah <https://github.com/kheffah> having same problem within conda.
+> Already using pip for installing TF and Keras.
+> GPU GT 840M, compute compatible 5.0, CUDA 9, cuDNN 7.4.2, TF 1.12.0.
+> Windows 8 x64
+>
+> testing code run just fine
+>
+> a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a')
+> b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
+> c = tf.matmul(a, b)
+>
+> this is the error in spyder. already try the memory 0.7 and growth trick.
+> no luck
+>
+> classifier.fit_generator(training_set,
+>                     steps_per_epoch=32,
+>                     epochs=25,
+>                     verbose=1,
+>                     validation_data=test_set,
+>                     validation_steps=6.25)
+> Epoch 1/25
+> Traceback (most recent call last):
+>
+>   File "<ipython-input-4-6d704090deaf>", line 11, in <module>
+>     validation_steps=6.25)
+>
+>   File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\keras\legacy\interfaces.py", line 91, in wrapper
+>     return func(*args, **kwargs)
+>
+>   File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\keras\engine\training.py", line 1418, in fit_generator
+>     initial_epoch=initial_epoch)
+>
+>   File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\keras\engine\training_generator.py", line 217, in fit_generator
+>     class_weight=class_weight)
+>
+>   File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\keras\engine\training.py", line 1217, in train_on_batch
+>     outputs = self.train_function(ins)
+>
+>   File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\keras\backend\tensorflow_backend.py", line 2715, in __call__
+>     return self._call(inputs)
+>
+>   File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\keras\backend\tensorflow_backend.py", line 2675, in _call
+>     fetched = self._callable_fn(*array_vals)
+>
+>   File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\tensorflow\python\client\session.py", line 1439, in __call__
+>     run_metadata_ptr)
+>
+>   File "c:\Users\maxi.wu\AppData\Local\conda\conda\envs\tfgpu\lib\site-packages\tensorflow\python\framework\errors_impl.py", line 528, in __exit__
+>     c_api.TF_GetCode(self.status.status))
+>
+> UnknownError: Failed to get convolution algorithm. This is probably because cuDNN failed to initialize, so try looking to see if a warning log message was printed above.
+> 	 [[{{node conv2d_1/convolution}} = Conv2D[T=DT_FLOAT, _class=["loc:@training/Adam/gradients/conv2d_1/convolution_grad/Conv2DBackpropFilter"], data_format="NCHW", dilations=[1, 1, 1, 1], padding="VALID", strides=[1, 1, 1, 1], use_cudnn_on_gpu=true, _device="/job:localhost/replica:0/task:0/device:GPU:0"](training/Adam/gradients/conv2d_1/convolution_grad/Conv2DBackpropFilter-0-TransposeNHWCToNCHW-LayoutOptimizer, conv2d_1/kernel/read)]]
+> 	 [[{{node loss/mul/_91}} = _Recv[client_terminated=false, recv_device="/job:localhost/replica:0/task:0/device:CPU:0", send_device="/job:localhost/replica:0/task:0/device:GPU:0", send_device_incarnation=1, tensor_name="edge_609_loss/mul", tensor_type=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:CPU:0"]()]]
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/6698#issuecomment-451079405>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/ABE215xY0OhbFjA_GhVtEIDl_IB4qQGmks5u_b9NgaJpZM4Lc7S1>
+> .
+>
+i had the same problem on win10 system. but it is found to be memory problem. kill the other running app which consumes huge memory resources and have a try. I had a similar problem on windows 10 NVIDIA GEFORCE GTX 1050 and as soon as I closed all other running tasks, and retried as suggested by @xhm1014 above, my code just started running like that. I  think this must be a memory related issue.Definitely memory related. You should upgrade your RAM up to 64GB.
+
+On Fri, Jan 18, 2019 at 5:30 PM Samuel Nde <notifications@github.com> wrote:
+
+> I had a similar problem on windows 10 NVIDIA GEFORCE GTX 1050 and as soon
+> as I closed all other running tasks, and retried as suggested by @xhm1014
+> <https://github.com/xhm1014> above, my code just started running like
+> that. I think this must be a memory related issue.
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/6698#issuecomment-455441208>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/ABE217cdDKUuRtdD9jJ_eh2tJWrm2fjeks5vEWnwgaJpZM4Lc7S1>
+> .
+>
+I had the error and I 'fixed' it by closing my multiple instances of Jupyter and closing other applications. I'm new to working with tensorflow in general so it's likely this only fixed my problem.E tensorflow/stream_executor/cuda/cuda_dnn.cc:353] Could not create cudnn handle: CUDNN_STATUS_INTERNAL_ERROR
+
+I had this issue with 10.1 Cuda+cuDNN7.5 and TF 1.11 compiled from source with cuda. The script I was trying to use needed these lines inserted somewhere:
+`config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True`
+
+and then later:
+`sess = tf.Session(graph=detection_graph,config=config)`
+
+This  done, a lot of "GPU out of memory errors" - but detection goes on very quickly as I suppose it should when we're using GPU. Thanks for sharing!I faced the same issues.and use below line fixed it.  check [here](https://www.tensorflow.org/install/gpu) get detail.
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64 
+> @EncodeTS I just added a minimal reproducible example to my first post. Could you check if it reproduces the problem on your machine? On my machine, one convolutional layer works but not two convolutional layers, which led me to think that the problem might be caused by some resource limitations.
+
+Actually, I'm working on Ubuntu 18.04, not macOS, but this looks to make sense that it might be caused by some resource limitations. Me either faced the same issue on GTX 1050 ti (4 GB)  but the issue has gone away when I run the same architecture on GTX 1080 ti (11 GB). Though all the environments are not the same between the two systems, I tried my best by utilizing the docker container.This problem is generally related to the version of cuda and GPU memory, if former, the easiest way is to change your cuda version by Anaconda！if later, you can find some ways to solve in other answers.
+这个问题一般与显存和cuda版本有关，如果尝试了上面的更改GPU memory的方法无效，考虑更改cuda版本，最简单的方法是不用去管系统装了什么cuda版本，直接在Anaconda中的项目环境下修改cuda版本即可，亲测有效。if you are still getting this issue, try the following. it worked for me
+`
+tf.config.gpu.set_per_process_memory_growth(True);
+tf.config.gpu.set_per_process_memory_fraction(0.4);`
+
+tensorflow 2 alpha
+cuda 10.0
+GTX 1650I have similar issue: CUDNN_STATUS_ALLOC_FAILED. 
+I broke my head for 3-4 hours. Finally fixed.
+this indeed works, as mentioned above by many :
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.Session(config=config)
+
+**But the key is to write it immediately below "import tensorflow as tf"** which I wasn't doing. I had written it after all the imports. 
+May be tensorflow-gpu version has problems, you should check your own versions try again and again, uninstall and install..... tensorflow-gpu找到对应的版本号然后卸载再重装> it worked for me when adding these lines of code to the begining of script @Codersadis
+> 
+> add the following code to the very beginning of the .py file, which solves my problem.
+> 
+> from **future** import print_function, division
+> import tensorflow as tf
+> from keras.backend.tensorflow_backend import set_session
+> config = tf.ConfigProto()
+> config.gpu_options.allow_growth = True
+> set_session(tf.Session(config=config))
+
+I am getting the same error with `tensorflow-gpu == 1.8.0`, `cudnn version = 7.0.5` and `cuda 9.1.85` 
+, `ubuntu 16.04` even after I add the above suggested solution.
+Following is the stack-trace:
+```
+INFO - Waveunet Training - Running command 'run'
+INFO - Waveunet Training - Started
+SCRIPT START
+EPOCH: 0
+Dataset ready!
+Training...
+Sep_Vars: 10265550
+Num of variables65
+2019-07-25 05:10:09.872823: I tensorflow/core/platform/cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2019-07-25 05:10:10.286584: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:898] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2019-07-25 05:10:10.286914: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1356] Found device 0 with properties: 
+name: Quadro P4000 major: 6 minor: 1 memoryClockRate(GHz): 1.48
+pciBusID: 0000:00:05.0
+totalMemory: 7.92GiB freeMemory: 7.83GiB
+2019-07-25 05:10:10.286964: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1435] Adding visible gpu devices: 0
+2019-07-25 05:10:10.640890: I tensorflow/core/common_runtime/gpu/gpu_device.cc:923] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-07-25 05:10:10.640952: I tensorflow/core/common_runtime/gpu/gpu_device.cc:929]      0 
+2019-07-25 05:10:10.640968: I tensorflow/core/common_runtime/gpu/gpu_device.cc:942] 0:   N 
+2019-07-25 05:10:10.641194: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1053] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 7566 MB memory) -> physical GPU (device: 0, name: Quadro P4000, pci bus id: 0000:00:05.0, compute capability: 6.1)
+2019-07-25 05:10:27.643833: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:94] Filling up shuffle buffer (this may take a while): 2054 of 4000
+2019-07-25 05:10:35.917445: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:129] Shuffle buffer filled.
+2019-07-25 05:10:36.175698: E tensorflow/stream_executor/cuda/cuda_dnn.cc:455] could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+2019-07-25 05:10:36.175820: E tensorflow/stream_executor/cuda/cuda_dnn.cc:463] possibly insufficient driver version: 384.183.0
+2019-07-25 05:10:36.175842: E tensorflow/stream_executor/cuda/cuda_dnn.cc:427] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+2019-07-25 05:10:36.175859: F tensorflow/core/kernels/conv_ops.cc:713] Check failed: stream->parent()->GetConvolveAlgorithms( conv_parameters.ShouldIncludeWinogradNonfusedAlgo<T>(), &algorithms) 
+Aborted (core dumped)
+```
+Please help> 
+> 
+> I have similar issue: CUDNN_STATUS_ALLOC_FAILED.
+> I broke my head for 3-4 hours. Finally fixed.
+> this indeed works, as mentioned above by many :
+> config = tf.ConfigProto()
+> config.gpu_options.allow_growth = True
+> session = tf.Session(config=config)
+> 
+> **But the key is to write it immediately below "import tensorflow as tf"** which I wasn't doing. I had written it after all the imports.
+
+great reply, worked for me !!> > it worked for me when adding these lines of code to the begining of script @Codersadis
+> > add the following code to the very beginning of the .py file, which solves my problem.
+> > from **future** import print_function, division
+> > import tensorflow as tf
+> > from keras.backend.tensorflow_backend import set_session
+> > config = tf.ConfigProto()
+> > config.gpu_options.allow_growth = True
+> > set_session(tf.Session(config=config))
+> 
+> I am getting the same error with `tensorflow-gpu == 1.8.0`, `cudnn version = 7.0.5` and `cuda 9.1.85`
+> , `ubuntu 16.04` even after I add the above suggested solution.
+> Following is the stack-trace:
+> 
+> ```
+> INFO - Waveunet Training - Running command 'run'
+> INFO - Waveunet Training - Started
+> SCRIPT START
+> EPOCH: 0
+> Dataset ready!
+> Training...
+> Sep_Vars: 10265550
+> Num of variables65
+> 2019-07-25 05:10:09.872823: I tensorflow/core/platform/cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+> 2019-07-25 05:10:10.286584: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:898] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+> 2019-07-25 05:10:10.286914: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1356] Found device 0 with properties: 
+> name: Quadro P4000 major: 6 minor: 1 memoryClockRate(GHz): 1.48
+> pciBusID: 0000:00:05.0
+> totalMemory: 7.92GiB freeMemory: 7.83GiB
+> 2019-07-25 05:10:10.286964: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1435] Adding visible gpu devices: 0
+> 2019-07-25 05:10:10.640890: I tensorflow/core/common_runtime/gpu/gpu_device.cc:923] Device interconnect StreamExecutor with strength 1 edge matrix:
+> 2019-07-25 05:10:10.640952: I tensorflow/core/common_runtime/gpu/gpu_device.cc:929]      0 
+> 2019-07-25 05:10:10.640968: I tensorflow/core/common_runtime/gpu/gpu_device.cc:942] 0:   N 
+> 2019-07-25 05:10:10.641194: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1053] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 7566 MB memory) -> physical GPU (device: 0, name: Quadro P4000, pci bus id: 0000:00:05.0, compute capability: 6.1)
+> 2019-07-25 05:10:27.643833: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:94] Filling up shuffle buffer (this may take a while): 2054 of 4000
+> 2019-07-25 05:10:35.917445: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:129] Shuffle buffer filled.
+> 2019-07-25 05:10:36.175698: E tensorflow/stream_executor/cuda/cuda_dnn.cc:455] could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+> 2019-07-25 05:10:36.175820: E tensorflow/stream_executor/cuda/cuda_dnn.cc:463] possibly insufficient driver version: 384.183.0
+> 2019-07-25 05:10:36.175842: E tensorflow/stream_executor/cuda/cuda_dnn.cc:427] could not destroy cudnn handle: CUDNN_STATUS_BAD_PARAM
+> 2019-07-25 05:10:36.175859: F tensorflow/core/kernels/conv_ops.cc:713] Check failed: stream->parent()->GetConvolveAlgorithms( conv_parameters.ShouldIncludeWinogradNonfusedAlgo<T>(), &algorithms) 
+> Aborted (core dumped)
+> ```
+> 
+> Please help
+
+Changing the Nvidia driver to 396+ solved the issue for me.It has to do with the memory fraction available to load GPU resources to create cudnn handle, also known as `per_process_gpu_memory_fraction`.
+Reducing this memory fraction by yourself will solve the error.
+
+
+    > sess_config = tf.ConfigProto(gpu_options =
+    > tf.GPUOptions(per_process_gpu_memory_fraction=0.7),
+    > allow_soft_placement = True)
+    > 
+    > with tf.Session(config=sess_config) as sess:
+    >      sess.run([whatever])
+
+Use as small fraction as could fit in your memory. (In the code, I use 0.7, you can start with 0.3 or even smaller, then increase until you get the same error, that's your limit.)
+Pass it to your `tf.Session()` or `tf.train.MonitoredTrainingSession()` or Supervisor's `sv.managed_session()` as config.
+
+This should allow your GPU create a cudnn handle for your TensorFlow code.I was getting the following error with tensorflow 2.0 in my conda environment.
+
+```2019-12-03 23:48:29.888625: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library cudart64_100.dll
+2019-12-03 23:49:06.381259: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library nvcuda.dll
+2019-12-03 23:49:07.220066: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1618] Found device 0 with properties:
+name: GeForce GTX 1660 Ti major: 7 minor: 5 memoryClockRate(GHz): 1.59
+pciBusID: 0000:01:00.0
+2019-12-03 23:49:07.236411: I tensorflow/stream_executor/platform/default/dlopen_checker_stub.cc:25] GPU libraries are statically linked, skip dlopen check.
+2019-12-03 23:49:07.247476: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1746] Adding visible gpu devices: 0
+2019-12-03 23:49:07.256881: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2019-12-03 23:49:07.269536: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1618] Found device 0 with properties:
+name: GeForce GTX 1660 Ti major: 7 minor: 5 memoryClockRate(GHz): 1.59
+pciBusID: 0000:01:00.0
+2019-12-03 23:49:07.281954: I tensorflow/stream_executor/platform/default/dlopen_checker_stub.cc:25] GPU libraries are statically linked, skip dlopen check.
+2019-12-03 23:49:07.295302: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1746] Adding visible gpu devices: 0
+2019-12-03 23:49:08.589865: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1159] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-12-03 23:49:08.599121: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1165]      0
+2019-12-03 23:49:08.610543: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1178] 0:   N
+2019-12-03 23:49:08.616005: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1304] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 4627 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1660 Ti, pci bus id: 0000:01:00.0, compute capability: 7.5)
+2019-12-03 23:49:58.521484: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library cublas64_100.dll
+2019-12-03 23:49:59.604517: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library cudnn64_7.dll
+2019-12-03 23:50:04.209110: E tensorflow/stream_executor/cuda/cuda_dnn.cc:329] Could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+2019-12-03 23:50:04.216670: E tensorflow/stream_executor/cuda/cuda_dnn.cc:333] Error retrieving driver version: Unimplemented: kernel reported driver version not implemented on Windows
+2019-12-03 23:50:04.226172: E tensorflow/stream_executor/cuda/cuda_dnn.cc:329] Could not create cudnn handle: CUDNN_STATUS_NOT_INITIALIZED
+2019-12-03 23:50:04.234741: E tensorflow/stream_executor/cuda/cuda_dnn.cc:333] Error retrieving driver version: Unimplemented: kernel reported driver version not implemented on Windows
+2019-12-03 23:50:04.244958: W tensorflow/core/common_runtime/base_collective_executor.cc:216] BaseCollectiveExecutor::StartAbort Unknown: Failed to get convolution algorithm. This is probably because cuDNN failed to initialize, so try looking to see if a warning log message was printed above.
+         [[{{node sequential/conv2d/Conv2D}}]]
+```
+
+so i added the following code to my CNN
+
+```
+gpus = tf.config.experimental.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(gpus[0], True)
+```
+
+My output is now
+
+```
+2019-12-04 00:10:07.708573: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library cudart64_100.dll
+2019-12-04 00:10:11.643304: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library nvcuda.dll
+2019-12-04 00:10:12.753615: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1618] Found device 0 with properties:
+name: GeForce GTX 1660 Ti major: 7 minor: 5 memoryClockRate(GHz): 1.59
+pciBusID: 0000:01:00.0
+2019-12-04 00:10:12.769498: I tensorflow/stream_executor/platform/default/dlopen_checker_stub.cc:25] GPU libraries are statically linked, skip dlopen check.
+2019-12-04 00:10:12.783900: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1746] Adding visible gpu devices: 0
+2019-12-04 00:10:54.941468: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2019-12-04 00:10:55.372516: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1618] Found device 0 with properties:
+name: GeForce GTX 1660 Ti major: 7 minor: 5 memoryClockRate(GHz): 1.59
+pciBusID: 0000:01:00.0
+2019-12-04 00:10:55.383385: I tensorflow/stream_executor/platform/default/dlopen_checker_stub.cc:25] GPU libraries are statically linked, skip dlopen check.
+2019-12-04 00:10:55.406053: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1746] Adding visible gpu devices: 0
+2019-12-04 00:10:56.741665: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1159] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-12-04 00:10:56.747255: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1165]      0
+2019-12-04 00:10:56.752302: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1178] 0:   N
+2019-12-04 00:10:56.756861: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1304] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 4627 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1660 Ti, pci bus id: 0000:01:00.0, compute capability: 7.5)
+2019-12-04 00:11:08.281356: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library cublas64_100.dll
+2019-12-04 00:11:08.934804: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library cudnn64_7.dll
+2019-12-04 00:11:11.870237: W tensorflow/stream_executor/cuda/redzone_allocator.cc:312] Internal: Invoking ptxas not supported on Windows
+Relying on driver to perform ptx compilation. This message will be only logged once.
+```
+
+As everyone suggested it is due to tensorflow using all of the GPU/GPUs. My CNN trains without error now.> I was facing the same problem when using the community supported version of tensorflow inside a conda environment (i.e. using > conda install tensorflow-gpu )
+> 
+> Turns out this version is not actually good in all situations (even though I've been using it on other machines). The best version to use is the pip installable version https://www.tensorflow.org/install/pip inside a conda environment. When I did this everything worked.
+
+That solved for me, thanks!This also resolved the issue for me. 
+
+GeForce GTX 1050, CUDA 10.0
+
+Note: this is the only thing I can find that works in TF 2.0 for now. Thanks!
+
+
+
+> gpus = tf.config.experimental.list_physical_devices('GPU')
+> tf.config.experimental.set_memory_growth(gpus[0], True)
+> This also resolved the issue for me.
+> 
+> GeForce GTX 1050, CUDA 10.0
+> 
+> Note: this is the only thing I can find that works in TF 2.0 for now. Thanks!
+> 
+> > gpus = tf.config.experimental.list_physical_devices('GPU')
+> > tf.config.experimental.set_memory_growth(gpus[0], True)
+
+This didn't make any difference for me... TF 2.0, RTX 2060, CUDA 10.1, CuDNN 7.6
+
+This is with 16 GB RAM, 6 GB video memory, and a basic MNIST toy model with one conv layer. No memory problems, just a stack trace.
+
+No GPU problems at all with Pytorch, as usualIn my case, I have two machines, both with RTX 2080Ti, TF 2.1, CUDA 10.1, CuDNN 7.6. One works, the other one raises the aforementioned error. Both machines have the same amount of RAM, 16GB. There are hardware differentes, though, like the CPU. But the problem is only occurring when using the GPU.
+> In my case, I have two machines, both with RTX 2080Ti, TF 2.1, CUDA 10.1, CuDNN 7.6. One works, the other one raises the aforementioned error. Both machines have the same amount of RAM, 16GB. There are hardware differentes, though, like the CPU. But the problem is only occurring when using the GPU.
+
+Same platform, same problemIf you are using the latest tensorflow and keras. Try this from [here](https://www.tensorflow.org/guide/gpu#limiting_gpu_memory_growth), it worked for me:
+
+```python
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+  try:
+    # Currently, memory growth needs to be the same across GPUs
+    for gpu in gpus:
+      tf.config.experimental.set_memory_growth(gpu, True)
+    logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+    print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+  except RuntimeError as e:
+    # Memory growth must be set before GPUs have been initialized
+    print(e)
+```
+This one works for me.
+physical_devices = tf.config.list_physical_devices('GPU') 
+tf.config.experimental.set_memory_growth(physical_devices[0], True)> This one works for me.
+> physical_devices = tf.config.list_physical_devices('GPU')
+> tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
+This worked for me. Thanks @Samaritan1011001 your solution works for me thanks a lot.
+@Samaritan1011001 your solution works for me, too! thanks xD !> This problem is generally related to the version of cuda and GPU memory, if former, the easiest way is to change your cuda version by Anaconda！if later, you can find some ways to solve in other answers.
+> 这个问题一般与显存和cuda版本有关，如果尝试了上面的更改GPU memory的方法无效，考虑更改cuda版本，最简单的方法是不用去管系统装了什么cuda版本，直接在Anaconda中的项目环境下修改cuda版本即可，亲测有效。
+
+不好意思请问一下要怎么在anaconda里面直接修改cuda的版本呢？感激不尽
+May I know how to change cuda's version in anaconda prompt? thanks a lot

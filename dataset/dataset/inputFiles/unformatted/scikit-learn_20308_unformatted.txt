@@ -1,0 +1,331 @@
+**This issue is reserved for the [Data Umbrella Latin America Sprint](https://latam2021.dataumbrella.org/) on June 26, 2021 as a good first issue. For non-sprint contributors, please wait till July 1, 2021 to work on this issue.**
+
+1. Make sure you have the [development dependencies](https://scikit-learn.org/stable/developers/contributing.html#how-to-contribute) and [documentation dependencies](https://scikit-learn.org/stable/developers/contributing.html#building-the-documentation) installed.
+2. Pick an estimator from the list below and **leave a comment saying you are going to work on it**. This way we can keep track of what everyone is working on.
+3. Remove the estimator from the list at: https://github.com/scikit-learn/scikit-learn/blob/bb6117b228e2940cada2627dce86b49d0662220c/maint_tools/test_docstrings.py#L11
+4. Let's say you picked `StandardScaler`, run numpydoc validation as follows (Adding the `-` at the end helps with the regex).
+
+```
+pytest maint_tools/test_docstrings.py -k StandardScaler- 
+```
+
+
+5. If you see failing test, please fix them by following the recommendation provided by the failing test.
+6. If you see all the tests past, you do not need to do any additional changes.
+7. Commit your changes.
+8. Open a Pull Request with an opening message `Addresses #20308`. Note that each item should be submitted in a **separate** Pull Request.
+9. Include the estimator name in the title of the pull request. For example: "DOC Ensures that StandardScaler passes numpydoc validation".
+
+- [x] #20381 ARDRegression
+- [x] #20374 AdaBoostClassifier
+- [x] #20400 AdaBoostRegressor
+- [x] #20536 AdditiveChi2Sampler
+- [x] #20532 AffinityPropagation
+- [ ] #20544 AgglomerativeClustering
+- [x] #20407 BaggingClassifier
+- [x] #20498 BaggingRegressor
+- [x] #20384 BayesianGaussianMixture
+- [x] #20389 BayesianRidge
+- [x] BernoulliNB
+- [ ] #20533 BernoulliRBM
+- [x] #20422 Binarizer
+- [ ] Birch
+- [x] #20504 CCA
+- [ ] CalibratedClassifierCV
+- [x] #20445 CategoricalNB
+- [ ] ClassifierChain
+- [ ] ColumnTransformer
+- [x] #20440 ComplementNB
+- [x] #20403 CountVectorizer
+- [x] #20375 DBSCAN
+- [x] #20399 DecisionTreeClassifier
+- [ ] DecisionTreeRegressor
+- [ ] DictVectorizer
+- [ ] DictionaryLearning
+- [x] DummyClassifier
+- [x] #20394 DummyRegressor
+- [x] #20454 ElasticNet
+- [ ] ElasticNetCV
+- [x] #20548 EllipticEnvelope
+- [x] #20551 EmpiricalCovariance
+- [x] ExtraTreeClassifier
+- [ ] ExtraTreeRegressor
+- [x] ExtraTreesClassifier
+- [x] ExtraTreesRegressor
+- [ ] FactorAnalysis
+- [x] #20405 FastICA
+- [ ] FeatureAgglomeration
+- [ ] FeatureHasher
+- [ ] FeatureUnion
+- [ ] FunctionTransformer
+- [ ] GammaRegressor
+- [ ] GaussianMixture
+- [x] #20440 GaussianNB
+- [ ] GaussianProcessClassifier
+- [ ] GaussianProcessRegressor
+- [ ] GaussianRandomProjection
+- [x] #20495 GenericUnivariateSelect
+- [x] GradientBoostingClassifier
+- [x] GradientBoostingRegressor
+- [x] #20527 GraphicalLasso
+- [x] #20546 GraphicalLassoCV
+- [ ] GridSearchCV
+- [ ] HalvingGridSearchCV
+- [ ] HalvingRandomSearchCV
+- [ ] HashingVectorizer
+- [x] HistGradientBoostingClassifier
+- [x] HistGradientBoostingRegressor
+- [ ] HuberRegressor
+- [ ] IncrementalPCA
+- [x] https://github.com/scikit-learn/scikit-learn/pull/20437 IsolationForest
+- [ ] Isomap
+- [x] #20514 IsotonicRegression
+- [ ] IterativeImputer
+- [ ] KBinsDiscretizer
+- [x] #20377 KMeans
+- [ ] KNNImputer
+- [x] #20373 KNeighborsClassifier
+- [x] #20378 KNeighborsRegressor
+- [ ] KNeighborsTransformer
+- [x] KernelCenterer
+- [ ] KernelDensity
+- [ ] KernelPCA
+- [x] KernelRidge
+- [ ] LabelBinarizer
+- [x] #20456 LabelEncoder
+- [ ] LabelPropagation
+- [ ] LabelSpreading
+- [x] #20472 Lars
+- [x] #20501 LarsCV
+- [x] #20409 Lasso
+- [x] #20453 LassoCV
+- [x] #20459 LassoLars
+- [x] #20462 LassoLarsCV
+- [x] #20465 LassoLarsIC
+- [x] #20402 LatentDirichletAllocation
+- [x] #20578 LedoitWolf
+- [x] LinearDiscriminantAnalysis
+- [x] #20369 LinearRegression
+- [x] #20458 LinearSVC
+- [ ] LinearSVR
+- [ ] LocalOutlierFactor
+- [ ] LocallyLinearEmbedding
+- [x] #20370 LogisticRegression
+- [x] #20376 LogisticRegressionCV
+- [ ] MDS
+- [x] #20444 MLPClassifier
+- [x] MLPRegressor
+- [x] #20455 MaxAbsScaler
+- [ ] MeanShift
+- [x] #20580 MinCovDet
+- [x] MinMaxScaler
+- [ ] MiniBatchDictionaryLearning
+- [ ] MiniBatchKMeans
+- [ ] MiniBatchSparsePCA
+- [ ] MissingIndicator
+- [ ] MultiLabelBinarizer
+- [ ] MultiOutputClassifier
+- [ ] MultiOutputRegressor
+- [ ] MultiTaskElasticNet
+- [ ] MultiTaskElasticNetCV
+- [ ] MultiTaskLasso
+- [ ] MultiTaskLassoCV
+- [x] #20440 MultinomialNB
+- [ ] NMF
+- [ ] NearestCentroid
+- [x] #20446 NearestNeighbors
+- [ ] NeighborhoodComponentsAnalysis
+- [ ] Normalizer
+- [x] #20461 NuSVC
+- [ ] NuSVR
+- [ ] Nystroem
+- [x] #20579 OAS
+- [ ] OPTICS
+- [x] #20463 OneClassSVM
+- [x] #20406 OneHotEncoder
+- [ ] OneVsOneClassifier
+- [ ] OneVsRestClassifier
+- [ ] OrdinalEncoder
+- [ ] OrthogonalMatchingPursuit
+- [ ] OrthogonalMatchingPursuitCV
+- [ ] OutputCodeClassifier
+- [x] PCA
+- [ ] PLSCanonical
+- [ ] PLSRegression
+- [ ] PLSSVD
+- [ ] PassiveAggressiveClassifier
+- [ ] PassiveAggressiveRegressor
+- [ ] PatchExtractor
+- [x] #20404 Perceptron
+- [ ] Pipeline
+- [x]  #20386 PoissonRegressor
+- [ ] PolynomialCountSketch
+- [ ] PolynomialFeatures
+- [ ] PowerTransformer
+- [ ] QuadraticDiscriminantAnalysis
+- [ ] QuantileRegressor
+- [ ] QuantileTransformer
+- [ ] RANSACRegressor
+- [ ] RBFSampler
+- [ ] #20419 RFE
+- [x] #20452 RFECV
+- [ ] RadiusNeighborsClassifier
+- [x] RadiusNeighborsRegressor
+- [ ] RadiusNeighborsTransformer
+- [x] #20383 RandomForestClassifer
+- [x] RandomForestRegressor
+- [x] RandomTreesEmbedding
+- [ ] RandomizedSearchCV
+- [ ] RegressorChain
+- [x] #20499 Ridge
+- [x] #20503 RidgeCV
+- [ ] RidgeClassifier
+- [ ] RidgeClassifierCV
+- [ ] RobustScaler
+- [ ] SGDOneClassSVM
+- [ ] SGDRegressor
+- [x] #20457 SVC
+- [ ] SVR
+- [ ] SelectFdr
+- [ ] SelectFpr
+- [ ] SelectFromModel
+- [ ] SelectFwe
+- [ ] SelectKBest
+- [ ] SelectPercentile
+- [ ] SelfTrainingClassifier
+- [ ] SequentialFeatureSelector
+- [x] #20571 ShrunkCovariance
+- [ ] SimpleImputer
+- [ ] SkewedChi2Sampler
+- [ ] SparseCoder
+- [x] #20395 SparsePCA
+- [ ] SparseRandomProjection
+- [ ] SpectralBiclustering
+- [ ] SpectralClustering
+- [ ] SpectralCoclustering
+- [ ] SpectralEmbedding
+- [ ] SplineTransformer
+- [ ] StackingClassifier
+- [ ] StackingRegressor
+- [x] #20368 StandardScalar
+- [x] TSNE
+- [x] #20379 TfidfVectorizer
+- [ ] TheilSenRegressor
+- [ ] TransformedTargetRegressor
+- [ ] TruncatedSVD
+- [ ] TweedieRegressor
+- [ ] VarianceThreshold
+- [ ] VotingClassifier
+- [x] #20450 VotingRegressorCan I take the estimator: ¨AdaBoostClassifier¨?  **partner**  cc: @genvalen@marenwestermann and I are working on `RandomForestClassifier`@mattnp and I are starting off with the `StandardScaler`@caherrera-meli and I are going for the LinearRegression
+@gitdoluquita and I are going for the LogisticRegressionI'm going with `ExtraTreeClassifier`!
+@g4brielvs and I are working on `KNeighborsClassifier` @marielaraj and me are going for `PCA`@eugeniaft and me are going for `DecisionTreeClassifier`. @napoles-uach and I are working on KNeighborsRegressor@g4brielvs and @pibieta are working on `KMeans`
+With @leonardorocc0 will be taking `ARDRegression`
+With @tomasmoreyra will be taking `TfidfTransformer`I'm working on `BaggingClassifier`.**BayesianGaussianMixture** Estamos trabajando con @nicolas471I'm working on `DBSCAN` with @ijpulidosme and @joaovitormascarenhas are going for **CountVectorizer**
+Me and @NicolasMillerr will be working on `GaussianProcessClassifier`@lacouth  and I are going for the `LogisticRegressionCV`@gloriamacia and I will continue with DummyRegressor Going to take ``BernoulliNB`` with @j3nnn1@gitdoluquita and I are working on PoissonRegressor@g4brielvs and @pibieta are working on `GaussianMixture`I'm (@g4brielvs ) working on `LinearDiscriminantAnalysis`I'm working on this `FeatureUnion` w/ @sebastiandres 
+@g4brielvs and I are working on `BayesianRidge` now@marenwestermann  and I are working on RandomForestRegressorTrabajando con @nicolas471 en **BayesianRidge**> Trabajando con @nicolas471 en **BayesianRidge**
+
+Yo también ando trabajando en ese con @g4brielvs. Tal vez puede haber un conflicto...Taking over `SparsePCA` one.@LucyJimenez and I are working on `GridSearchCV`> > Trabajando con @nicolas471 en **BayesianRidge**
+> 
+> Yo también ando trabajando en ese con @g4brielvs. Tal vez puede haber un conflicto...
+
+Ok, ahi cambiamos.Estamos trabajando en `Isomap` con @asnramos @MattNP And I are working on `MinMaxScaler`.@lacouth  and I are working on  `AdaBoostRegressor`I wonder if it's worth doing a regex for the return value of ``fit`` and do all of those at once? Having them be consistent might also be good and that's probably many places.
+
+I've found
+```
+        Returns
+        -------
+        self : object
+            Returns the instance itself.
+```
+which seems good?
+
+Similar things are probably true for ``fit``, ``predict``, ``transform``, ``predict_proba`` etc@NicolasMillerr and I will be working in `TfidfVectorizer`I'm (@g4brielvs) working on `LatentDirichletAllocation`.working on `FastICA` w/ @sebastiandres working on ` OneClassSVM`I'm working on `OneHotEncoder`
+Working on LassoTook RFE!Working on Binarizer@marielaraj and me are working on `VotingRegressor`Working on `IsolationForest`Working on KNeighborsRegressorWorking on `MLPClassifier`working on CategoricalNBWorking on `NearestNeighbors`Working on GenericUnivariateSelectWorking on ElasticNetI added MaxAbsScaler. @thomasjpfan MinMaxScaler is not in maint_tools/test_docstrings.py 
+I also checked its code and pytest run without problems so could be removed from this list too.Working on `SVC`Worked on LassoCVWorking on ``LassoLars``Working on `NuSVC`Working on ``LassoLarsCV``Working on ``LassoLarsIC``> I wonder if it's worth doing a regex for the return value of `fit` and do all of those at once? Having them be consistent might also be good and that's probably many places.
+> 
+> I've found
+> 
+> ```
+>         Returns
+>         -------
+>         self : object
+>             Returns the instance itself.
+> ```
+> 
+> which seems good?
+> 
+> Similar things are probably true for `fit`, `predict`, `transform`, `predict_proba` etc
+
+Hi @amueller. If we see that one of these return statements is worded differently in the file, is it useful to update it to what you have here?Working on ``Lars``Worked on RFECVWorked on `LinearSVC`Working on ``Naive Bayes`` classes> > I wonder if it's worth doing a regex for the return value of `fit` and do all of those at once? Having them be consistent might also be good and that's probably many places.
+> > I've found
+> > ```
+> >         Returns
+> >         -------
+> >         self : object
+> >             Returns the instance itself.
+> > ```
+> > 
+> > 
+> >     
+> >       
+> >     
+> > 
+> >       
+> >     
+> > 
+> >     
+> >   
+> > which seems good?
+> > Similar things are probably true for `fit`, `predict`, `transform`, `predict_proba` etc
+> 
+> Hi @amueller. If we see that one of these return statements is worded differently in the file, is it useful to update it to what you have here?
+
+Perhaps @thomasjpfan could help with this question. Working on ``LarsCV``working on BaggingRegressor@marenwestermann and I worked on `RandomForestRegressor`Working on `Ridge`Working on `CCA`Working on `RidgeCV`Working on ` IsotonicRegression`Working in ``GraphicalLasso``
+Edit: Working on ``AffinityPropogation``, too.Ridge PR #20499 (merged)
+RidgeCV PR #20503 (merged)
+
+@alinealfa It looks like @ogrisel is updating this every few days.  Working on `AdditiveChi2Sampler`
+Working on `AgglomerativeClustering`
+Working on `BernoulliRBM`
+To update:  
+- AffinityPropagation #20532 **(merged)**
+- GraphicalLasso #20527 **(merged)**
+
+Working on ``GraphicalLassoCV``Working on `` EllipticEnvelope``@thomasjpfan I just realized that we are not considering functions or classes that are not estimators in this check. I was just working on the plotting API, and the check is not run there. It could be a nice addition to yield these extra functions and classes.Working on ``ShrunkCovariance``
+Working on ``LedoitWolf``
+Working on ``OAS``@glemaitre , @thomasjpfan 
+To update checklist at top, these have been **Merged**:  
+- RadiusNeighborsRegressor #20378 
+- AdditiveChi2Sampler #20536 
+- GraphicalLassoCV #20546 
+- EllipticEnvelope #20548
+- EmpiricalCovariance #20551  
+- ShrunkCovariance #20571 
+
+Working on ``MinCovDet``@glemaitre , @thomasjpfan
+To update checklist at top:
+(Can you add an emoji, once you've updated, as a confirmation?  Thank you.)
+
+### OPEN
+DOC Ensures that BernoulliRBM passes numpydoc validation #20533 BernoulliRBM
+DOC Ensures that AgglomerativeClustering passes numpydoc validation #20544 AgglomerativeClustering
+
+### MERGED
+DOC Ensures that LedoitWolf passes numpydoc validation #20578 LedoitWolf
+DOC Ensures that OAS passes numpydoc validation #20579 OAS 
+DOC Ensures that MinCovDet passes numpydoc validation #20580 MinCovDetWorking on ``MLPRegressor``
+Working on ``ExtraTreeClassifier``
+Working on ``RandomTreesEmbedding``
+Working on ``ExtraTreesClassifier``
+Working on ``ExtraTreesRegressor``Working on ```DummyClassifier```Working on `NuSVR`Working on `GradientBoostingClassifier`Working on `GradientBoostingRegressor`Working on ```GridSearchCV```Working on `HistGradientBoostingClassifier`Working on ``KernelCenterer``Working on ``KernalRidge``Working on `HistGradientBoostingRegressor`FYI, I updated the checklist at the top of this post based on the estimators that we are currently testing.Working on these 4:
+__all__ = [
+    "MultiOutputRegressor",
+    "MultiOutputClassifier",
+    "ClassifierChain",
+    "RegressorChain",
+]
+Working on sklearn.preprocessing.kernal_appromiation.py, which includes:
+``PolynomialCountSketch``,
+``RBFSampler``,
+``SkewedChi2Sampler``,
+and ``Nystroem``.Working on `SVR`Working on `LinearSVR`

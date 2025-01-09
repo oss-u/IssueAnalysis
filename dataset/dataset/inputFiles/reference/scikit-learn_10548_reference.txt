@@ -1,0 +1,3 @@
+We want to work on sklearn preprocessing data. py 2178, 2607
+ rachelcjordan and fabi cast
+ wimlds SciKitLearnSprint

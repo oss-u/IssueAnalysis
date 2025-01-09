@@ -1,0 +1,707 @@
+I've been intermittently running into this issue (in the subject) with GridSearchCV over a year now, across python 2.7, 3.3, and 3.4, two jobs, several different mac osx platforms/laptops, and many different versions of numpy and scikit-learn (I keep them updated pretty well).
+
+I've tried all of these suggestions and none of them **always** work:
+
+https://github.com/scikit-learn/scikit-learn/issues/3605 - Setting multiprocessing start method to 'forkserver'
+https://github.com/scikit-learn/scikit-learn/issues/2889 - Having issues ONLY when custom scoring functions are passed (I've absolutely had this problem where the same GridSearchCV calls with n_jobs != 1 freeze with a custom scorer but do just fine without one)
+https://github.com/joblib/joblib/issues/138 - Setting environment variables from MKL thread counts (I have tried this when running a numpy/sklearn built against mkl from an Anaconda distribution)
+Scaling inputs and making sure there are no errors with n_jobs=1 - I'm completely sure that the things I'm trying to do on multiple threads run correctly on one thread, and in a small amount of time
+
+It's a very frustrating problem that always seems to pop back up right when I'm confident it's gone, and the ONLY workaround that works **100% of the time** for me is going to the source for GridSearchCV in whatever sklearn distribution I'm on an manually changing the backend set in the call to Paralell to 'threading' (instead of multiprocessing).
+
+I haven't benchmarked the difference between that hack and setting n_jobs=1, but would there be any reason to expect any gains with the threading backend over no parallelization at all?  Certainly, it wouldn't be as good as multiprocessing but at least it's more stable.
+
+btw the most recent versions I've had the same problem on are:
+- Mac OS 10.9.5
+- Python 3.4.3 :: Continuum Analytics, Inc.
+- scikit-learn==0.16.1
+- scipy==0.16.0
+- numpy==1.9.2
+- pandas==0.16.2
+- joblib==0.8.4
+Do you have problems consistently on that platform??
+
+In terms of multithreading: there are some estimators for which multithreading will likely give substantial gains, those where most of the work are done in numpy or Cython operations with no GIL. Really, I don't think this has been evaluated much; `backend='threading'` is quite a recent thing.
+
+The real question is: what more can we do to identify what the problem is?
+
+For a start, what base estimators have you considered?
+@jnothman By platform do you OSX 10.9.5?  If so, then yea it's not the first time I've had that problem.  
+
+One possibly major detail I omitted before though was that I'm always using IPython notebooks when I have problems.  I've got a kernel for a notebook loaded right now where if I add a "scoring" argument with n_jobs != 1 then GridSearchCV hangs forever but if I remove that argument, all is fine.  Even if the scoring function I give does nothing but return a constant float value, it still freezes (but does exactly what you would expect with n_jobs=1).
+
+Re: threading that's good to hear, so maybe that option for GridSearchCV would actually make sense then.  
+
+As far as what estimators I have problems with goes I'm not sure I can narrow it down much.  I normally try as many of them as I can manage though to get some useful information for you here, I just verified that I could reproduce the conditions I mentioned above with any estimator and found that I could in all cases (or at least I tried LogisticRegression, SGDClassifier, GBRT, and RF).
+
+I'd love to do anything and everything I can to provide something more to go on though I'm not familiar with what context is generally most helpful for multithreading issues like this.  Have any suggestions for me?
+Do you use numpy linked against the accelerate framework?
+Nope, unless I'm missing something.  I thought that the numpy version installed changes when you do that or at the very least that the accelerate package would be present:
+
+(research3.4) eczech$ pip freeze | grep numpy
+numpy==1.9.2
+(research3.4)eczech$ conda update accelerate
+Error: package 'accelerate' is not installed in /Users/eczech/anaconda/envs/research3.4
+
+Forgive my ignorance in not being able to answer that with 100% confidence, but I certainly didn't do anything intentionally to install it.
+conda accelerate is not the same as apple accelerate:
+http://docs.continuum.io/accelerate/index
+https://developer.apple.com/library/mac/documentation/Accelerate/Reference/AccelerateFWRef/
+
+conda accelerate is MKL accelerated versions of packages, apple accelerate is their alternative to MKL.
+
+can you give us `numpy.__config__.show()`?
+multiprocessing doesn't work with accelerate IIRC. ping @ogrisel 
+certainly:
+
+> np.**config**.show()
+> atlas_3_10_blas_threads_info:
+>   NOT AVAILABLE
+> atlas_info:
+>   NOT AVAILABLE
+> atlas_3_10_info:
+>   NOT AVAILABLE
+> atlas_threads_info:
+>   NOT AVAILABLE
+> atlas_3_10_blas_info:
+>   NOT AVAILABLE
+> blas_opt_info:
+>     extra_compile_args = ['-msse3', '-DAPPLE_ACCELERATE_SGEMV_PATCH', '-I/System/Library/Frameworks/vecLib.framework/Headers']
+>     extra_link_args = ['-Wl,-framework', '-Wl,Accelerate']
+>     define_macros = [('NO_ATLAS_INFO', 3)]
+> lapack_mkl_info:
+>   NOT AVAILABLE
+> atlas_blas_info:
+>   NOT AVAILABLE
+> mkl_info:
+>   NOT AVAILABLE
+> lapack_opt_info:
+>     extra_compile_args = ['-msse3', '-DAPPLE_ACCELERATE_SGEMV_PATCH']
+>     extra_link_args = ['-Wl,-framework', '-Wl,Accelerate']
+>     define_macros = [('NO_ATLAS_INFO', 3)]
+> blas_mkl_info:
+>   NOT AVAILABLE
+> atlas_3_10_threads_info:
+>   NOT AVAILABLE
+> openblas_info:
+>   NOT AVAILABLE
+> openblas_lapack_info:
+>   NOT AVAILABLE
+> atlas_blas_threads_info:
+>   NOT AVAILABLE
+Yeah so that is a known issue that I can't find in the issue-tracker. Accelerate doesn't work with multiprocessing.
+
+I'm a bit confused. The threading backend only does something when the GIL is released, right?
+Gotcha, do you know how I should go about rebuilding numpy then?  Should I just pip install it instead of using the conda package for it?  Or would I be better off to build from source and ensure those apple accelerate arguments aren't present?
+
+Sounds like this is a bit of a nonstarter of an issue regardless.  Close away if it's just beating a dead horse.
+if you can get the conda accelerate, it would work ;)
+maybe we could try to bail in `joblib`?
+Ah great, continuum must have paid apple to do that haha.
+
+Got any $0 suggestions?  And thanks for the insight either way.
+Oh and also I know this has been asked before, but is the fact that I'm only having this issue on my current platform when using a custom scoring function something to go on?  For the life of me I can't see what could possibly be problematic about that given the grid_search.py source code, but might it having something to do with pickling of the custom function?
+
+And somewhat unrelated to that, I just remembered that I also tried to work around this in the past by creating a modified version of GridSearchCV that uses the IPython parallel backend instead so assuming I revisited that solution, would it be worth sharing in some way?  That solution worked just fine but was a little bit of a pain to use because any custom classes and functions had to be available on the pythonpath rather than in the notebooks themselves but if there are no other better options, maybe that one has some legs.
+You can link against atlas, but that will be slower [apple] accelerate, methinks.
+Maybe there is a free MKL linked numpy out there for OS X? There is one for windows.
+[if you are an academic, continuum accelerate is free btw]
+I'm pretty sure this is entirely unrelated to using a custom scoring function.
+Can you give self-contained sniplets that break with a custom scoring function but not without?
+Maybe the fact of the custom scoring function is relevant (e.g. pickling issues or nested parallelism may be pertinent). Could we see the code?
+Or do you just mean a standard metric with `make_scorer`?
+Certainly, here's a relevant portion and it looks like things are fine with make_scorer but not with a custom function:
+
+``` python
+from sklearn.linear_model import LogisticRegression
+from sklearn.grid_search import GridSearchCV
+from sklearn.cross_validation import StratifiedKFold
+from sklearn.metrics import average_precision_score, make_scorer
+import functools
+
+res = []
+clfs = []
+
+for response in responses:
+    X, y = d_in[features], d_in[response]
+    for i, (train, test) in enumerate(StratifiedKFold(y, 5)):
+        X_train, y_train, X_test, y_test = X.iloc[train], y.iloc[train], X.iloc[test], y.iloc[test]
+        clf = LogisticRegression(penalty='l1')
+        grid = {
+            'class_weight': [{0: 1, 1: 10}, {0: 1, 1: 100}, {0: 1, 1: 1000}],
+            'C': np.logspace(-3, 0, num=4)
+        }
+
+        # Using make_scorer doesn't cause any issues
+        # clf = GridSearchCV(clf, grid, cv=StratifiedKFold(y_train, 3),  
+        #                    scoring=make_scorer(average_precision_score), n_jobs=-1)
+
+        # This however is a problem:
+        def avg_prec_score(estimator, X, y):
+            return average_precision_score(y, estimator.predict_proba(X)[:, 1])
+        clf = GridSearchCV(clf, grid, cv=StratifiedKFold(y_train, 5),  
+                           scoring=avg_prec_score, n_jobs=-1)
+
+        clf = clf.fit(X_train, y_train)
+        print('Best parameters for response {} inferred in fold {}: {}'.format(response, i, clf.best_params_))
+
+        y_pred = clf.predict(X_test)
+        y_proba = clf.predict_proba(X_test)
+
+        clfs.append((response, i, clf))
+        res.append(pd.DataFrame({
+            'y_pred': y_pred, 
+            'y_actual': y_test, 
+            'y_proba': y_proba[:,1],
+            'response': np.repeat(response, len(y_pred))
+        }))
+
+res = functools.reduce(pd.DataFrame.append, res)
+res.head()
+```
+
+I'll work on a self-contained version that involves some version of the data I'm using too (but it will take longer).  In the meantime though, pickling of those custom functions sounds like a good lead -- I've tried it several times again to be sure and it hangs 100% of the time with a custom function and 0% of the time when using make_scorer with some known, imported metric function.
+And is that in **main** (i.e. the top-level script being interpreted) or an
+imported module?
+
+On 15 August 2015 at 23:37, Eric Czech notifications@github.com wrote:
+
+> Certainly, here's a relevant portion and it looks like things are fine
+> with make_scorer but not with a custom function:
+> 
+> from sklearn.linear_model import LogisticRegressionfrom sklearn.grid_search import GridSearchCVfrom sklearn.cross_validation import StratifiedKFoldfrom sklearn.metrics import average_precision_score, make_scorerimport functools
+> 
+> res = []
+> clfs = []
+> for response in responses:
+>     X, y = d_in[features], d_in[response]
+>     for i, (train, test) in enumerate(StratifiedKFold(y, 5)):
+>         X_train, y_train, X_test, y_test = X.iloc[train], y.iloc[train], X.iloc[test], y.iloc[test]
+>         clf = LogisticRegression(penalty='l1')
+>         grid = {
+>             'class_weight': [{0: 1, 1: 10}, {0: 1, 1: 100}, {0: 1, 1: 1000}],
+>             'C': np.logspace(-3, 0, num=4)
+>         }
+> 
+> ```
+>     # Using make_scorer doesn't cause any issues
+>     # clf = GridSearchCV(clf, grid, cv=StratifiedKFold(y_train, 3),
+>     #                    scoring=make_scorer(average_precision_score), n_jobs=-1)
+> 
+>     # This however is a problem:
+>     def avg_prec_score(estimator, X, y):
+>         return average_precision_score(y, estimator.predict_proba(X)[:, 1])
+>     clf = GridSearchCV(clf, grid, cv=StratifiedKFold(y_train, 5),
+>                        scoring=avg_prec_score, n_jobs=-1)
+> 
+>     clf = clf.fit(X_train, y_train)
+>     print('Best parameters for response {} inferred in fold {}: {}'.format(response, i, clf.best_params_))
+> 
+>     y_pred = clf.predict(X_test)
+>     y_proba = clf.predict_proba(X_test)
+> 
+>     clfs.append((response, i, clf))
+>     res.append(pd.DataFrame({
+>         'y_pred': y_pred,
+>         'y_actual': y_test,
+>         'y_proba': y_proba[:,1],
+>         'response': np.repeat(response, len(y_pred))
+>     }))
+> ```
+> 
+> res = functools.reduce(pd.DataFrame.append, res)
+> res.head()
+> 
+> I'll work on a self-contained version that involves some version of the
+> data I'm using too (but it will take longer). In the meantime though,
+> pickling of those custom functions sounds like a good lead -- I've tried it
+> several times again to be sure and it hangs 100% of the time with a custom
+> function and 0% of the time when using make_scorer with some known,
+> imported metric function.
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/5115#issuecomment-131376298
+> .
+Oh, it's ipynb. Hmmm interesting. Yes, pickling could be an issue..?
+
+On 15 August 2015 at 23:51, Joel Nothman joel.nothman@gmail.com wrote:
+
+> And is that in **main** (i.e. the top-level script being interpreted) or
+> an imported module?
+> 
+> On 15 August 2015 at 23:37, Eric Czech notifications@github.com wrote:
+> 
+> > Certainly, here's a relevant portion and it looks like things are fine
+> > with make_scorer but not with a custom function:
+> > 
+> > from sklearn.linear_model import LogisticRegressionfrom sklearn.grid_search import GridSearchCVfrom sklearn.cross_validation import StratifiedKFoldfrom sklearn.metrics import average_precision_score, make_scorerimport functools
+> > 
+> > res = []
+> > clfs = []
+> > for response in responses:
+> >     X, y = d_in[features], d_in[response]
+> >     for i, (train, test) in enumerate(StratifiedKFold(y, 5)):
+> >         X_train, y_train, X_test, y_test = X.iloc[train], y.iloc[train], X.iloc[test], y.iloc[test]
+> >         clf = LogisticRegression(penalty='l1')
+> >         grid = {
+> >             'class_weight': [{0: 1, 1: 10}, {0: 1, 1: 100}, {0: 1, 1: 1000}],
+> >             'C': np.logspace(-3, 0, num=4)
+> >         }
+> > 
+> > ```
+> >     # Using make_scorer doesn't cause any issues
+> >     # clf = GridSearchCV(clf, grid, cv=StratifiedKFold(y_train, 3),
+> >     #                    scoring=make_scorer(average_precision_score), n_jobs=-1)
+> > 
+> >     # This however is a problem:
+> >     def avg_prec_score(estimator, X, y):
+> >         return average_precision_score(y, estimator.predict_proba(X)[:, 1])
+> >     clf = GridSearchCV(clf, grid, cv=StratifiedKFold(y_train, 5),
+> >                        scoring=avg_prec_score, n_jobs=-1)
+> > 
+> >     clf = clf.fit(X_train, y_train)
+> >     print('Best parameters for response {} inferred in fold {}: {}'.format(response, i, clf.best_params_))
+> > 
+> >     y_pred = clf.predict(X_test)
+> >     y_proba = clf.predict_proba(X_test)
+> > 
+> >     clfs.append((response, i, clf))
+> >     res.append(pd.DataFrame({
+> >         'y_pred': y_pred,
+> >         'y_actual': y_test,
+> >         'y_proba': y_proba[:,1],
+> >         'response': np.repeat(response, len(y_pred))
+> >     }))
+> > ```
+> > 
+> > res = functools.reduce(pd.DataFrame.append, res)
+> > res.head()
+> > 
+> > I'll work on a self-contained version that involves some version of the
+> > data I'm using too (but it will take longer). In the meantime though,
+> > pickling of those custom functions sounds like a good lead -- I've tried it
+> > several times again to be sure and it hangs 100% of the time with a custom
+> > function and 0% of the time when using make_scorer with some known,
+> > imported metric function.
+> > 
+> > —
+> > Reply to this email directly or view it on GitHub
+> > https://github.com/scikit-learn/scikit-learn/issues/5115#issuecomment-131376298
+> > .
+That's in a notebook
+I'll try to import it from a module instead and see how that goes
+Hmm what do you know, works fine when defined outside the notebook.
+
+I have essentially the same code running in python 2.7 (I needed a lib that's older) as well as this code in python 3.4 and while I have the hanging issue in 2.7 regardless of whether or not it's a custom function or something using make_scorer, I think that solves all my problems in the newer version so I can just live with workarounds in the old one.
+
+Anything else I can do to track down why pickling functions defined in a notebook might be a problem?
+Well, we'd like to understand:
+- is pickling and unpickling generally a problem for locally-defined functions on that platform, or are we hitting a particular snag?
+- why, if pickling is a problem, is it hanging rather than raising an exception? Could you please try monkey-patching or similar, to see if replacing the `pickle.dumps(function)` check https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/externals/joblib/parallel.py#L150 with `pickle.loads(pickle.dumps(function))` results in an error? (To explain, this is a safety check to ensure pickleability before running multiprocessing.)
+@ogrisel might be interested in this.
+From what I saw on windows, notebooks have weird interactions with multiprocessing.
+
+Have you tried just pickling and unpickling the function defined in the same notebook?
+Today i accidentally have seen this https://pythonhosted.org/joblib/parallel.html#bad-interaction-of-multiprocessing-and-third-party-libraries ,  isn't it related?
+Maybe you should just upgrade to python 3.4 or newer?
+Sorry went on a long vacation.  To answer your questions though:
+1. re @jnothman : I put `pickle.loads(pickle.dumps(function))` in parallel.py and a print statement after it to make sure it was executing cleanly, and there were no problems there.  To be clear, GridSearchCV.fit called from the notebook still got stuck just as before with no change (except for the print statement I added showing up 16 times with n_jobs=-1).
+2. re @amueller : If I'm understanding you correctly, then I ran something like this in the notebook with no issues:
+
+```
+def test_function(x):
+    return x**2
+pickle.loads(pickle.dumps(test_function))(3)
+# 9
+```
+1. re @olologin : I'm on 3.4.3.  Or more specifically: '3.4.3 |Continuum Analytics, Inc.| (default, Mar  6 2015, 12:07:41) \n[GCC 4.2.1 (Apple Inc. build 5577)]'
+I haven't read the above conversation but I'd like to note that this minimal test fails under the Python 2.6 build of travis but passed under a similar configuration in my PC... (suggesting it fails when `n_jobs = -1` is set under a single core machine for old python/joblib/scipy versions?)
+
+``` python
+def test_cross_val_score_n_jobs():
+    # n_jobs = -1 seems to hang in older versions of joblib/python2.6
+    # See issue 5115
+    cross_val_score(LinearSVC(), digits.data, digits.target, cv=KFold(3),
+                    scoring="precision_macro", n_jobs=-1)
+```
++1 for having this issue, happy to provide details if it would help
+@eric-czech If you are under Python 3.4 or 3.5, please try to set the following environment variable and then restart your python program:
+
+```
+export JOBLIB_START_METHOD="forkserver"
+```
+
+as explained in the [joblib docs](https://pythonhosted.org/joblib/parallel.html#bad-interaction-of-multiprocessing-and-third-party-libraries). The forkserver is mode is not enabled by default as it breaks interactively defined functions.
+Have the same issue on both OS X 10.11.4 and Ubuntu 14.04 with the latest software installed.
+
+``` python
+# Metrics
+B_R = 10.0
+
+def raw_TPR(y_true, y_pred):
+    return np.sum((y_true == 1) & (y_pred == y_true))
+
+def raw_FPR(y_true, y_pred):
+    return np.sum((y_true == 0) & (y_pred != y_true))
+
+def AMS(y_true, y_pred):
+    print("Hello")
+    tpr = raw_TPR(y_true, y_pred)
+    fpr = raw_FPR(y_true, y_pred)
+    score = np.sqrt(2 * ((tpr + fpr + B_R) * np.log(1 + tpr / (fpr + B_R))) - tpr)
+    return score
+
+
+# Grid search
+
+param_grid = {
+    "max_depth":[6, 10],
+    "learning_rate":[0.01, 0.5],
+    "subsample":[0, 1],
+    "min_child_weight":[0.1, 1],
+    "colsample_bytree":[0.1, 1],
+    "base_score":[0.1, 1],
+    "gamma":[0.5, 3.5]
+}
+
+scorer = make_scorer(AMS, greater_is_better=True)
+
+
+clf = XGBClassifier()
+gridclf = GridSearchCV(clf, param_grid, scorer, n_jobs=-1, verbose=2)
+gridclf.fit(X_train, y_train)
+```
+
+Actually, this code doesn't freeze only if `n_jobs=1`.
+This should now work by default on python 3 and be a wontfix on python 2, right @ogrisel ? Should we close?
+If it hangs silently on Python 2 without throwing any warning or error ("n_jobs > 1 not supported on Python 2") , that's not acceptable; can we throw an error?
+@amueller on Python 3 you can follow https://github.com/scikit-learn/scikit-learn/issues/5115#issuecomment-187683383 to work around the problem, i.e. it won't work by default even on Python 3.
+Not sure whether we should close though because the original OP seemed to say that setting the joblib start_method to forkserver did not always work ...
+
+BTW the xgboost one is a known one, see https://github.com/scikit-learn/scikit-learn/issues/6627#issuecomment-206351138.
+Edit: The change below might not actually fix things. There was an unrelated change I made as well to how I was handling multiprocessing with Pathos that might have been my real fix.
+
+Quick Fix:
+`np.random.seed(0)`
+
+Explanation:
+I'd been running into this issue as well, most acutely in the test suite for [auto_ml](https://github.com/ClimbsRocks/auto_ml). The first (2?) times I ran GridSearchCV, it was fine, but then subsequent runs would hang without erroring. 
+
+I just set `np.random.seed(0)` inside each of my tests, to ensure reproducibility while still giving myself the flexibility to re-order the tests over time without messing with the randomness. As soon as I did that, all the tests that hung on the GSCV error started working again. 
+
+```
+def test_name():
+    np.random.seed(0)
+    test_code_involving_gscv_here
+```
+hope this helps with the debugging!
+
+Dev environment:
+Mac OS X (Sierra)
+Python 2.7
+Up-to-date versions of libraries. @ClimbsRocks well it's probably some error in your estimators. Let us know if you have a reproducible example ;)@amueller : good call. I rushed off to cut a branch for you guys to reproduce this, but everything ran correctly this time. 
+
+I think it was probably an issue using GSCV's parallelization, when I'm also using Pathos's parallelization in other parts of the program. That's the only other related thing I've changed in the past week or so. 
+
+I've since refactored to more thoroughly close and open their multiprocessing pool. 
+
+What makes me thing it wasn't just a bug in one of the estimators is that when building the test suite, each of the tests ran and passed individually. It was only when I ran multiple tests in the same pass that all depended on GSCV that it started hanging. 
+
+Edited earlier comment to note this uncertainty. if you combine joblib with any other parallelization, it's very likely that it'll crash and you shouldn't try that.Sorry to up this thread but I also encounter this problem.
+I created a Python 3.5 kernel and defined job lib start method to forkserver but I still have the problem.
+
+In fact it doesn't even work with n_jobs = 1. I see it computes except for the last parameter. 
+
+Is there any news ?> In fact it doesn't even work with n_jobs = 1. I see it computes except for the last parameter.
+
+This is weird and very likely not related to this issue then (which is about `n_jobs != 1`). The best way to get good feedback would be to open a separate issue with a stand-alone snippet reproducing the problem.I am pretty sure I am coming across this issue myself. After trying many combinations, everything I do with n_jobs>1 simply freezes after a few folds. I am on an Ubuntu Linux Laptop with sklearn=0.19.0, so this is a different configuration from others I have read around. Here is the "offending" code:
+
+```
+import xgboost as xgb
+from sklearn.model_selection import GridSearchCV
+cv_params = {'max_depth': [3,5,7], 'min_child_weight': [1,3,5]}
+
+ind_params = {'learning_rate': 0.1, 'n_estimators': 1000, 'seed':0, 'subsample': 0.8, 'colsample_bytree': 0.8,  'objective': 'binary:logistic'}
+optimized_XGB = GridSearchCV(xgb.XGBClassifier(**ind_params), 
+                            cv_params, scoring = 'roc_auc', cv = 5, n_jobs = 1, verbose=2) 
+optimized_XGB.fit(xgboost_train, label_train,eval_metric='auc')
+```
+
+One of the interesting things is that when I import xgboost, I get a deprecation warning on GridSearchCV as if it was not importing from model_selection. However, I am on xgboost 0.62 and in looking at their repository it looks like they are importing the correct GridSearchCV. To be clear, the deprecation warning is not the issue that concerns me but rather the one at hand: the execution freezing with n_jobs>1. Just pointing out in case it could help.could you provide data to help replicate the issue?
+
+On 24 August 2017 at 20:29, Xavier Amatriain <notifications@github.com>
+wrote:
+
+> I am pretty sure I am coming across this issue myself. After trying many
+> combinations, everything I do with n_jobs>1 simply freezes after a few
+> folds. I am on an Ubuntu Linux Laptop with sklearn=0.19.0, so this is a
+> different configuration from others I have read around. Here is the
+> "offending" code:
+>
+> `import xgboost as xgb
+> from sklearn.model_selection import GridSearchCV
+> cv_params = {'max_depth': [3,5,7], 'min_child_weight': [1,3,5]}
+>
+> ind_params = {'learning_rate': 0.1, 'n_estimators': 1000, 'seed':0,
+> 'subsample': 0.8, 'colsample_bytree': 0.8, 'objective': 'binary:logistic'}
+> optimized_XGB = GridSearchCV(xgb.XGBClassifier(**ind_params),
+> cv_params, scoring = 'roc_auc', cv = 5, n_jobs = 1, verbose=2)
+> optimized_XGB.fit(xgboost_train, label_train,eval_metric='auc')`
+>
+> One of the interesting things is that when I import xgboost, I get a
+> deprecation warning on GridSearchCV as if it was not importing from
+> model_selection. However, I am on xgboost 0.62 and in looking at their
+> repository it looks like they are importing the correct GridSearchCV. To be
+> clear, the deprecation warning is not the issue that concerns me but rather
+> the one at hand: the execution freezing with n_jobs>1. Just pointing out in
+> case it could help.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/scikit-learn/scikit-learn/issues/5115#issuecomment-324597686>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AAEz66DbfTlnU_-dcxLKa5zkrcZ-0qVOks5sbVCmgaJpZM4FqYlN>
+> .
+>
+Sure, you can download the exact files I am using from:
+https://xamat.github.io/xgboost_train.csv
+https://xamat.github.io/label_train.csv
+HTTP404Sorry, there was a mistake in the first link, it should now be fixed. The 2nd should also be ok, I just checked.Known issue with xgboost, see https://github.com/scikit-learn/scikit-learn/issues/6627#issuecomment-206351138 for example.
+
+FYI, the [loky](https://github.com/tomMoral/loky) backend in joblib will get rid of this kind of problems but this will be only available in scikit-learn 0.20.Is this still a bug? I'm having same problem with defaults (n_jobs=1) as well as with pre_dispatch=1, using a `RandomForestClassifier`, with 80 combinations of parameters and ShuffleSplit CV (n=20).
+
+It also hangs for a Pipeline (`SelectKBest(score_func=mutual_info_classif, k=10)` followed by `RandomForestClassifier`), both under the latest release as well as devel version.
+
+Let me know if you guys found a workaround, or other model selection methods that work reliably. Thinking of giving `scikit-optimize` a try.Do you mean n_jobs=1 or is it a typo? This issue is about n_jobs != 1.
+
+The best way to get quality feed-back is to provide a way to reproduce the problem. Please open a separate issue in this case if the problem you are seeing is indeed with n_jobs=1.
+I wrote what I meant, which is "multithreading enabled”
+n_jobs != 1 as in ‘not equal to 1’. Equivalently, n_jobs > 1. For example, n_jobs=4
+
+Are you saying you can’t repro the freeze for n_jobs = 4?
+
+If so, I will provide testcase within a month (I’m changing to a new machine.)
+
+On Sep 12, 2017, at 7:10 AM, Loïc Estève <notifications@github.com<mailto:notifications@github.com>> wrote:
+
+
+Do you mean n_jobs=1 or is it a typo? This issue is about n_jobs != 1.
+
+The best way to get quality feed-back is to provide a way to reproduce the problem. Please open a separate issue in this case if the problem you are seeing is indeed with n_jobs=1.
+
+—
+You are receiving this because you were mentioned.
+Reply to this email directly, view it on GitHub<https://github.com/scikit-learn/scikit-learn/issues/5115#issuecomment-328864498>, or mute the thread<https://github.com/notifications/unsubscribe-auth/ABH-rd7wgU5lcS6oD5VMl0YOB8CXfSTJks5shpDZgaJpZM4FqYlN>.
+
+@smcinerney are you @raamana? I think @lesteve replied to @raamana who wrote ``n_jobs=1``, which seems to be unrelated to this issue.Oh sorry, no I’m not @raamana. Yes @raamana’s issue is different (but probably due to the same code)
+
+On Sep 12, 2017, at 9:23 AM, Andreas Mueller <notifications@github.com<mailto:notifications@github.com>> wrote:
+
+
+@smcinerney<https://github.com/smcinerney> are you @raamana<https://github.com/raamana>? I think @lesteve<https://github.com/lesteve> replied to @raamana<https://github.com/raamana> who wrote n_jobs=1, which seems to be unrelated to this issue.
+
+—
+You are receiving this because you were mentioned.
+Reply to this email directly, view it on GitHub<https://github.com/scikit-learn/scikit-learn/issues/5115#issuecomment-328905819>, or mute the thread<https://github.com/notifications/unsubscribe-auth/ABH-rYKQA3L5ifINBX6enrk5oDIsf1Lqks5shrASgaJpZM4FqYlN>.
+
+My bad, I didn't mean to mix stuff up. I will open another issue (with minimal code to reproduce it), but isn't GridSearchCV hanging even with default n_jobs=1 is a bigger concern (given it is default and is supposed to work) than n_jobs > 1.
+
+ @raamana yes it's a bigger concern but it's also unlikely to be caused by a related issue.@eric-czech @jnothman 
+So if you decide to use backend='threading'. One easy method without changing the sklearn code would be to use parallel_backend context manager and not change in the GSV's fit method. 
+
+```
+from sklearn.externals.joblib import parallel_backend
+
+clf = GridSearchCV()
+with parallel_backend('threading'):
+    clf.fit(x_train, y_train)
+
+```
+
+PS: I am not sure if "threading" works for all estimators. But I was having the same issue with my estimator with GSV njob >1 and using this works as expected for me without changing the library.
+
+System tried on:
+MAC OS: 10.12.6
+Python: 3.6
+numpy==1.13.3
+pandas==0.21.0
+scikit-learn==0.19.1
+
+
+Hmm... There can be some concurrency issues with using threading backend in
+grid search, for instance the bug in #10329 creates race conditions...
+
+On 22 December 2017 at 03:59, Trideep Rath <notifications@github.com> wrote:
+
+> @eric-czech <https://github.com/eric-czech> @jnothman
+> <https://github.com/jnothman>
+> So if you decide to use backend='threading'. One easy method without
+> changing the sklearn code would be to use parallel_backend context manager
+> and not change in the GSV's fit method.
+>
+> from sklearn.externals.joblib import parallel_backend
+>
+> clf = GridSearchCV()
+> with parallel_backend('threading'):
+>     clf.fit(x_train, y_train)
+>
+>
+> PS: I am not sure if "threading" works for all estimators. But I was
+> having the same issue with my estimator with GSV njob >1 and using this
+> works as expected for me without changing the library.
+>
+> System tried on:
+> MAC OS: 10.12.6
+> Python: 3.6
+> numpy==1.13.3
+> pandas==0.21.0
+> scikit-learn==0.19.1
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/scikit-learn/scikit-learn/issues/5115#issuecomment-353402474>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AAEz64SfwYpjLU1JK0vukBRXJvWYs3LKks5tCo51gaJpZM4FqYlN>
+> .
+>
+Case: Using backend as "threading" and using Estimator which extends BaseEstimator and ClassifierMixin. I am not sure where the race condition is caused. Can you please elaborate. 
+
+As per my understanding and experiments, I didn't observe any race condition. 
+
+```
+out = Parallel(
+    n_jobs=self.n_jobs, verbose=self.verbose,
+    pre_dispatch=pre_dispatch
+)(delayed(_fit_and_score)(clone(base_estimator), X, y, scorers, train,
+                          test, self.verbose, parameters,
+                          fit_params=fit_params,
+                          return_train_score=self.return_train_score,
+                          return_n_test_samples=True,
+                          return_times=True, return_parameters=False,
+                          error_score=self.error_score)
+  for parameters, (train, test) in product(candidate_params,
+                                           cv.split(X, y, groups)))
+
+```
+
+
+_fit_and_score is called on the clone(base_estimator). This does a deep_copy and have a copy of it's own data. 
+
+out is the output of the _fit_and_score method. So after this, all the threads have completed executing fit method of the estimator and reported the results.
+
+The results is what you get from GCV_clf.cv_results_ 
+
+Can you please explain in this specific case why would it cause a race condition ? The race condition occurs if you are setting nested parameters, i.e. when
+one param changed is an estimator and  another is a parameter of that
+estimator.
+I'm experiencing the same issue using `make_scorer` in combination with `GridSearchCv` and `n_jobs=-1` under Win 7 with recent versions:
+
+```
+Windows-7-6.1.7601-SP1
+Python 3.6.4 |Anaconda, Inc.| (default, Jan 16 2018, 10:22:32) [MSC v.1900 64 bit (AMD64)]
+NumPy 1.12.1
+SciPy 1.0.0
+Scikit-Learn 0.19.1
+```
+
+@mansenfranzen thanks for posting your versions and platform! The best chance to get some good quality feed-back is to provide a stand-alone snippet to reproduce the problem. Please read https://stackoverflow.com/help/mcve for more details.Experiencing the same problem under Win7 with any custom preprocessing steps.  
+Toolchain:
+
+    Python 3.6.2
+    NumPy 1.13.1, 1.14.2 (under both)
+    SciPy 1.0.0
+    SkLearn 0.19.1
+
+MCVE:
+
+    from sklearn.pipeline import Pipeline, make_pipeline
+    from sklearn.svm import SVC
+    from sklearn.model_selection import cross_val_score
+    import numpy as np
+
+    class CustomTransformer:
+        def fit(self, X, y):
+            return self
+
+        def transform(self, X):
+            return X
+
+    pipeline = make_pipeline(CustomTransformer(),
+                             SVC())
+
+    X_train = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0]])
+    y_train = np.array([1.0, 0.0, 0.0, 1.0])
+
+    print(cross_val_score(pipeline, X_train, y_train, cv=2, n_jobs=-1))are you aware that python multiprocessing won't work in windows without `if
+__name__ == '__main__'`?
+Yes, I am. Sorry, forgot to tell that I am using Jupyter.  
+A standalone script with `if __name__ == '__main__'` prints the following traces and then still freezes:
+
+    Process SpawnPoolWorker-1:
+    Traceback (most recent call last):
+      File "C:\Python\Python36\lib\multiprocessing\process.py", line 249, in _bootstrap
+        self.run()
+      File "C:\Python\Python36\lib\multiprocessing\process.py", line 93, in run
+        self._target(*self._args, **self._kwargs)
+      File "C:\Python\Python36\lib\multiprocessing\pool.py", line 108, in worker
+        task = get()
+      File "C:\Python\Python36\lib\site-packages\sklearn\externals\joblib\pool.py", line 362, in get
+        return recv()
+      File "C:\Python\Python36\lib\multiprocessing\connection.py", line 251, in recv
+        return _ForkingPickler.loads(buf.getbuffer())
+    AttributeError: Can't get attribute 'CustomTransformer' on <module '__mp_main__' from 'C:\\projects\\Python\\Sandbox\\test.py'>
+    < same for SpawnPoolWorker-3 here >Oh, interesting. Out of plain laziness I placed the whole script under `if __name__ == '__main__'` and got the results from the previous comment.
+
+Now I placed only `pipeline = make_pipeline...`, and it executed successfully. Maybe it is the cause in Jupyter?
+
+Anyway, I do not know if the behavour in the previous comment is valid and caused by the improper use of `if __name__ == '__main__'`, or if it is SkLearn's fault.it sounds like it's not a problem with our library, but about the execution
+context for multiprocessing in windows...
+That's nasty. And indeed, I could not reproduce any of the problems under Ubuntu with the same versions of everything. Thanks for help!Can confirm this bug is alive and well. 
+
+Running on Windows 10 in a jupyter notebook, Python3, Sklearn 0.19.1Same problem on Linux Mint (Ubuntu 16.10) Python 3.5
+
+Everything gets stuck at first Epoch on each core, and CPUs are iddleing, so no work is being done.@MrLobs that sounds like a pickling error, right? put CustomTransformer in a separate python file.@Chrisjw42 @avatsaev without more context we can't really do much.
+@avatsaev sounds like you might be using tensorflow?@amueller yes it's tensorflow @avatsaev that's still not really enough information. Do you have a minimum example to reproduce? what blas are you using, are you using GPU, what version of scikit-learn are you using ....Ok it turns out it's because I'm using TF GPU so setting n_jobs to >1 doesn't really work, which is normal because I only have one GPU lolyeah you shouldn't really use n_jobs with TF either way.why not?@amueller, yes, putting custom transformers into a separate file solves itWould it be possible for n_jobs != 1 to throw an error (or a warning at least) in the environments it's going to hang in?  I just encountered this problem in jupyter notebooks, and if I was a more beginner user (like the rest of my class), I would have never figured out why gridsearchcv kept hanging, in fact, our teacher even advised us to use n_jobs = -1.  If the problem here is known, could the package (keras, or sklearn, whichever) warn that it will occur and prevent the hang?I don't think that anyone knows what environment this is going to hang in... I don't believe that anyone has managed to reproduce this bug in a reliable way.but we are working towards improving our multiprocessing infrastructure.
+it's unclear to me whether that will solve all such issues.
+@jnothman 👍 
+
+That is great to hear!I'm not sure why this is tagged 0.21. This is solved in 0.20 in most instances. I think we should close this and have people open new issues. This one is too long and unspecific.I have just encountered the same on AWS Ubuntu with jupyter...
+
+Using parallel_backend seems to work...
+```
+
+from sklearn.externals.joblib import parallel_backend
+
+clf = GridSearchCV(...)
+with parallel_backend('threading'):
+    clf.fit(x_train, y_train)
+```@morienor if you can reproduce this issue with scikit-learn 0.20.1, please open a new issue with all the necessary details for someone else to be able to reproduced the problem (the full script with import statements on a fake random dataset) along with all the version numbers for python, scikit-learn, numpy, scipy and the operating system. > I have just encountered the same on AWS Ubuntu with jupyter...
+> 
+> Using parallel_backend seems to work...
+> 
+> ```
+> 
+> from sklearn.externals.joblib import parallel_backend
+> 
+> clf = GridSearchCV(...)
+> with parallel_backend('threading'):
+>     clf.fit(x_train, y_train)
+> ```
+
+That's works for me! Thanks a lot!@jmq19950824 @morienor yeah but there's no point in using `threading` backend due to GIL.> I have just encountered the same on AWS Ubuntu with jupyter...
+> 
+> Using parallel_backend seems to work...
+> 
+> ```
+> 
+> from sklearn.externals.joblib import parallel_backend
+> 
+> clf = GridSearchCV(...)
+> with parallel_backend('threading'):
+>     clf.fit(x_train, y_train)
+> ```
+
+genius works for me to

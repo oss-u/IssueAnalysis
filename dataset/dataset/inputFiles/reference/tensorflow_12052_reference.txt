@@ -1,0 +1,13 @@
+ System information
+ Have I written custom code as opposed to using a stock example script provided in TensorFlow: No
+ OS Platform and Distribution for example, Linux Ubuntu 16.04: Windows Server 2012
+ TensorFlow installed from source or binary: binary
+ TensorFlow version use command below: 1.0 rc1
+ Python version: 3.2
+ Bazel version if compiling from source: N A
+ CUDA cuDNN version: CUDA V8.44, CuDNN 6.0
+ GPU model and memory: Nvidia GeForce GTX 1080 Ti, 11 GB
+ Exact command to reproduce: N A
+
+ Describe the problem
+Please upgrade TensorFlow to support CUDA 9 and CuDNN Nvidia claims this will provide a 2x performance boost on Pascal GPUs.

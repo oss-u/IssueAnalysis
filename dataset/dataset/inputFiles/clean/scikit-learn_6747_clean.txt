@@ -1,0 +1,322 @@
+I've recently see more people using balanced accuracy for imbalanced binary and multi class problems. I think it is the same as macro average recall. If so, I think we might want to create an alias, because it is not super obvious, and maybe add a scorer.
+Also see LINKLINK 
+Of course it is. Why didn't I think of that.
+
+I think creating an alias and a scorer is a good idea, with the constraint that it applies to binary problems. It could also be calculated per label for multilabel problems and then potentially macro averaged.
+I think this is moderate seeing as it involved that data format checking and narrative docs.
+Following from LINKLINK 
+
+Balanced accuracy is where you calculate accuracy on a per class basis, then average all of those accuracies.
+
+Here is a paper that introduces it: LINKLINK 
+But by accuracy on a per class basis, you must mean recall ; and we're still only considering the binary classification case.
+Here's the definition that we use: LINKLINK 
+
+In the multiclass case, we simply consider the current class we're calculating accuracy for to be CODESCODES and the other classes to be CODESCODES, for example, a one vs all configuration. That allows us to calculate accuracy normally for each class.
+
+Indeed most of the papers that discuss balanced accuracy do so only in the context of binary classification, but it seems reasonable to expand it to the multiclass case in this manner.
+At a first glance, I don't think that multiclass definition is really appropriate. But I'll think about it at little. I suspect macro averaged recall reflects better the intentions of balanced accuracy.
+I believe the same procedure is used with LINKLINK.
+
+From my understanding, macro averaged recall! balanced accuracy in the multiclass case, only in the binary classification case. Thus I don't think we should label macro averaged recall as balanced accuracy. Balanced accuracy is a separate metric that places more importance on TNR relative to macro averaged recall in multiclass classification problems.
+macro averaged AUC is explicitly for multilabel. Problem is that I'm not so
+sure what TNR means in a multiclass context, or why OvR transform makes
+sense for that. I've had a go at simplifying the overall score for a
+3 class classification problem, by hand, but haven't got far enough that I
+can see how its formula is interesting and value.
+
+On 11 June 2016 at 06:04, Randy Olson wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Section 2.18 in the attached paper describes the mathematical formulation of balanced accuracy.
+
+The key part is that you calculate balanced accuracy using a one vs all configuration. So you start with the first class CODESCODES, where you treat the data as a binary classification task such that all records labeled CODESCODES are CODESCODES and all other classes are CODESCODES. Calculate accuracy as you normally would. Then for the next class CODESCODES, repeat the same process except all instances labeled CODESCODES are CODESCODES and the rest are CODESCODES. And so on. Once you have the per class accuracy for every class, average them and that is balanced accuracy.
+
+ LINKLINK 
+I'm not persuaded that this is the right thing to do, but I am beginning to be persuaded that this is a logical extension that diverse people are assuming is legitimate.
+We've worked through the math and logic behind it several times and it checks off for us, but that doesn't mean we're right. I'm very curious to hear why it may not be the right thing to do.
+The redundancy of information inherent in including both one class's true positives and another's true negatives makes me a little uncomfortable.
+
+However, the multiclass case has some niceties: such a macro average over a binary problem actually results in the same formula as the non multiclass treatment; and empirically it seems that random class assignment from a fixed distribution in the multiclass case will still yield a score of 0. which is pretty neat.
+
+I'm coming to appreciate that this may be an appropriate extension
+Yes exactly. As with all metrics, balanced accuracy is just an indirect method of capturing what is good performance for our models. As a metric in the multiclass case, balanced accuracy puts a stronger emphasis on TN than TP, at least when compared to macro averaged recall. And as you point out, balanced accuracy has the nice feature that 0.5 will consistently be as good as random, with plenty of room for models to perform better 0.5 or worse 0.5 than random.
+
+It'd be great if we could get balanced accuracy added as a new sklearn metric for measuring a model's multiclass performance.
+If this is the only paper using this definition, I'm not sure we should include it. Where did you get it from? That paper?
+So LINKLINK says
+
+
+
+The paper that rhiever claims introduces the metric does so only for binary, right?
+The second paper indeed uses the average over the sensitivity + specificity 2 over classes. But I think that is not the standard definition.
+
+As long as we can't come up with what the standard definition is if any, I don't think we should add it under this name. We can add CODESCODES or something. This is somewhat similar to macro average f1, right?
+
+You also first used a different definition of average precision in your code. 
+
+
+That was a bug that we fixed. 
+
+ 
+
+The definition of balanced accuracy for the multiclass case is in the Urbanowicz paper. The original paper I linked to was only for the binary case, yes.
+
+For the Master's thesis that you linked, that definition of balanced accuracy is under a section describing Two Class Evaluation Measures, for example, binary or multilabel classification. I don't think that thesis discusses balanced accuracy in the multiclass case.
+
+It's valid to say that balanced accuracy is the macro averaged recall in the binary case. In the binary case, it works out the same mathematically as calculating accuracy on a per class basis then averaging those two accuracies.
+
+We're simply proposing an extension to the definition of balanced accuracy to also cover the multiclass case.
+I'm happy for you to veto this amueller, after my change of heart. I was persuaded by the following features:
+ treating a binary problem as multiclass gives identical results for example CODESCODES 
+ the valuable property of ROC AUC, that regardless of class prevalence a random prediction will produce a fixed score in the limit holds true in the multiclass transformation
+ perfect classification performance is still 1.0 so introducing random error decreases the score towards 0. etc.
+
+These properties are much more persuasively meaningful than any properties of macro averaged P R F in the multiclass case!
+
+This extension has also been reinvented in a few places, suggesting it is sought after and reasonable.
+ LINKLINK another paper from the AutoML challenge that defines balanced accuracy for the multiclass case. They use a similar definition, with the only difference being the normalization procedure that they apply at the end where they ensure that as good as average accuracy 1 N, where N is the number of classes.
+Thanks for the reference, though I think it muddies the water a bit pending a look at their implementation. It's far from clear to me that the accuracies they are averaging class wise in the multiclass case incorporate sensitivity and specificity. By default I assume they mean standard Rand accuracy over each binarization, although this seems a strange choice given that then the binary problem needs to be, as they say, a special case.
+
+That correction for chance under a uniform prior allows for an everything incorrect response to score zero assuming I'm correct about their use of Rand accuracy. I don't think your score allows 0, except in the case where the only predicted classes are not in the gold standard.
+
+Then classification at random in their measure does not yield a nice score that is invariant of the number of classes, nor one invariant to the distribution of those classes in the gold standard.
+
+ CODELCODEL 
+
+produces
+
+ CODELCODEL 
+
+Same results if CODESCODES is uniformly sampled, where above sampling is weighted.
+To make things murkier, that metric description is repeated LINKLINK and hyperlinked to LINKLINK but I don't see the relevance of the latter!
+
+Ah. Now I see the relevance. They've actually LINKLINK. Which means that, indeed, the chance correction they propose results in a score of 0 for random predictions. It also means that binary classification isn't actually a special case, despite what they say.
+
+But they also have other nonsense in that paper such as We also normalize F1 with F1: F1 R 1 R, where R is the expected value of F1 for random predictions for example R 0.5 for binary classification and R 1 C for C class classification problems. Expected value of F1 for random predictions is the prevalence of the positive class in the binary case, not 0. So while they attempt to throw a principled kitchen sink of evaluation metrics at the task, I'm not sure they are coming from a place of critical expertise, at least in their description of the measures.
+
+Still, the fact that they describe something different to your metric with the same name makes it a bit uncomfortable. 
+we can always call it macro average accuracy that's what we're talking about, right? and say that balanced accuracy can mean macro average accuracy or macro average recall depending on who you ask.
+ LINKLINK introduces class balanced accuracy which divides by the max of the row and column norm for each class, so it's always smaller than macro average precision and macro average recall.Ok, send a message to the authors of the AutoML paper to ask them to clarify though one of them immediately bounced thumbs down. rhiever is there any other paper that does multi class balanced accuracy?I only know of LINKLINK that introduces balanced accuracy for multiclass problems, under Section 2.18. Of course, we've used it heavily in the work in our lab since that paper, but we just refer to that paper for the detailed metric description.thanks!That one has 15 citations, 3 of which are you thumbs up oh it's by one of your co authors? Hm looks like most of the 15 are self cites thumbs down I'm not claiming that the paper introducing the multiclass balanced accuracy is a 1k+ citation paper, but it is a useful metric that's widely used in our area.
+
+ LINKLINK is more commonly cited for balanced accuracy, though that paper only introduces the metric for binary classification problems.It would be good if we had some evidence that it's widely used in the multi class setting.I don't have traditional academic evidence for example, papers with high citation counts for that.Do I get this correct? You do not implement it, as you do not know the name for it? 
+And you need evidence, that it is used? I just wanted to use it just implemented it myself. 
+It is a rather simple concept, isn't it? It is class balanced accuracy. Even wikipedia knows about it in the binary case: LINKLINK 
+The multiclass case is a straight forward extension.
+ Chrisinger the multi class case is a straight forward extension, for which two different straight forward interpretations exist that are very different. The same name is used for two different algorithms. One of them is implemented as macro average recall in scikit learn. Chrisinger also see 10040 with pointers to the relevant literature and an explanation. amueller Thank you for the hints! 
+This is why I was confused and did not find it when looking for it. I would not use the term recall, as in the two class case it is limited to the positive class! This is why I would never look there.
+
+My thought process went like this: 
+Accuracy is a great measure, giving me an estimate, on what is the chance that when I give my classifier a random sample, I get the correct response. 
+For very unbalanced classes, classifiers tend to predict the most frequent class. We can cope with this with the balanced accuracy as described for example LINKLINK. We lose the general estimator, but we get one that has value of 0.5 for predictions by chance. 0 is still always wrong, 1 is still perfectly classified. 
+And this measure can be extended easily to the multiclass case. Arguing with a confusion matrix I want an average true prediction rate. Maybe this term helps you with your naming problem?
+With n classes, 1 n should be achieved by random guessing or by predicting always the same class. 
+I am currently stuck with this argumentation what is the second algorithm for the multiclass extension? amueller jnothman rhiever I realize it's a bit too late to weigh in on this debate over the definition of balanced accuracy, but my understanding of the definition is consistent with Randy's mean of per class accuracy. For what it's worth, it's also the definition that Chalearn uses in their AutoML competition: LINKLINK 
+
+It seems like there are enough references to back up either definition. which is unfortunate and confusing for the ML community. 
+
+As for H2O multiclass metrics, we have mean per class error, but don't use the term balanced accuracy anywhere and don't currently support macro average recall as a default metric. I don't think it's too late. Our implementation hasn't been released yet. But it could be next week.
+
+We can roll back multiclass balanced accuracy support. I would be keen to release it but emphasise that other people mean something else by the term. For good or bad, this is true of many metrics. But I'm being a bit dogmatic on this front which is not entirely Scikit learn style, as we prefer to release things that are well established.
+
+Since I clearly have a stance on this see my arguments from LINKLINK, I'd be interested to know what you think your definition of multiclass balanced accuracy tells you beyond other metrics; and how it bears any correspondence to the agreed upon definition of binary balanced accuracy.
+
+Beyond my arguments above, I also note that macro averaged recall is identical to accuracy with inverse prevalence weightings per sample. That is:
+ CODELCODEL 
+You can very clearly see here why balanced accuracy, by my definition, is indeed balanced + accuracy.
+
+I highly recommend macro average recall as a default metric for multiclass problems thumbs up To summarise my arguments:
+ macro average recall reduces to binary balanced accuracy trivially
+ macro average recall is identical to accuracy with balanced sample weights
+ macro average recall has the nice property of ROC AUC that it obtains a constant value for random predictions
+
+On the other hand, I think macro averaged accuracy will give a lot of prominence to small classes, because you will get a very high accuracy due to the large negative class for their contribution. I don't see how that's helpful, or akin to binary balanced accuracy. jnothman I don't have any strong opinions on which metric macro average recall vs macro average accuracy is better to use. My comments refer only to the fact that the term balanced accuracy is not well defined in the machine learning community, so it's potentially problematic to name a metric method after this term. In particular, using the term accuracy when referring to recall seems to contribute to this confusion. I don't see any drawbacks of using an explicit method name like CODESCODES instead of CODESCODES to avoid confusion by users and the larger ML community, so I guess that would be my position on it.
+
+As to what is a good default metric in multiclass classification also a hard question and outside of the scope of this ticket perhaps. On Kaggle, multiclass competitions almost exclusively use logloss though that also causes issues with highly imbalanced data, so then there's the debate about using weighted logloss and how to weight. 
+
+Thanks for the reply. Personally, I find the knowledge that macro recall is
+accuracy with balanced sample weights persuasive regarding the name. The
+reason to offer it by this name is that people are looking for a multiclass
+metric with the desirable properties of the binary balanced accuracy. I
+think this metric satisfies those requirements, as well as the name being
+apt.
+
+I am personally in favour of being prescriptive in this case, encouraging
+users to stop calling 'balanced accuracy' what is indeed a different
+metric. But that may be a lone opinion.
+
+I'd like others' input qinhanmin2014? rth? amueller? adrinjalali? 
+Our implementation seems reasonable from my side, so more documentation to note the different definitions seems to be enough from my side.
+
+
+
+The controversial thing is the multi class definition of a metric, so maybe we don't need to worry too much here. Inclusion 
+
+The way I see it, scikit learn wouldn't include this proposal if it were a regression or a classification method. The method would be encouraged to be in CODESCODES and we'd advertise it in our docs appropriately.
+
+However, since the industry has moved faster than academia in this case hence the lack of nicely cited literature despite the widespread usage and uses multiclass classification models regularly, there's a need for good metrics, and the need for a a balanced one is obviously felt. That, plus the fact that one of the two interpretations of this score is included in enough ML libraries and competitions out there, seem to be convincing enough to include such a metric in CODESCODES.
+
+However, due to the lack of academic support for either of the two definitions, I'd argue that we should either include both, or neither definitions. I agree with jnothman's arguments for one being a more sensible option, but those arguments to me are arguments to have one as the default, and I wouldn't use the arguments as inclusion exclusion criterion.
+
+ Default Score 
+
+As for a default score I wish I could say metric, I'd agree with ledell that at least in the industry CODESCODES is a way more popular choice this of course could be subjective to one's experience.
+
+ Name 
+
+So far as the name goes, I'm happy with calling it a score for the following reasons:
+ CODESCODES is a name which sounds intuitive to people looking for a balanced score, and we seem to agree that it's doing a sensible thing, which is a good enough of a reason for most parts of the industry.
+ CODESCODES in this context is a term which is usually if not almost always used for a heuristic in academia at least the parts of academia I've seen, for example you're usually not required to have a mathematical proof for why you're using a certain score again this may be subjective. F1 score the name seems to be an exception, but most academics I know prefer the term F1 measure anyway.
+
+ Summary 
+
+I guess what I personally would prefer is the following please excuse probably the bad function names:
+
+ CODELCODEL Thanks for your input Adrin.
+
+I would really love to know what someone has discovered from macro average
+accuracy in an imbalanced multiclass problem, or what justification there
+is for it. I really don't understand what it's for.
+ jnothman If you care about the accuracy of each class equally regardless of it's presence in the training set, then it's an appropriate metric to use. It's been used in a variety of places papers, Chalearn AutoML competition, software such as H2O ; isn't that justification that it's useful to the community?I don't know what you mean by the accuracy of each class. The rand
+accuracy of a rare class is dominated by agreement on the instances that
+are negative for that class. I don't think that corresponds to the
+colloquial meaning of the accuracy of each class, but it is entailed by
+rand accuracy on an imbalanced binary problem, which binarisation of
+multiclass targets is bound to create. 
+
+So macro average over rand accuracies would seem to make the smaller
+classes less important since their contribution to the overall score is
+more likely to be close to 1 the less frequently the predictor chooses them.
+
+There is no shortage of bad metrics that have been reported, for the sake
+of working to a pre stated benchmark. I wish I had time to investigate
+where users of this metric obtained insights from it.
+
+
+Definition: For each class, the percentage of instances that were correctly classified.
+
+If you can't see why that might be useful to some people in some cases, maybe it would be worth reaching out to Chalearn to ask why they've chosen this metric for their competition? Or email authors of the papers who use it. 
+
+I am not sure why you're focusing so much on the subjective question of whether it's a good metric or not. Scikit learn provides R 2 which many people think is a terrible metric to use outside of GLMs. but it's still a worthwhile feature of scikit learn because it's a metric some people like to use. Likewise, it seems worthwhile to include the mean per class accuracy as a metric since people use it.
+
+This conversation has really departed from the main issue of controversy which is that scikit learn is using the name balanced accuracy which has two contradictory meanings within the machine learning community instead of a more explicit name for the method.Haven't followed this and I'm kinda busy, but this seems like a potential blocker, right? ledell I think jnothman is concerned with what's a good metric because people use what's in sklearn. People use R 2 for regression because it's the default in sklearn. People use 10 trees in a random forest b c it's default in sklearn we are changing the latter, it's hard to change the former.
+Basically sklearn is prescriptive just because of its wide use, for better or worse.
+
+Honestly my conclusion from that would be that we force the user to pick, though. Maybe having an option as adrinjalali suggests, and for the scorers strings only have CODESCODES macro average recall CODESCODES and CODESCODES macro average accuracy CODESCODES.
+
+For the record, I think that log loss is a terrible metric for multi class classification.
+If the true class is 0, these two have the same log loss:
+ CODELCODEL 
+where the argmax gives a correct classification in the second case, but not the first.
+Wasn't it the case that chalearn implemented something different in the code than what they said in the paper? at least one of the ml competitions used weighted macro average recall. amueller 
+
+
+Agreed. to clarify, I don't have a preference on what the default metric should be for multi class problems my only concern is the use of a polysemous method name like CODESCODES to refer to only one of the two things this is the current status of the code in the release candidate. If you have an option that allows switching between the two definitions, that seems fine to me. Are there any other scoring methods that have a switch like this?
+
+It does not look like it: LINKLINK 
+
+
+
+I have a preference there: in addition to the points raised by jnothman in LINKLINK, the macro average recall is falling back the the CODESCODES with a balanced dataset while this is not the case for the macro average accuracy.
+
+
+
+So you are interested about the accuracy and do not want to correct for the class imbalancing. Actually, I was wondering why there is no CODESCODES parameter in the CODESCODES?
+
+
+
+I would find this option confusing. We all agree that the literature lack of clarity regarding the definition of the metric and this option replicates the same fuzziness in the implementation.
+
+So, I am fine with the current behavior and naming of the CODESCODES. I don't see a problem on choosing one of the propose definition in the literature, document it properly, and warn about the controversy. IMO, selecting the macro average recall seems the most appropriate choice equivalence with accuracy in balanced setting. I would be inclined to also add an CODESCODES option to the CODESCODES. This behavior corresponds to the other definition and could be added to the documentation as well.FWIW, an alternative metric used in the imbalanced classification literature is the geometric mean of the per class recall.
+
+Why would you find this confusing? Indeed this would mean the implementation reflects the state of the signature and the understanding of the community. There's no fuzzyness if there's two definitions for the same name.
+
+And there's lots of literature on multi class metrics and we can go into that at some point, I think ledell makes a good point in being clear about what we implement and allowing alternatives.
+Similarly we decided not to pick an averaging strategy in any of the multi class metrics and require users to explicitly pass an averaging strategy to clarify what they want.
+
+ Confusion might not be the right term but returning completely different statistics would surprise me and I am not sure that we can advise to choose either implementation. In short, I am scared that users switch methods because the score obtained is higher. I am also concerned for the string style for the metric. Having CODESCODES and different strings will be difficult to document well.
+
+Regarding the metric itself, alternative definitions which do not guarantee to obtain the same result than CODESCODES in a balanced setting seem weird to me.
+
+
+
+I completely agree with this. I am sure that we can make the documentation better and we should be opened to alternative methods, even if I have my concerns this time with the alternative CODESCODES.
+
+That's what we do for the different averaging methods, right?
+
+That's true
+
+
+
+ amueller is right here. You've referenced the binary case, glemaitre. Chalearn AutoML indeed implements macro average recall, adjusted so that random performance is 0: LINKLINK. This is equivalent to our CODESCODES with CODESCODES.
+
+I think we can safely eliminate Chalearn as a counter example to our implementation preference, ledell. But we could explicitly note in our docs that adjusted True equates to Chalearn's. I think we may have indeed contacted the authors at some point amueller obviously has a better memory of all this history than I do.
+
+If we can presume that Chalearn's description was in error, and that some of the subsequent references to averaged accuracy are copying Chalearn's in error, can we let this go?
+
+Can we please lead the community, and define the standard meaning of balanced accuracy because we have identified many arguments for this definition and several against alternatives, and put the discrepancy in the literature to rest?We already do say in our documentation that adjusted True equates to the Chalearn implementation. We do not note that their description is in error. Should we?Yes, I think we can have implement multiple definitions here.
+
+
+
+ thumbs up. It's not so good but maybe we need to do so if we keep the name CODESCODES balanced accuracy score CODESCODES 
+
+What's the definition of CODESCODES macro average accuracy CODESCODES here? I don't think we've provided users with references about CODESCODES macro average accuracy CODESCODES, and I can't find any references in the PR.
+
+Also, I start to wonder whether it's good to regard class balanced accuracy as a multiclass definition of CODESCODES balanced accuracy score CODESCODES. It seems that they are two different metrics See P46 of Mosley2013, where the authors compare CODESCODES balanced accuracy CODESCODES and CODESCODES class balance CODESCODES. What's more, the authors clearly state that CODESCODES Balanced Accuracy is the Recall for each class, averaged over the number of classes. CODESCODES in P25, am I wrong?I'm too tired in several ways thumbs up to make a decision on this but I think it's the last remaining blocker?I guess a new option will not block the new release. Things we need to consider now is whether we need to change a name for current scorer. Also, if we decide to implement macro average accuracy as another option, we might need to provide some references in the user guide.I'm, FWIW, thumbs down on a new option. I don't want to perpetuate the misreading of the Guyon et al Chalearn AutoML paper where they have inaccurately described their implementation.I'm okay with having macro average accuracy available, only I don't know what use it is.
+
+So the only reference we have for the so called CODESCODES macro average accuracy CODESCODES is Guyou et al. 2015? If so, I might prefer to to close the issue and leave CODESCODES balanced accuracy score CODESCODES as it is. I think by saying CODESCODES the average of class wise accuracy CODESCODES, they actually mean CODESCODES macro average recall CODESCODES.
+
+
+
+I'll vote +0 maybe thumbs down to include it unless we can find some references which clearly define CODESCODES macro average accuracy CODESCODES. At least I can't find any references in the PR.The references to variant multiclass balanced accuracy are discussed in
+model evaluation. rst
+
+
+ jnothman Which entry? Seems that class balanced accuracy and balanced accuracy from Urbanowicz et al. 2015 are not the so called CODESCODES macro average accuracy CODESCODES discussed here?Sorry. This conservation has been thoroughly confused. Partially because of
+the time passed since we solved it and wrote it up. No one refers to macro
+averaged accuracy as balanced accuracy. That is only a misunderstanding due
+to Guyon et al.
+
+We could provide an Urbanowicz style implementation but I think it's a
+really poor reuse of the name balanced accuracy for something that has
+nothing to do with it. Binary balanced accuracy does not incorporate
+precision, it incorporates specificity. They account for the same kind of
+error but are fundamentally different quantifications of that error.
+Notably, the demonstrate denominator of specificity depends only on y true,
+while the denominator of precision depends on y pred. It behaves very
+differently depending on the biases of the classifier to particular classes.
+
+
+Agree. I don't think the definition from Urbanowicz et al. 2015 is widely accepted, unless provided with more references.
+
+ jnothman Close the issue?
+
+
+
+I'm happy to have it closed.
+
+
+I think rhiever and ledell do, right? but ok to leave this closed.
+
+
+I'm happy to reopen if someone provides some references except for Guyou et al. 2015 
+
+
+
+No, ledell cited macro averaged accuracy as what Guyon et al call balanced accuracy, and as something offered in H2O, but as mean zero one loss, not under the name balanced accuracy. As far as I can glean from above rhiever has used the Urbanowicz definition, which I was incorrect above to say incorporates precision that was Mosley et al.; I need this mess like I need a hole in the head! but rather is the average of binary balanced accuracies for each class. Need I argue against this again? 

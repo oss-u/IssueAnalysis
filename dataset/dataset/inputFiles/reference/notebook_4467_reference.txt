@@ -1,0 +1,12 @@
+It used to work fine until I changed python to lower version today 3.7 to 3. The jupyter notebook keeps giving me blank page when started. I changed the version back and it doesn't help. No error in the terminal. The error in the browser are as follows:
+ Refused to execute script from ' ' because its MIME type 'text plain' is not executable, and strict MIME type checking is enabled.
+VM26 tree:1 Refused to execute script from ' LINKLINK ' because its MIME type 'text plain' is not executable, and strict MIME type checking is enabled.
+VM26 tree:1 Refused to execute script from ' LINKLINK ' because its MIME type 'text plain' is not executable, and strict MIME type checking is enabled.
+VM26 tree:1 Refused to execute script from ' LINKLINK ' because its MIME type 'text plain' is not executable, and strict MIME type checking is enabled.
+VM26 tree:1 Refused to execute script from ' LINKLINK ' because its MIME type 'text plain' is not executable, and strict MIME type checking is enabled.
+VM26 tree:1 Refused to execute script from ' LINKLINK ' because its MIME type 'text plain' is not executable, and strict MIME type checking is enabled.
+VM26 tree:1 Refused to execute script from ' LINKLINK ' because its MIME type 'text plain' is not executable, and strict MIME type checking is enabled.
+VM26 tree:24 Uncaught ReferenceError: require is not defined
+ at VM26 tree:24 
+
+I check some other posts which said to clean browser caches and cookies which doesn't help for my case. Any idea about how to fix this problem?

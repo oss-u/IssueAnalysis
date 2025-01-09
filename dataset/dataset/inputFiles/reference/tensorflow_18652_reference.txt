@@ -1,0 +1,84 @@
+I noticed that tensorflow always takes about 2min before it actually starts to compute. I've been trying to find out, why this happens, and nothing really worked so far. 
+
+
+
+CUDA works, since it prints the 'Hello, TensorFlow! when I use the official test example, but before that it takes like 2minutes every time! 
+
+When I tested this with LINKLINK LINKLINK, I did not compile it myself. on cuda 9.1 cudnn7.5, I had the same issues. A NVIDIA employee LINKLINK suggested, I may be hitting a lengthy JIT compile step, because the GTX 1080 has compute capability of 6. which the wheel I used may not be compiled for. 
+
+So I tried to find wheels for tensorflow with compute capability 6.1 for windows, but LINKLINK and tested produced the same problem.
+
+Am I doing something wrong here, or do I just have to accept the 2min delay everytime I start my tensorflow keras scripts?
+
+
+ System information
+ Have I written custom code as opposed to using a stock example script provided in TensorFlow:
+Code:
+ CODELCODEL 
+Output:
+ CODELCODEL 
+
+ OS Platform and Distribution:
+Windows 10 Education Version 10.16299 Build 16299 
+Intel R Core TM i5 7500 CPU 3.40GHz, 3408 MHz, 4 Cores
+
+ TensorFlow installed from source or binary:
+binary
+
+ TensorFlow version:
+tensorflow gpu 1.0, 1.0
+
+ Python version: 
+3.5 & 3.6 via anaconda, conda 4.1. 
+
+ Bazel Version:
+N A
+
+ CUDA cuDNN version:
+Tested combinations: 
+ CUDA 9.0 and CuDNN 7.2 tested on tensorflow 1.0, 1.0 and 1.0 dev20180329 
+ CUDA 9.1 and CuDNN 7.5 tested on tensorflow 1.0 and 1.0 
+
+ GPU model and memory:
+NVIDIA GeForce GTX 1080 GP104 400, 8192 MBytes of GDDR5X SDRAM 
+
+ Exact command to reproduce:
+See: Have I written custom code. 
+
+ 
+EDIT:
+
+Threadstarter here, hello.
+
+
+
+
+
+ This works! I checked with that wheel, and then with CODESCODES on PYPI, which also worked.
+I initially wanted to use the anaconda cudatoolkit and cudnn packages, but currently, cudnn is only available up to version 7.1 on anaconda cloud. Tensorflow 2.0 however, is compiled with 7.1, so I had to do this the oldschool way, and download the setups from Nvidia.
+Soon, though. LINKLINK.
+
+For everyone, here's what I did, as a guide:
+
+ How to install Tensorflow Nightly 2.0 GPU in Anaconda on Windows 10 x64
+
+• I installed these CUDA CuDnn Versions:
+ – cuda 10.130 win10 network Nvidia CUDA Download: LINKLINK 
+ – cuDNN v7.1 Nov 8, 2018, for CUDA 10.0 Nvidia CuDnn Download: LINKLINK 
+ – Don't forget to check, whether the Cuda setup has correctly written itself to the PATH system variable.
+ – Reboot.
+• Now make a new environment in Anaconda and activate it:
+ – CODESCODES 
+ – CODESCODES 
+• Now, with the new env still activated, install the latest Tensorflow 2.0 nightly GPU build from PYPI:
+ – CODESCODES 
+• For machine learning in Jupyter notebook or Jupyter Lab, you need these as well:
+ – CODESCODES 
+• Check, if your GPU is recognized by Tensorflow. Open the Anaconda prompt, activate the new environment and type CODESCODES, then press Enter. Now type:
+ CODESCODES 
+ CODESCODES 
+• Output should be something like this:
+
+ CODELCODEL 
+
+• Done.

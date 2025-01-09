@@ -1,0 +1,463 @@
+In a new conda environment, I run `conda install ipython-notebook` and then `conda install matplotlib`. I launch the notebook using `jupyter notebook` as usual and everything looks okay. However, when I'm trying to import matplotlib (`import matplotlib.pyplot as plt` or simply `import matplotlib`) I get `ImportError: No module named matplotlib.pyplot` and an error in the terminal: 
+
+> [IPKernelApp] ERROR | No such comm target registered: ipython.widget
+
+The same happens when I install pandas. What did I do wrong? Running `conda list` shows that both packages are installed in the current environment.
+Is `sys.executable` what you expect?
+```
+In [2]: sys.executable
+Out[2]: '/home/user/anaconda/envs/jupyter-notebook/bin/python'
+```
+
+That looks okay. I forgot to add that matplotlib and pandas are working from the ipython console, but the qtconsole and the notebook are having this same issue.
+
+UPDATE:
+
+I tried that in the console, which is giving the correct environment. However, running the same in the notebook actually gives the wrong environment. Why? The other environment is not active right now and doesn't have matplotlib or pandas listed as installed.
+And `sys.executable` is the same in IPython when matplotlib is working?
+Take a look at your kernelspec. The path for calling python will probably point to the wrong environment.
+@minrk When I run `sys.executable` in IPython outside of the jupyter-notebook environment, it gives `/home/user/anaconda/bin/python` and inside the other environment also gives the correct output. I just restarted and created a new environment but the problem persists.
+
+@juhasch Certainly points to the wrong environment. The interesting thing is that I don't have the jupyter notebook installed in the other environment. I installed jupyter_client there, though.
+Uhm... where is located the kernel for IPython? ~/.jupyter only shows "migrated" and ~/.ipython shows kernels for R and Julia.
+The location of the kernel spec depends on your system. Should be in one of these:
+
+```
+from jupyter_core.paths import jupyter_data_dir
+print(jupyter_data_dir())
+```
+
+I am sure @minrk can explain this better.
+Yes, that explains it. I have this:
+
+{
+ "display_name": "Python 2", 
+ "language": "python", 
+ "argv": [
+  "/home/user/anaconda/envs/other-environment/bin/python", 
+  "-m", 
+  "ipykernel", 
+  "-f", 
+  "{connection_file}"
+ ]
+}
+
+Is there some way to share the kernel to be used in both environments?
+I changed my kernel spec to just `python` without the absolute path.
+That works great! Thank you. 
+
+What was the cause of using a particular environment in the `kernels.json` file? Is that standard behavior?
+The full path of `sys.executable` of the Python used to install the kernel is written to kernel.json by default.
+Oh, okay. In any case, @juhasch's solution is working perfectly.
+I had this problem - it was due to /usr/local/bin/jupyter-kernelspec being read first by Jupyter before /opt/conda/bin/jupyter-kernelspec when /opt/conda/bin/jupyter had been run.. There is a path bug here.
+
+Removing the previous install solved the problem. 
+If `/usr/local/bin` is before `/opt/conda/bin` on your PATH, I think that's expected behaviour.
+
+If the directory where `jupyter` exists is not on PATH, we add it, but we don't currently do anything to prioritise that location over the rest of PATH. Maybe we should - I can see arguments both ways. @minrk ?
+I might prefer the current behavior, that `jupyter kernelspec` always behaves the same as `jupyter-kernelspec`, which it would not if we forced the jupyter dir to the head of the PATH. Rather than what we do now, which is adding it to the end in the unlikely event that it wasn't already present.
+
+But I don't feel strongly about it. We could give the reverse priority a try if we want to enforce that `/path/to/jupyter kernelspec` is identical to `/path/to/jupyter-kernelspec`. I don't see a good way to accomplish what @resurgo is trying to do without that. At the same time, using PATH to override/wrap commands would not be possible if we made that change. I'm not sure if that's something we want/need to allow, though.
+jupyter/jupyter_core#79 implements the described priority, if that's the way we want to go.
+@resurgo +1
+
+> I had this problem - it was due to /usr/local/bin/jupyter-kernelspec being read first by Jupyter before /opt/conda/bin/jupyter-kernelspec when /opt/conda/bin/jupyter had been run.. There is a path bug here.
+> Removing the previous install solved the problem.
+
+Many thanks! 
+thanks for your answer @resurgo . But what do you mean by "Removing the previous install"? Should I remove `/usr/local/bin/jupyter-kernelspec` directly? But I have tried it and it doesn't solve my problem. Do you have any idea? Thanks!
+my environment is mac and python3
+i also on jupyter can not import matplotlib
+
+on jupyter run sys.executable is '/Library/Frameworks/Python.framework/Versions/3.5/bin/python3'
+on terminal run sys.executable is '/Users/abc/anaconda/bin/python3'  
+
+so what can i do to solve the problem ?
+
+and just rm jupyter-kernelspec seemed can not workIf there's an old install of Jupyter/IPython/ipykernel on your system, try to get rid of that.
+
+Removing the `jupyter-kernelspec` script is usually not the right thing to do; you probably want to run `jupyter kernelspec list` to see where it's finding kernels, and then install/remove kernelspecs to arrive at the situation you want.@takluyver  Can you explain how to install `kernelspecs `? In general it's up to the kernel to provide a convenient way to install it. For instance, here are the instructions for the IPython kernel:
+http://ipython.readthedocs.io/en/stable/install/kernel_install.htmlI am having a similar problem, after installing Anaconda (for Python3, Jupyter, Numpy, Pandas etc.)
+(Mac OS Sierra 10.12.4)
+Numpy & Pandas are fine if I call to import them in a *.py file and run from the terminal. But if called from within a Jupyter notebook I get:
+`ImportError: No module named numpy`
+Following advice in threads on similar issues, I have tried:
+`from sys import executable
+print(executable)`
+in both Jupyter notebook and from a Python interpreter prompt in bash.
+In Jupyter notebook I get:
+`/Users/Chris/anaconda3/envs/ipykernel_py3/bin/python`
+(or py2 for Python 2 kernel), BUT in the Python interpreter I get:
+`/Users/Chris/anaconda3/bin/python3`
+As far as I understand the thread above - this is likely the problem.
+How should I fix it? (as a relative newcomer)?
+ThanksThe easiest way is probably to install those packages into the environment you're using, e.g.
+
+```
+source activate ipykernel_py3
+conda install numpy pandas
+# Add any other packages you want
+```That seems to work - thank you. (A very BIG thank you - this has been bugging me for hours).
+But there seems odd about this - wouldn't it be better (/ correct?) to have Jupyter notebook and the bash interpreter pointing at the same environments? It also doesn't seem to work for BeautifulSoup4.
+I have run:
+`conda install beautifulsoup4` from within the ipkernel_py3 environment that notebook is using.
+But if I try to call from that library in the notebook:
+`from beautifulsoup4 import *`
+the it returns a module not found error.
+I am a novice - but it would seem 'neater' (and less error prone) to get the notebook pointing at the same Python 2 and Python 3 environments as the bash interpreter. How should I do this? Thanksrelated to this issue - I am also regularly seeing the message:
+`[IPKernelApp] ERROR | No such comm target registered: jupyter.widget.version`
+appearing in the message stream in the terminal window where I starter jupyter notebook.
+I am guessing this is related?> But if I try to call from that library in the notebook:
+> from beautifulsoup4 import *
+
+The import name doesn't necessarily match the install name - with that hint, I'll let you look at the docs. :wink: 
+
+> I am a novice - but it would seem 'neater' (and less error prone) to get the notebook pointing at the same Python 2 and Python 3 environments as the bash interpreter. How should I do this? Thanks
+
+Yep, that's probably neater. Run `jupyter kernelspec list` to see what kernel information it has recorded. If you don't have a `python3` kernelspec it will run Python from the environment you launch Jupyter in. More info here: http://ipython.readthedocs.io/en/stable/install/kernel_install.html
+
+(I'm planning to rethink the kernelspec system, because it's become more confusing than we had hoped):) - got it. Read the doc before asking dumb question. Sorted now on bs4.
+
+I have run `jupyter kernelspec list' from bash and get 
+
+`Available kernels:
+  python2    /Users/Chris/Library/Jupyter/kernels/python2
+  python3    /Users/Chris/Library/Jupyter/kernels/python3`
+
+(note - I had originally created the kernels after installing Anaconda follwing the advice at the page you mentioned, long before I discoverd this thread. -  [here](https://ipython.readthedocs.io/en/latest/install/kernel_install.html)
+
+But it's possible that I had tried both methods (under the 'kernels for Python2 and 3' headers), for both Python 2 and 3. All in the midst of multiple installs and uninstalls of both anaconda and Python3 (using Homebrew). So it's probably all a bit of a mess.
+
+What should I do to align Jupyter with the bash interpreter environments?
+Thanks
+You probably want to get rid of the kernelspec for the Python that you start Jupyter with. Based on the paths you showed previously, it looks like that's Python 3, so remove `~/Library/Jupyter/kernels/python3`. It should still show Python 3 available in your root environment. 
+
+If you want kernels for other environments, you can follow instructions on the same page, under "Kernels for different environments".That seems to have done the trick - many thanks. Same path for executable showing in both notebook and terminal translator.
+Thanks so much for your help.Hi @takluyver ,
+
+A problem seems to have occured based on this core kernel path issue , I think.
+
+If I run ```jupyter kernelspec list``` in root environment, I now get:
+
+```
+Available kernels:
+  python3    /Users/Chris/anaconda3/lib/python3.6/site-packages/ipykernel/resources
+  python2    /Users/Chris/Library/Jupyter/kernels/python2
+```
+and if I run
+```  
+from sys import executable 
+print(executable)  
+ ```
+
+In Jupyter notebook and python interpreted running on my Python 3 kernel, I get:
+
+```
+/Users/Chris/anaconda3/bin/python
+```
+When installing packages etc. I have gone into:
+```
+source activate ipykernel_py3
+```
+
+before using conda install to add new packages.
+
+But I am having a problem now with pandas-datareader. I installed using conda install within the ipykernel_py3 environment, with:
+```
+conda install -c anaconda pandas-datareader=0.4.0
+```
+
+Which seemed to work, and with ```conda list``` , I see:
+
+```
+# packages in environment at /Users/Chris/anaconda3/envs/ipykernel_py3:
+#
+appnope                   0.1.0                    py36_0  
+beautifulsoup4            4.5.3                    py36_0  
+cycler                    0.10.0                   py36_0  
+decorator                 4.0.11                   py36_0  
+freetype                  2.5.5                         2  
+icu                       54.1                          0  
+ipykernel                 4.6.1                    py36_0  
+ipython                   6.0.0                    py36_0  
+ipython_genutils          0.2.0                    py36_0  
+jupyter_client            5.0.1                    py36_0  
+jupyter_core              4.3.0                    py36_0  
+libpng                    1.6.27                        0  
+matplotlib                2.0.2               np112py36_0  
+mkl                       2017.0.1                      0  
+numpy                     1.12.1                   py36_0  
+openssl                   1.0.2k                        1  
+pandas                    0.20.1              np112py36_0  
+pandas-datareader         0.4.0                    py36_0    anaconda
+path.py                   10.3.1                   py36_0  
+pexpect                   4.2.1                    py36_0  
+pickleshare               0.7.4                    py36_0  
+pip                       9.0.1                    py36_1  
+prompt_toolkit            1.0.14                   py36_0  
+ptyprocess                0.5.1                    py36_0  
+pygments                  2.2.0                    py36_0  
+pyparsing                 2.1.4                    py36_0  
+pyqt                      5.6.0                    py36_2  
+python                    3.6.1                         0  
+python-dateutil           2.6.0                    py36_0  
+pytz                      2017.2                   py36_0  
+pyzmq                     16.0.2                   py36_0  
+qt                        5.6.2                         2  
+readline                  6.2                           2  
+requests                  2.14.2                   py36_0    anaconda
+requests-file             1.4.1                    py36_0    anaconda
+requests-ftp              0.3.1                    py36_0    anaconda
+scipy                     0.19.0              np112py36_0  
+seaborn                   0.7.1                    py36_0  
+setuptools                27.2.0                   py36_0  
+simplegeneric             0.8.1                    py36_1  
+sip                       4.18                     py36_0  
+six                       1.10.0                   py36_0  
+sqlite                    3.13.0                        0  
+tk                        8.5.18                        0  
+tornado                   4.5.1                    py36_0  
+traitlets                 4.3.2                    py36_0  
+wcwidth                   0.1.7                    py36_0  
+wheel                     0.29.0                   py36_0  
+xz                        5.2.2                         1  
+zlib                      1.2.8                         3  
+```
+
+But when I try to import pandas_datareader (the correct import name, based on the documentation [here](https://pandas-datareader.readthedocs.io/en/latest/) within either a Jupyter notebook on the Py3 kernel, or the interpreter
+``` import pandas_datareader as pdr ```
+
+I get
+``` ModuleNotFoundError: No module named 'pandas_datareader'```
+
+Which I don't understand.
+
+This install approach has worked for other modules (e.g. seaborn, which seems to be working fine).
+
+Can you help me understand why this module isn't working, or being recognised?
+
+Many thanks
+
+
+
+
+
+An update to the comment above.
+
+After some comparison to my macbook installation (which never had multiple environments, and a look at Anaconda Navigator, I have worked out the following:
+
+-  ```conda``` commands work directly from the bash command line on the Macbook, but do not on the iMac. On the iMac they only work after using a ```source activate``` command to start a particular kernel.
+
+- on the IMac (which most of this thread refers to) there is a 'root' environment (apologies if this was obvious to all but me!). Using a ```source activate root``` command allow me to execute conda command (incl install) commands.
+
+- Having installed in the 'root' environment like this, then the pandas-datareader module works okay.
+
+- The ipykernel_py3 environment is still there (based on Anaconda Navigator), but I don't know how to open a Jupyter notebook in that environment. I wonder if this may be a function of deleting the python3 folder from jupyter/kernels (see earlier in thread)?
+
+I am still concerned that my Jupyter / Conda installation and setup is flawed, and will cause issues in the future. Anyway you can advise to check this is all configured in line with best practice?
+
+many thanks
+
+
+This value of `sys.executable`:
+
+> /Users/Chris/anaconda3/bin/python
+
+Means that your Python 3 kernel is running in your conda root environment, not the ipykernel_py3 environment you created. If it was in that environment, it you would see something like `/Users/Chris/anaconda3/envs/ipykernel_py3/bin/python`.Thanks - I had arrived at the same conclusion.
+
+My challenge now is that I can't seem to get the Jupyter notebook to operate in an environment that corresponds to the active environment in the terminal window.
+
+Subsequent to my last post, and with more research, I had gone back to my .bash_profile, and amended / commented out lines added in previous troubleshooting of this problem, so now the bash_profile reads (in full):
+```
+# Setting PATH for Python 2.7
+# The orginal version is saved in .bash_profile.pysave
+#PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
+
+# added by Anaconda3 4.3.1 installer
+export PATH="/Users/Chris/anaconda3/bin:$PATH"
+
+
+#export PATH=/usr/local/bin:/usr/local/sbin:$PATH
+```
+
+So conda commands now run on the 'root' bash prompt. Using
+```
+conda info --envs
+```
+
+yields:
+```
+# conda environments:
+#
+ipykernel_py2            /Users/Chris/anaconda3/envs/ipykernel_py2
+ipykernel_py3            /Users/Chris/anaconda3/envs/ipykernel_py3
+test_env                 /Users/Chris/anaconda3/envs/test_env
+root                  *  /Users/Chris/anaconda3
+```
+
+But if I activate test_env, and then try 
+```
+sys.executable
+```
+
+then in the python interpreter I get:
+```
+/Users/Chris/anaconda3/envs/test_env/bin/python
+```
+
+but in a notebook activated from within this environment, if I do the same
+```
+sys.executable
+```
+yields:
+```
+/Users/Chris/anaconda3/bin/python
+```
+
+Which is not the same.
+
+And the drop down of kernels in the notebook does note seem to correspond to the list of conda environments presented above - as the drop down only shows 'Python 2' or 'Python 3'
+(I can't seem to attach a screengrab to illustrate this).
+
+I wonder if this has anything to do with the action to 
+
+> it looks like that's Python 3, so remove 
+
+> ~/Library/Jupyter/kernels/python3.
+
+that we arrived at in the previous discussion around this problem.
+
+So, basically, I seem to have got the Jupyter installation to a point where the kernels it offers do not appear to correspond to those recognised by conda as available environments.
+
+Any ideas how to correct this?
+
+Many thanks
+
+
+Your options are:
+
+- [Install a kernel](http://ipython.readthedocs.io/en/stable/install/kernel_install.html#kernels-for-different-environments) for each environment you're interested in.
+- Reinstall all of Jupyter in each environment (`conda install jupyter`) and run the notebook server from inside the environment.
+- Use conda's nb_conda_kernels extension, which exposes environments as kernels. This comes with some confusion of its own, though.Many thanks. I think it's sorted now.
+
+the nb_conda extension seems to work. Are there any particular confusions I should watch out for?Exchanging notebooks with other people who don't use nb_conda_kernels can be a pain, because the kernel name embedded in the notebook refers to the conda env you ran it in. It's not a big problem, but either side may have to manually select a kernel on opening the notebook.I seem to be having the same issue as @chrisrb10..
+Normally I use an Atom as a text editor but am using the notebook for its convenience in widgets. 
+On Atom I don't seem to be having a problem when importing the module Rebound, the error only occurs in the notebook. 
+
+I am able to import Rebound fine, it just will not allow me to access an attribute in the module. I get the error: `AttributeError: module 'rebound' has no attribute 'Simulation'`.
+Running `from sys import executable print(executable)` in Atom gives me `/Users/anaconda/bin/python`,
+and Notebook gives me `/Users/Dean/anaconda3/bin/python`.
+I'm not entirely sure if this is where the problem lies for me since I'm able to import but not access an attribute but would anyone have an idea of what is going on?That is likely the problem. It looks like you have to installs of `anaconda`, one in `/Users/anaconda` and one in `/Users/Dean/anaconda3`. The difference is probably in the PATH environment variable in atom vs when you launch the notebook. Whichever one of those you mean to be using, make sure it is first on your PATH, e.g.
+
+    export PATH=/Users/Dean/anaconda3/bin:$PATH
+On Mac, for me it was a little different. When I ran the command `jupyter kernelspec list` I got this: 
+`Available kernels:
+
+  python2    /usr/local/etc/jupyter/kernels/python2
+
+  python3    /usr/local/etc/jupyter/kernels/python3`
+
+I just ran `pip2 install pandas` which then installed it for python2 kernel which was being used in my jupyter notebook. Apparently for pip the path of the kernel is a little different.Hello, it is weird for me but I can import some libraries such as pandas, numpy etc however I can't import some libraries such as seaborn or scikit learn.
+**ModuleNotFoundError: No module named 'seaborn'**
+How can I fix it and import those two: seaborn and scikit learn?
+tks in advanceThey're probably not installed. You can install them with pip or conda depending on what setup you're using (if you're not sure, try conda, and if it's not there, use pip).Hi takluyver, tks. 
+I used pip and conda, they are already installed and requirements have been satisfied. any idea?It sounds like you're trying an import in two different installations of Python, or two different environments. Check `sys.executable` to see which Python and environment you're running in, and `sys.path` to see where it looks to import modules.
+
+Python packages must be installed separately for each copy of Python you use, and if you are using virtualenvs or conda envs, packages must be installed into each environment where you need them. Either the package is not installed in one, or a different version of the package is installed.
+
+To install packages to a particular Python installation or environment using pip, you can run it like this:
+
+```shell
+path/to/python -m pip install ...
+# Replace path/to/python with the path of the Python executable (sys.executable)
+```
+
+If you are using conda environments, you can install packages from conda like this:
+
+```shell
+source activate myenv  # On Windows, just 'activate myenv' (no 'source')
+conda install ...
+```
+
+For more detail, see [this blog post](http://takluyver.github.io/posts/i-cant-import-it.html).
+
+[ This is a saved reply because I answer similar questions often - sorry if it doesn't exactly fit your case ]TKS a LOT, now it seems is working properly. restart the kernel works for meUsing Jupyter notebooks with Anaconda, after installing a package, in my case tensorflow, Jupyter notebook could not import the package(due to some configuration issue I screwed up while trying to configure R with Jupyter).  The underlying fix for Jupyter to find packages installed by Anaconda was hinted above by user 'rsmith31415'.... I revised the first line of the argv value to point to environment folder (py36):
+
+`{
+
+ "argv": [
+  "/home/kap/anaconda3/envs/py36/bin/python",
+  "-m",
+  "ipykernel_launcher",
+  "-f",
+  "{connection_file}"
+ ],
+ "display_name": "Python 3",
+ "language": "python"
+}`I want to import the grader module and I get this error in jupyter-notebook.
+
+ModuleNotFoundError                       Traceback (most recent call last)
+<ipython-input-2-6b69aff28d2c> in <module>
+----> 1 from grader import Grader
+
+ModuleNotFoundError: No module named 'grader'
+
+How do i solve it ?try lower case 'g' for the name of the module 'grader', instead of 'Grader'. Its still the same error. I am just not able to fix it.
+
+I also installed the module on the system : grader-1.2Did you install under the correct environment?  For me on Ubuntu I use 'source activate [environment]' then used 'pip install grader'.  Then I opened Jupyter-notebook in that same environment and it works.  You could also open Jupyter-notebook in an environment and in a cell type '!pip install grader'...from my target conda environment I did
+
+    python pip install ipykernel
+
+and then installed Jupiter with `conda install jupyter`.  This made my kernel use the proper environment.  
+
+
+I got the answer from https://stackoverflow.com/questions/30492623/using-both-python-2-x-and-python-3-x-in-ipython-notebook/37857536#comment94230432_37857536unable to execute the code import Evaluation as eva in python 3 
+
+the following error are generated
+
+ModuleNotFoundError                       Traceback (most recent call last)
+<ipython-input-55-4f843c561a3c> in <module>
+----> 1 import Evaluation as eva
+
+ModuleNotFoundError: No module named 'Evaluation'
+please suggest the solution 
+there is issue with you'r  path
+check using    "sys.executable" 
+if it is so use below command : 
+                                           -------- python3 -m ipykernel install --user
+
+I hope this will solve > I changed my kernel spec to just `python` without the absolute path.
+
+solved my issue. thanks> Is `sys.executable` what you expect?
+
+In Ubuntu to find the kernel spec file and change it, in my case:
+`sudo nautilus' to open the folder with root privilege, then navigate to: /usr/local/share/jupyter/kernels/gpu37
+then open kernel.json
+change the wrong path to the correct one. The correct one should be the return by running the correct python version
+`python`
+`import sys`
+`print(sys.executable)`
+copy the correct python path to the kernel.js file and saveThe above error happens simply because in jupyter lab environment, python is not pointing to the right kernel. the first step is to see the available spec.
+> **Jupyter kernelspec list**
+Delete the specs that are not needed.
+If you have more than one spec left, see which one is read by using two commands from the python prompt
+**from jupyter_core.paths import jupyter_data_dir**
+ print(jupyter_data_dir())
+Look at the output result, see which env you are interested in. Read the JSON file and see if the path is pointing to the right place or not. If necessary amend the path.I had the same problem, as I was inside my conda environment. The jupyter wasn't using the respective python path.
+
+By following [this guideline](https://ipython.readthedocs.io/en/stable/install/kernel_install.html#kernels-for-different-environments):
+
+If you want to have multiple IPython kernels for different virtualenvs or conda environments, you will need to specify unique names for the kernelspecs.
+
+Make sure you have ipykernel installed in your environment.
+`conda install ipykernel # or pip install ipykernel`
+
+For example, using conda environments, install a Python (myenv) Kernel in a first environment:
+```
+source activate myenv
+python -m ipykernel install --user --name myenv --display-name "Python (myenv)"
+```
+
+After this, restart/launch jupyter, open any notebook, and under the 'Kernel' tab you can specify in 'Change kernel' your newly created kernel.
+
+Hope this helps, because it solved my issue

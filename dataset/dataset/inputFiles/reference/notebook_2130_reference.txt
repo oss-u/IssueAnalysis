@@ -1,0 +1,1 @@
+Can you get an Anaconda command prompt and run CODESCODES in it? It probably won't work, but you should get an error message saying what's failing.

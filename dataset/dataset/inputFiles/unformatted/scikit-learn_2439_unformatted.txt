@@ -1,0 +1,346 @@
+The Mean Square Error returned by sklearn.cross_validation.cross_val_score is always a negative. While being a designed decision so that the output of this function can be used for maximization given some hyperparameters, it's extremely confusing when using cross_val_score directly. At least I asked myself how a the mean of a square can possibly be negative and thought that cross_val_score was not working correctly or did not use the supplied metric. Only after digging in the sklearn source code I realized that the sign was flipped.
+
+This behavior is mentioned in make_scorer in scorer.py, however it's not mentioned in cross_val_score and I think it should be, because otherwise it makes people think that cross_val_score is not working correctly.
+You're referring to 
+
+```
+greater_is_better : boolean, default=True
+
+Whether score_func is a score function (default), meaning high is good, 
+or a loss function, meaning low is good. In the latter case, the scorer 
+object will sign-flip the outcome of the score_func.
+
+```
+
+in http://scikit-learn.org/stable/modules/generated/sklearn.metrics.make_scorer.html
+? (just for reference's sake)
+
+I agree that that it can be more clear in cross_val_score docs
+
+Thanks for reporting
+Indeed we overlooked that issue when doing the Scorer refactoring. The following is very counter-intuitive:
+
+```
+>>> import numpy as np
+>>> from sklearn.datasets import load_boston
+>>> from sklearn.linear_model import RidgeCV
+>>> from sklearn.cross_validation import cross_val_score
+
+>>> boston = load_boston()
+>>> np.mean(cross_val_score(RidgeCV(), boston.data, boston.target, scoring='mean_squared_error'))
+-154.53681864311497
+```
+
+/cc @larsmans 
+BTW I don't agree that it's a documentation issue. It's `cross_val_score` should return the value with the sign that matches the scoring name. Ideally the `GridSearchCV(*params).fit(X, y).best_score_` should be consistent too. Otherwise the API is very confusing.
+I also agree that a change to return the actual MSE without the sign switched would be the way better option. 
+
+The scorer object could just store the `greater_is_better` flag and whenever the scorer is used the sign could be flipped in case it's needed, e.g. in `GridSearchCV`.
+I agree that we have a usability issue here, but I don't fully agree with @ogrisel's solution that we should
+
+> return the value with the sign that matches the scoring name
+
+because that's an unreliable hack in the long run. What if someone defines a custom scorer with a name such as `mse`? What if they do follow the naming pattern but wrap the scorer in a decorator that changes the name?
+
+> The scorer object could just store the greater_is_better flag and whenever the scorer is used the sign could be flipped in case it's needed, e.g. in GridSearchCV.
+
+This is what scorers originally did, during development between the 0.13 and 0.14 releases and it made their definition a lot harder. It also made the code hard to follow because the `greater_is_better` attribute seemed to disappear in the scorer code, only to reappear in the middle of the grid search code. A special `Scorer` class was needed to do something that ideally, a simple function would do.
+
+I believe that if we want to optimize scores, then they should be _maximized_. For the sake of user-friendlyness, I think we might introduce a parameter `score_is_loss` ∈ `["auto", True, False]` that only changes the _display_ of scores and can use a heuristic based on the built-in names.
+That was a hurried response because I had to get off the train. What I meant by "display" is really the return value from `cross_val_score`. I think scorers should be simple and uniform and the algorithms should always maximize.
+
+This does introduce an asymmetry between built-in and custom scorers.
+
+Ping @GaelVaroquaux.
+I like the score_is_loss solution, or something to that effect.. the sign change to match the scoring name  seems hard to maintain could cause problems as @larsmans mentioned
+what's the conclusion, which solution should we go for? :)
+@tdomhan @jaquesgrobler @larsmans Do you know if this applies to `r2` as well? I am noticing  that the `r2` scores returned by `GridSearchCV` are also mostly negative for `ElasticNet`, `Lasso` and `Ridge`. 
+R² can be either positive or negative, and negative simply means your model is performing very poorly.
+IIRC, @GaelVaroquaux was a proponent of returning a negative number when `greater_is_better=False`.
+`r2` is a score function (greater is better), so that should be positive if your model is any good -- but it's one of the few performance metrics that can actually be negative, meaning worse than 0.
+What is the consensus on this issue? In my opinion, `cross_val_score` is an evaluation tool, not a model selection one. It should thus return the original values.
+
+I can fix it in my PR #2759, since the changes I made make it really easy to fix. The trick is to not flip the sign upfront but, instead, to access the `greater_is_better` attribute on the scorer when doing grid search.
+> What is the consensus on this issue? In my opinion, cross_val_score is
+> an evaluation tool, not a model selection one. It should thus return
+> the original values.
+
+Special case are varying behaviors are a source of problems in software.
+
+I simply think that we should rename "mse" to "negated_mse" in the list
+of acceptable scoring strings.
+> What if someone defines a custom scorer with a name such as mse? What if they do follow the naming pattern but wrap the scorer in a decorator that changes the name?
+
+I don't think that @ogrisel was suggesting to use name matching, just to be consistent with the original metric. Correct me if I'm wrong @ogrisel.
+> I simply think that we should rename "mse" to "negated_mse" in the list of acceptable scoring strings.
+
+That's completely unintuitive if you don't know the internals of scikit-learn. If you have to bend the system like that, I think it's a sign that there's a design problem.
+> That's completely unintuitive if you don't know the internals of scikit-learn.
+> If you have to bend the system like that, I think it's a sign that there's a
+> design problem.
+
+I disagree. Humans understand things with a lot of prior knowledge and
+context. They are all but systematic. Trying to embed this in software
+gives shopping-list like set of special cases. Not only does it make
+software hard to maintain, but also it means that people who do not have
+in mind those exceptions run into surprising behaviors and write buggy
+code using the library.
+What special case do you have in mind?
+
+To be clear, I think that the cross-validation scores stored in the `GridSearchCV` object should _also_ be the original values (not with sign flipped). 
+
+AFAIK, flipping the sign was introduced so as to make the grid search implementation a little simpler but was not supposed to affect usability.
+> What special case do you have in mind?
+
+Well, the fact that for some metrics bigger is better, whereas for others
+it is the opposite.
+
+> AFAIK, flipping the sign was introduced so as to make the grid search
+> implementation a little simpler but was not supposed to affect
+> usability.
+
+It's not about grid search, it's about separation of concerns: scores
+need to be useable without knowing anything about them, or else code to
+deal with their specificities will spread to the whole codebase. There is
+already a lot of scoring code.
+But that's somewhat postponing the problem to user code. Nobody wants to plot "negated MSE" so users will have to flip signs back in their code. This is inconvenient, especially for multiple-metric cross-validation reports (PR #2759), as you need to handle each metric individually. I wonder if we can have the best of both worlds: generic code and intuitive results.
+> But that's somewhat postponing the problem to user code. Nobody wants
+> to plot "negated MSE" so users will have to flip signs back in their
+> code.
+
+Certainly not the end of the world. Note that when reading papers or
+looking at presentations I have the same problem: when the graph is not
+well done, I loose a little bit of time and mental bandwidth trying to
+figure if bigger is better or not.
+
+> This is inconvenient, especially for multiple-metric cross-validation
+> reports (PR #2759), as you need to handle each metric individually.
+
+Why. If you just accept that its always bigger is better, it makes
+everything easier, including the interpretation of results.
+
+> I wonder if we can have the best of both worlds: generic code and
+> intuitive results.
+
+The risk is to have very complex code that slows us down for maintainance
+and development. Scikit-learn is picking up weight.
+> If you just accept that its always bigger is better
+
+That's what she said :)
+
+More seriously, I think one reason this is confusing people is because the output of `cross_val_score` is not consistent with the metrics. If we follow your logic, all metrics in sklearn.metrics should follow "bigger is better".
+> That's what she said :)
+
+Nice one!
+
+> More seriously, I think one reason this is confusing people is because
+> the output of cross_val_score is not consistent with the metrics. If we
+> follow your logic, all metrics in sklearn.metrics should follow "bigger
+> is better".
+
+Agreed. That's why I like the idea of changing the name: it would pop up
+to people's eyes.
+> More seriously, I think one reason this is confusing people is because the output of cross_val_score is not consistent with the metrics.
+
+And this in turn makes `scoring` seem more mysterious than it is.
+Got bitten by this today in 0.16.1 when trying to do linear regression. While the sign of the score is apparently not flipped anymore for classifiers, it is still flipped for linear regression. To add to the confusion, LinearRegression.score() returns a non-flipped version of the score.
+
+I'd suggest to make it all consistent and return the non-sign-flipped score for linear models as well.
+
+Example:
+
+``` python
+from sklearn import linear_model
+from sklearn.naive_bayes import GaussianNB
+from sklearn import cross_validation
+from sklearn import datasets
+iris = datasets.load_iris()
+nb = GaussianNB()
+scores = cross_validation.cross_val_score(nb, iris.data, iris.target)
+print("NB score:\t  %0.3f" % scores.mean() )
+
+iris_reg_data = iris.data[:,:3]
+iris_reg_target = iris.data[:,3]
+lr = linear_model.LinearRegression()
+scores = cross_validation.cross_val_score(lr, iris_reg_data, iris_reg_target)
+print("LR score:\t %0.3f" % scores.mean() )
+
+lrf = lr.fit(iris_reg_data, iris_reg_target)
+score = lrf.score(iris_reg_data, iris_reg_target)
+print("LR.score():\t  %0.3f" % score )
+```
+
+This gives:
+
+```
+NB score:     0.934    # sign is not flipped
+LR score:    -0.755    # sign is flipped
+LR.score():   0.938    # sign is not flipped
+```
+Cross-validation flips all signs of models where greater is better. I still disagree with this decision. I think the main proponent of it were @GaelVaroquaux and maybe @mblondel [I remembered you refactoring the scorer code].
+Oh never mind, all the discussion is above.
+I feel flipping the sign by default in mse and r2 is even less intuitive :-/
+@Huitzilo GaussianNB is a classifier and uses accuracy as default scorer. LinearRegression is a regressor and uses r2 score as default scorer. The second score is negative but remember that the r2 score _can_ be negative. Also, iris is a multiclass dataset. Hence the targets are categorical. You can't use a regressor.
+right, I was a bit confused about what happens, r2 is not flipped... only mse would be.
+Maybe a solution to the whole problem is rename the thing `negmse`?
+@mblondel of course you are right, sorry. I was just quickly slapping together an example for a regression, and in my overconfidence on the iris data I thought predicting feature #4 from the others would work (with positive R2). But it didn't, hence, negative R2. No sign flipping here. OK. My bad.
+
+Still, the sign is flipped in the MSE I get from `cross_val_score`. 
+
+Maybe it's just me, but I find this inconsistency vastly confusing (which is what got me into this issue). Why should MSE be sign-flipped, but not R2?  
+> Maybe it's just me, but I find this inconsistency vastly confusing (which is what got me into this issue). Why should MSE be sign-flipped, but not R2?
+
+Because the semantic of score is higher is better. High MSE is bad. 
+maybe negmse would solve the problem
+@amueller I agree, making the sign flipping explicit in the name of the scoring parameter would definitely help to avoid confusion. 
+
+Maybe the documentation at [1] could also be even more explicit about how signs are flipping for some scores. In my case, I needed information quickly and only looked at the table under 3.1.1.1, but didn't read the text (which explains the "bigger is better" principle). IMHO, adding a comment for mse, median and mean absolute error in the table under 3.1.1.1, indicating their negation, would already help a lot, without any changes to the actual code.
+
+[1] http://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter
+I've come across a very interesting case:
+
+```
+from sklearn.cross_validation import cross_val_score
+model = LinearRegression()
+scores = cross_val_score(model, X, target, cv=2, scoring='r2')
+scores
+```
+
+Results in 
+
+```
+array([-0.17026282, -2.21315179])
+```
+
+For the same dataset the following code 
+
+```
+model = LinearRegression()
+model.fit(X, target)
+prediction = model.predict(X)
+print r2_score(target, prediction)
+```
+
+results in a reasonable value
+
+```
+0.353035789318
+```
+
+AFAIK for linear regression model (with intercept) one can't obtain R^2 > 1 or R^2 < 0
+
+Thus, the cv result doesn't look like R^2 with a flipped sign. Am I wrong at some point?
+r2 can be negative (for bad models). It cannot be larger than 1.
+
+You are probably overfitting. try:
+
+``` python
+from sklearn.cross_validation import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, target, test_size=0.2, random_state=0)
+model = LinearRegression()
+model.fit(X_train, y_train)
+pred_train = model.predict(X_train)
+print("train r2: %f" % r2_score(y_train, pred_train))
+
+pred_test = model.predict(X_test)
+print("test r2: %f" % r2_score(y_test, pred_test))
+```
+
+Try with different values for the `random_state` integer seed that controls the random split.
+> maybe negmse would solve the problem
+
++1 for 'neg_mse' (I think that underscore makes things more readable).
+Does that solve all problems? Are there other scores were greater is not better?
+There are:
+- `log_loss`
+- `mean_absolute_error`
+- `median_absolute_error`
+
+According to `doc/modules/model_evaluation.rst`, that should be all of them.
+And `hinge_loss` I guess?
+Adding the `neg_` prefix to all those losses feels awkward.
+
+An idea would be to return the original scores (without sign flip) but instead of returning an ndarray, we return a class which extends ndarray with methods like `best()`, `arg_best()`, `best_sorted()`. This way the results are unsurprising and we have convenience methods for retrieving the best results.
+There's no scorer for hinge loss (and I've never seen it being used for evaluation).
+The scorer doesn't return a numpy array, it returns a float, right?
+we could return a score object that has a custom ">" but looks like a float.
+That feels more contrived to me than the previous solution, which was tagging the scorer with a bool "lower_is_better" which was then used in GridSearchCV.
+`cross_val_score` returns an array.
+Actually the scores returned by `cross_val_score` usually don't need to be sorted, just averaged.
+
+Another idea is to add a `sorted` method to `_BaseScorer`.
+
+``` python
+my_scorer = make_scorer(my_metric, greater_is_better=False)
+scores = my_scorer.sorted(scores)  # takes into account my_scorer._sign
+best = scores[0]
+```
+`cross_val_score` returns an array, but the scorers return a float. I feel it would be odd to have specific logic in `cross_val_score` because you'd like to have the same behavior in GridSearchCV and in all other CV objects.
+
+You'd also need an argsort method, because in GridSearchCV you want the best score and the best index.
+  How to implement "estimate the means and variances of the workers' errors from the control questions, then compute the weighted average after removing the estimated bias for the predictions " by scikit-learn?
+IIRC we discussed this in the sprint (last summer?!) and decided to go with `neg_mse` (or was it `neg-mse`) and deprecate all scorers / strings where we have a negative sign now.
+Is this still the consensus? We should do that before 0.18 then.
+Ping @GaelVaroquaux @agramfort @jnothman @ogrisel @raghavrv
+yes we agreed on neg_mse AFAIK
+It was `neg_mse`
+We also need:
+- `neg_log_loss`
+- `neg_mean_absolute_error`
+- `neg_median_absolute_error`
+model = Sequential()
+keras.layers.Flatten()
+model.add(Dense(11, input_dim=3, kernel_initializer = keras.initializers.he_normal(seed = 2),
+                kernel_regularizer = regularizers.l2(2)))
+keras.layers.LeakyReLU(alpha = 0.1)
+model.add(Dense(8,  kernel_initializer = keras.initializers.he_normal(seed = 2)))
+keras.layers.LeakyReLU(alpha = 0.1)
+model.add(Dense(4,  kernel_initializer = keras.initializers.he_normal(seed = 2)))
+keras.layers.LeakyReLU(alpha = 0.1)
+model.add(Dense(1, kernel_initializer = keras.initializers.he_normal(seed = 2)))
+keras.layers.LeakyReLU(alpha = 0.2)
+adag = RMSprop(lr = 0.0002)
+model.compile(loss=losses.mean_squared_error,
+              optimizer=adag
+              ) 
+history = model.fit(X_train, Y_train, epochs=2000,
+                    batch_size=20, shuffle = True) 
+ 
+How to cross validate the above code? I want leave one out cross validation method to be used in this.@shreyassks this isn't the correct place for your question but I would check this out: https://keras.io/scikit-learn-api . Wrap your network in a `scikit-learn` estimator then use w/ `model_selection.cross_val_score`Yes. I totally agree! This also happened to Brier_score_loss, it works perfectly fine using Brier_score_loss, but it gets confusing when it comes from the GridSearchCV, the negative Brier_score_loss returns. At least, it would be better output something like, because Brier_score_loss is a loss (the lower the better), the scoring function here flip the sign to make it negative. The idea is that cross_val_score should entirely focus on the absolute value of the result. In my knowledge, importance of negative sign (-) obtained for MSE (mean squared error) in cross_val_score is not predefined. Let's wait for the updated version of sklearn where this issue is taken care of.For Regression usecase:
+model_score= cross_val_score(model, df_input, df_target, scoring='neg_mean_squared_error', cv=3)
+I am getting the values as:
+
+SVR:
+[-6.20938025 -1.397376   -1.94519   ]
+-3.183982080147279
+
+Linear Regression:
+[-5.94898085 -9.30931808 -1.15760676]
+-5.4719685646934275
+
+Lasso: 
+[ -7.22363814 -10.47734135  -2.20807684]
+-6.6363521107522345
+
+Ridge: 
+[-5.95990385 -4.17946756 -1.36885809]
+-3.8360764993832004
+
+So which one is best ?
+SVR ?
+For Regression usecase:
+I am getting different results when I use
+(1) "cross_val_score" with scoring='neg_mean_squared_error'
+and
+(2) For the same inputs when when I use "GridSearchCV" and check the 'best_score_'
+
+For Regression models which one is better ?
+- "cross_val_score" with scoring='neg_mean_squared_error'
+(OR)
+- use "GridSearchCV" and check the 'best_score_' 
+
+
+
+@pritishban 
+You're asking a usage question. The issue tracker is mainly for bugs and new features. For usage questions, it is recommended to try [Stack Overflow](https://stackoverflow.com/questions/tagged/scikit-learn) or [the Mailing List](https://mail.python.org/mailman/listinfo/scikit-learn).

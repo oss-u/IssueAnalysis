@@ -1,0 +1,411 @@
+Hi just installed Anaconda 2.1.0 (x86_64) for one of my course on MAC OS. 
+()Installation went OK
+()PATH was updated
+()ran the following commands and all seem to go OK.
+     >> conda update conda
+     >> conda update ipython
+     >> conda update pip
+     >> conda install bokeh
+()version query returns
+      conda --version
+      conda 4.4.9
+
+As per the instruction i should have notebook package installed.
+But i get the follwing error 
+
+XXXXX@Admins-MacBook-Pro ~ $ jupyter notebook
+Error executing Jupyter command 'notebook': [Errno 2] No such file or directory
+
+conda list only has ipython notebook
+
+gsandhu@Admins-MacBook-Pro ~ $ conda list | grep notebook
+ipython-notebook          2.2.0                    py27_0    <unknown>
+
+Previously i tried updating jupyter using "pip install jupyter" and i was able to start the notebook but then there were issues in kernal . So i uninstalled everything and started from fresh.
+
+Can anyone please guide me through this?  Thanks in Advance@takluyver@takluyver 
+Hi,
+
+can you please help me in this? 
+
+Does `jupyter-notebook` work? I.e. try with a - instead of a space. The `jupyter` command is looking for other commands like that.Thanks! jupyter-notebook does not work either. "ipython notebook" also does not work.
+
+Here is the OP to jupyter-notebook:
+-bash: /usr/local/bin/jupyter-notebook: /usr/local/opt/python/bin/python2.7: bad interpreter: No such file or directory
+
+On trying to update conda for jupyter i see the following.
+
+(root) (root)gsandhu@Admins-MacBook-Pro bin $ conda update jupyter
+
+PackageNotInstalledError: Package is not installed in prefix.
+  prefix: /Users/gsandhu/anaconda
+  package name: jupyter
+
+
+Should i just reinstall everything and try again?
+
+to clean everything will these commands give me a clean slate?
+rm -rf ~/anaconda
+m -rf ~/.condarc ~/.conda ~/.continuum
+
+Only 1 env.
+(root) (root)gsandhu@Admins-MacBook-Pro bin $ conda info --envs
+# conda environments:
+#
+base                  *  /Users/gsandhu/anacondaAnother information if it can give some hit. When i used "conda update conda" first time there is some error at the bottom.
+pycosat-0.6.2- 100% |###########################################################################################################| Time: 0:00:00   2.02 MB/s
+pycparser-2.18 100% |###########################################################################################################| Time: 0:00:00   2.46 MB/s
+pyopenssl-17.0 100% |###########################################################################################################| Time: 0:00:00   2.32 MB/s
+pyparsing-2.2. 100% |###########################################################################################################| Time: 0:00:00   2.65 MB/s
+python-2.7.13- 100% |###########################################################################################################| Time: 0:00:02   3.27 MB/s
+requests-2.14. 100% |###########################################################################################################| Time: 0:00:00   2.37 MB/s
+ruamel_yaml-0. 100% |###########################################################################################################| Time: 0:00:00   2.56 MB/s
+setuptools-36. 100% |###########################################################################################################| Time: 0:00:00   2.46 MB/s
+six-1.10.0-py2 100% |###########################################################################################################| Time: 0:00:00   2.01 MB/s
+sqlite-3.13.0- 100% |###########################################################################################################| Time: 0:00:00   2.40 MB/s
+tk-8.5.18-0.ta 100% |###########################################################################################################| Time: 0:00:00   3.23 MB/s
+yaml-0.1.6-0.t 100% |###########################################################################################################| Time: 0:00:00   2.14 MB/s
+zlib-1.2.11-0. 100% |###########################################################################################################| Time: 0:00:00   2.35 MB/s
+Extracting packages ...
+[      COMPLETE      ] |#############################################################################################################################| 100%
+Unlinking packages ...
+[      COMPLETE      ] |#############################################################################################################################| 100%
+Linking packages ...
+[      COMPLETE      ] |#############################################################################################################################| 100%
+usage: conda [-h] [-V] command ...
+conda: error: argument command: invalid choice: u'/Users/gsandhu/anaconda/bin/conda' (choose from u'info', u'help', u'list', u'search', u'create', u'install', u'update', u'upgrade', u'remove', u'uninstall', u'config', u'clean', u'package')
+
+I ran 
+
+pip install jupyter and then i can load the notebook. But kernal stops with the following error 
+
+WARNING:root:kernel 188c9238-287e-4a8a-a861-2e698cb86e28 restarted
+Traceback (most recent call last):
+  File "/Users/gsandhu/anaconda/lib/python2.7/runpy.py", line 174, in _run_module_as_main
+    "__main__", fname, loader, pkg_name)
+  File "/Users/gsandhu/anaconda/lib/python2.7/runpy.py", line 72, in _run_code
+    exec code in run_globals
+  File "/Users/gsandhu/anaconda/lib/python2.7/site-packages/ipykernel_launcher.py", line 16, in <module>
+    app.launch_new_instance()
+  File "/Users/gsandhu/anaconda/lib/python2.7/site-packages/traitlets/config/application.py", line 657, in launch_instance
+    app.initialize(argv)
+  File "<string>", line 2, in initialize
+  File "/Users/gsandhu/anaconda/lib/python2.7/site-packages/traitlets/config/application.py", line 87, in catch_config_error
+    return method(app, *args, **kwargs)
+  File "/Users/gsandhu/anaconda/lib/python2.7/site-packages/ipykernel/kernelapp.py", line 448, in initialize
+    self.init_sockets()
+  File "/Users/gsandhu/anaconda/lib/python2.7/site-packages/ipykernel/kernelapp.py", line 251, in init_sockets
+    self.init_iopub(context)
+  File "/Users/gsandhu/anaconda/lib/python2.7/site-packages/ipykernel/kernelapp.py", line 259, in init_iopub
+    self.iopub_thread = IOPubThread(self.iopub_socket, pipe=True)
+  File "/Users/gsandhu/anaconda/lib/python2.7/site-packages/ipykernel/iostream.py", line 66, in __init__
+    self.io_loop = IOLoop(make_current=False)
+  File "/Users/gsandhu/anaconda/lib/python2.7/site-packages/tornado/util.py", line 208, in __new__
+    instance.initialize(**args)
+  File "/Users/gsandhu/anaconda/lib/python2.7/site-packages/zmq/eventloop/ioloop.py", line 133, in initialize
+    super(ZMQIOLoop, self).initialize(impl=impl, **kwargs)
+TypeError: initialize() got an unexpected keyword argument 'make_current'
+[W 13:33:34.827 NotebookApp] KernelRestarter: restart failed
+Update the `ipykernel` package - it should be fixed by 4.7 or newer. https://github.com/ipython/ipykernel/pull/278Same issue fixed for me by updating conda and reinstalling jupyter:
+
+```
+conda update -n base conda
+conda install jupyter
+```I faced similar issue. This is what I did to fix the issue (on Ubuntu) :
+
+- sudo apt-get remove ipython
+- sudo apt-get purge ipython
+- sudo apt-get autoremove
+- pip install jupyter
+
+ipython seemed to be the problem, hence removing it fixed the issue.@akashshah26595 Thanks! That works and helps me a lot!@akashshah26595 You're great!
+`pip install jupyter` for some reason switched my conda environment to Python 3.7, disabling Tensorflow which was installed on Python 3.6...noo it's not working
+The error means that an executable called jupyter-notebook is not on your PATH. Since you are doing  --user installs on macOS, scripts are going in $HOME/Library/Python/2.7/bin, which needs to be on your PATH and isn't by default.  If that's the case, you can add it with:
+
+export PATH="$HOME/Library/Python/2.7/bin:$PATH"
+
+(In mac os x , open .bash_profile file in nano and paste this command to it.)same to me: macos, updated to 3.7 and then rolled back to 3.6.5 python, but seems I have some link to python3.7:
+```
+mcbk:machine-learning todor$ jupyter notebook
+Error executing Jupyter command 'notebook': [Errno 2] No such file or directory
+mcbk:machine-learning todor$ jupyter-notebook
+-bash: /usr/local/bin/jupyter-notebook: /usr/local/opt/python/bin/python3.7: bad interpreter: No such file or directory
+```
+I have done already `pip3 uninstall jupyter && pip3 install jupyter`
+could you please help me?Dunno how is it possible. the following command was running smoothly: `python -m IPython notebook`
+why does it happen?Executing 
+
+```
+sudo apt-get remove ipython
+sudo apt-get purge ipython
+sudo apt-get autoremove
+pip install jupyter
+```
+... did not solve the issue. I'm using Ubuntu 18.04.It seems to me as though the installation has messed up somehow. Try running:
+
+# For Python 2
+pip install --upgrade --force-reinstall --no-cache-dir jupyter
+# For Python 3
+pip3 install --upgrade --force-reinstall --no-cache-dir jupyter
+This should reinstall everything from PyPi. This should solve the problem as I think running pip install "ipython[notebook]" messed things up.@hemangjoshi37a 
+Thanks
+It works for me.@hemangjoshi37a 
+Great!
+totally solved my problem@cabric @dboyliao It's okay bros...
+Awesome...For me, on Windows, the `jupyter-notebook` script does not even get generated (searched my file system for it.)
+
+I resorted to manually creating the following file and just running it:
+_`jupyer-notebook.py:`_
+```
+#!/usr/bin/python3
+
+# -*- coding: utf-8 -*-
+import re
+import sys
+
+from notebook.notebookapp import main
+
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
+    sys.exit(main())
+```
+I'm running Linux Mint 19 with python 3.6.6.
+`jupyter notebook` gives me the same error: `Error executing Jupyter command 'notebook': [Errno 2] No such file or directory`
+
+I tried both the solutions provided by @akashshah26595 : 
+`sudo apt-get remove ipython
+sudo apt-get purge ipython
+sudo apt-get autoremove
+pip install jupyter`
+
+and @hemangjoshi37a 
+`pip3 install --upgrade --force-reinstall --no-cache-dir jupyter`
+
+NONE of these solutions worked for me. I still get the same error and nothing else.
+
+Can anybody please help me sort this out?
+
+
+@jodobear, have you got `unable to uninstall distutils installed package` error messages from `pip3 install --upgrade --force-reinstall --no-cache-dir jupyter`? If so you need to remove those packages manually and try `pip3 install --upgrade --force-reinstall --no-cache-dir jupyter` until it runs with no error.Try jupyter-notebook
+it will tell you to install
+"sudo apt install jupyter-notebook"
+now try "jupyter-notebook"
+works fineubuntu 18: try as mentioned above, 
+$ pip3 install jupyter-notebook
+then just
+$jupyter-notebookI had the same issue. While running @hemangjoshi37a command I've received the message that the directory packages being installed are not added to the Path.
+
+I have added my python directory to the Path, ran mentioned
+ `pip3 install --upgrade --force-reinstall --no-cache-dir jupyter`
+, and it worked.> It seems to me as though the installation has messed up somehow. Try running:
+> 
+> # For Python 2
+> pip install --upgrade --force-reinstall --no-cache-dir jupyter
+> 
+> # For Python 3
+> pip3 install --upgrade --force-reinstall --no-cache-dir jupyter
+> This should reinstall everything from PyPi. This should solve the problem as I think running pip install "ipython[notebook]" messed things up.
+
+Thanks, it worked for me.On Mac OS High Sierra I had to disable SIP. Mac OS system protection that blocks modifications in certain /Library files.
+To disable SIP restart holding command+R > Open Terminal > run command 
+`csrutil disable`
+then
+`reboot`
+then hemangjoshi37a's saved my previously installed Python 3.7 and Anaconda for 3.7
+
+pip3 install --upgrade --force-reinstall --no-cache-dir jupyter
+
+
+ 
+i faced this same issue severely :( ,, and finally i found it alone ))) ///
+and its all abt **RANSOMEWARE PROTECTION** on my **windows 10 pro**.. *it wont let u over write any files and folder by third party apps under this protection*.
+
+1. -  Open the **Windows Security app** by clicking the shield icon in the
+task bar or searching the start menu for Defender.
+
+2. - Click the **Virus & threat protection** tile (or the shield icon on    the left menu bar) and then click **Ransomware protection**.
+            
+3. - Set the switch for Controlled folder access to "**OFF**"
+
+and happy jupyter)))Had the same problem.
+use `jupyter-notebook` instead of `jupyter notebook`what is the wrong?
+`➜  3 time number jupyter notebook
+Error executing Jupyter command 'notebook': [Errno 20] Not a directory`For me to solve the problem. instead of installing jupyter with `pip3 install jupyter `as stated on the jupyter website
+
+In terminal, simply do 
+`pip3 install numpy`
+
+after
+`sudo apt-get install jupyter`
+
+then run 
+`jupyter notebook`
+ to launch jupyter.
+
+Cheers!!!
+
+Had the same issue: -
+What I did : Try Locating Anaconda Navigator on your Mac using Spotlight Search, 
+                     Click -> Launch Jupyter notebook, Works perfectly on mine. 
+Also : Do the update afterwards : ` conda update conda`, then just simply run `jupyter notebook`
+Works Great now > Same issue fixed for me by updating conda and reinstalling jupyter:
+> 
+> ```
+> conda update -n base conda
+> conda install jupyter
+> ```
+
+Thaaaanks!!! This solves my issue.> I faced similar issue. This is what I did to fix the issue (on Ubuntu) :
+> 
+>     * sudo apt-get remove ipython
+> 
+>     * sudo apt-get purge ipython
+> 
+>     * sudo apt-get autoremove
+> 
+>     * pip install jupyter
+> 
+> 
+> ipython seemed to be the problem, hence removing it fixed the issue.
+
+Hi. Just a warning to everyone else. Using autoremove f**ing ruined my whole enviroment and it wasn't even the solution. 
+Now I have a bigger problem.
+Thank you for telling people indiscriminately to use "Autoremove" like it was nothing and taking away our time.
+Cheers.I am using ubuntu and i had tried all the solutions above, and they didn't work for me. I solved the problem using: sudo apt install jupyter-notebookIt is probably because you used an env of python. And in that env, the jupyter is not installed. Just reinstall jupyter in that env.> Try jupyter-notebook
+> it will tell you to install
+> "sudo apt install jupyter-notebook"
+> now try "jupyter-notebook"
+> works fine
+
+works for me. Thx!For those who have tried all of the methods above and still have not get it to work, here is the solution for me:
+
+`python -m jupyter notebook`
+or 
+`python -m jupyter lab`
+(use `python3` or `python3.6` instead of `python` if needed)
+
+Good luck!ipython notebook 
+
+open this command and use thisif you are using anconda then use this coomand 
+ipython notebook
+#4960 > Try jupyter-notebook
+> it will tell you to install
+
+
+> "sudo apt install jupyter-notebook"
+> now try "jupyter-notebook"
+> works fine
+
+
+
+"sudo apt install jupyter-notebook"
+--it worked for me
+~$ sudo apt install jupyter-notebook
+
+it will star downloading like this..........
+
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following additional packages will be installed:
+  fonts-font-awesome fonts-mathjax javascript-common
+  jupyter-nbextension-jupyter-js-widgets libjs-backbone libjs-bootstrap
+  libjs-bootstrap-tour libjs-codemirror libjs-es6-promise libjs-jed
+  libjs-jquery libjs-jquery-typeahead libjs-jquery-ui libjs-marked
+  libjs-mathjax libjs-moment libjs-requirejs libjs-requirejs-text
+  libjs-text-encoding libjs-underscore libjs-xterm liblua5.1-0 libluajit-5.1-2
+  libluajit-5.1-common pandoc pandoc-data python3-bleach python3-entrypoints> Try jupyter-notebook
+> it will tell you to install
+> "sudo apt install jupyter-notebook"
+> now try "jupyter-notebook"
+> works fine
+
+Work for me! thanksNop
+ipython notebook
+
+Work fine
+😊
+
+On Sun, 16 Feb, 2020, 5:01 AM Vinícius, <notifications@github.com> wrote:
+
+> Try jupyter-notebook
+> it will tell you to install
+> "sudo apt install jupyter-notebook"
+> now try "jupyter-notebook"
+> works fine
+>
+> Work for me! thanks
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/4966?email_source=notifications&email_token=AKGSGT74QIPGY76SPN6IZNDRDB3NRA5CNFSM4JASDH42YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOEL3ZM3I#issuecomment-586651245>,
+> or unsubscribe
+> <https://github.com/notifications/unsubscribe-auth/AKGSGTYFOLPSIAWIVTGTPVLRDB3NRANCNFSM4JASDH4Q>
+> .
+>
+"sudo apt install jupyter-notebook"
+
+This is not working 
+
+> It seems to me as though the installation has messed up somehow. Try running:
+> 
+> # For Python 2
+> pip install --upgrade --force-reinstall --no-cache-dir jupyter
+> 
+> # For Python 3
+> pip3 install --upgrade --force-reinstall --no-cache-dir jupyter
+> This should reinstall everything from PyPi. This should solve the problem as I think running pip install "ipython[notebook]" messed things up.
+
+Thank you very muchyes sure this is running....> Same issue fixed for me by updating conda and reinstalling jupyter:
+> 
+> ```
+> conda update -n base conda
+> conda install jupyter
+> ```
+
+This is the only solution that works for me. yeah sure...
+This is working fine... There have been lots of great responses and sufficient success to warrant this issue's closure.  Should others encounter this same issue and have applied the suggested tips, we can either reopen it or create a new issue (preferred).  Thanks to everyone for helping out with this issue.> For those who have tried all of the methods above and still have not get it to work, here is the solution for me:
+> 
+> `python -m jupyter notebook`
+> or
+> `python -m jupyter lab`
+> (use `python3` or `python3.6` instead of `python` if needed)
+> 
+> Good luck!
+
+I appreciate for that, JupyterLab is working with that.
+Should I open the JupyterLab always in this way? Could it cause any problem? 
+yes this is also working fine...
+`python -m jupyter notebook `
+(use python 3 and python3.6)
+..
+> For me to solve the problem. instead of installing jupyter with `pip3 install jupyter `as stated on the jupyter website
+> 
+> In terminal, simply do
+> `pip3 install numpy`
+> 
+> after
+> `sudo apt-get install jupyter`
+> 
+> then run
+> `jupyter notebook`
+> to launch jupyter.
+> 
+> Cheers!!!
+
+it's work for me. tnks
+yeah sure this working fine> Update the `ipykernel` package - it should be fixed by 4.7 or newer. [ipython/ipykernel#278](https://github.com/ipython/ipykernel/pull/278)
+
+Jupyter notebook stopped working once I logged out and logged in again.
+This solution worked for me.> It seems to me as though the installation has messed up somehow. Try running:
+> 
+> # For Python 2
+> pip install --upgrade --force-reinstall --no-cache-dir jupyter
+> 
+> # For Python 3
+> pip3 install --upgrade --force-reinstall --no-cache-dir jupyter
+> This should reinstall everything from PyPi. This should solve the problem as I think running pip install "ipython[notebook]" messed things up.
+
+Beautiful. Works great thanks @hemangjoshi37a this is also working....
+@nhat416 

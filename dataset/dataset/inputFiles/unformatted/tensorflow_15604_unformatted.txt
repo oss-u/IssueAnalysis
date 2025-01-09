@@ -1,0 +1,878 @@
+I installed tf-nightly build and I get the following error on import of tensorflow.
+`ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory`.
+
+If I check for cuda 9, I get the following:
+```
+ldconfig -v
+/usr/local/cuda-8.0/targets/x86_64-linux/lib:
+	libnvgraph.so.8.0 -> libnvgraph.so.8.0.61
+	libnppicom.so.8.0 -> libnppicom.so.8.0.61
+	libnppial.so.8.0 -> libnppial.so.8.0.61
+	libcufftw.so.8.0 -> libcufftw.so.8.0.61
+	libcufft.so.8.0 -> libcufft.so.8.0.61
+	libnppif.so.8.0 -> libnppif.so.8.0.61
+	libcublas.so.8.0 -> libcublas.so.8.0.88
+	libnvblas.so.8.0 -> libnvblas.so.8.0.88
+	libnppi.so.8.0 -> libnppi.so.8.0.61
+	libcusolver.so.8.0 -> libcusolver.so.8.0.61
+	libnppidei.so.8.0 -> libnppidei.so.8.0.61
+	libnvrtc-builtins.so.8.0 -> libnvrtc-builtins.so.8.0.61
+	libnvrtc.so.8.0 -> libnvrtc.so.8.0.61
+	libnpps.so.8.0 -> libnpps.so.8.0.61
+	libcuinj64.so.8.0 -> libcuinj64.so.8.0.61
+	libnppig.so.8.0 -> libnppig.so.8.0.61
+	libOpenCL.so.1 -> libOpenCL.so.1.0.0
+	libnppicc.so.8.0 -> libnppicc.so.8.0.61
+	libnppist.so.8.0 -> libnppist.so.8.0.61
+	libnppisu.so.8.0 -> libnppisu.so.8.0.61
+	libnppim.so.8.0 -> libnppim.so.8.0.61
+	libcurand.so.8.0 -> libcurand.so.8.0.61
+	libcudart.so.8.0 -> libcudart.so.8.0.61
+	libnvToolsExt.so.1 -> libnvToolsExt.so.1.0.0
+	libnppitc.so.8.0 -> libnppitc.so.8.0.61
+	libnppc.so.8.0 -> libnppc.so.8.0.61
+	libcusparse.so.8.0 -> libcusparse.so.8.0.61
+/usr/local/cuda-9.1/targets/x86_64-linux/lib:
+	libnppicc.so.9.1 -> libnppicc.so.9.1.85
+	libnppisu.so.9.1 -> libnppisu.so.9.1.85
+	libcufftw.so.9.1 -> libcufftw.so.9.1.85
+	libcufft.so.9.1 -> libcufft.so.9.1.85
+	libnppial.so.9.1 -> libnppial.so.9.1.85
+	libnppist.so.9.1 -> libnppist.so.9.1.85
+	libcublas.so.9.1 -> libcublas.so.9.1.85
+	libnvblas.so.9.1 -> libnvblas.so.9.1.85
+	libnppitc.so.9.1 -> libnppitc.so.9.1.85
+	libcusolver.so.9.1 -> libcusolver.so.9.1.85
+	libnvrtc.so.9.1 -> libnvrtc.so.9.1.85
+	libnvrtc-builtins.so.9.1 -> libnvrtc-builtins.so.9.1.85
+	libnppidei.so.9.1 -> libnppidei.so.9.1.85
+	libOpenCL.so.1 -> libOpenCL.so.1.0.0
+	libnppig.so.9.1 -> libnppig.so.9.1.85
+	libnppc.so.9.1 -> libnppc.so.9.1.85
+	libcudart.so.9.1 -> libcudart.so.9.1.85
+	libnvToolsExt.so.1 -> libnvToolsExt.so.1.0.0
+	libnvgraph.so.9.1 -> libnvgraph.so.9.1.85
+	libnppif.so.9.1 -> libnppif.so.9.1.85
+	libcusparse.so.9.1 -> libcusparse.so.9.1.85
+	libaccinj64.so.9.1 -> libaccinj64.so.9.1.85
+	libcuinj64.so.9.1 -> libcuinj64.so.9.1.85
+	libnppim.so.9.1 -> libnppim.so.9.1.85
+	libnppicom.so.9.1 -> libnppicom.so.9.1.85
+	libnpps.so.9.1 -> libnpps.so.9.1.85
+	libcurand.so.9.1 -> libcurand.so.9.1.85
+```
+I that due to a name mismatch. `libcublas.so.9.0 =! libcublas.so.9.1`? And if so how can we overcome this?I think this is due to the fact that you have CUDA 9.1 and not 9.0, I am facing exactly the same issue.@Timonzimm I know and I think the whole issue is this f** naming libcublas.so.xxx that nvidia puts. This inherently is mismatch on linux systems whenever that number changes, so since it can not find the exact matches then it thinks the file doesn't exist and throws the error.I think you should use symbol link from ''cuda/''   to ''cuda/9.1",or your cuda version is too new to tensorflow master branch@burui11087 I completely forgot about symlinking. Thanks for reminding me.Seems like this is resolved (and the root cause was a version mismatch of CUDA - 9.0 vs 9.1)?
+Closing this out since I understand it to be resolved, but please let me know if I'm mistaken.
+
+FYI @gunan @av8ramit (who are working on the upcoming 1.5 release)I also occur the exactly same problem with kirk86. For me, I installed cuda toolkit 8.0, and cudnn 5.1.
+Then I did what you guys said above, all of them does not work. For using nightlies, you have to have CUDA 9.0 and cudnn 7 installed.
+@yangfengKAUST with the current version of cuda and cudnn installed TF is just complaining that it cannot find the versions it is expecting.@Timonzimm  I am facing the same issue. Have you figured it out? I have 8.0, 9.0, 9.1 installed + cudnn versions which seem specific to each.  The sym  linking didn't work from the 9.1 libs.  I suspect that sometimes the symlink in the LD_LIBRARY_PATH doesn't work either when I switch versions on the /usr/local/cuda link.  I ended up just doing it the low tech way to get the libraries loaded into my java program until I can figure out a cleaner way to handle the paths inside of Eclipse. 
+
+	    try {
+	        System.load("/usr/local/cuda/lib64/libcublas.so.9.0");
+	        System.load("/usr/local/cuda/lib64/libcusolver.so.9.0");
+	        System.load("/usr/local/cuda/lib64/libcudart.so.9.0");
+	        System.load("/usr/local/cuda/lib64/libcufft.so.9.0");
+	        System.load("/usr/local/cuda/lib64/libcurand.so.9.0");
+
+	        System.load("/home/greg/Desktop/platform/tensorbuilder/jni/libtensorflow_jni.so");
+	      } catch (UnsatisfiedLinkError e) {
+	          System.err.println("Native code library failed to load.\n" + e);
+	          System.exit(1);
+	      }
+.  @asimshankar Would like to know that in your above comment you mean that we should downgrade cuda to 9.0 and tensorflow 1.5 doesn't work with cuda 9.1 ? 
+
+You have closed this issue but its not clear what is the correct action that  we should take!
+
+Note: I also have cuda 9.1 installed instead of cuda 9.0.  Just FYI, I have both installed.  Building from scratch will work w/ either, but the nightly binaries use 9.0. @AwasthiMaddy - Yes TensorFlow 1.5 release binaries are built for CUDA 9.Have you solved it ? This problem is caused tensorflow-gpu-1.5 required cuda 9.0 ,so you should install tensorflow-gpu-1.4. And rember uninstall tensorflow-gpu-1.5. Please use this"pip install --upgrade tensorflow-gpu==1.4"@aipeteryao  - Thank you. Someone needs to fix the https://www.tensorflow.org/install/install_linux page if this is true, I just followed its instructions exactly, and tells you to install CUDA 8.0 (specifically, not "latest CUDA").
+
+Then as soon as you're done, you get this error (it is looking for cublas 9.0, which, from what I can read here, would not have worked either, as CUDA 9.1 is the default you get from NVIDIA).
+
+Either the webpage instructions should work with the default latest of everything, or it should tell you explicitly to install tensorflow-gpu-1.4 (for example) and not tensorflow-gpu..Seconding bwesons's comment. I have CUDA 8.0 and Tensorflow 1.3. I followed the current install instructions for TF 1.5 (GPU, ubuntu, virtualenv) and it breaks as described above. Reverting to TF 1.3 until this is resolved.@aipeteryao This fixed it, thanks!  I ended up uninstalling the latest version and installing 1.4, in my virtualenv.
+
+```
+pip3 uninstall tensorflow-gpu
+pip3 install --upgrade tensorflow-gpu==1.4
+```
+
+The install page for Ubuntu should be updated: https://www.tensorflow.org/install/install_linux
+Since TensorFlow 1.5 is expecting Cuda 9.0 ( NOT 9.1 ), as well as cuDNN 7In fact, we should view the official document of tensorflow ,it give tensorflow‘s envirment(include python,gcc,cuda,cudnn,an so on).@bwesen yes,you were right .My computer installed CUDA 8.0,cudnn 6.0 ,tensorflow 1.4.I think this issue should still be open.  @bwesen's [comment](https://github.com/tensorflow/tensorflow/issues/15604#issuecomment-362637994) is correct.  [The docs](http://archive.is/S1P6z) tell you to install Cuda 8.0 and use `pip install --upgrade tensorflow-gpu`.  Right now that gives you tensorflow 1.5 which does not work with Cuda 8.0
+
+pinging @asimshankar I have the same issue (with cuda 9.1 + tensorflow 1.5). I think to resolve it, one option is that to downgrade cuda to 9.0. The other option would be to downgrade both cuda to 8.0 and tensorflow to 1.4. If you have already installed cuda 8.0, you only need to modify `LD_LIBRARY_PATH` (and `CUDA_HOME`) environment variable to point to cuda 8.0 directory (i.e. `/usr/local/cuda-8.0`).I'm getting this issue (Cuda 9.1.85, cuDNN 7.05)
+
+Tried with tensorflow 1.5, it broke. Uninstalled, installed 1.4 with ```pip3 install --upgrade tensorflow-gpu==1.4```, still broke.@DylanDmitri  1.5 expects Cuda 9.0, not 9.1
+
+Have you tried with Cuda 9.0 drivers?  @DylanDmitri @mkaze You need Cuda 9.0.
+
+Also, for anyone having trouble installing requirements, I suggest double checking your cuDNN installation.  The .deb file didn't work for me because it did not copy files to the right place.  I had to use the .tgz file and manually copy files according to nVidia's directions in order to get a working installation.Why not just install cuda-9-0?
+- Go here: https://developer.nvidia.com/cuda-90-download-archive
+- Then, for me: Download deb (network)
+```
+sudo dpkg -i cuda-repo-ubuntu1604_9.0.176-1_amd64.deb
+sudo apt-key adv --fetch-keys \
+     http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
+sudo apt-get update
+sudo apt-get install cuda-9-0
+```> Why not just install cuda-9-0?
+
+@abrahamrhoffman That's easy for anyone who has sudo privileges but what about people on a shared system like a cluster environment with simple user privileges. In those cases even if you ask from the sys admin to install any libraries most probably the answer is gonna be NO! Since they are afraid that might interfere with other users' settings and environments.
+
+@abrahamrhoffman Would you also mind providing a justification on the down vote?
+I installed cuda-9.0 and still it does not work. This is really irritating.Please make sure to set your PATH variable appropriately, such as described here: https://stackoverflow.com/questions/39287744/ubuntu-16-04-nvidia-toolkit-8-0-rc-darknet-compilation-error-expected-a/41290056#41290056
+
+```
+export PATH=/usr/local/cuda-9.0/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda9.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+```cuda 9.1 is the current version. I want TF to use it. How to?Even tf-nightly-gpu is not looking for cuda 9.1. MehI tried symbolic links from all the 9.0 filenames to all the 9.1 filenames and it didn't work. In the end, TF knows the true version. The repo doesn't even have 9.0 anymore so I'm afraid I'll break my nvidia stuff if I remove 9.1 and then manually install 9.0.I fix him for now by:
+
+Download deb (network) from: https://developer.nvidia.com/cuda-90-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1604&target_type=debnetwork
+
+Then: `dpkg -i cuda-repo-ubuntu1604_9.0.176-1_amd64.deb`
+
+Then: aptitude update
+
+Then: aptitude install cuda-9-0First I've installed tensorflow 1.5, it broke, and I get the following error:
+`ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory`
+then I uninstalled,  installed 1.4 with pip install --upgrade tensorflow-gpu==1.4, it did't work,  and I get the following error:
+`ImportError: libcublas.so.8.0: cannot open shared object file: No such file or directory`
+@xiezhongzhao What version of Cuda are you using? For tensorflow 1.5 you must have installed the Cuda 9.0 and for tensorflow 1.4 you must use cuda 8.0. If the the tensorflow version and cuda version are compatible, then check the environment variables i.e. `CUDA_HOME `and `LD_LIBRARY_PATH`.@mkaze I used Cuda9.1@xiezhongzhao Install Cuda 9.0 and you should be fine. Tensorflow 1.5 does not work with Cuda 9.1.@mkaze Thank you very muchI am also getting this issue and struggling to resolve it.  
+```
+$ pip3 install tensorflow-gpu
+$ python3
+>>> import tensorflow
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.5/site-packages/tensorflow/python/pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "/home/ubuntu/.local/lib/python3.5/site-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "/home/ubuntu/.local/lib/python3.5/site-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "/usr/lib/python3.5/imp.py", line 242, in load_module
+    return load_dynamic(name, filename, file)
+  File "/usr/lib/python3.5/imp.py", line 342, in load_dynamic
+    return _load(spec)
+ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory
+```
+I installed following these instructions
+https://www.tensorflow.org/install/install_linux#nvidia_requirements_to_run_tensorflow_with_gpu_support
+
+I believe I installed the right versions from nvidia.  filenames were 
+`cuda-repo-ubuntu1604_9.0.176-1_amd64.deb`
+and `cudnn-9.0-linux-x64-v7.tgz` (version 7.0.5)
+
+I set the path as per those instructions on the tensorflow docs and also tried the instructions that `abrahamrhoffman` gave above.
+
+When I run ldconfig -v I get some 9.0 libs, but do not see libcublas.so.9.0
+```
+/usr/local/cuda-9.0/targets/x86_64-linux/lib:
+	libaccinj64.so.9.0 -> libaccinj64.so.9.0.176
+	libOpenCL.so.1 -> libOpenCL.so.1.0.0
+	libnvToolsExt.so.1 -> libnvToolsExt.so.1.0.0
+	libcuinj64.so.9.0 -> libcuinj64.so.9.0.176
+	libcudart.so.9.0 -> libcudart.so.9.0.176
+/usr/local/cuda-9.1/targets/x86_64-linux/lib:
+	libnppif.so.9.1 -> libnppif.so.9.1.85
+	libcusparse.so.9.1 -> libcusparse.so.9.1.85
+	libcusolver.so.9.1 -> libcusolver.so.9.1.85
+	libnpps.so.9.1 -> libnpps.so.9.1.85
+	libnppial.so.9.1 -> libnppial.so.9.1.85
+	libnvgraph.so.9.1 -> libnvgraph.so.9.1.85
+	libcuinj64.so.9.1 -> libcuinj64.so.9.1.85
+	libaccinj64.so.9.1 -> libaccinj64.so.9.1.85
+	libnppicc.so.9.1 -> libnppicc.so.9.1.85
+	libcudart.so.9.1 -> libcudart.so.9.1.85
+	libnppc.so.9.1 -> libnppc.so.9.1.85
+	libnppicom.so.9.1 -> libnppicom.so.9.1.85
+	libOpenCL.so.1 -> libOpenCL.so.1.0.0
+	libnppig.so.9.1 -> libnppig.so.9.1.85
+	libnvToolsExt.so.1 -> libnvToolsExt.so.1.0.0
+	libnppidei.so.9.1 -> libnppidei.so.9.1.85
+	libcurand.so.9.1 -> libcurand.so.9.1.85
+	libnvblas.so.9.1 -> libnvblas.so.9.1.128
+	libnvrtc.so.9.1 -> libnvrtc.so.9.1.85
+	libnppitc.so.9.1 -> libnppitc.so.9.1.85
+	libnppist.so.9.1 -> libnppist.so.9.1.85
+	libcublas.so.9.1 -> libcublas.so.9.1.128
+	libnppim.so.9.1 -> libnppim.so.9.1.85
+/sbin/ldconfig.real: /usr/local/cuda-9.1/targets/x86_64-linux/lib/libcudnn.so.7 is not a symbolic link
+
+	libcudnn.so.7 -> libcudnn.so.7.0.5
+	libcufftw.so.9.1 -> libcufftw.so.9.1.85
+	libcufft.so.9.1 -> libcufft.so.9.1.85
+	libnppisu.so.9.1 -> libnppisu.so.9.1.85
+	libnvrtc-builtins.so.9.1 -> libnvrtc-builtins.so.9.1.85
+```
+
+I did not install 9.1, at least not intentionally.  This is on a amazon ec2 instance with stock ubuntu 16.04.  
+nvidia-smi also returns a gpu, this is a g3.4xlarge instance
+
+any guidance is greatly appreciated. Per the CUDNN guide at:
+
+http://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html
+
+You need to copy the unpacked files (from the directory you ran `$ tar -xzvf cudnn-9.0-linux-x64-v7.tgz` or similar) into `/usr/local/cuda` subdirectories:
+
+`$ sudo cp cuda/include/cudnn.h /usr/local/cuda/include`
+`$ sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64`
+`$ sudo chmod a+r /usr/local/cuda/include/cudnn.h`
+`/usr/local/cuda/lib64/libcudnn*`
+Thank you for the reply @entropy43.  
+
+I should have been more specific.  I did those two `cp` and the `chmod` commands after `tar`.  When I look in the folder cuda folder for where I ran the tar command like `ls cuda/lib64` I see
+```libcudnn.so  libcudnn.so.7  libcudnn.so.7.0.5  libcudnn_static.a```
+
+I tried this section as well from the nvidia [doc](http://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html)
+`2.3.2. Installing from a Debian File`
+
+and the tests pass here in `2.4. Verifying`
+
+Any advice to get that lib is appreciated Could someone please summarize where this currently stands? I am using TF1.3 + cuda 8 with no problem. I'd  like to upgrade but it seems like the install process for newer versions is completely broken. Advice?Similar to what yazabazra is asking above:
+TF1.6 Ubuntu 16.04
+nvcc -V
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2017 NVIDIA Corporation
+Built on Fri_Nov__3_21:07:56_CDT_2017
+Cuda compilation tools, release 9.1, V9.1.85
+Which requited a Nvidia display driver 390+
+Critical to see: https://devtalk.nvidia.com/default/topic/1000340/cuda-setup-and-installation/-quot-nvidia-smi-has-failed-because-it-couldn-t-communicate-with-the-nvidia-driver-quot-ubuntu-16-04/post/5243047/#5243047
+
+whelp to add to it all,, After a major amount of hassle I got the Nvidia updated to the newest release see above, as the TF doc indicated that there were bugs in an earlier release.. 
+
+Now I'm getting the : 
+ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory
+Failed to load the native TensorFlow runtime.
+
+Which appears to be a mismatch between 9.0 (TF wants) vs 9.1 Which is most current Nvidia.
+It would seem better to run with 9.1 but I'd rather avoid building TF from source and it seems that may not fix it anyhow..
+
+Can this combo be made to work with a binary package?
+TF 1.6 Cuda 9.1 ??
+Further note and caution to those looking here.. after upgrading my Nvidia stuff my older versions of TF in separate conda env's no longer work as the older TF wants : ImportError: libcublas.so.8.0: cannot open shared object file: No such file or directory
+so 9.1 won't cut it.. how about specifying greater than?? vs specific versions? just a suggestion.. In the meantime I'm dead in the water..
+And this is why availability of a binary that supports 9.1 would be nice: (from the TF1.6 release notes)
+
+Using XLA:GPU with CUDA 9 and CUDA 9.1 results in garbage results and/or
+CUDA_ILLEGAL_ADDRESS failures.
+
+Google discovered in mid-December 2017 that the PTX-to-SASS compiler in CUDA 9
+and CUDA 9.1 sometimes does not properly compute the carry bit when
+decomposing 64-bit address calculations with large offsets (e.g. load [x + large_constant]) into 32-bit arithmetic in SASS.
+
+As a result, these versions of ptxas miscompile most XLA programs which use
+more than 4GB of temp memory. This results in garbage results and/or
+CUDA_ERROR_ILLEGAL_ADDRESS failures.
+
+A fix in CUDA 9.1.121 is expected in late February 2018. We do not expect a
+fix for CUDA 9.0.x. Until the fix is available, the only workaround is to
+downgrade to CUDA 8.0.x
+or disable XLA:GPU.
+
+Maybe one of the nightlies does it?Another solution? can one install multiple revisions of Cuda since  TF seems to search for specific Rev's? If so, any advice as to how to? 
+
+So Ideally I'd be able to to run TF 1.4(which currently requires Cuda 8.0) in one conda environment and TF 1.6 (which currently requires Cuda 9.0) in another?So I  just added sudo apt-get -y install cuda-toolkit-9.0 and I'm up and running with TF1.6@dartdog after installing cuda-toolkit-9.0, did you face the issue `ImportError: libcudnn.so.7: cannot open shared object file: No such file or directory` ? @dartdog 
+```
+sudo apt-get install cuda-7-0
+vim ~/.bashrc
+export PATH=/usr/local/cuda-7.0/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda7.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+export PATH=/usr/local/cuda-9.0/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda9.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+```This is definitely supposed to be included in the tensorflow documentation, as said by @bwesen. It should also be included in the errors list. Is it possible for us do this in anyway? I think I am going to open a new issue, requesting to either add support for cuda 9.1, or mention that you need cuda 9.0 specifically in the docs, and also include this in the errors listOk, guys. I have now opened a new issue at https://github.com/tensorflow/tensorflow/issues/17629.I was handling with this issue as well. What worked for me with tensorflow-gpu 1.6:
+- I downloaded the toolkit from the [archive](https://developer.nvidia.com/cuda-toolkit-archive) as 9.0 but it got installed as 9.1 (I do not know why...)
+- Still not found libcublas.so.9.0
+- Run: `sudo apt-get install cuda-libraries-9-0` as suggested at the end of the installation instructions.
+- The issue seems to have been solved.If you want to have tensorflow work with your CUDA version, you need to first uninstall it then compile it from source and specify the CUDA version while running ./configure
+Detailed information can be found here: [https://www.tensorflow.org/install/install_sources](url)I am trying this (which builds tensorflow manually)[link](http://www.python36.com/install-tensorflow141-gpu/)
+
+Might take a while longer but you can define the minor versions this way. @mldm4 actually, the command `sudo apt-get install cuda` probably installed 9.1 for you because you also had that in your system. I had the same problem, and I did `sudo apt-get install cuda-9-0` to install a specific version (I had also downloaded from the archive).
+I think the commad you did (`sudo apt-get install cuda-libraries-9-0`) also downloads cuda 9.0.
+This issue is not solved, as I mentioned at issue 17629, I know the problem is that TensorFlow expects version 9.0, while I had 9.1. The issue is to mention this more clearly in the docs and include it in the common installation problems in the bottom of the docs, or update tensorflow to accept Cuda 9.1.so no solution yet?@thread :
+
+****Please read through the posts carefully! The answer is posted.****
+
+ It is your job to read the thread, and discover the solution; not simply scroll to the end. @abrahamrhoffman that's rude.
+
+I just changed my batchrc from cuda-9.1 to just cuda. Then my tensorflow is able of finding the libcublas.so.9.0just fyi: nvidia website for downloading cuda-9.0 is actually downloading cuda-9.1. https://developer.nvidia.com/cuda-90-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1604&target_type=deblocal@DanlanChen That is probably because you also have 9.1 installed. To install 9.0, in the steps to download, do `sudo apt-get install cuda-9-0` instead of `sudo apt-get install cuda`.@cubetastic33  I downgraded my tensorflow version and use cuda8.0, thank you anyway.@DanlanChen but then, I guess it is preffered to use the latest version. So, if you ever want to upgrade, you now know what to do! :smile:Im facing the same issue, but I am trying to run tensorflow using nvidia-docker. I have cuda-9-0 installed on the host, but when I try to run my docker container I get
+
+`ImportError: libcuda.so.1: cannot open shared object file: No such file or directory`@magick93 and all that turn up here!
+
+LISTEN! Anything you need is downgrade your cuda 9.1 -> cuda 9.0. That's it! Just do it (if you downloaded cuda 9.1 before that you can execute following command in your terminal):
+
+`sudo apt-get install cuda-9-0` and remove cuda 9.1 by rm -rf.
+
+Btw, don't forget to change $PATH in your `~/.bashrc` (9.1 -> 9.0).Hi @Oktai15 
+
+> LISTEN! Anything you need is downgrade your cuda 9.1 -> cuda 9.0. That's it! Just do it 
+
+Yes, I have done this - many times. 
+
+```
+sudo apt-get install cuda-9-0
+[sudo] password for anton: 
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+cuda-9-0 is already the newest version (9.0.176-1).
+0 upgraded, 0 newly installed, 0 to remove and 7 not upgraded.
+```
+
+```
+$ ldconfig -p | grep cuda
+	libnvrtc.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnvrtc.so.9.0
+	libnvrtc.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnvrtc.so
+	libnvrtc-builtins.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnvrtc-builtins.so.9.0
+	libnvrtc-builtins.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnvrtc-builtins.so
+	libnvgraph.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnvgraph.so.9.0
+	libnvgraph.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnvgraph.so
+	libnvblas.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnvblas.so.9.0
+	libnvblas.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnvblas.so
+	libnvToolsExt.so.1 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnvToolsExt.so.1
+	libnvToolsExt.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnvToolsExt.so
+	libnpps.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnpps.so.9.0
+	libnpps.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnpps.so
+	libnppitc.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppitc.so.9.0
+	libnppitc.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppitc.so
+	libnppisu.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppisu.so.9.0
+	libnppisu.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppisu.so
+	libnppist.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppist.so.9.0
+	libnppist.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppist.so
+	libnppim.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppim.so.9.0
+	libnppim.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppim.so
+	libnppig.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppig.so.9.0
+	libnppig.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppig.so
+	libnppif.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppif.so.9.0
+	libnppif.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppif.so
+	libnppidei.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppidei.so.9.0
+	libnppidei.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppidei.so
+	libnppicom.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppicom.so.9.0
+	libnppicom.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppicom.so
+	libnppicc.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppicc.so.9.0
+	libnppicc.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppicc.so
+	libnppial.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppial.so.9.0
+	libnppial.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppial.so
+	libnppc.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppc.so.9.0
+	libnppc.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libnppc.so
+	libicudata.so.55 (libc6,x86-64) => /usr/lib/x86_64-linux-gnu/libicudata.so.55
+	libcusparse.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcusparse.so.9.0
+	libcusparse.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcusparse.so
+	libcusolver.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcusolver.so.9.0
+	libcusolver.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcusolver.so
+	libcurand.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcurand.so.9.0
+	libcurand.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcurand.so
+	libcuinj64.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcuinj64.so.9.0
+	libcuinj64.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcuinj64.so
+	libcufftw.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcufftw.so.9.0
+	libcufftw.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcufftw.so
+	libcufft.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcufft.so.9.0
+	libcufft.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcufft.so
+	libcudnn.so.7 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcudnn.so.7
+	libcudart.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcudart.so.9.0
+	libcudart.so.7.5 (libc6,x86-64) => /usr/lib/x86_64-linux-gnu/libcudart.so.7.5
+	libcudart.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcudart.so
+	libcudart.so (libc6,x86-64) => /usr/lib/x86_64-linux-gnu/libcudart.so
+	libcuda.so.1 (libc6,x86-64) => /usr/lib/x86_64-linux-gnu/libcuda.so.1
+	libcuda.so (libc6,x86-64) => /usr/lib/x86_64-linux-gnu/libcuda.so
+	libcublas.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcublas.so.9.0
+	libcublas.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libcublas.so
+	libaccinj64.so.9.0 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libaccinj64.so.9.0
+	libaccinj64.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libaccinj64.so
+	libOpenCL.so.1 (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libOpenCL.so.1
+	libOpenCL.so (libc6,x86-64) => /usr/local/cuda-9.0/targets/x86_64-linux/lib/libOpenCL.so
+
+```
+
+Yet I cant even run this simple tensorflow script, as it results I get `ImportError: No module named tensorflow.python.client`
+
+```
+from tensorflow.python.client import device_lib
+
+def get_available_gpus():
+    local_device_protos = device_lib.list_local_devices()
+    return [x.name for x in local_device_protos if x.device_type == 'GPU']
+
+get_available_gpus()
+```
+I had the same issue everybody is having here, installing 9.0 did help but then I got other issues.
+Then I followed [this](https://github.com/williamFalcon/tensorflow-gpu-install-ubuntu-16.04) and it finally worked for me. @Oktai15 doesn't `rm -rf` delete your system? Please be more clear here, because people might try it without going into the required directory, and end up emptying their home folder.@magick93 your issue seems to be something else, not the CUDA version.I had same issue, I think I solved by some changing, this combination works for me
+
+Ubuntu 16, cuda 9.0, cudnn 7.0, python 3,5, tensorflow  1.6
+
+If you install new cuda while you still have previous version please make sure to specify the path  like this
+
+```
+export PATH=/usr/local/cuda-9.0/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+```@Abduoit your Ubuntu version doesn't really matter. The thing is, TensorFlow 1.6 expects CUDA to be version 9.0, and cuDNN to be version 7.0.4 (yes, the 0.4 _does_ matter)Traceback (most recent call last):
+  File "utils.py", line 15, in <module>
+    import tensorflow as tf
+  File "/home/sagar/miniconda2/lib/python2.7/site-packages/tensorflow/__init__.py", line 24, in <module>
+    from tensorflow.python import *
+  File "/home/sagar/miniconda2/lib/python2.7/site-packages/tensorflow/python/__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "/home/sagar/miniconda2/lib/python2.7/site-packages/tensorflow/python/pywrap_tensorflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "/home/sagar/miniconda2/lib/python2.7/site-packages/tensorflow/python/pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "/home/sagar/miniconda2/lib/python2.7/site-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "/home/sagar/miniconda2/lib/python2.7/site-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory
+
+
+Failed to load the native TensorFlow runtime.
+
+See https://www.tensorflow.org/install/install_sources#common_installation_problems
+sudo apt-get install cuda-7-0
+vim ~/.bashrc
+export PATH=/usr/local/cuda-7.0/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda7.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+export PATH=/usr/local/cuda-9.0/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda9.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PA
+for some common reasons and solutions.  Include the entire stack trace
+above this error message when asking for help.As @pascalwhoop mentioned, I followed the instructions in here [http://www.python36.com/install-tensorflow141-gpu/](http://www.python36.com/install-tensorflow141-gpu/) to build Tensorflow from source. 
+
+Whenever it said cuda 9.0 I changed to 9.1, and cudnn 7.0 I put 7.1.2.
+
+Worked fine, so far!@SAGGSOC why are you installing cuda 7.0? You need CUDA 9.0 and CuDNN 7.0.4Everyone who's been having issues: who's up for turning this into a solid docker image that's shared with the community. Rather do a 6gb image pull once that works than DLing 5 versions of CuDNN before stuff works.. 
+
+https://github.com/pascalwhoop/tf_openailab_gpu_docker
+
+I started a while back but stopped because of shifting project focuses. But I think it's worth pursuing. Keeps the whole trouble of finding a the right combination of 17 moving parts away from most ppl. Just to clarify a few things for anyone who might stumble on this post. I have in my system installed cuda-8.0, cuda-9.0, cuda-9.1. You don't have to remove anything to make it work with tensorflow. Instead if you are missing cuda-9.0 from your system, as other have already pointed then you'll need to install it that is a prerequisite for tensorflow to work properly.
+
+If you have cuda-9.0 installed on you system and tensorflow is complaining about `libcublas.so.9.0` again as others have said expose that during runtime through your  `LD_LIBRARY_PATH` environment variable in your `.bashrc` make it point to `/usr/local/cuda-9.0/lib64`. This should be working even for tensorflow 1.7.
+
+What I have tried and failed to accomplish is build from source. For some reason bazel always exits with an error. If you try to build with cuda-9.0/cuda-9.1 and cudnn7 it complains about gcc7. Using gcc5 compilation seems to be working fine but then at the end I always get an error and the build is unsuccessful. 
+
+My question is if anyone has managed to compile from source with cuda-9.1/cuda-9.0 without problems?This worked for me:
+
+Download CUDA Toolkit 9.0 from NVidia previous releases section.
+Then:
+
+```
+sudo dpkg -i cuda-repo-ubuntu1604-9-0-local_9.0.176-1_amd64.deb
+sudo apt-key add /var/cuda-repo-9-0-local/7fa2af80.pub 
+sudo apt-get update
+sudo apt-get install cuda-9.0
+```
+
+Notice 9.0 at the last line above.
+
+`export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64
+`
+
+My setup
+Tensorflow 1.7
+cuDNN 7.1.2
+Ubuntu 16.04
+etemiz, 
+I've got the same setup and it works for me too. 
+
+Thank you for your post :)
+I had teh same situation. I had cuda 9.1, and tensorflow would not find libraries for cuda 9.0.
+
+I have installed cuda 9.0 with command: sudo apt-get install cuda-libraries-9-0
+
+That solved my problem.With cuda 8 and 9.0 installed, setting `LD_LIBRARY_PATH` in `.bashrc` and `.profile` not work. So, I set 
+`LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64` in pycharm Environment variable field and it works. the above worked for installing on Ubuntu Server 17. namely,
+
+- installing cuda-9.0 (NOT 9.1)
+- cuDNN v7.1.2 (Mar 21, 2018) for CUDA 9.0
+- everything else according to the official tf installation instructions
+
+much easier than compiling.be careful conda users. i hit the same problem and was scratching my head for two days, until finally i discovered that local copy of libcudnn.so was used by conda, under:
+/miniconda3/lib/libcudnn.so which pointed to libcudnn.so.7 which pointed to libcudnn.so.7.0.5
+i don't remember who and how placed it there but pretty much it overloaded the system default libcudnn.so.7.1.2 !!!
+
+once removed, everything works like a charm:
+tensorflow 1.7 or 1.8-nightly, cuda-9.1, cudnn-7.1.2 on ubuntu 16.04
+Somehow, I solved this by installing:
+cuda 9.1 (from package manager), 
+cudnn 7.1 for 9.1
+and from anaconda:
+by using this default command 'conda install -c anaconda tensorflow-gpu'
+cudatoolkit 9.0, 
+tensorflow 1.7,
+tensorflow-gpu 1.7
+
+I used Antergos linux, GTX 1060 in my PC. It worked as well in my notebook (Xubuntu 18.04, GT 840m). In my notebook i used :
+cuda 9.1 (from nvidia ppa), cudnn 7.1 for 9.1 (from nvidia web), and the rest was the sameThanks @Suananda! It works like magic.If you have old version of CUDA, the library link may point to the old library even you install the newer CUDA especially if you install it manually. Try delete your old installation, and then sudo ldconfig to update the dynamic links.No solution yet!?For anyone that might stumble on this I have released a community wheel of latest tensorflow 1.8.0-rc1 built with cuda 9.1. You can find it [here](https://github.com/yaroslavvb/tensorflow-community-wheels/issues/64)!I have find the reason is ldconf,  ldconfig is a dynamic link library management command whose purpose is to allow the dynamic link library to be usedby the system.
+
+The default ldconf only search /lib and /usr/lib, as well as the library file under the directory listed in the configuration file /etc/ld. so. conf.
+
+so all of this is caused by the  dynamic library of CUDA in the installed CUDA path such as : /path/cuda-9.0/lib64  or /path/cuda-9.0/lib. (for eample my CUDA is installed in /usr/local/cuda-9.0)
+
+1. if you install the CUDA manual,  then after install, you should add the  path of cuda/lib64 to /etc/ld.so.conf file 
+  `sudo echo "/usr/local/cuda-9.0/lib64/" >> /etc/ld.so.conf`
+then 
+  `sudo ldconfig`
+
+   of course , you can add the path manual, like:
+   `vim /etc/ld.so.conf`
+   then add the path  '/usr/local/cuda-9.0/lib64' at the end. 
+   `sudo ldconfig`
+   after the operation, reopen the ipython or pycharm , 
+   import tensorflow as  tf 
+   wow, you will enjoy it!
+
+2. if you install the CUDA by command such as 'dpkg -i cuda-repo-ubuntu1604_9.0.176-1_amd64.deb' or others, it may add the cuda lib path to the /etc/ld.so.conf  automatically . but to be on the safe side, check the /etc/ld.so.conf and see if the path add to it .
+
+@NYcleaner 
+On Ubuntu, there is a `/etc/ld.so.conf.d/cuda-9-1.conf` file containing : 
+`/usr/local/cuda-9.1/targets/x86_64-linux/lib`
+
+Is this enough or do I need to add the directory `/usr/local/cuda-9.1/lib64/` to it ?@sebma 
+you  should add  the `/usr/local/cuda-9.1/lib64/` path  to it， the ***.so files  are in the  lib64```
+sudo bash -c "echo /usr/local/cuda/lib64/ >/etc/ld.so.conf.d/cuda.conf"
+sudo ldconfig
+```
+from https://gist.github.com/zhanwenchen/e520767a409325d9961072f666815bb8@mashu Well the other option is that the community provides pre-built [wheels](https://github.com/yaroslavvb/tensorflow-community-wheels). If you read 2-3 threads above you'll also see that mentioned again.@Suananda  Thanks, it works for me in a tensorflow conda environment. 
+Suggest the official guys to modify the installation guide "https://www.tensorflow.org/install/install_linux#InstallingAnaconda", step 4 of Anaconda installing, from "pip install --ignore-installed --upgrade tfBinaryURL" to "conda install -c anaconda tensorflow-gpu"Softlink seems not solve this issue:
+
+```
+➜  cuda ls lib64 
+libaccinj64.so                libcufftw_static.a     libnppial.so.9.2      libnppig_static.a    libnvblas.so.9.2
+libaccinj64.so.9.2            libcuinj64.so          libnppial.so.9.2.88   libnppim.so          libnvblas.so.9.2.88
+libaccinj64.so.9.2.88         libcuinj64.so.9.2      libnppial_static.a    libnppim.so.9.2      libnvgraph.so
+libcublas_device.a            libcuinj64.so.9.2.88   libnppicc.so          libnppim.so.9.2.88   libnvgraph.so.9.2
+libcublas.so                  libculibos.a           libnppicc.so.9.2      libnppim_static.a    libnvgraph.so.9.2.88
+libcublas.so.9.0              libcurand.so           libnppicc.so.9.2.88   libnppist.so         libnvgraph_static.a
+libcublas.so.9.2              libcurand.so.9.2       libnppicc_static.a    libnppist.so.9.2     libnvrtc-builtins.so
+libcublas.so.9.2.88           libcurand.so.9.2.88    libnppicom.so         libnppist.so.9.2.88  libnvrtc-builtins.so.9.2
+libcublas_static.a            libcurand_static.a     libnppicom.so.9.2     libnppist_static.a   libnvrtc-builtins.so.9.2.88
+libcudadevrt.a                libcusolver.so         libnppicom.so.9.2.88  libnppisu.so         libnvrtc.so
+libcudart.so                  libcusolver.so.9.2     libnppicom_static.a   libnppisu.so.9.2     libnvrtc.so.9.2
+libcudart.so.9.2              libcusolver.so.9.2.88  libnppidei.so         libnppisu.so.9.2.88  libnvrtc.so.9.2.88
+libcudart.so.9.2.88           libcusolver_static.a   libnppidei.so.9.2     libnppisu_static.a   libnvToolsExt.so
+libcudart_static.a            libcusparse.so         libnppidei.so.9.2.88  libnppitc.so         libnvToolsExt.so.1
+libcufft.so                   libcusparse.so.9.2     libnppidei_static.a   libnppitc.so.9.2     libnvToolsExt.so.1.0.0
+libcufft.so.9.2               libcusparse.so.9.2.88  libnppif.so           libnppitc.so.9.2.88  libOpenCL.so
+libcufft.so.9.2.88            libcusparse_static.a   libnppif.so.9.2       libnppitc_static.a   libOpenCL.so.1
+libcufft_static.a             libnppc.so             libnppif.so.9.2.88    libnpps.so           libOpenCL.so.1.0
+libcufft_static_nocallback.a  libnppc.so.9.2         libnppif_static.a     libnpps.so.9.2       libOpenCL.so.1.0.0
+libcufftw.so                  libnppc.so.9.2.88      libnppig.so           libnpps.so.9.2.88    stubs
+libcufftw.so.9.2              libnppc_static.a       libnppig.so.9.2       libnpps_static.a
+libcufftw.so.9.2.88           libnppial.so           libnppig.so.9.2.88    libnvblas.so
+```
+
+Still got:
+
+```
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.6/dist-packages/tensorflow/python/pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "/usr/local/lib/python3.6/dist-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "/usr/local/lib/python3.6/dist-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "/usr/lib/python3.6/imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "/usr/lib/python3.6/imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory
+
+During handling of the above exception, another exception occurred:
+
+```when I run my code on the linux environment directly, everything is OK. But when I run on the local pycharm through the remote interpreter, I encounter the problem: `ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory.        "Failed to load the native TensorFlow runtime."`export PATH=${PATH}:/usr/local/cuda-9.0/bin
+export CUDA_HOME=${CUDA_HOME}:/usr/local/cuda:/usr/local/cuda-9.0
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda-9.0/lib64
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64
+
+if use pycharm - add it to interpreterwhat about f** I just only want to use tensorflow1.8 and cuda9.1?@dongzhuoyao So what's the problem? look at my comment 6 threads above and you'll find your solution there!I guess the problem has cropped up again with `cuda 9.2` and `tensorflow-gpu 1.8`. In a virtualenv, I get:
+```
+>>> import tensorflow as tf
+ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory
+```
+My `/usr/local/cuda-9.2/lib64` folder has the following libcublas:
+```
+$ ls /usr/local/cuda-9.2/lib64 | grep libcublas
+libcublas_device.a
+libcublas.so
+libcublas.so.9.2
+libcublas.so.9.2.113
+libcublas.so.9.2.88
+libcublas_static.a
+```
+Versions:
+```
+Ubuntu 16.04
+cuda 9.2
+cudnn 7.1.4
+tensorflow-gpu 1.8.0
+```
+We'll need an update to tensorflow-gpu to use cuda 9.2.
+
+Also, if I were to downgrade to cuda 9.0, would I have to first remove cuda 9.2 or just install 9.0 straight away? Would I have conflicting installations?@mebble Here you go: [link](https://we.tl/b7yAL9rYrO). That's tf 1.8 wheel for cuda 9.2.
+
+> if I were to downgrade to cuda 9.0, would I have to first remove cuda 9.2
+
+Don't downgrade. Install whatever other version you want they'll get installed at `/usr/local/cuda-x.x`Thanks! I forgot to mention that im using `python 3.5.2` and pip `10.0.1`. I think the wheel is for python 3.6 so the install doesn't work. Do you have one for 3.5 as well?@kirk86 after installing the whl you gave it throws a similar error for libmpi.so.40
+I'm on CentOS and K80 GPU, cuda 9.2 and cudnn v7.1### Suggestion
+As far as I know you can have sub-packages xxx,yyy,zzz etc.. and install them as follow
+```
+pip install mainpackage[xxx]
+```
+This way different co-existing back-ends can be provided. Tensorflow can be build with different options, so at least a couple of cuda-toolkit builds could be provided this way.
+
+The whole point of package is to save time of building, but package build for very specific set of libraries that installs fine, but does not work is counter-productive. It would be better off not to have such package in the first place.@mebble just make a conda virtual environment for python 3.6. Make sure that you also have installed on your system openmpi.@pavan-08 Install openmpi on your system also nccl 2.x whatever is the latest from nvidia. I've compiled tf with most of the packages and libraries, so it can be used hdfs, kafta, aws, etc. That's why is asking libmpi.so because it's from openmpi library.With cuda 9.2 and tensorflow-gpu 1.8 I cannot build tensorflow
+
+declared output 'external/local_config_cuda/cuda/cuda/lib/libcudnn.so.7' is a dangling symbolic link
+
+
+The symlink exists
+
+Versions:
+
+Ubuntu 17.10
+cuda 9.2
+cudnn 7.1.4
+tensorflow-gpu 1.8.0
+
+This works for me (tensorflow-gpu==1.8.0 and cuda version is 9.0, install in anaconda)
+```
+export LD_LIBRARY_PATH=LD_LIBRARY_PATH:/usr/local/cuda-9.0/lib64/
+```
+suggestion from: https://stackoverflow.com/questions/48428415/importerror-libcublas-so-9-0-cannot-open-shared-object-file@Jackiexiao Yea, that's what I was going to say. I'm using a workstation, so for me all I needed to do was use CUDA 9.0 instead of 9.2 (since multiple versions of CUDA were installed)This worked for me:
+Because Tensorflow > 1.4  requires CUDA 9, I uninstalled all CUDA versions : 
+1. sudo rm -rf /usr/local/cuda*
+2. dpkg -l | grep cuda- | awk '{print $2}' | xargs -n1 sudo dpkg --purge
+
+Install excatly CUDA 9.0 and CuDNN 7.0.x and reboot. Please refer [combinations of CUDA, CuDNN and Tensorflow](https://www.tensorflow.org/install/install_sources#tested_source_configurations).
+
+This error happens majorly due to incorrect version combinations of Nvidia-driver, CUDA, CuDNN and Tensorflow-gpu
+![image](https://user-images.githubusercontent.com/15031475/44293189-4d9a5c00-a2a7-11e8-9e5f-13463cb4f60c.png)
+Thank u！
+
+
+| |
+杨康
+|
+|
+邮箱：18375320027@163.com
+|
+
+签名由 网易邮箱大师 定制
+
+On 08/18/2018 08:00, Dhruv Srivastava wrote:
+
+Please refer combinations of CUDA and CuDNN.
+
+This error happens majorly due to incorrect version combinations of Nvidia-driver, CUDA, CuDNN and Tensorflow-gpu
+
+
+—
+You are receiving this because you commented.
+Reply to this email directly, view it on GitHub, or mute the thread.@dhruvhacks Good. I think people should install the right version of tensorflow-gpu with the right version cuda.I am on Ubuntu 18.08, and had Cuda 9.0 installed at:
+
+```
+/usr/local/cuda-9.0
+```
+
+I decided to look for the `libcublas.so.9.0`:
+
+```
+# build search index
+updatedb
+# find the "missing" file
+locate libcublas.so.9.0
+```
+
+That told me the file was in `/usr/local/cuda-9.0/lib64/stubs/libcublas.so.9.0`, which helped me realize I had two problems: In `~/.bash_profile` I had set: `export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64/`, but my file was in the `stubs` directory, so I needed to use:
+
+```
+export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64/stubs/
+```
+
+Finally, `libcublas.so.9.0` was owned by root, so I changed the permissions and the owner of the file:
+
+```
+sudo chown -R MY_USER:MY_GROUP /usr/local/cuda-9.0/
+sudo chmod -R 777 /usr/local/cuda-9.0/
+```
+
+And all was well!> With cuda 8 and 9.0 installed, setting `LD_LIBRARY_PATH` in `.bashrc` and `.profile` not work. So, I set
+> `LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64` in pycharm Environment variable field and it works.
+
+Exactly, Thanks so much for solving the problem, I have spent days to crack this up. really appreciate mateI encounter this problem as well when I use **PyCharm** to debug my code at remote server(aws deep learning ami). The cuda version is 9.0 and the cudnn is 7.1.4 and tensorflow is 1.10.0(for gpu). I can import tensorflow normally by terminal connected to my server but fail to import tensorflow in the python console of PyCharm. The problem occurs at this time. Therefore, I cannot debug with PyCharm...
+**My solution is**: input this line in terminal after connecting to your server
+```
+sudo ldconfig /usr/local/cuda/lib64
+```
+And I referenced [thisLink](https://www.cnblogs.com/xiaojianliu/p/9312098.html#_label2)@NYcleaner Thanks a lot! It helps! and i found just use symbolic link also works. 
+sudo echo "/usr/local/cuda/lib64/" >> /etc/ld.so.conf
+sudo ldconfigThis is still an issue with Cuda 9.1 and Tensorflow 1.11cuda 10.0  tensorflow 1.11Even better solution - remove tensorflow, install pytorch
+Why tensorflow can brake so easily?
+Why can't I just install it and run? 
+Why is it so easy with pytorch and unpredictable with tf? Wtf is wrong with it?> Why not just install cuda-9-0?
+> 
+> * Go here: https://developer.nvidia.com/cuda-90-download-archive
+> * Then, for me: Download deb (network)
+> 
+> ```
+> sudo dpkg -i cuda-repo-ubuntu1604_9.0.176-1_amd64.deb
+> sudo apt-key adv --fetch-keys \
+>      http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
+> sudo apt-get update
+> sudo apt-get install cuda-9-0
+> ```
+
+Under ubuntu 18.04 cuda 9-0 is not (officially) available. It works, though.
+Hi all, 
+I use PyTorch as much as possible, but for a particular project where i need to export a (Keras) model to tensorflowjs, I'm forced to use tf. The only solution which has worked well for me has been to build from source, after installing CUDA from the Ubuntu multiverse, as described here:
+
+https://medium.com/@asmello/how-to-install-tensorflow-cuda-9-1-into-ubuntu-18-04-b645e769f01d
+
+Bonne chance![CUDA 9 isn't supported on Ubuntu 18.04 according to official website](https://developer.nvidia.com/cuda-90-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu)
+
+[Tensorflow doesn't support anything above CUDA 9 according to the official website](https://www.tensorflow.org/install/gpu)
+
+Can we get an official CUDA 10 support for tensorflow soon?> Even better solution - remove tensorflow, install pytorch
+> Why tensorflow can brake so easily?
+> Why can't I just install it and run?
+> Why is it so easy with pytorch and unpredictable with tf? Wtf is wrong with it?
+
+Stupid solutionI have installed Cuda 10 and the latest version of Tensor Flow, but I have received `ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory`, I have made the downgrade and I still receiving this message...> I have installed Cuda 10 and the latest version of Tensor Flow, but I have received `ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory`, I have made the downgrade and I still receiving this message...
+
+Could you tell us the OS version and the exact command you issued to "downgrade"?I tried Deepin 15.8 and Mint 19.1, I'm going to test Windows 10 later. The command `pip install --upgrade tensorflow-gpu==version`, I tried the [master](https://pypi.org/project/tensorflow-gpu/#history) versions: 1.9.0, 1.10.1, 1.11.0 and 1.12.0. The [cuda](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804) version and the drivers:
+
+![image](https://user-images.githubusercontent.com/19755014/50491207-51c64b00-09f8-11e9-8755-086a0f64eac3.png)@Sphinxs, in my opinion you have two ways: a) to recompile the python wheel locally so it points to the installed cuda version or b) [install cuda-9.0](https://github.com/tensorflow/tensorflow/issues/15604#issuecomment-439601784) as I did for my 18.04 installation and it's still working after months.> Even better solution - remove tensorflow, install pytorch
+> Why tensorflow can brake so easily?
+> Why can't I just install it and run?
+> Why is it so easy with pytorch and unpredictable with tf? Wtf is wrong with it?
+
+the man has got a point. TF CAN be compiled to work with more modern CUDA versions... why not just offer that to most people with a `tensorflow-gpu-cuda110` package or something temporary until the library can figure out the underlying cuda version dynamically?> Even better solution - remove tensorflow, install pytorch
+> Why tensorflow can brake so easily?
+> Why can't I just install it and run?
+> Why is it so easy with pytorch and unpredictable with tf? Wtf is wrong with it?
+
+I am sick of it!!!!> I am sick of it!!!!
+
+This comment does not add anything to the issue. Also no one forces anyone to use TF, but If you really need to and can't get pip packages working, why not to build it yourself? That's what I ended up doing at some point. I saw there are also community supported builds here
+https://github.com/tensorflow/tensorflow just scroll down.
+Maybe build for your GPU and contribute?
+> > Even better solution - remove tensorflow, install pytorch
+> > Why tensorflow can brake so easily?
+> > Why can't I just install it and run?
+> > Why is it so easy with pytorch and unpredictable with tf? Wtf is wrong with it?
+> 
+> I am sick of it!!!!
+
+This is an issue page. Please, state your issues so they can be fixed, or, even better, help fixing them.
+@raphaunix may I ask where this chart comes from?I got Tensorflow 1.11.0 working by running the following commands:
+
+```
+conda create -n tf python=2
+conda activate tf
+pip install tensorflow-gpu==1.11
+conda install cudatoolkit==9.0
+```
+I have find the reason is ldconf, ldconfig is a dynamic link library management command whose purpose is to allow the dynamic link library to be usedby the system.
+
+The default ldconf only search /lib and /usr/lib, as well as the library file under the directory listed in the configuration file /etc/ld. so. conf.
+
+so all of this is caused by the dynamic library of CUDA in the installed CUDA path such as : /path/cuda-9.0/lib64 or /path/cuda-9.0/lib. (for example my CUDA is installed in /usr/local/cuda-9.0)
+
+1.if you install the CUDA manual, then after install, you should add the path of cuda/lib64 to /etc/ld.so.conf file
+`sudo echo "/usr/local/cuda-9.0/lib64/" >> /etc/ld.so.conf
+`
+then
+`sudo ldconfig
+`
+of course , you can add the path manual, like:
+vim /etc/ld.so.conf
+then add the path '/usr/local/cuda-9.0' at the end.
+then update it
+`sudo ldconfig
+`
+after the operation, reopen the ipython or pycharm ,
+`import tensorflow as tf
+`
+wow, you will enjoy it!
+
+if you install the CUDA by command such as 'dpkg -i cuda-repo-ubuntu1604_9.0.176-1_amd64.deb' or others, it may add the cuda lib path to the /etc/ld.so.conf automatically . but to be on the safe side, check the /etc/ld.so.conf and see if the path add to it .@jabalazs Instead of `conda install cudatoolkit==9.0` I tried `pip install cudatoolkit==9.0` but this didn't work, do you know why?I found that my runtime on colab was not using GPU that's how come I got my error> Even better solution - remove tensorflow, install pytorch
+> Why tensorflow can brake so easily?
+> Why can't I just install it and run?
+> Why is it so easy with pytorch and unpredictable with tf? Wtf is wrong with it?
+
+Good solution @dodler ! but I think you are missing the commands to make this great advice easy to follow through xD.
+
+```
+pip uninstall tensorflow
+pip install torch
+```
+
+Happy coding!I faced this same error trying to use Thundersvm to speedup NuSVR with GPUs on Google  Colab. 
+Installing Cuda 9.0 solved the problem to me.
+Just follow:
+
+`!wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda-repo-ubuntu1704-9-0-local_9.0.176-1_amd64-deb`
+
+`!ls  # Check if required cuda 9.0 amd64-deb file is downloaded`
+
+`!dpkg -i cuda-repo-ubuntu1704-9-0-local_9.0.176-1_amd64-deb`
+
+`!ls /var/cuda-repo-9-0-local | grep .pub`
+
+`!apt-key add /var/cuda-repo-9-0-local/7fa2af80.pub`
+
+`!apt-get update`
+
+`!sudo apt-get install cuda-9.0`
+    conda install cudatoolkit=8.0
+
+solves my problem.`conda install -c anaconda cudatoolkit=9.0 cudnn=7` solved it for me!> With cuda 8 and 9.0 installed, setting `LD_LIBRARY_PATH` in `.bashrc` and `.profile` not work. So, I set
+> `LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64` in pycharm Environment variable field and it works.
+
+This solution worked for me. Thanks for this solution. My TensorFlow and TensorFlow-gpu are 1.12.0 and CUDA 11.0 and I am facing this issue -
+
+```
+Traceback (most recent call last):
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/site-packages/tensorflow/python/pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/site-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/site-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "bne.py", line 21, in <module>
+    from encoder import *
+  File "/home/megh/projects/entity-norm/BNE/encoder.py", line 2, in <module>
+    import tensorflow as tf
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/site-packages/tensorflow/__init__.py", line 24, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/site-packages/tensorflow/python/__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/site-packages/tensorflow/python/pywrap_tensorflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/site-packages/tensorflow/python/pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/site-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/site-packages/tensorflow/python/pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "/home/megh/anaconda3/envs/bne/lib/python3.6/imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: libcublas.so.9.0: cannot open shared object file: No such file or directory
+
+
+Failed to load the native TensorFlow runtime.
+
+See https://www.tensorflow.org/install/errors
+
+for some common reasons and solutions.  Include the entire stack trace
+above this error message when asking for help.
+```
+
+Someone please help. I have been struggling for days! :'(@meghbhalerao I guess your problem's cause is tensorflow and cuda version mismatch. Check [compatible versions here](https://stackoverflow.com/a/50622526/4379029). Have you tried to installed different cuda or tensorflow versions?

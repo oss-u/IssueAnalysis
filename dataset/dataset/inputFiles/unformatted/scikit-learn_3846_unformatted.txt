@@ -1,0 +1,597 @@
+__UPDATE May 23 202__
+
+Here's a list of the remaining classes:
+
+- [ ] feature_selection.SelectorMixin
+- [x] calibration.CalibratedClassifierCV ([#15134](https://github.com/scikit-learn/scikit-learn/pull/15134))
+- [ ] decomposition.DictionaryLearning ([#16907](https://github.com/scikit-learn/scikit-learn/pull/16907))
+- [ ] decomposition.MiniBatchDictionaryLearning ([#16907](https://github.com/scikit-learn/scikit-learn/pull/16907))
+- [ ] decomposition.SparseCoder ([#15233](https://github.com/scikit-learn/scikit-learn/pull/15233))
+- [ ] ensemble.GradientBoostingClassifier
+- [x] gaussian_process.kernels.CompoundKernel
+- [ ] gaussian_process.kernels.Hyperparameter
+- [ ] gaussian_process.kernels.Kernel
+- [ ] gaussian_process.kernels.PairwiseKernel
+- [ ] inspection.PartialDependenceDisplay
+- [x] linear_model.PoissonRegressor
+- [x] linear_model.TweedieRegressor
+- [x] linear_model.GammaRegressor
+- [x] metrics.ConfusionMatrixDisplay
+- [x] metrics.PrecisionRecallDisplay
+- [ ] mixture.BayesianGaussianMixture
+- [ ] mixture.GaussianMixture
+- [ ] multioutput.ClassifierChain ([#15211](https://github.com/scikit-learn/scikit-learn/pull/15211))
+- [x] multioutput.RegressorChain ([#15215](https://github.com/scikit-learn/scikit-learn/pull/15215))
+- [ ] neighbors.BallTree
+- [ ] neighbors.DistanceMetric
+- [ ] neighbors.KDTree
+
+
+-------------------------
+Most of the docs in classes lack examples. It would be great to add one or two examples similar to this, http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html
+![image](https://user-images.githubusercontent.com/449558/42726195-f31a227c-8755-11e8-8156-57ecf714614c.png)
+I assume you mean a small code snippet / doctest using each estimator.
+
+This is one of the reasons I added automatic links back to pertinent
+examples from the gallery when showing the compiled API reference, e.g.
+http://scikit-learn.org/dev/modules/generated/sklearn.manifold.Isomap.html#examples-using-sklearn-manifold-isomap.
+Unfortunately, there was no straightforward way to have these render where
+the doctest examples do (and hence they were relegated to the end of the
+page which is out of the numpydoc generation).
+
+On 12 November 2014 23:06, Manoj Kumar notifications@github.com wrote:
+
+>  Most of the docs in classes lack examples. It would be great to add one
+> or two examples similar to this,
+> http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/3846.
+Yes, I had meant probably one or two liners (for example) https://github.com/scikit-learn/scikit-learn/pull/3802/files#diff-1741ad6b05f1eb0fd71af8bad0e001c7R321 just to show the API.
+
+> This is one of the reasons I added automatic links back to pertinent examples from the gallery when showing the compiled API reference
+
+This is awesome. I had not noticed it before!
+> This is awesome. I had not noticed it before!
+
+Only in dev. And hidden away at the bottom of the page :(
+Where else do you think it would be better?
+
+Below the class description and above the parameters? 
+Anywhere before the method description would be fine. Method descriptions can take up a lot of vertical space on the API reference page, so someone is unlikely to scroll past them looking for examples.
+Sorry for the late reply. I assume that it is not too easy to do? Else you would have done it yourself?
+No, it's even hackier than the current approach!
+
+On 19 November 2014 21:59, Manoj Kumar notifications@github.com wrote:
+
+>  Sorry for the late reply. I assume that it is not too easy to do? Else
+> you would have done it yourself?
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/3846#issuecomment-63623385
+> .
+How about simply adding examples to the missing classes' docstring?
+
+These are the estimators ( 98 - 10 / 148 ) currently missing an `Examples` section :-
+
+Done/WIP
+
+```
+ExtraTreesClassifier
+ExtraTreesRegressor
+BaggingClassifier
+BaggingRegressor
+```
+
+#4498 - 
+
+```
+AdaBoostClassifier 
+AdaBoostRegressor
+```
+
+```
+GradientBoostingClassifier
+GradientBoostingRegressor
+```
+
+Not needed
+
+```
+ExtraTreeClassifier  # Used only in ensembling
+ExtraTreeRegressor # -do-
+```
+
+TODO
+
+```
+AdditiveChi2Sampler
+AffinityPropagation
+AgglomerativeClustering
+Binarizer
+CheckingClassifier
+CountVectorizer
+DBSCAN
+DPGMM
+DictionaryLearning
+ElasticNet
+ElasticNetCV
+EmpiricalCovariance
+FactorAnalysis
+FastICA
+FeatureAgglomeration
+GaussianRandomProjection
+GenericUnivariateSelect
+GraphLasso
+GraphLassoCV
+HashingVectorizer
+Imputer
+IncrementalPCA
+Isomap
+KMeans
+KernelCenterer
+KernelDensity
+KernelPCA
+LarsCV
+LassoCV
+LassoLarsCV
+LedoitWolf
+LinearRegression
+LinearSVC
+LinearSVR
+LocallyLinearEmbedding
+LogOddsEstimator
+LogisticRegression
+LogisticRegressionCV
+MDS
+MeanEstimator
+MeanShift
+MinCovDet
+MinMaxScaler
+MiniBatchDictionaryLearning
+MiniBatchKMeans
+MiniBatchSparsePCA
+MultiTaskLassoCV
+Normalizer
+Nystroem
+OAS
+OneClassSVM
+OrthogonalMatchingPursuit
+OrthogonalMatchingPursuitCV
+PLSSVD
+PassiveAggressiveClassifier
+PassiveAggressiveRegressor
+PatchExtractor
+Perceptron
+PriorProbabilityEstimator
+QuantileEstimator
+RANSACRegressor
+RBFSampler
+RandomForestClassifier
+RandomForestRegressor
+RidgeCV
+RidgeClassifier
+RidgeClassifierCV
+ScaledLogOddsEstimator
+SelectFdr
+SelectFpr
+SelectFwe
+SelectKBest
+SelectPercentile
+ShrunkCovariance
+SkewedChi2Sampler
+SparsePCA
+SparseRandomProjection
+SpectralBiclustering
+SpectralClustering
+SpectralCoclustering
+SpectralEmbedding
+StandardScaler
+TfidfVectorizer
+TheilSenRegressor
+VBGMM
+Ward
+WardAgglomeration
+ZeroEstimator
+```
+Of course, but don't you think that is slightly on the tedious side? Unless you have a script.
+I wanted to learn a little about all these estimators... I think this would be a good way to do that :) Shall I start working on it?
+Sure! 
+I am working on this.@ltcguthrie which part? There are many models to work on for this.I'll start with TfidfVectorizer.Working on RandomForestClassifier and RandomForestRegressorWorking on PassiveAggressiveClassifier, PassiveAggressiveRegressorWorking on LinearSVC, LinearSVRWorking on StandardScaler, MinMaxScalerWorking on ElasticNet, ElasticNetCVAlso, created google doc for list of done/undone objects
+
+https://docs.google.com/spreadsheets/d/19D-RQocsLk4BM7-Xax8hVvIu3XDgwYSUnvja4cMrJww/edit#gid=0@lodurality you can also create a list here with checkboxes
+
+- [ ] like
+- [ ] thisI'm going to mark it as 0.21 and good first issue since I believe it will be helpful to include a small example for every class. working on `sklearn/cluster`Hi, I'm working on adding an example for the Imputer as a first contribution.Taking up linear regression: http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.htmlWorking on TfidfVectorizer and CountVectorizer.
+
+Looks like these were worked on in [#7961](https://github.com/scikit-learn/scikit-learn/pull/7961), [#8519](https://github.com/scikit-learn/scikit-learn/pull/8519), and [#8525](https://github.com/scikit-learn/scikit-learn/pull/8525) but not yet finished or merged.Also working on HashingVectorizer in `sklearn/feature_extraction/text.py`.Taking `OPTICS`. (depends on #11677)Taking `sklearn/feature_selection/univariate_selection.py`I think you can still provide an example for OPTICS even with the bug :)@qinhanmin2014 do you mean an example w/o an outlier so that it doesn't show the bug? I guess it'd be nice to have an example which shoes how `OPTICS` detects an outlier, and I suspect we'd forget about changing the example once that bug is fixed. I can write a note in the _bug_ issue to fix the example once the problem is fixed, but then the initial example won't have the outlier. Should I do that?> do you mean an example w/o an outlier so that it doesn't show the bug?
+
+No, I mean one with outlier(s), like DBSCAN
+
+I've not looked into the bug but I'd expect that OPTICS can detect correct outliers most of the time, so you can still construct an example. If this is not the case, I think we need to tag the bug as blocker.Fair enough, I'll try and see if I can find a simple example where it works fine.Taking on `sklearn/linear_model/ridge.py`taking on `sklearn/covariance/graph_lasso_.py`taking `sklearn/linear_model/logistic.py`taking `preprocessing` classes.taking PerceptronI have added the example in the Perceptron class but for some unknown reasons it won't work.
+Help needed,I am a novice!(ps-I have already created a pull request).
+
+https://github.com/scikit-learn/scikit-learn/pull/11798taking `sklearn/random_projection`**[[MRG] Perceptron examples in Perceptron.py to scikit-learn/scikit-learn/linear_model/perceptron.py #11798**Taking 'sklearn/manifold`I am working on sklearn.feature_extraction.image.PatchExtractorAndrea and I will be working on sklearn.cluster.Ward and LedoitWolf example. We are updating the Excel tracker to ensure no one is putting on any duplicated efforts.I am working on sklearn.decomposition.DictionaryLearningWe just updated the google doc from @lodurality here:
+https://docs.google.com/spreadsheets/d/19D-RQocsLk4BM7-Xax8hVvIu3XDgwYSUnvja4cMrJww/edit#gid=0
+
+Me and Shimeng will be working on the missing ones. @andreanr, that doc is kinda old and missing a whole bunch of new classes. A better idea would be to take a module or a folder, and cover all the public classes in it.@adrinjalali Yes definitely, we will finish the outstanding ones in the current list and then we will update the list base on the updated modules. @andreanr are you working on the classes in `ensemble.gradient_boosting`, too? Otherwise, I'd like to work on that.@daten-kieker go ahead! Hi, 
+
+Is there anything left that I could contribute to?
+
+Thanks.@srividhyaprakash I only added examples for estimators in `ensemble.gradient_boosting`. You could have a look at the other classes. @daten-kieker, Thanks for your reply. This is my first time in a public well-maintained repo. Could you please guide me on a possible starter guide to commit style and format for the example?
+Thanks.@srividhyaprakash , you can start by going through what you find in the [developer's guide](http://scikit-learn.org/stable/developers/index.html). You can also ask on [gitter](https://gitter.im/scikit-learn/scikit-learn) if you have questions getting started. I wish you a joyful contribution journey here.
+
+Once you start on this particular issue, you can check some of the pull requests you see on this thread to get an idea of what it involves.Hello, is there anything left that I would be able to assist with?
+If it is still available, could I deal with the LinearRegression docstring?@adrinjalali apologies, I just read through the different commits and I saw that you already finished the LinearRegression in #11975 .  May I deal with the LogisticRegression docstring?We've kinda lost track of what's left here. One contribution would be to actually check all public classes and list the ones which still need an example, and take it from there.@adrinjalali, I can compile a list of what's left@adrinjalali, I got so excited I forgot to ask, is there a specific branch of this project that has the latest updates?master has the latest updates. On the other hand, one approach might be to
+consider the generated API documentation (e.g. at
+https://github.com/scikit-learn/scikit-learn.github.io/tree/master/dev/modules/generated)
+and grep for files not containing `class="rubric">Examples`
+@jnothman, thank you, the grepping advice was spot on. I will start compiling the list todayAny more help need here to either to update a existing doc or to create a new one..?
+It would help me get started with open source too....so any directions or work would be appreciated.We still need an updated list of classes without examples. Ping @Khayyon1?@Khayyon1  have you completed the list or do you need some help..?@adrinjalali, I am going to have to drop it because school resumed shortly after I asked to assist and I have been unable to work on this, my apologies @adrinjalali so should i see which all are remaining from the list mentioned by @raghavrv @coderop2  that's a 3-4 year old list, probably better to start a new one!Sry for the late reply...As soon as my college exams are over i will start compiling a new list while keeping the old list in mind....i hope that will be enough to act as a reference for everyone```bash
+$ # list those with examples
+$ git grep -p '^    Examples$' sklearn | grep '=class ' | sed 's/[^ ]* //;s/(.*//;s/:.*//' | sort > /tmp/classes_with_examples.txt
+$ # rough list of all public classes
+$ grep '\.[A-Z][a-zA-Z]\+' doc/modules/classes.rst  > /tmp/classes.txt
+$ # classes without examples
+$ grep -v -wFf /tmp/classes_with_examples.txt /tmp/classes.txt
+
+...
+that was incorrect. See below.
+...
+```
+
+Not certain this is accurateThis may be a more accurate one, still has false positives. Also, assuming we don't need examples for Mixin and Warning classes.
+
+```
+BaggingClassifier
+BaggingRegressor
+BallTree
+BaseEstimator
+BayesianGaussianMixture
+CalibratedClassifierCV
+ClassifierChain
+ColumnTransformer
+CompoundKernel
+ConstantKernel
+DictionaryLearning
+DistanceMetric
+DotProduct
+DummyClassifier
+DummyRegressor
+Exponentiation
+ExpSineSquared
+ExtraTreeClassifier
+ExtraTreeRegressor
+ExtraTreesClassifier
+ExtraTreesRegressor
+FunctionTransformer
+GaussianMixture
+GradientBoostingClassifier
+GradientBoostingRegressor
+GraphLasso
+GraphLassoCV
+GroupShuffleSplit
+Hyperparameter
+Imputer
+IsolationForest
+IsotonicRegression
+IterativeImputer
+KDTree
+Kernel
+KernelDensity
+LocalOutlierFactor
+Matern
+Memory
+MiniBatchDictionaryLearning
+MLPClassifier
+MLPRegressor
+MultiOutputClassifier
+MultiOutputRegressor
+OAS
+OneClassSVM
+OneVsOneClassifier
+OneVsRestClassifier
+OPTICS
+OutputCodeClassifier
+PairwiseKernel
+Parallel
+Product
+RandomizedSearchCV
+RandomTreesEmbedding
+RationalQuadratic
+RBF
+RegressorChain
+SelectFromModel
+SparseCoder
+Sum
+TfidfTransformer
+WhiteKernel
+```Yes, I had the wrong lookup, giving many false positives. This is better:
+```sh
+$ grep -v -f <(cat /tmp/classes_with_examples.txt | sed 's/.*/\\.&$/')  /tmp/classes.txt
+   base.BaseEstimator
+   base.BiclusterMixin
+   base.ClassifierMixin
+   base.ClusterMixin
+   base.DensityMixin
+   base.RegressorMixin
+   base.TransformerMixin
+   calibration.CalibratedClassifierCV
+   cluster.OPTICS
+    compose.ColumnTransformer
+   covariance.OAS
+   decomposition.DictionaryLearning
+   decomposition.MiniBatchDictionaryLearning
+   decomposition.SparseCoder
+   dummy.DummyClassifier
+   dummy.DummyRegressor
+   ensemble.BaggingClassifier
+   ensemble.BaggingRegressor
+   ensemble.ExtraTreesClassifier
+   ensemble.ExtraTreesRegressor
+   ensemble.GradientBoostingClassifier
+   ensemble.GradientBoostingRegressor
+   ensemble.IsolationForest
+   ensemble.RandomTreesEmbedding
+   exceptions.ChangedBehaviorWarning
+   exceptions.ConvergenceWarning
+   exceptions.DataConversionWarning
+   exceptions.DataDimensionalityWarning
+   exceptions.EfficiencyWarning
+   exceptions.NonBLASDotWarning
+   exceptions.UndefinedMetricWarning
+   feature_extraction.text.TfidfTransformer
+   feature_selection.SelectFromModel
+  gaussian_process.kernels.CompoundKernel
+  gaussian_process.kernels.ConstantKernel
+  gaussian_process.kernels.DotProduct
+  gaussian_process.kernels.ExpSineSquared
+  gaussian_process.kernels.Exponentiation
+  gaussian_process.kernels.Hyperparameter
+  gaussian_process.kernels.Kernel
+  gaussian_process.kernels.Matern
+  gaussian_process.kernels.PairwiseKernel
+  gaussian_process.kernels.Product
+  gaussian_process.kernels.RBF
+  gaussian_process.kernels.RationalQuadratic
+  gaussian_process.kernels.Sum
+  gaussian_process.kernels.WhiteKernel
+   isotonic.IsotonicRegression
+   impute.IterativeImputer
+   mixture.BayesianGaussianMixture
+   mixture.GaussianMixture
+   model_selection.GroupShuffleSplit
+   model_selection.RandomizedSearchCV
+    multiclass.OneVsRestClassifier
+    multiclass.OneVsOneClassifier
+    multiclass.OutputCodeClassifier
+    multioutput.ClassifierChain
+    multioutput.MultiOutputRegressor
+    multioutput.MultiOutputClassifier
+    multioutput.RegressorChain
+   neighbors.BallTree
+   neighbors.DistanceMetric
+   neighbors.KDTree
+   neighbors.KernelDensity
+   neighbors.LocalOutlierFactor
+   neural_network.MLPClassifier
+   neural_network.MLPRegressor
+   preprocessing.FunctionTransformer
+   svm.OneClassSVM
+   tree.ExtraTreeClassifier
+   tree.ExtraTreeRegressor
+   utils.Memory
+   utils.Parallel
+   covariance.GraphLasso
+   covariance.GraphLassoCV
+   preprocessing.Imputer
+```
+
+This is 76 while your list is 62: it excludes `base.*` and `exceptions.*` which is fair enough, @adrinjalali, while including strange things like `Sum`. Sorry, we both include Sum. Silly.Taking on GroupShuffleSplitI would work on dummy (DummyClassifier, DummyRegressor).This is the current list of classes that might need examples:
+```
+base.BaseEstimator
+base.BiclusterMixin
+base.ClassifierMixin
+base.ClusterMixin
+base.DensityMixin
+base.RegressorMixin
+base.TransformerMixin
+cluster.OPTICS
+compose.ColumnTransformer
+covariance.OAS
+decomposition.DictionaryLearning
+decomposition.MiniBatchDictionaryLearning
+decomposition.SparseCoder
+ensemble.BaggingClassifier
+ensemble.BaggingRegressor
+ensemble.ExtraTreesClassifier
+ensemble.ExtraTreesRegressor
+ensemble.GradientBoostingClassifier
+ensemble.GradientBoostingRegressor
+ensemble.IsolationForest
+ensemble.RandomTreesEmbedding
+exceptions.ChangedBehaviorWarning
+exceptions.ConvergenceWarning
+exceptions.DataConversionWarning
+exceptions.DataDimensionalityWarning
+exceptions.EfficiencyWarning
+exceptions.NonBLASDotWarning
+exceptions.UndefinedMetricWarning
+feature_extraction.text.TfidfTransformer
+feature_selection.SelectFromModel
+gaussian_process.kernels.CompoundKernel
+gaussian_process.kernels.ConstantKernel
+gaussian_process.kernels.DotProduct
+gaussian_process.kernels.ExpSineSquared
+gaussian_process.kernels.Exponentiation
+gaussian_process.kernels.Hyperparameter
+gaussian_process.kernels.Kernel
+gaussian_process.kernels.Matern
+gaussian_process.kernels.PairwiseKernel
+gaussian_process.kernels.Product
+gaussian_process.kernels.RBF
+gaussian_process.kernels.RationalQuadratic
+gaussian_process.kernels.Sum
+gaussian_process.kernels.WhiteKernel
+impute.IterativeImputer
+inspection.PartialDependenceDisplay
+metrics.RocCurveDisplay
+mixture.BayesianGaussianMixture
+mixture.GaussianMixture
+multiclass.OneVsRestClassifier
+multiclass.OneVsOneClassifier
+multiclass.OutputCodeClassifier
+multioutput.ClassifierChain
+multioutput.MultiOutputRegressor
+multioutput.MultiOutputClassifier
+multioutput.RegressorChain
+neighbors.BallTree
+neighbors.DistanceMetric
+neighbors.KDTree
+neighbors.KernelDensity
+neighbors.LocalOutlierFactor
+neural_network.MLPClassifier
+neural_network.MLPRegressor
+preprocessing.FunctionTransformer
+svm.LinearSVC
+tree.ExtraTreeClassifier
+tree.ExtraTreeRegressor
+utils.Memory
+utils.Parallel
+
+```Hi @pspachtholz  @MechCoder , I would like to work on this. I am interested to contribute to scikit-learn and think that this can be a good starting point.
+
+Thanks@PyExtreme I think you can just go ahead, select one/more classes from the list that you find interesting and add examples. I would then post what youre working on here to avoid duplicate work. For guidance you can take a look at previously merged pull requests.@pspachtholz , I am picking up **_ExtraTreesClassifier_**  initially and after making commit, I would like to pick up in batches.
+
+ThanksWorked on gradient boosting. Picking up `neural_network.MLPClassifier` & `neural_network.MLPRegressor`I'm on `svm.LinearSVC`I'm working on `sklearn.multioutput.MultiOutputClassifier`Hi, I'll be working on `mixture.BayesianGaussianMixture` and `mixture.GaussianMixture`I'm on `feature_extraction.text.TfidfTransformer`. Wish me good luck!> I'm on feature_extraction.text.TfidfTransformer. Wish me good luck!
+
+also working on it - Maybe we can share examples?picking up `ensemble.ExtraTreesClassifier`I'm picking the `ensemble.BaggingRegressor`I'm working on `feature_selection.SelectFromModel`I am picking neighbors.KernelDensityI'm on `ensemble.IsolationForest`on `multiclass.OneVsRestClassifier`Hey, I'll be working on the Gaussian Process kernels, starting with `gaussian_process.kernels.RBF` and then do the other kernels with @thorbenjensen Working on `ensemble.GradientBoostingClassifier`Working on `Perceptron`Working on `ensemble.GradientBoostingRegressor`Next up `tree.ExtraTreeClassifier`working on ensemble.GradientBoostingRegressortaking a look at `multiclass.OutputCodeClassifier`Looking at `neighbors.LocalOutlierFactor`.working on `ensemble.RandomTreesEmbedding`
+> picking up `ensemble.ExtraTreesClassifier`
+
+Hi @jorahn , I have already submitted a PR on that.
+Please feel free to pick another module.I suggest looking through the comments before to see if someone is already working on a class to avoid duplicated work.
+For some classes there are already some (possibly stale) mrg requests, where we could ask the authors whether they are still actively working on it.
+
+@flaviomorelli @LBrummer @mschaffenroth I did the ensemble gradient in this PR already #15151 Really cool btw to see that this is picking up speed :-)> > picking up `ensemble.ExtraTreesClassifier`
+> 
+> Hi @jorahn , I have already submitted a PR on that.
+> Please feel free to pick another module.
+
+oh, didn't see that on this issue. so we now have two PRs for thatPerceptron is already documented.working on `tree.ExtraTreeRegressor`working on `impute.IterativeImputer`> @pspachtholz , I am picking up **_ExtraTreesClassifier_** initially and after making commit, I would like to pick up in batches.
+> 
+> Thanks
+
+@jorahn , I had mentioned about it 1 week ago here only and had already been working on it since 1 week.Working on OneVsOneClassifier.I'm going for the `metrics.RocCurveDisplay`working on ```multioutput.ClassifierChain```Working on `PriorProbabilityEstimator`.Working on multioutput.MultiOutputRegressor
+taking `neighbors.BallTree``PriorProbabilityEstimator` is deprecated in version 0.21 and will be removed in version 0.23. Not working on this.Working on `covariance.OAS``SelectPercentile` already documented.working on `ensemble.ExtraTreesRegressor`> taking `neighbors.BallTree`
+
+there are some examples for BallTree and `compose.ColumnTransformer` already`RANSACRegressor` already documented.taking `decomposition.SparseCoder``SelectKBest` already documented.`SpectralClustering` already documentedWorking on `IsolationForest`> Working on `IsolationForest`
+
+Hi @zioalex, I already have a PR for this: #15205. Happy to take suggestions and comments :smiley:  Working in `neighbors.DistanceMetric`.working on `multioutput.RegressorChain`working on `exceptions.ConvergenceWarning`working on `exceptions.ChangedBehaviorWarning`> working on `exceptions.ChangedBehaviorWarning`
+
+After taking to @adrinjalali, we concluded it is better not to work on this one since it is release dependent. And it probably will be moved somewhere else. 
+
+For your peace of mind be like us, do not work on `exceptions.ChangedBehaviorWarning`Working on `exceptions.DataDimensionalityWarning`I would like to work on a few. I will start with optics.Hi! I have just raised a PR after adding an example code snippet to K-means clustering. This is my first open source contribution, so it would be great if someone could look into this and see if it needs any more work! 
+Thanks and Regards,
+Smriti Singh I went through the list from last October and checked which classes already have merged PRs/examples. I suppose that claims from last year or longer ago, on which nothing further has happened, can be ignored.
+So here comes an updated todo list:
+
+**don't work on this, it is release dependent:** exceptions.ChangedBehaviorWarning
+
+### open PRs:
+
+decomposition.SparseCoder 		 #15233
+
+~exceptions.DataDimensionalityWarning	 #15246~
+mixture.BayesianGaussianMixture		 #15193
+mixture.GaussianMixture			 #15193
+multioutput.ClassifierChain		 #15211
+multioutput.RegressorChain		 #15215
+
+**new open prs:**
+decomposition.DictionaryLearning    #16907
+~exceptions.EfficiencyWarning    #16785~
+~exceptions.UndefinedMetricWarning    #16784~
+
+### Free for the Taking:
+
+(EDIT: those in `base` are better suited for the developer guide, let's ignore them for now)
+~base.BaseEstimator~
+~base.BiclusterMixin~
+~base.ClassifierMixin~
+~base.ClusterMixin~
+~base.DensityMixin~
+~base.RegressorMixin~
+~base.TransformerMixin~
+
+decomposition.MiniBatchDictionaryLearning
+
+~exceptions.NonBLASDotWarning~
+
+~feature_selection.SelectFromModel~
+
+gaussian_process.kernels.CompoundKernel
+gaussian_process.kernels.Hyperparameter
+~gaussian_process.kernels.Kernel~
+
+~inspection.PartialDependenceDisplay~
+
+~multiclass.OneVsOneClassifier~
+
+~multioutput.MultiOutputClassifier~
+
+~utils.Memory~
+~utils.Parallel~
+
+
+**Update. Now merged:**
+covariance.OAS #16681
+multioutput.MultiOutputRegressor #16698
+tree.ExtraTreeClassifier #16671
+
+neighbors.DistanceMetric
+neighbors.KDTree
+neighbors.LocalOutlierFactor
+
+exceptions.DataConversionWarning   #16704 
+
+multiclass.OneVsOneClassifier   #16700Do we want examples for the `base.*` classes? I guess it makes more sense to have them better documented in the `developer guide`. WDYT @jnothman @NicolasHug ?Agreed it's better for the developer guide. I'm editing the commentI think it was closed by accident. multioutput.MultiOutputClassifier already has examples. Should it be updated to include an example of the attribute or should it be taken off the TO DO list? I think it can be removed from the list. Thanks @marenwestermann > I think it can be removed from the list. Thanks @marenwestermann
+
+Ok, then feature_selection.SelectFromModel can also be removed because it has examples too. (These were added in October last year.)Regarding `utils.Memory` and `utils.Parallel`: 
+on the scikit-learn website they are said "to be removed in version 0.23". I checked the `utils.__init__.py` file where these classes lived in and they have been removed. So these can be taken off the list, too.I'll try and tackle `gaussian_process.kernels.Kernel` :)Apart from the above DictionaryLearning/MiniBatchDictionaryLearning PR, I also had a look at the neighbors.* classes: They all already have at least one example. The ones for neighbors.KDTree and neighbors.BallTree are generated from the CLASS_DOC format string which can be found in the _binary_tree.pxi include file..It is my first time contributing this project. I would like to look into neighbors.* classes including:
+neighbors.DistanceMetric
+neighbors.KDTree
+neighbors.LocalOutlierFactorI had a look at `gaussian_process.kernels.Kernel`. According to the documentation it is the "Base class for all kernels". Therefore, all its attributes are read-only property attributes (methods with `@property` decorators). From my understanding it therefore doesn't make sense to add examples to this class because it can only be used in combination with another class. 
+However, if you scroll to the bottom of the webpage of `gaussian_process.kernels.Kernel` there's a link to an example of how this class can be used. This was added in Nov 2019. In this example the class `SequenceKernel` is created which inherits from the `Kernel` class. The `SequenceKernel` class is not a feature of scikit-learn but might be an interesting feature to add. 
+
+Please correct me if anything that I've written here is wrong.Yeah it'd make it too complicated to write an example for it. I'm happy for it to be removed from the list.@Malesche `exceptions.DataDimensionalityWarning` is now closed and can therefore be taken off the TODO list.Regarding `inspection.PartialDependenceDisplay`: 
+In the class description it is said, "It is recommended to use `plot_partial_dependence` to create a `PartialDependenceDisplay` ". I had a look at this function and inside it a `PartialDependenceDisplay`object is created and its `plot` method is called. There are examples for how to use `plot_partial_dependence`, and I therefore think that there's no need to add examples to `inspection.PartialDependenceDisplay`. What do you think, @adrinjalali ?agreed  @marenwestermann `exceptions.NonBLASDotWarning` can also be taken off the TODO list because a decision against having examples in `exceptions.py` has been made (see #17040). @NicolasHug, @amueller just in case you want to use this issue as a sprint issue, you can find [here](https://gist.github.com/cmarmo/cdd98d69a61bc6cacac1ce79c276e046) the list of the classes still missing examples (thanks to Joel [script](https://github.com/scikit-learn/scikit-learn/issues/3846#issuecomment-481527728), amended by himself... :) ). I have already removed `base` and `exceptions` classes. May I suggest to edit the issue with the list just at the beginning? This will make easier to identify available classes. PR still opened from previous sprints (not only) are linked into the list: I think it will be useful to finalize them before a new event (thanks @thomasjpfan for having started some reviews already). Thanks for the suggestion @cmarmo, I updated the issue.HI, I will try to take on `gaussian_process.kernels.Hyperparameter`.Hi, I will take on `linear_model.*`.
+
+* linear_model.PoissonRegressor
+* linear_model.TweedieRegressor
+* linear_model.GammaRegressorHi, We will take ensemble.GradientBoostingClassifier> Hi, We will take ensemble.GradientBoostingClassifier
+
+This one already has an example.
+
+Hey, We are now taking:
+
+- metrics.ConfusionMatrixDisplay
+- metrics.PrecisionRecallDisplayHey @adrinjalali , Can you please check the PR? Thanks!@emdupre and I will work on below as part of the data umbrella sprint.                                                    
+
+- neighbors.BallTree
+- neighbors.DistanceMetric
+- neighbors.KDTree
+Hello @adrinjalali, Seems like we can already see some examples for below.  It's not updated in the todo list. Please suggest.
+
+- neighbors.BallTree
+- neighbors.DistanceMetric
+- neighbors.KDTreeHi I will work on:
+
+- decomposition.DictionaryLearning (#16907)
+- decomposition.MiniBatchDictionaryLearning (#16907)
+- decomposition.SparseCoder (#15233)Hi, I will work on:
+* ` gaussian_process.kernels.CompoundKernel`Closing this as all the PRs have been merged and there is no more relevant classes without examples.
+Thanks @j2heng for helping in triaging during the sprint!Oh really. The list on the top is out-of-date?Oh yes I merged the other PR.Me and @abdulelahsm are working on ```feature_selection.SelectorMixin```@YasmeenAlsaedy  @abdulelahsm Since a user is not going to use the `SelectorMixin`, we should add any example. This is a class used by developer instead.
+
+It seems that we close the issue as well. So I assume that we added examples for all public classes. In case, that you see any class for which we did not add an example, I can reopen the issue.

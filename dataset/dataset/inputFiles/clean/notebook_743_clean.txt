@@ -1,0 +1,208 @@
+I got this Spark connection issue, and SparkContext didn't work for sc.
+
+The command to initialize ipython notebook:
+
+
+
+Environment:
+Mac OS
+Python 2.10
+Spark 1.1
+java version 1.0 65 
+ 
+any solution to this. experiencing same thing. 
+How did you install Spark? You may need to set SPARK HOME for it to find it properly.
+ minrk I have set SPARK HOME already. I downloaded spark thumbs down.1 bin hadoop2. tgz from official website then tar it.
+Do you have any other spark env variables defined, such as PYSPARK SUBMIT ARGS?
+ minrk Yes, I followed the step here, LINKLINK 
+Try removing the PYSPARK SUBMIT ARGS env.
+I was having the same problem with spark 1.0 but removing PYSPARK SUBMIT ARGS env from my bash solved the problem. In my bashrc i have set only SPARK HOME and PYTHONPATH and launching the jupyter notebook I am using the default profile not the pyspark profile.
+ Hanuman26 Thanks for passing along details of your success for others. cc wlsherica minrk 
+
+I'm going to mark this closed but feel free to reopen if needed.
+I was experiencing the same error. Removing the PYSPARK SUBMIT ARGS env did the trick. 
+Thanks
+You actually have to define pyspark shell in PYSPARK SUBMIT ARGS if you define this.
+
+For instance:
+
+ CODELCODEL 
+
+works
+ Stibbons, where do I put this in the. bash profile
+thanks.in your jupiter notebook juste before importing findsparkI removed removed it by doing os. unsetenv PYSPARK SUBMIT ARGS but still same error happensI am using the python 3 and I installed the pyspark library with 
+ CODESCODES 
+its installed successfully, and the library is imported successfully,
+but when I use this command 
+ CODESCODES 
+
+so I am getting the same error 
+
+ Exception: Java gateway process exited before sending the driver its port number
+ 
+I saw comments but didn't help me, any solution how can I fix this issue. 
+  raviladhar The only thing that helped me fix this was to install a prebuilt spark version from LINKLINK 
+Hope this works for you!The only way to get more info on this is by modifying the java gateway. py file like this:
+
+ add the line print command, env 
+
+ 
+ CODELCODEL 
+
+Then for example you will get the following stacktrace:
+ CODELCODEL 
+
+Indicating that some env variables are missing!I am getting the same error from just doing a fresh install from apache spark the pre built prepackaged version on Mac OSX
+ CODESCODES 
+in this directory running
+ CODESCODES 
+not 100 sure what is going on
+Make sure you use the correct protocol when specifying the master. Worked hours on this. My problem was with Java 10 installation. I uninstalled it and installed Java 8, and now Pyspark works. amnghd 
+
+Don't use the new Java 9 or 10 with Spark!
+A new version of Java just came out daily Java 9 and 10. Spark is not compatible with Java 9 + versions.
+You should make sure you install a Java 8 JDK and set JAVA HOME points to it. do not install a Java 9 or JAVA 10 JDK.
+I had similar problem and setting JAVA HOME helped.在项目中添加os. environ “ the path to java home directory”, then ok! CODESCODES worked for meHi there,
+I solved the issue:
+ CODESCODES 
+
+with installing this package
+ CODESCODES 
+
+and importing it:
+ CODELCODEL 
+
+ SujanMukherjee You don't necessarily have to reinstall it, you can simply escape the spaces:
+ CODELCODEL 
+
+This fixed the error on Windows 10. downloading openjdk 8 sudo apt get install openjdk 8 jdk
+ adding following lines in. bashrc 
+export JAVA HOME usr lib jvm java 8 openjdk amd64 
+export PATH PATH: JAVA HOME bin
+
+java 9 or 10 is not supported for me. 
+ OS: ubuntu 16.04 
+On the folder in whick I was working, I had a log text file with an error of Java environment, I deleted that file and the problem was solved.
+So, this is the top result if you google this exception but I am not using jupyter. For me, the root cause of the problem was I had used pip to install the latest version of pyspark, but the version of spark I had installed was different specifically i had 2.0 installed uninstalling the python module, and then using an explicit version pip install pyspark 2.0 fixed my error.I had the same. just type 
+ module load spark in command line. This issue will be resolvedNot sure if this will help anyone, but I ran into the same error while running Pyspark using the spark without hadoop installation and a separate, specific Hadoop version.
+I was able to get things working with the help of some not easy to find LINKLINK 
+
+Basically, 
+ CODESCODES 
+
+Also, setting JAVA HOME, as mentioned above was also necessary.Ran into the exact same error few minutes back I had multiple versions of JAVA installed on my machine all 8 + versions. Solution was to just keep Java8 and remove rest of them, worked like charm! Hope this helps. 
+
+我佛了. It works, even here I can meet ChineseI resolve the issue under OS X Yosemite version 10.10.5
+1: make sure you have JAVA8 
+2: Find your JAVA8's home directory then add those two lines.
+import os
+os. environ Library Java JavaVirtualMachines LINKLINK  shekharkoirala Thanks. This was enough to solve on my linux machine.Same problem. My JAVA HOME path was messed up. Once i fixed that it worked.
+
+
+
+
+
+
+
+
+
+
+
+ Add this code line helps me solve the same problem: 
+ Help to solve Java gateway process exited before sending the driver its port number
+import findspark as fs 
+
+
+Try restarting the Kernel and Clear all Output in Jupyter notebooks.
+
+It resolved for me. Naveen kr Thank you so much
+ minrk where is the removing the PYSPARK SUBMIT ARGS env?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hi, do you know how to do that in Anaconda on Windows?Hi 
+My problem is into VSCode IDE when I’m debugging my code, vscode don’t detect Java installed in my pc windows 
+Now I’m builiding my testing functions with pytest and I want to check if my functions are ok
+My solution have done:
+Into the UseR directory in my pc: c: users xxxx
+I created. bash profile y there I wrote This line:
+export path java my pc
+With it my pc know where is java when I Started my bash console
+After I created virtual enviaronoment and I installed the necessary libraries pyspark, pytest, etc and after I Throw the command pytest file. py and It show me the errors and I managed to pass the tests
+Thanks 
+Regards Had the same problem. For me, Java and OpenJDK were missing on my system Ubuntu 20. 
+
+Installed the OpenJDK from the link below and after setting the JAVA HOME variable manually, it got solved. 
+ LINKLINK 
+
+Cheers!
+running Window 10. having this issue. alrdy set HOME and stuffs but nth is helping. need to make pyspark so i can continue with my lessons. pls help.
+ LINKLINK 
+ LINKLINK 
+
+My solution was start over but with python, not anaconda. Anaconda was the problem, the set of the variables it is ok.
+
+
+
+
+
+hi mikesneider, thx for the reply! Does that mean I have to uninstall and remove all the paths related to Java, Anaconda, etc etc and start the installation all over starting from Python?do not change the paths, that's it is ok, you only need to uninstall anaconda and start over with Python3. Actually, in the Microsoft store, you can install it. If after that do you have trouble with sklearn reply.I solved this problem by updating my java version java7 java8. I think it could be helpful for some of you. How I solved my similar problem 
+
+ Prerequisite: 
+1 anaconda already installed
+2 Spark already installed LINKLINK 
+3 pyspark already installed LINKLINK 
+
+ Steps I did NOTE: set the folder path accordingly to your system 
+
+
+now. it works!Had the same situation under MAC. After installing spark with the anaconda environment tool, open a notebook and 
+
+ CODELCODEL 
+then I got an error message with a lot of stuff and finally:
+
+ Java gateway process exited before sending the driver its port number
+ 
+
+I solved the situation with the next steps:
+
+ check the java version you are using and the compatibility with spark.
+ to see the compatibility access: LINKLINK 
+
+ CODELCODEL 
+ CODELCODEL 
+So I removed the 16 version
+
+ CODELCODEL 
+Then went to Oracle and downloaded a java 10 version which seems to be compatible to spark 3.1
+
+ LINKLINK 
+
+Installed it with the installer and now I am running the 10 verison
+
+ CODELCODEL 
+
+ CODELCODEL 
+
+Re started the notebook and now it is running and fine.
+
+Hope my case helps. Good luck, 
+
+
+
+ dvegamar 
+Same issue i was facing and worked for hours, resolved now. Thanks a lot
+
+

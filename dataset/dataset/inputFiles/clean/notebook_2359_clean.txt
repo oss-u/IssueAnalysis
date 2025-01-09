@@ -1,0 +1,525 @@
+I'm using the notebook from a conda env, and have the environment set up with all of my required packages installed. However, when I try to import one of these seaborn in the notebook, I get an import error suggesting it is not installed. This works fine from the command line and I can confirm using the CODESCODES command within the notebook that the package is installed:
+
+ LINKLINK 
+
+Running notebook 4.1 from conda.
+
+Interestingly, when I try to import CODESCODES from inside of a notebook, I get the same error:
+
+ CODELCODEL To followup, I have even created a fresh conda env, but I get the exact same error.
+
+Here also is my conda info:
+
+ CODELCODEL I can further confirm that installing Seaborn via pip does not fix this issue.Complete reinstallation of Anaconda fixed the issue.As it turns out, this does not fix this issue as I first claimed. It is not restricted to the seaborn package either.This occurs with pip installed packages as well as conda:
+
+ LINKLINK I think you need to restart the kernel for this to work. Besides, you have to be sure to be using the right CODESCODES for example CODESCODES that comes with Anaconda instead of system CODESCODES.I've restarted the kernel multiple times, but this continues to occur. I have even tried deactivating and reactivating the conda env. I can also confirm that it is the pip installed into the current env, rather than the one in the root env. I can import this library from the ipython console without issue.
+
+I can also confirm that CODESCODES is what I expect it to be:
+
+ ' Users fonnescj anaconda3 bin python'Just to clarify, I am using a conda env based on this yml:
+
+ CODELCODEL 
+
+The env was created and all packages were installed without error, but some packages can be loaded into the notebook, while others were not.Even installing the old fashioned way with CODESCODES does not result in the notebook seeing the package. I'm at a loss here.Tried installing on an AWS instance. Same problem. What if you use a proper terminal instead of trying to run CODESCODES in the notebook?I was only using pip in the notebook to list the installed package. It was installed first with conda when I created the env and then using pip from a conventional terminal. I can also confirm that the package is present in the CODESCODES directory for the active env:
+
+ CODELCODEL 
+
+And again, it imports from the IPython console; its only the notebook where it fails.Steps to replicate:
+ Create conda env with:
+
+ conda create name tester notebook pymc3 numpy ipython
+ Activate environment:
+
+ source activate tester
+ Open IPython, and import pymc3 from the command line. Assert that it imports as expected.
+ Open a Jupyter notebook session:
+
+ jupyter notebook
+ Create a new Python3 notebook and import pymc3. Failure occurs:
+
+ CODELCODEL I am able to get pymc3 to import if I install it in the root environment, but not in any environments that I create. Check CODESCODES and CODESCODES inside the notebook I bet your kernel is not running in the environment you intended it to. Run CODESCODES to see where it finds the CODESCODES kernel.Wow, that's bizarre. Its an extremely odd list. I've deleted CODESCODES and that appears to have straightened things out. 
+
+Thanks. fonnesbeck Even I am facing the similar issue. I have installed keras but I am not able to import it in the notebook. I am using Mac. Where can I find CODESCODES so that I can follow your strategy?Facing the same issue
+ mgooty CODESCODES will display the path but that didn't solve the issue for me.
+Maybe more of a conda question, that fixes the issue for me: LINKLINK Also facing the same issueHaving the same issue, any ideas solutions?It sounds like you're trying an import in two different installations of Python, or two different environments. Check CODESCODES to see which Python and environment you're running in, and CODESCODES to see where it looks to import modules.
+
+Python packages must be installed separately for each copy of Python you use, and if you are using virtualenvs or conda envs, packages must be installed into each environment where you need them. Either the package is not installed in one, or a different version of the package is installed.
+
+To install packages to a particular Python installation or environment using pip, you can run it like this:
+
+ CODELCODEL 
+
+If you are using conda environments, you can install packages from conda like this:
+
+ CODELCODEL 
+
+I have written this up as a blog post as well: LINKLINK 
+
+ edit: just noticed that this isn't the jupyterlab thread. sorry for the spam. But maybe the problem is transferable. It works for my normal Jupyter notebooks 
+
+Thanks for the tips! However: I installed jupyterlab in its own conda env and installed everything in there via conda install. so it should be there, correct? Still I cannot import it restarting kernel, etc. does not work, I am using a python 2.7 kernel, it's running on a Mac. Check CODESCODES anyway, it might be running the kernel somewhere different to where you expect.ok, CODESCODES in just python in terminal gives me Users hotte miniconda2 envs jupyterlab bin python 
+ after I CODESCODES the conda env 
+Within the notebook I do the same and it gives me Users hotte miniconda2 bin python.
+Which is pretty puzzling? Any ideas why the notebook itself does not point to my environment that I started it from? notebook and everything WAS installed from within the environment There'll be a kernelspec somewhere which is pointing it to a different Python. We really need to redesign that system. Run CODESCODES in a terminal to see what kernels it knows about. It will point you to directories which contain CODESCODES files one of those will be pointing it to the wrong Python.Thanks! I reset the path in the kernel. json file as you suggested. Everything works now! 
+How to reset the path in the kernel. JSON file? 
+
+ CODELCODEL 
+
+the path to where my sys. executable points to at system: 
+ CODESCODES 
+the path to where my sys. executable points to in the virtualenv named plotly:
+ CODESCODES 
+
+When I run on terminal
+jupyter kernelspec list 
+ CODESCODES 
+
+I'm trying to run the jupyter notebook in the virtual environment when I try to run a program I get a modulenotfoundError but if I try to pip install the module, it says requirement already satisfied!
+
+What am I doing wrong and how can I fix this? 
+
+
+
+
+Where it says CODESCODES in that file, give it the path to the Python executable you want it to use. takluyver Thanks for the blog post! takluyver 
+I'm having the same problem but sys. executable is the same in notebook and console. Below you can see that I can't import a package installed with CODESCODES in the notebook but am able to do so from the console.
+ LINKLINK 
+ I've been restarting notebook kernel many times Do CODESCODES in the console to see where it's imported from. Is it in the working directory? In that case, it will only be picked up when running in that directory. Otherwise, check CODESCODES for differences.The package is not in the working directory. I can see the differences in CODESCODES but I still don't understand why the same python environment started from the same console has the path to this package or not depending on whether it is run via jupyter notebook. thumbs down Having this issue bites. 
+
+However this post can help, I'm on a Mac and viola it worked. In a nut
+shell run sys. path in your terminal to locate all your python installs
+including those in Anaconda. Then locate the package you installed and see
+what directory it was installed in. Then go into your Jupyter notebook and
+run sys. path to find where your notebook is installed. If your having
+issues with the package you should clearly see they are not in the same
+directories.
+
+Follow the steps in LINKLINK to
+remedy the issue.
+
+Its frustrating but you'll figure it out.
+
+ 
+ Tarique Hasheem 
+510 299 2680
+ 
+Create your own email signature
+ 
+
+ Mikolaj Magnuski 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Regarding your last email.
+
+You have to be in your conda env source activate name of your conda env.
+Then you must install the package with conda install name of package.
+
+Otherwise using pip or pip3 will install in a directory you may not want.
+If the package is not available via conda install you can go into your py
+directory where the conda env is and us pip but make sure to provide the
+entire path to the directory for the install to be successful.
+
+
+ 
+ Tarique Hasheem 
+510 299 2680
+ 
+Create your own email signature
+ 
+
+ Tarique Hasheem 
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ tariqueye 
+I have to install some packages from github and still be able to edit so I use CODESCODES. I can add a line of code to append a relevant path to the sys. path, I just found it surprising that I can import from the console and not from the notebook although the same python env is used in both. all,
+I did have the same issue when try to import seaborn. I fixed it by installing seaborn as sudo on ubuntu!
+sudo pip install seaborn 
+
+Then I could import it on jupyter notebook. Hope this helps!
+ all
+For some reason it seems to work on that problematic machine now. 😄 I can't identify what helped.To install on notebook and have any effect the correct way to do it is:
+
+ CODELCODEL 
+
+It will install in all conda environments.
+
+If you do:
+ CODELCODEL 
+then it is even better! It will install in all environments not only conda environments 
+
+ ALL 
+I'm having the same issue. I am running python 3.6 on a windows 8 computer and write my code with Notepad++, so i couldn't refer to the conda or jupyter answers. 
+
+
+How do I get python. exe and my package into the same directory? Thanks Maier123 Are you running a notebook on conda virtual env? Maier123 How about trying to follow LINKLINK first, then creating LINKLINK environment. After that, activate the environment, CODESCODES whatever you need, and then run CODESCODES  CODESCODES 
+I tried this. It worked. Original post: LINKLINK  Vaishak
+Have you solved the problem?
+I met the same problem now, and i don't known how to solve it.I was having a similar issue, I install tflearn under a conda environment but was getting 'module not found' when attempting to import it even though I had run jupyter from the correct conda environment.
+
+However, I had not installed jupyter in that environment, so it was running from the default installation.
+Installing jupyter into the target environment corrected the problem.
+
+I had a similar issue. I was trying to install few python packages in the conda environment. But I was getting CODESCODES in the jupyter notebook. Though it worked fine in the terminal with the conda env on. 
+
+I looked at the CODESCODES and CODESCODES from inside the jupyter notebook. I found that the kernel wasn't running the intended version of python I wanted. The notebook was taking the python host version since I hadn't installed jupyter in my environment.
+
+So to solve it I installed jupyter notebook from inside of my conda environment. That solved my problem.  For what it's worth
+
+tl;dr I couln't get CODESCODES to work on Jupyter Lab so I had to resort to notebook. In the grand scheme of things, I think I'll be ok.
+
+ The missing piece
+
+The last line of the traceback from CODESCODES is 
+ CODELCODEL 
+Thus
+ CODELCODEL 
+seemed to fix CODESCODES, CODESCODES and CODESCODES, but not CODESCODES.
+
+ Results
+
+ Python
+
+This works. Sure there's a warning, but the import actually imports CODESCODES.
+ CODELCODEL 
+
+ Jupyter notebook
+
+This gives the same warning, but it works.
+ CODELCODEL 
+
+ ipython
+
+This gives the same warning as above, but it works.
+ CODELCODEL 
+
+ Jupyter lab
+
+This fails
+ CODELCODEL 
+
+ My system
+
+ Ubuntu 18.04
+ conda 4.2
+ jupyter 4.0
+ jupyter notebook 5.1
+ jupyter lab 0.31.5
+ ipython 6.1
+ python 3.5
+ pymc3 3.3
+
+ Conclusion
+
+I've spent enough time on this so I'm just going to use the notebook. I'd love to use Jupyter Lab, but there's a limit to the time I can allocate to troubleshooting environments.had the same problem installed python module works in python but not in ipython jupyter. I found a simple solution to this problem: just look up manually the location of the module and add to the sys. path. 
+
+For example, I installed the tensorflow in a conda environment named 'tensorflow3'. The location of tensorflow module can be found as following:
+
+wei wei Precision T7600: CODESCODES 
+ tensorflow3 wei wei Precision T7600: CODESCODES 
+Python 3.4 Anaconda, Inc. default, Mar 13 2018, 01:15:57 
+ on linux
+Type help, copyright, credits or license for more information.
+
+
+' home wei anaconda3 envs tensorflow3 lib python3.6 site packages tensorflow init. py'
+
+
+
+Now I just add the path: ' home wei anaconda3 envs tensorflow3 lib python3.6 site packages' to sys. path in ipython jupyter, and then the tensorflow module can be imported in ipython or jupyter notebook!
+
+In: sys. path. append ' home wei anaconda3 envs tensorflow3 lib python3.6 site packages' 
+
+In: import tensorflow as tf
+ home wei anaconda3 lib python3.6 site packages h5py init. py:36: FutureWarning: Conversion of the second argument of issubdtype from CODESCODES to CODESCODES is deprecated. In future, it will be treated as CODESCODES.
+ from. conv import register converters as register converters
+
+In:
+
+Wish this helps.
+
+I faced the same issue too. What was happening was that my ipython notebook was using the global instance of notebook installation since my newly created conda environment did not have jupyter notebook installed in it. And it was also searching for all the packages referenced in the notebook globally.
+
+The fix was: conda install jupyter notebook in the newly created environment.
+
+After doing this, when I launched ipynb, it started using the packages in my environment and not the global ones. I also used conda install command for installing all the packages. 
+
+To test whether it is a global environment issue export your ipynb as. python file and try running it from bash. If it works in the environment's bash, you know that your notebook is trying to find packages in the global env.I also had the problem of differences in the CODESCODES for the console and the jupyter notebook.
+Both point to different pythons within the same virtual environment.
+My solution was to install jupyter notebook in the virtual environment
+ CODESCODES 
+ CODESCODES 
+After killing and restarting jupyter notebook they are the same: 
+Despite all the helpful comments, it took me a while to figure this one out. I'm using pip, not conda, and I got it to work reliably without having to manually change the Python executable path as follows: 
+
+1 Enter virtual environment: CODESCODES 
+2 Make sure to reinstall jupyter: CODESCODES 
+3 Restart venv by deactivating and reactivating.
+
+Checking CODESCODES should now point to the venv's Python kernel. I prefer this method over manually changing CODESCODES since that would get tedious if working with multiple different venvs. Pretty much the same idea as vtslab Install jupyter in that particular environment. 
+Thanks iamjli! The bit I was missing was actually re activating the environment after CODESCODES.
+
+Run the following in the jupyter notebook cell:
+
+import sys
+
+sys. path
+
+sys. executable
+
+It may not be pointing to your virtual environment but to the root
+
+The fix is to install the jupyter notebook from inside your virtual environment
+
+. your env bin activiate
+
+ your env python m pip install jupyter
+
+Now you can import tensorflow or keras
+Thanks all for the infomatic post for the issue that I also encountered. And agree with sandsece 
+ for example 
+
+ 
+ PROBLEM:
+
+From within myENV created from conda, run jupyter notebook, but in this notebook some module that could be loaded from myENV just through out error like:
+ 
+ModuleNotFoundError Traceback most recent call last 
+
+ 1 import libraries
+ 2 import folium
+
+ModuleNotFoundError: No module named 'folium'
+
+
+ 
+ Check:
+ CODESCODES 
+since even sys. path show correct path of myENV, the sys. executable can be different in myENV and in Jupyter notebook. This can simply because the jupyter you run is not installed in myENV and it has to fallback to the base install. It happens that in the base environment the module you want to use is not installed. error!
+
+ 
+ Solution: 
+For the case above, it is straightforward:
+ CODESCODES 
+
+
+Hope this will help. 
+
+BR Kangqiao
+
+
+
+ LINKLINK was an exhaustive description of python path setting. And LINKLINK is my solution.
+
+can you please suggest the better way to solve this issueMy problem solved by install Jupyternotebook in the conda environment and use it there. The packages can be imported in the same environment.
+
+Without this step, I think you are using Jupyternotebook from the general setting, for that import packages in a specific conda environment is not working.
+Hey, 
+I just had the same problem and it was a stupid mistake. I have cloned the environment and started it. After opening jupyter notebook it took the Kernel from previous session. It happened too be that it had similar name since it comes from similar environment. well. always double check before you blame and say bad things to your PC: D
+
+What if everything is fine as everyone's told here but still it doesn't work?Ok, I solved this problem in my case:
+
+ Windows 10
+ Anaconda 3
+ installed tensorflow venv
+
+When I use Python3 kernel CODESCODES works fine. 
+When I switched to tf gpu kernel it's fires No module named 'seaborn'
+
+But in previous cases, when I install other modules via jupyter in cell! conda install or! pip install everything worked ok.
+But in seaborn case it didn't
+So I opened terminal activate tf gpu conda install seaborn 
+And problem were fixedI had no issues with install on my MacBook, however, on my Windows 10 64 System, I had the same problem. I resolved it as such:
+
+Try running anaconda prompt as 'administrator', then use:
+On Ubuntu, I found that using CODESCODES instead of CODESCODES or CODESCODES worked for me.
+
+Additionally, I've just started using an alias for pip for convenience with CODESCODES in the terminal.
+
+
+
+this worked for me as wellhow to import apriori package in jupyter? I have already installed it in anaconda prompt but jupyter does not import it
+ 1998anwesha 
+Just check where is the Python Interpreter is running? Are they same or different?
+Both Jupyter and your interpreter must have same interpreter.
+
+ 
+import sys
+print sys. executable 
+  amandalmia14 Thank you
+I was having the same issue and as our system contains many instances of python, many times jupyter notebook starts using some other version and hence we can't do anything but solve the issue by bare hands by changing the package. json file present in the path given by 
+ CODESCODES I would recommend everyone to use different virtual environment for every project or different environments in Anaconda. Will insist on using Anaconda because of its great library version management 
+Well if it will only work if we install a new CODESCODES in each new environment, what on earth is the point of having these stupid CODESCODES files and separate kernels in the base jupyter notebook installation? Also the recommended way of handling multiple environments according to the docs is to use kernels and kernelspecs. But this doesn't seem to work, instead everyone is doing this workaround of installing a new jupyter notebook on each environment. 
+
+Why is this issue closed? It is still WIDE open in my opinion! awa5114 I installed LINKLINK my base conda environment which did what the expected behaviour is of the kernelspecmanager by installing a new one. This fixed the issue for me and now each conda environments has its own kernel. I can now choose which kernel aka conda environment my notebooks uses. I'm not sure if we are using the same instance of Jupyter though. I'm using Jupyterhub, but maybe this doesn't make much of a difference in this case. Hope this helps!
+
+Otherwise, this might be to some help: LINKLINK Same issue here, just installed sklearn by conda, by: CODESCODES 
+I can import it from command line, but not from jupyter.same here. 
+what resolved my problem is that I first checked available kernels by 'jupyter kernelspec list'
+This listed me available kernels, but I noticed that it was using another kernel that I am not in
+Then I removed that kernel completely and it was resolved.I had the same problem. Changing kernels did not work for me.
+ I installed pandas in my venv but It wont show up in jupyter which I ran through my venv.
+
+I have Ubuntu, with a virtual env in python 3.7 
+ CODESCODES 
+Then I added the venv python site packages folder to system path and it worked. Added following code to jupyter notebook and it was able to find pandas easily
+
+ CODELCODEL 
+
+
+I've tried summarizing options and common troubles in this Q&A:
+ LINKLINK This is quite a weird bug. Like iamjli mentioned, if I just reactivate the env by deactivating and activating again, it works fine, even though literally nothing else changed. 
+So that means if you install package and jupyter at the same time, without reactivating env, it will not be able to import, until you reactivate. I just tested this again in a new virtualenv, it proved to be correct.
+
+ CODELCODEL 
+
+create a new notebook and try to import numpy. It failed.
+Try deactivate, and activate again, it works fine. 
+I have a hard time believing such fundamental issue has existed since 2017 and remain unfixed. 
+
+On a side note: it has nothing to do with the path inside CODESCODES or sys path not appended or anything.My problem was that jupyter was not installed in the environment i was using. I installed jupyter in that conda environment and newly installed packages were imported correctly
+
+
+
+
+
+
+
+
+This worked for me and seems like a very easy solution. I had the same issue.
+Changing the kernel. json file did not work for me.
+I noticed that sys. executable was different between my terminal and the notebook. The notebook did not take the environment into account.
+I followed this: 
+ LINKLINK 
+And it solved the issueI did CODESCODES in both my CODESCODES and my CODESCODES and noticed that both CODESCODES and CODESCODES were missing in CODESCODES.
+So basically I just did CODESCODES while having CODESCODES activated and now everything runs well.
+
+I thought to look into this because CODESCODES was being used whenever I ran my notebook on JupyterNotebook but not when I ran it on JupyterLab.If u are using conda; type: jupyter kernelspec list
+ inside jupyter notebook open kernel. json file for python edit and paste
+ CODELCODEL 
+Reference: LINKLINK 
+
+ Vaishak
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+replace
+ CODELCODEL 
+by
+ CODELCODEL 
+
+
+Hi people. So what i did was i actually ran 
+
+
+
+In Jupyter notebook, after restarting the kernel i imported seaborn, and it worked Same problem, for me the package is CODESCODES. Installed fresh conda environment from a yml, added the kernel to jupyter with 
+ CODELCODEL 
+Import of CODESCODES works in ipython command line but not jupyter. It seems that even if there is a workaround, this issue should still be open because the expected behavior does not occur. Debugged the issue, at least for my case. Note that as I was debugging this, I found that I did sometimes have to delete the corresponding folder in Library Jupyter kernels else jupyter would not update, for example, different versions of the same package even though ipython did.
+
+This doesn't work: 
+ CODELCODEL 
+Same issue here: import works when in ipython command line but not in jupyter notebook or lab. 
+
+This does work: 
+ CODELCODEL 
+Haven't tested doing CODESCODES but imagine that should work too. Thank you! Deleting the corresponding Jupyter kernel in Library Jupyter kernels or moving it aside, if one is paranoid, worked for imports to start working in Jupyter Lab. In my case, it was Library Jupyter kernels python3.
+
+
+This works! Thank you.The solution for me was to see what the actual python executable was being used:
+ CODELCODEL 
+
+In my case, I had installed my Jupyterhub into CODESCODES, so my pip install was over in CODESCODES. Running 
+
+ CODELCODEL 
+
+then restarting the kernel worked.Hi guys,
+
+After all these years this problem is still annoying. I just wanted to quote what I did to solve a similar problem started by fonnesbeck a time ago.
+
+After checking the comment of Vaishak I decided to open my CODESCODES file that is inside the environment that I created for my project:
+ anaconda envs MYPROJECT share jupyter kernels python3
+
+and I changed python by Users myname anaconda envs MYPROJECT bin python 
+
+ CODELCODEL 
+This was possible because of the discussion between ShayekhBinIslam and Vaishak I faced a similar issue. While the imports were working fine on terminal in the virtual environment, they failed to import in the jupyter notebook. The problem was that I had not installed a local jupyter package for the virtual environment. Therefore, the jupyter notebook on my newly created virtual environment was using the global instance of notebook installation, for example from the base environment.
+
+I used the command 
+
+
+to install notebook on my virtual environment, and this fixed all issues for me. I could import all the packages local to the newly created virtual environment.
+
+I fixed the problem by uninstalling Python 3.9 interpreter and only keeping Anaconda's interpreter. The steps I followed are:
+ Uninstall any Python interpreter installed in your OS, except Conda. Execute Conda's enviornment and reinstall Jupyter: pip install jupyter.
+
+This worked for me. In my case, I wasn't using the other interpreter. To test if this works, execute sys. executable in Jupyter and it should show your Conda's Python enviornment path.Check this tutorial for creating a notebook pointing to your desired environment:
+ LINKLINK 

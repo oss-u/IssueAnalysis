@@ -1,0 +1,9 @@
+Currently we have an interface for OPTICS with custom method CODESCODES. This is good for usability and visibility of the functionality, but means that a generic parameter search tool like CODESCODES can't use OPTICS to perform DBSCAN at various CODESCODES.
+
+This would involve adding an CODESCODES parameter which, when None, would use the default OPTICS clustering; when not None would use CODESCODES. But we would also need to retain the model across multiple fits. 
+
+Here are two alternative interfaces:
+ Add a CODESCODES parameter like many classifiers, regressors, but uncharted territory for clusterers. When True, and CODESCODES or CODESCODES is called, the current CODESCODES, CODESCODES and CODESCODES would be kept, but a different final clustering step would be used to output store CODESCODES.
+ Add a CODESCODES parameter, like in hierarchical clustering. This would cache the mapping from parameters to CODESCODES, CODESCODES and CODESCODES using a CODESCODES.
+
+I think the first option sounds more appropriate.

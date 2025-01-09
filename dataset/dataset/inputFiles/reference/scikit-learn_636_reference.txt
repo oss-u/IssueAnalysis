@@ -1,0 +1,7 @@
+
+
+The problem is that multiprocessing does a fork without an exec. Many libraries like some versions of Accelerate vecLib, some versions of MKL, the OpenMP runtime of GCC, nvidia's cuda and probably many others, manage their own internal thread pool. Upon a syscall to fork, the thread pool state in the child process is corrupted: the thread pool things it has many threads while only the main thread state has been forked. It's possible to change the libraries to make them detect when a fork happens and reinitialize the thread pool in that case: we did that for OpenBLAS merged upstream in master since 0.9 and we contributed a LINKLINK not yet reviewed to GCC's OpenMP runtime.
+
+In the end the real culprit is Python's multiprocessing that does fork without exec to reduce the overhead of starting and using new Python process for parallel computing, it's kind of a hack. This is a violation of the POSIX standard and therefore organizations like Apple refuse to consider the lack of fork safety in Accelerate vecLib as a bug.
+
+In Python 3.4+ it's now possible to configure multiprocessing to use the 'forkserver' or 'spawn' start methods instead of the default 'fork' to manage the process pools. This should make it possible to not be subject to this issue anymore. We don't use it by default in joblib because it causes some overhead and would make the default behavior slightly different in Python 2.7 and Python 3.4+. Maybe we should change the default to 'forkserver' under POSIX to have this problem disappear for Python 3.4+ users.

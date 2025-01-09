@@ -1,0 +1,9 @@
+I'm using the notebook from a conda env, and have the environment set up with all of my required packages installed. However, when I try to import one of these seaborn in the notebook, I get an import error suggesting it is not installed. This works fine from the command line and I can confirm using the CODESCODES command within the notebook that the package is installed:
+
+ LINKLINK 
+
+Running notebook 4.1 from conda.
+
+Interestingly, when I try to import CODESCODES from inside of a notebook, I get the same error:
+
+ CODELCODEL 

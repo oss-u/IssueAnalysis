@@ -1,0 +1,563 @@
+building 0.19b2 on debian ubuntus. still ongoing but I see consistent failure on Debian stretch nd90, current stable and testing nd100, 32bit only ok on amd64 build:
+ CODELCODEL 
+in both cases python numpy is CODESCODES for example 1.12.1 numpy and passed ok with numpy 1.2 in Debian jessie.
+ping ogrisel?Interesting, it's a only on a combo of numpy 1.12.1 and 32 bit python. 
+
+Those tests pass with 32 bit python and numpy 1.13.1 on our wheel building travis:
+
+ LINKLINK 
+
+ tomMoral if you want to play with docker, this is a good opportunity thumbs up  ogrisel I will give it a try thumbs up  yarikoptic I am unable to reproduce the failure on 32bit debian CODESCODES on docker.
+I tried installing python and scikit dependency using CODESCODES and the test passed for both CODESCODES and CODESCODES.
+Do you have a specific configuration that could explain the difference? yarikoptic tomMoral how can you install numpy 1.12.1 on debian stretch? Which repo did you use to produce this failure? ogrisel I installed the CODESCODES package, which uses version 1.12.1 and used branch CODESCODES for CODESCODES.
+EDIT: I used this docker image: CODESCODES Indeed I was using an older image jessie. I confirm I cannot reproduce the issue on stretch with the following 32 bit image: CODESCODES. yarikoptic, we would like to release. We need a way to reproduce the error, or we will need to skip the tests lower the condition on certain architectures.oh I have managed to miss your message jnothman and 0.13.0 came out without the fix, my bad. I will release debian packages as is without i386 build for some and later give you exact instruction on how to reproduce.FWIW issue in general reproducible: LINKLINK check i386 build and some other builds have other issues btw that was in beta let's wait for current release to get built in unstable before summarizing coming up issues on some other architectures Right. I see in the logs there an alarming number of fails for a final release thumbs down 
+
+And none of them are about CODESCODES 
+
+ CODELCODEL The last is the most confusing to me tbh.yeah, that 32bit issue didn't reproduce in current build. I guess it is not fully deterministic. will try to reproduce now locally and do we need to fix the other test failures for scikit learn 0.19 to ship
+with Debian?
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+That last failure is not confusing after a little investigation. It's a result of CODESCODES being the same as CODESCODES on a machine with 1 core. rth, do you mind looking into the CODESCODES failure above?
+
+ yarikoptic On this link I see No entry in i386 database, check Packages arch specific with Suite: experimental. Is there another way of getting this i386 build for debian? or did I miss something? Thanks.
+
+yeah, i clicked the logs column after failing to work it out
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Thank you very much for looking into those!
+
+FWIW locally I had only the test multi output classification partial fit parallelism to popup and indeed it was due to inability to do multiprocessing in my case absent bound to dev shm I guess:
+ CODELCODEL 
+it passes just fine when I have dev shm mounted and joblib does not complaint. 
+
+Re
+
+
+
+well for unstable Debian no. But if we want to have it propagate into testing and thus become a part of the next Debian stable release Whenever that would be yes, should get addressed one way fixed or another disabled re original CODESCODES 
+ specific to older versions of something yet to figure out since numpy as nscipy are the same since is not reproducible on current debian sid but reproducible on testing from few days back and other older releases.
+ specific to init 'pca' method 'exact'
+
+before I spend more time is there specific meaning for the threshold to be 0. may be it could just be relaxed a little? thumbs up btw these are the values I see for t, init, method
+ CODELCODEL i think.9 is somewhat arbitrary but we'd like to be sure that the
+variation isn't pointing to something more sinister
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ jnothman how could we discover? thumbs up By pinpointing where this and other machines diverge in their calculation. Not that that's easy to do without at least a VM of the target machine. rth could the CODESCODES failure be because of floating point error for example a small number was in Xt. data instead of 0, and so was not removed? amueller, CODESCODES already is marked with CODESCODES suggesting perhaps that this assertion is brittle. The test is failing where the importances in a model are being asserted identical to the importance in a similar model trained with sample weight 3 orig weights. Any ideas how to fix here? jnothman So far I am not able to reproduce the CODESCODES failure above. Tried to build scikit learn 0.19.2 it in a Debian sid unstable i386 VM, were scipy and numpy 1.1 were installed with apt get. I consistently get the failure about CODESCODES that was resolved since as far as I understand but not the one about hashing.
+
+
+
+I don't think it's due to floating point error. So the test fails on LINKLINK, where the expected values are CODESCODES and CODESCODES and I get those in the 32bit VM as well.
+
+ This test assumes that the hash value of the tested tokens always produces the same results in which case two of those produce a collision. And it looks like mumurhash3 LINKLINK, which would explain why this test fail. This doesn't explain why I can't reproduce it though. 
+
+Since this basically tests that in CODESCODES we can disable the CODESCODES functionality enabled by default and it doesn't validate any new functionality, it might be OK to skip it on failure on 32 bit? What do you think? 
+Ha! I had no idea it worked differently on 64 bit and 32 bit. strange
+
+
+I'm okay with skip if 32bit here. Not quite satisfying as we don't
+understand what's going on. 
+
+Is this testing a collision where the sign alternates and hence the value
+lands up at 0? Or just testing that values are stored in the same spot due
+to collision?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+lands up at 0? Or just testing that values are stored in the same spot due
+to collision?
+
+The former I think. Despite that comment in murmurhash3, I'm not sure the hash value is actually platform dependent: after all this test passes on Appveyor 32bit and 64bit and it works fine for me on i386. But it does seem like a plausible suspect. 
+
+We could try to make this test more robust, by just taking a large number of tokens N, hashing them with a hash table size 1 or any small number, and checking that with CODESCODES the sum of hashed values is equal to CODESCODES, and that it's strictly lower than CODESCODES if CODESCODES since some thumbs up thumbs down are bound to cancel out if N is large enough. That would be less dependent on the actual hashing implementation. 
+
+Still, for a Debian release of 0.19.0 I'm not sure how this could work: can you apply some patches on the original. tar. gz to skip tests modify code when needed? we're going to release a bug fix release in any case. i had wondered if
+finding and data close to 0 would help here.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+On 22 08 17 12:23, Joel Nothman wrote:
+
+
+
+Right, I don't think the value of zero matters. It could be a thumbs up 1 0 
+or a +3 2 1 instead of 3+2 5 as long the value in the hash bucket 
+is lower than the sum of the absolute value of hashed terms, it is 
+sufficient to determine whether CODESCODES is used or not during 
+the hash collisions, I think.
+Yes, I think you're right. We're not calling eliminate zeros anywhere.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I can confirm that test preserve trustworthiness approximately also failed on a 64 bit Mac.
+
+Error message:
+
+AssertionError: 0.89166666666666661 not greater than 0.9
+
+2,4 GHz Intel Core i5
+8 GB 1600 MHz DDR3
+
+Python 3.1
+numpy 1.13.1
+scikit learn master branch, last commit hash d6a42354145c92cf88093cbcc70b13f639319c38
+numpy was installed from pip, so this is with Accelerate.
+OSX version 10.12.4FYI, I can not reproduce on my OSX version with the same numpy version, Accelerate as well.I also tried on macOS El Capitan with Accelerate and could not reproduce either.
+
+We probably need to raise a CODESCODES if CODESCODES.The n jobs 1 issue has been fixed.
+
+We appear to have the following issues:
+ CODESCODES: LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK fixed in 9710
+ CODESCODES LINKLINK, LINKLINK, LINKLINK, LINKLINK. PR in 9733
+ CODESCODES PR in 9808
+ CODESCODES not listed above: LINKLINK. PR in 9734 9830
+ CODESCODES fixed in 9544 The original issue with CODESCODES remains the most concerning, IMO.Hm none of the links at CODESCODES test preserve trustworthyness approximately CODESCODES above have failures for that, right? Or I'm blind.have we seen this before:
+ CODELCODEL 
+from LINKLINK 
+
+ jnothman I just tried, but I'm not able to run for example a ppc64 Docker image on my amd64 system. With the CODESCODES below I get an error,
+ CODELCODEL 
+at the first CODESCODES suggesting there is LINKLINK. Using CODESCODES as the first line this works fine for amd64. So unless I missed something it doesn't look like this could be reproducible in Docker. Will need to find a VM image instead. 
+
+ Dockerfile 
+ CODELCODEL 
+built with
+ CODELCODEL Actually, the above Docker setup with conda wouldn't have worked anyway for other platforms, it should have been, something along the lines of, I think,
+ CODELCODEL 
+but this still wouldn't help unless someone has access to non amd64 platforms and is able to run it there, using the LINKLINK.  rth, okay. Thanks for trying.
+
+
+
+No, I must have sorted these things incorrectly. yarikoptic, I can't find the CODESCODES failure under 0.19.0 thumbs down logs. yarikoptic, any suggestion of how we can reproduce these test environments? jnothman any ideas about the CODESCODES test pairwise parallel CODESCODES failure?test pairwise parallel I had missed, but I also suspect it's something we'll find impossible to debug. Terminated after 150 minutes of inactivity during parallel execution of a simple functionI'm guessing CODESCODES has failed because of precision errors due to partitioning the ensemble summation across jobs. I'll submit a PR to reduce precision of the test.
+ priidukull is your test failure reproducible? Could you help us debug? Which CODESCODES and CODESCODES combination is the first to fail? CODELCODEL 
+
+What I've done is to reduce the size of X. with something like:
+
+ CODESCODES 
+
+And then I debugged through the code on both of my environments and the best I could tell was that the divergence happened in C code. But I could not tell where exactly with full certainty because it is tough to debug.
+
+ CODELCODEL What do you mean by the divergence? What were you comparing it against? The different methods and inits produce different trustworthiness scores on all platforms. priidukull, could you please provide the output of:
+
+ CODELCODEL 
+
+and of:
+ CODELCODEL 
+Thanks.
+
+
+For reference, I have:
+ CODELCODEL 
+and
+ CODELCODEL  CODELCODEL 
+
+ CODELCODEL So the error is reducing much more slowly. 
+
+ priidukull, What did you mean by telling that the divergence happened in C code? Do you have another system you're comparing against?
+
+ tommoral, if we continue to not be able to reproduce this bug, what kind of debugging output do you think would help us understand what's going wrong? Or what kind of more low level unit tests might help us hone in on it?I was putting print statements into the code and comparing the values of the variable X during different stages of execution. one environment my Mac desktop and another one that I had set up with docker running on my Mac.Great. It's extremely helpful to have someone reporting the issue who is
+also capable and willing to debug it. If only I could reproduce it on my
+mac. I've wasted lots of time failing to set up an appropriate debian
+virtual machine.
+
+Do you recall which C function was responsible for the divergence? Is the
+input to TSNE. tsne identical on both platforms?
+
+I've just realised we have a higher level of verbosity available to us.
+Perhaps comparing outputs at verbose 20 will be more informative. Might as
+well limit n iter to 250, as we know divergence precedes that.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Let's use verbose 100 just to be sure there are some things reported at
+verbose 20 
+
+On 13 September 2017 at 16:05, Joel Nothman wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Okay, I've just noticed a likely bug by reviewing the code with an eye for a certain issue I previously found in tsne: uninitialised memory, which could be platform dependent or otherwise hard to reproduce:
+
+ CODESCODES is LINKLINK 
+ CODESCODES is LINKLINK for the samples in range LINKLINK 
+ CODESCODES is accessed for gradient computation in range LINKLINK 
+ elements stop thumbs up. n samples may not be initialised
+
+ priidukull, are you able to recompile the cython using calloc instead of malloc?
+ import calloc along with malloc at the top of CODESCODES 
+ replace CODESCODES with CODESCODES 
+
+Does this fix the discrepancy?
+
+Ping tommoral, ogrisel This may not be our issue: I'm not managing to get the assertion to fail by merely populating neg f with junkUnfortunately, that's not the issue here although it should be fixed:
+compute gradient is only ever called with stop thumbs down.
+
+On 13 September 2017 at 16:05, Joel Nothman wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ priidukull your verbose 20 output would be welcome. I'm otherwise at a loss.Where can I set verbose 20?Sorry
+
+ CODELCODEL Ran: 
+
+ CODELCODEL 
+
+Output: LINKLINK  priidukull thanks for that. But the verbose output you have sent had substantial discrepancy with what it should, and not just in the numbers. Are you certain that the library is correctly compiled? Do you get this error when running the test on the wheel version of scikit learn 0.19?Or maybe that comment was wrong and I was just confused because your output
+isn't complete: the beginning is cut off
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Uups, I missed that. The output is more than 1Mb in size, so I did not find a pastebin for that. Can run the test again. How do you suggest that I send the output to you?you can email my personal address for the, thanks
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+or zip it
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ LINKLINK 
+Test code:
+
+ CODELCODEL  priidukull Thanks for the log. I tried to read it but there is only the logs after iteration 200 QuadTree is way too verbose and I think we lose the beginning as the log growth too big.
+I created a branch with better debugging logs here on top of jnothman nonstop branch: LINKLINK. Could you please check it out and re run the same code?
+
+It prints the squared norm of the gradient and the error at each iteration so we can see which part of the code is diverging.
+Here is the output for the first 100 iterations it is still too big for the gist 
+ LINKLINK Test code:
+
+ CODELCODEL 
+
+ LINKLINK 
+Thanks again. Still all we can compare by is error, and not, say, gradients:
+
+The first 20:
+ CODELCODEL 
+
+We see that the first error is a small numerical imprecision at line 5, but that this quite quickly blows out.
+
+I'm not sure that this is quite sufficient to say that there is nothing fundamentally broken in the implementation for example accessing randomly initialised memory, but that:
+ it is more susceptible to numerical imprecision than we would like, but perhaps we should seek contributions that investigate stability improvements
+ the test is brittle and already provides only weak assurances in asserting t 0.9
+ given this, we can probably get away with lowering the threshold, with a comment referencing this issue
+
+However, we may also be able to improve stability by choosing a better random data production approach; this random seed produces data where the following are the smallest differences between any pairwise distances in X:
+
+ CODELCODEL 
+That's very small differences for float32 data, and a large range in exponent from min to max.
+
+Is there a reason this test needs to use randn? Can it have a higher variance? Multiplying X by 1000 will mean at least the pairwise distances are much more distinguished in a float32, which I think may help.So I guess that's a question to priidukull too. Does the following CODESCODES easily pass for you?
+ CODELCODEL I think albertcthomas's LINKLINK in 9340 is the right fix:
+
+ This test generates training data as 32 bit float
+ The Barnes Hut Cython code works on 32 bit float
+ The Python validation of the CODESCODES code would therefore upcast 32 bit float data into 64 bit floats before casting down back to 32 bit float to call into the Cython code.
+
+Upcasting from 32 bit to 64 bit is platform specific the new bits are not necessarily set to zero and can explain the non deterministic behaviour with observed on some platforms machines.
+
+We need to pass 32 bit to 32 bit cython code without upcasting which also wastes memory for nothing.Just to be sure we are on the same page, the fix I suggested in 9340 consists in having CODESCODES in a CODESCODES I added in this same PR. The CODESCODES in master already has a CODESCODES see LINKLINK 9340 is older than the tSNE memory usage fix that was merged in July.Ah then there is something I do not understand. Will need to investigate further.
+
+ thumbs up for trying with larger variance or even a different distribution for example uniform.Actually, multiplying the data by 100 does not make the algorithm more stable with the PCA init, quite the opposite actually. On the original machine, the exact method + PCA init was triggering the instability according to: LINKLINK 
+
+Changing the random seed can have a large impact on the outcome. So maybe the rounding errors can indeed also have a large impact. By increasing the number of samples to 100 instead of 50, the trustworthiness gets much better and therefore much more stable but the test is significantly slower couple of seconds on my machine.
+Ok after playing extensively with different random seeds and platforms mkl vs openblas PCA for the init I think that 0.9 is just too strict. We could keep the 0.9 threshold and stabilize this test by:
+
+ running TSNE on larger datasets in which case the trustworthiness score gets more stable 
+ running the tests several times with different random seeds and make an assertion on the median score.
+
+However both approaches are too expensive in my opinion. While running my test with several hundred seeds on the original 50 samples random dataset I have never seen this score go below 0.87. So I think setting it to 0.85 should fix the issue. I will submit a PR.FWIW, this issue still happens on 32bit debian stretch with 0.19.1
+ CODELCODEL It looks like that PR was not copied across correctly to 0.19. My fault.
+
+Should be working in master, though, and seeing as the solution was simply
+to lower the threshold to 0.85, I don't think we're going to make another
+bug fix release. Feel free to patch for Debian.
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+You can cherry pick 6c99d797 if you wish.
+there was apparently also a 32bit failure on windows for 0.19. but I don't think it was this one.This test fails for me with: 
+ CODELCODEL 
+
+ my machine info:
+ CODELCODEL 
+
+Will be more than thrilled to comply with any requests for further info repros.
+Ryan, it would be best to open a new issue

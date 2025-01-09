@@ -1,0 +1,552 @@
+Apologies for this somewhat long issue. It describes my progress (and ultimate failure) to install jupyter extensions.
+
+I just upgraded from ipython to jupyter and am trying to get my environment working properly. I upgraded using conda (`conda install jupyter`) and have jupyer 1.0.0 installed.I am trying to get extensions working, following these instructions:
+https://github.com/ipython-contrib/IPython-notebook-extensions/wiki/Home_Jupyter
+
+First I was stuck on installing extensions:
+https://github.com/ipython-contrib/IPython-notebook-extensions/wiki/Home_Jupyter#1-installing-an-extension
+
+When I first tried
+
+``` bash
+ jupyter nbextension install usability/codefolding/main --user
+```
+
+I got a long stack trace ending with
+
+```
+IOError: [Errno 2] No such file or directory: u'usability/codefolding/main
+```
+
+It seemed like it was looking for an extension in my local file path, so I surmised I was supposed to clone the IPython-notebook-extensions repo and install the extensions from the base directory.
+
+``` bash
+git clone git@github.com:ipython-contrib/IPython-notebook-extensions.git
+cd IPython-notebook-extensions
+jupyter nbextension install usability/codefolding/main --user
+```
+
+Still got the IOError. However, examining the repo files, I was able to finally get something to work
+
+``` bash
+jupyter nbextension install usability/codefolding/main.js --user
+```
+
+This command completed without an error, so I assumed it was working. In fact, it put the file `main.js` into the path `/Users/rpa/Library/Jupyter/nbextensions`, which I presume is not the desired behavior.
+
+After futher trial and error, I ended up with
+
+``` bash
+$ jupyter nbextension install usability/codefolding --user
+```
+
+which gave me
+
+```
+copying /Users/rpa/RND/open_source/IPython-notebook-extensions/usability/codefolding/codefolding.py -> /Users/rpa/Library/Jupyter/nbextensions/codefolding/codefolding.py
+copying /Users/rpa/RND/open_source/IPython-notebook-extensions/usability/codefolding/codefolding.yaml -> /Users/rpa/Library/Jupyter/nbextensions/codefolding/codefolding.yaml
+copying /Users/rpa/RND/open_source/IPython-notebook-extensions/usability/codefolding/firstline-fold.js -> /Users/rpa/Library/Jupyter/nbextensions/codefolding/firstline-fold.js
+copying /Users/rpa/RND/open_source/IPython-notebook-extensions/usability/codefolding/foldgutter.css -> /Users/rpa/Library/Jupyter/nbextensions/codefolding/foldgutter.css
+copying /Users/rpa/RND/open_source/IPython-notebook-extensions/usability/codefolding/icon.png -> /Users/rpa/Library/Jupyter/nbextensions/codefolding/icon.png
+copying /Users/rpa/RND/open_source/IPython-notebook-extensions/usability/codefolding/magic-fold.js -> /Users/rpa/Library/Jupyter/nbextensions/codefolding/magic-fold.js
+copying /Users/rpa/RND/open_source/IPython-notebook-extensions/usability/codefolding/main.js -> /Users/rpa/Library/Jupyter/nbextensions/codefolding/main.js
+```
+
+Looked good. I now have all the extension files in `/Users/rpa/Library/Jupyter/nbextensions/codefolding`. So I did
+
+``` bash
+jupyter nbextension enable usability/codefolding/main.js
+```
+
+As far as I can tell, all this does is put the following into `/Users/rpa/.jupyter/nbconfig`
+
+```
+{
+  "load_extensions": {
+    "usability/codefolding": true
+  }
+}
+```
+
+Now I start jupyter in my home directory with `jupyter notebook`. After creating a new python 2 notebook, I see the followin in the log
+
+```
+[I 12:54:30.137 NotebookApp] Kernel started: 35af37d8-82ec-4899-9b08-633f69adc7e8
+[W 12:54:30.185 NotebookApp] 404 GET /nbextensions/usability/codefolding.js?v=20150903125424 (::1) 14.70ms referer=http://localhost:8888/notebooks/Untitled.ipynb?kernel_name=python2
+```
+
+which makes me think that the extension is not being found. Sure enough, the extension doesn't work. The following cell
+
+``` python
+import notebook
+print(notebook.nbextensions.check_nbextension('usability/codefolding', user=True))
+print(notebook.nbextensions.check_nbextension('usability/codefolding/main.js', user=True))
+```
+
+gives me `False False`.
+
+I am using the most standard platform possible (anaconda on mac) and have tried to follow the instructions carefully, but I really don't see how to move forward. So there seems to be a bug in either the code or the documentation.
+
+Any advice appreciated.
+
+p.s. The output of my config / path info is
+
+``` python
+from __future__ import print_function
+from jupyter_core.paths import jupyter_config_dir, jupyter_config_path
+print(jupyter_config_dir())
+print(jupyter_config_path())
+```
+
+```
+/Users/rpa/.jupyter
+['/Users/rpa/.jupyter', '/Users/rpa/anaconda/etc/jupyter', '/usr/local/etc/jupyter', '/etc/jupyter']
+```
+
+``` python
+from __future__ import print_function
+from jupyter_core.paths import jupyter_data_dir, jupyter_path
+print(jupyter_data_dir())
+print(jupyter_path())
+```
+
+```
+/Users/rpa/Library/Jupyter
+['/Users/rpa/Library/Jupyter', '/Users/rpa/anaconda/share/jupyter', '/usr/local/share/jupyter', '/usr/share/jupyter']
+```
+@rabernat I'm sorry that the installation instructions for notebook extensions has been frustrating. I also followed the documentation you linked and, like you, was unsuccessful in installing the codefolding extension. I am fairly confident that this is a documentation issue. Please bear with us on this holiday weekend in the US and have confidence that we wish to assist you.
+
+@minrk @Carreau @ellisonbg I'm game for writing an installation doc for notebook extensions when using an anaconda installation on the mac. In troubleshooting, I found that:
+- the standard Anaconda download for 3.4 defaults to `ipython-notebook version 3.2.0`
+- the PATH needs to be updated to include anaconda/bin
+- conda's default version is 3.14.1
+- After executing `conda update conda` and `conda update anaconda`, the versions are `conda 3.16.0`, `anaconda 2.3.0` and `ipython 3.2.0`.
+- After `conda install jupyter`, `jupyter 4.0.4`, `jupyter-notebook 4.0.4`, `ipython 4.0.0` and `ipython-notebook not found`. This is what I would expect.
+
+As @rabernat, the remaining installation instructions were insufficient for successful activation of the extension:
+- I was able to have the check_nbextension return True after cloning the ipython-extensions repo, jupyter installing, and jupyter enabling the extension.
+- Alas, the extensions were not active.
+
+Any tips would be much appreciated and turned into a shiny document :penguin: :ocean: 
+I have reorganized the `ipython-contrib` repository today. It now has a `setup.py`script for installing the extensions and a recipe to generate a conda package. Also, the Jupyter-related documentation of the [Wiki](https://github.com/ipython-contrib/IPython-notebook-extensions/wiki/Home_Jupyter) has been updated.
+The nbconfig server extension will now be installed too, making activating/deactivating extensions much easier. I hope this will help you getting the extensions to work.
+@juhasch You are awesome! Thanks for sharing.
+@rabernat Thanks to the work by @juhasch I was able to get the extensions to work.
+
+Here's what I did:
+1. Cloned IPython-notebook-extensions
+2.  From the directory that contains IPython-notebook-extensions directory, `conda build IPython-notebook-extensions`
+3.  `conda install --use-local nbextensions`
+4.  I couldn't get `jupyter nbextension install` to work properly. May have been a path issue.
+5.  I did get working with `jupyter notebook`. Navigated to `http://localhost:8888/nbextensions/` and was able to activate extensions and use them.
+
+Good luck. Thanks again @juhasch :smile: 
+Thanks a lot @willingc and @juhasch! I can see things are moving fast with this project.
+
+I also filed an issue over at the extensions repo (ipython-contrib/IPython-notebook-extensions#282) and got some help from @juhasch there. With those instructions, I was able to get codefolding working.
+
+I just tried the steps described by @willingc above, and it worked perfectly. IMO the /nbextensions/ tool is awesome and should be the recommended way to install extensions.
+
+I will leave it to the developers to decide whether this should be closed now or whether it should stay open until the [docs](https://github.com/ipython-contrib/IPython-notebook-extensions/wiki/Home_Jupyter) are updated.
+
+Many thanks to everyone for these amazing tools.
+Pointer to a non-conda set of instructions? (or advice?)
+If you are using Jupyter/IPython 4:
+1. Clone the repo
+2. Call `python setup.py install`
+3. Enjoy :-)
+I got that far and now this works:
+
+```
+import notebook
+notebook.nbextensions.check_nbextension('usability/codefolding', user=True)
+notebook.nbextensions.check_nbextension('usability/codefolding/main.js', user=True)
+Out[15]:True
+```
+
+But this does not:
+
+```
+%%javascript
+```
+
+​
+    Jupyter.load_extensions('IPython-notebook-extensions/usability/codefolding/main');
+    Javascript error adding output!
+    TypeError: Jupyter.load_extensions is not a function
+    See your browser Javascript console for more details.
+
+The only thing I see ind the JS console is :TypeError: Jupyter.load_extensions is not a function(…)
+Use something like
+`Jupyter.notebook.config.update({"load_extensions":{"my_ext":true}})` to
+activate extension, rather than relying on directly calling the methods
+with a hack.
+
+On Mon, Sep 7, 2015 at 9:44 AM, Tom Brander notifications@github.com
+wrote:
+
+> I got that far and now this works:
+> 
+> import notebook
+> notebook.nbextensions.check_nbextension('usability/codefolding', user=True)
+> notebook.nbextensions.check_nbextension('usability/codefolding/main.js', user=True)
+> Out[15]:True
+> 
+> But this does not:
+> 
+> %%javascript
+> 
+> ​
+> 
+> Jupyter.load_extensions('IPython-notebook-extensions/usability/codefolding/main');
+> Javascript error adding output!
+> TypeError: Jupyter.load_extensions is not a function
+> See your browser Javascript console for more details.
+> 
+> The only thing I see ind the JS console is :TypeError:
+> Jupyter.load_extensions is not a function(…)
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/jupyter/notebook/issues/389#issuecomment-138339105.
+Have you tried the nbconfig extension by calling `127.0.0.1:8888/nbextensions`? 
+(adjust the hostname and port if you use another configuration)
+@Carreau:
+If I Use Jupyter . prefix I get Jupyter not defined..
+Did not know %%Javascript was a "hack" it is all over the older docs..
+
+```
+notebook.config.update({"load_extensions":{"codefolding":true}})
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-20-ddf8350cfe02> in <module>()
+----> 1 notebook.config.update({"load_extensions":{"codefolding":true}})
+
+AttributeError: 'module' object has no attribute 'config'
+```
+@juhasch when I access 127.0.0.1:8888/nbextensions I just get the Jupyter header saying notebook extension configuration, no body to configure with..
+Sorry I should have been more clear: Open the browser javascript console, and use `Jupyter.notebook.config.update({"load_extensions":{"my_ext":true}})` from the JS console. 
+
+That's what @juhasch should mostly do under the hood. 
+@Carreau Seems to work, would it work with %%javascript from in notebook?
+it does not...
+bad typo sorry (deleted)
+You are bad at copy pasting. Juypter/Jupyter invert `y` and `p`.
+And when typed correctly this works
+%%javascript 
+Jupyter.notebook.config.update({"load_extensions":{"codefolding":true}})
+:-) now if you reload, the extension should hopefully work and you should see a message like `Extension codefolding loaded` in the JS console. 
+so a big takeaway for me is the new syntax for loading from within notebook no more of this "Jupyter.load_extensions" which is lot of places??
+Ah yes so it get permanently added to the config
+how does one now only add when wanted? and deactivate?
+The nbconfig extension should do that for you:
+![](https://github.com/ipython-contrib/IPython-notebook-extensions/raw/master/wiki-images/notebook-configuration.png)
+
+Can you post the pages source from the Browser when going to `127.0.0.1:8888/nbextensions`?
+Page source
+https://gist.github.com/dartdog/4748b75605c577e6925d
+I'm also not getting any function with "codeFolding" no gutter although I'm getting no error on loading it. Do I need to somehow install/configure "code mirror" separately? I don't see any obvious direction for that?
+There is no need to install anything beyond the extensions. They should work out of the box.
+
+It looks like you have installed the extensions now twice, in 
+`nbextensions/` and `nbextensions/IPython-notebook-extensions/`
+
+You can check your configuration like this in a notebook:
+
+``` Python
+from traitlets.config.loader import Config, JSONFileConfigLoader
+from jupyter_core.paths import jupyter_config_dir
+import os.path
+fname = os.path.join(jupyter_config_dir(), 'nbconfig/notebook.json')
+cl = JSONFileConfigLoader(fname)
+cl.load_config()
+```
+
+For each notebook extension that is loaded, there will be an entry.
+
+You might need to change `nbconfig/notebook.json` to `notebook.json', depending on the version of the notebook you use if the list is empty
+My main config appears to be;
+print(jupyter_data_dir())
+print(jupyter_path())
+/home/tom/.local/share/jupyter
+['/home/tom/.local/share/jupyter', '/home/tom/anaconda/share/jupyter', '/usr/local/share/jupyter', '/usr/share/jupyter']
+so I have one in the Jupyter directory which is the "old" one (/home/tom/.local/share/jupyter/nbextensions)  copied there during the Ipython to Jupyter process, I Imagine I should delete rename it? so that only the one under home (recently cloned from Github) directory remains? but of course the new one does not contain all that I'm using eg live reveal,which is working now...?
+using your suggested commands shows:
+cl = JSONFileConfigLoader(fname)
+cl.load_config()
+Out[4]: {u'load_extensions': {u'codefolding': True, u'livereveal/main': True}}
+
+I'm out of my depth (clearly) on cleaning this mess up? and hopefully getting the new nbcofig page extension to work?
+Appreciate the help very much...
+I'd guess on renaming the nbextensions in the main Juypyter install directory?
+It looks like you now have mixed versions of the notebook extensions installed. The page source you sent me was from 3.x
+
+The easy way would be to simply delete the `extensions`, `nbextensions`, and `templates`directories you have in `jupyter_data_dir()`, and then doing the `python setup.py install` thing again. 
+Damn.. I renamed extensions, nbextensions and templates  in /home/tom/.local/share/jupyter I restarted the entire Jupyter session and reran all of the above stuff checked /home/tom/.local/share/jupyter and the directories were all back..(I guess due to the setup install) but still no configuration page accessible nor any codefolding gutter...
+The js console on the config page shows all the extensions as found but the body content of the page is blank...
+wondering if my attempt to install Anaconda messed things up as I see that in the Jupyter path, which bothers me since I'm running my system python,,??  
+['/home/tom/.local/share/jupyter', '/home/tom/anaconda/share/jupyter', '/usr/local/share/jupyter', '/usr/share/jupyter']
+Then you should remove (or rename) the configuration files found in `jupyter_config_path()`.
+See:
+
+```
+from __future__ import print_function
+from jupyter_core.paths import jupyter_config_dir, jupyter_config_path
+print(jupyter_config_dir())
+print(jupyter_config_path())
+```
+
+Rerunning `python setup.py install` will recreate the configuration.
+Just look in all the directories you get from `jupyter_config_path()` and `jupyter_path()` and remove the old extensions and configuration files or move them away.
+where do I re run the setup py from?
+Just go where you have downloaded the current master version of this repository and type `python setup.py install`.
+Well still no joy... Removed all config files.. reran install from the nbextensions dir.. still just get the header on the config page and no gutter for folding.. I even went ahead and ran the anaconda install since my notebook is showing it is being run by the anaconda interpeter and my python command line seems to be invoking the Anaconda interpreter as well..... no change....
+Completely flummoxed...
+Should I just uninstall all Jupyter and start over? How to best make sure I kill all the stuff? So a ghost config file does not mess me up...
+I'm getting this:
+tom@tom-sam:~$ which jupyter
+/home/tom/anaconda/bin/jupyter
+So I'm guessing this is messing stuff up?
+For the record, on the off chance anyone else has similar issues: I removed the Anaconda reference in .bashrc, I then pip uninstalled all ipython and jupyter packages and manually deleted any other jupyter and Ipython config files, have been using this stuff for a few years there were numerous instances... Reinstalled via pip (requires sudo) and restarted the jupyter nb server and I have a extension config page and extensions work when enabled.... whew.. Now I'll have just a few add-ins to chase down... but at least starting on what I hope is a firm base...
+
+I really appreciate the patience here, you all helped point me into finally understanding just how screwed my config had gotten....
+
+As far as I'm concerned ready to close!
+@dartdog I'm glad that you got your configuration sorted out.
+
+@minrk @Carreau @juhasch Let's go ahead and close this issue. Thanks.
+@willingc thanks! @dartdog sorry for the confusion.
+@ilanschnell @csoja @groutr: is there something we can do on the Anaconda or conda side to help avoid this situation in the future?
+@ijstokes, for me, it would be awesome to simply:
+
+``` bash
+$ conda install nbextensions
+```
+
+and voilà, dependencies are resolved and installed. Then, upon launching Jupyter notebook, a new tab appears in the across the top of launch page (e.g., https://0.0.0.0:8010/tree#nbextensions) for managing all.
+
+If I had more knowledge of conda... :cry: 
+One day.
+@nehalecky, there is a conda package in the ipython-contrib repo that could help you to package your extension... and also some UI to manage the extensions as well: https://github.com/ipython-contrib/IPython-notebook-extensions#documentation
+@damianavila, thanks for the reply. 
+
+Are you referring to [the conda install instructions in the ipython-contrib nbextensions repo README](https://github.com/ipython-contrib/IPython-notebook-extensions#installation)? If so, I've followed them and, alongside a few others, hit some bumps along the way (see https://github.com/ipython-contrib/IPython-notebook-extensions/issues/345). 
+
+That's why I think it would be nice to have an existing conda package that is available so one can simply install nbextensions from the command line like `conda install nbextensions`, with an added tab on the notebook launch so we don't have to remember the url to get to the nbextension management UI. Let me know if that make sense? :)
+We are working on making installation easier. We will most likely have conda packages and try a pip installable package. See https://github.com/ipython-contrib/IPython-notebook-extensions/issues/393
+Just want to share my journey here in detail too, which may help in follow the steps.
+- Windows 10 / Anaconda 2.3.0 Python2.7 64bit / all of Jupyter, IPython should be updated to the latest and greatest.
+
+## Summary
+- git cloned IPython-notebook-extensions
+  To: `C:\arwa\git\IPython-notebook-extensions`
+- `conda update -n root conda-build`
+  Run from here: `C:\arwa\git`
+- `conda build IPython-notebook-extensions`
+  - Don't be irritated about all the "The following NEW packages will be INSTALLED:", it creates a new environment named `"_build"` with all dependencies to build the extension!)
+- Since from here on I wasn't able to follow @willingc steps 5./6., I had figured out this route, based on @juhasch repeated pointers to `python setup.py install` :)
+- Activated the build environment: 
+  - `C:\arwa\git\IPython-notebook-extensions> activate _build`
+- `[_build] C:\arwa\git\IPython-notebook-extensions>python setup.py install`
+  - >> Cannot install while the Jupyter notebook server is running
+  - Stopped the jupyter notebook
+- `[_build] C:\arwa\git\IPython-notebook-extensions>python setup.py install`
+
+```
+Installing Jupyter notebook extensions
+Configuration files directory: C:\Users\spex66\.jupyter
+Extensions and templates path: C:\Users\spex66\AppData\Roaming\jupyter
+Install Python extensions to C:\Users\spex66\AppData\Roaming\jupyter\extensions
+Install templates to C:\Users\spex66\AppData\Roaming\jupyter\templates
+Install notebook extensions to C:\Users\spex66\AppData\Roaming\jupyter\nbextensions
+Configuring C:\Users\spex66\.jupyter\jupyter_nbconvert_config.json
+Configuring C:\Users\spex66\.jupyter\jupyter_nbconvert_config.py
+Configuring C:\Users\spex66\.jupyter\jupyter_notebook_config.json
+Configuring C:\Users\spex66\.jupyter\jupyter_notebook_config.py
+```
+- `[_build] C:\arwa\git\IPython-notebook-extensions>deactivate`
+- Restarted the jupyter notebook
+- Access: http://127.0.0.1:8888/nbextensions/
+
+And here was all the glory and awesome simple access to nbextensions!
+Thanks so much for working on this so hard, because some of this extensions are just brilliant for working all day long with Jupyter Notebooks!
+
+SOLVED!
+Looking forward for a simpler install procedure, for sharing this with my peers in the near future.
+I know that installing nbextensions is horrifically painful today. We are
+currently working to create a new system that is based on npm packages.
+This work is being done in collaboration with Continuum and will include a
+solution that works well with Conda. However, the new system will have a
+completely different API and put assets in completely different locations
+on disk. The underlying JavaScript APIs in the notebook will change
+entirely as well. We are hoping to have initial releases of that in the
+next few months, and hae things stable in 6 months (more details to follow).
+
+I have great regrets in releasing the existing nbextension system given how
+difficult it is to work with and manage packaging and installation. I think
+it is worth trying to do small things to improve the existing system, but I
+wouldn't invest major work in that direction. I know this is a completely
+PITA, but we are confident the new system will be nice enough that people
+will _want_ to use it and ditch the old system.
+
+Cheers,
+
+Brian
+
+On Thu, Nov 5, 2015 at 7:08 AM, spex66 notifications@github.com wrote:
+
+> Just want to share my journey here in detail too, which may help in follow
+> the steps.
+> - Windows 10 / Anaconda 2.3.0 Python2.7 64bit / all of Jupyter,
+>   IPython should be updated to the latest and greatest.
+> 
+> Summary
+> 
+>    -
+> 
+>    git cloned IPython-notebook-extensions
+>    To: C:\arwa\git\IPython-notebook-extensions
+>    -
+> 
+>    conda update -n root conda-build
+>    Run from here: C:\arwa\git
+>    -
+> 
+>    conda build IPython-notebook-extensions
+> - Don't be irritated about all the "The following NEW packages will be
+>     INSTALLED:", it creates a new environment named "_build" with all
+>   
+>   ##   dependencies to build the extension!)
+>   
+>   Since from here on I wasn't able to follow @willingc
+>   https://github.com/willingc steps 5./6., I had figured out this
+>   route, based on @juhasch https://github.com/juhasch repeated
+>   
+>   ## pointers to python setup.py install :)
+>   
+>   Activated the build environment:
+> - ## C:\arwa\git\IPython-notebook-extensions> activate _build
+>   
+>   [_build] C:\arwa\git\IPython-notebook-extensions>python setup.py
+>   install
+> - > > Cannot install while the Jupyter notebook server is running
+>   
+>   ##   - Stopped the jupyter notebook
+>   
+>   [_build] C:\arwa\git\IPython-notebook-extensions>python setup.py
+>   install
+> 
+> Installing Jupyter notebook extensions
+> Configuration files directory: C:\Users\spex66.jupyter
+> Extensions and templates path: C:\Users\spex66\AppData\Roaming\jupyter
+> Install Python extensions to C:\Users\spex66\AppData\Roaming\jupyter\extensions
+> Install templates to C:\Users\spex66\AppData\Roaming\jupyter\templates
+> Install notebook extensions to C:\Users\spex66\AppData\Roaming\jupyter\nbextensions
+> Configuring C:\Users\spex66.jupyter\jupyter_nbconvert_config.json
+> Configuring C:\Users\spex66.jupyter\jupyter_nbconvert_config.py
+> Configuring C:\Users\spex66.jupyter\jupyter_notebook_config.json
+> Configuring C:\Users\spex66.jupyter\jupyter_notebook_config.py
+> - [_build] C:\arwa\git\IPython-notebook-extensions>deactivate
+> - Restarted the jupyter notebook
+> - Access: http://127.0.0.1:8888/nbextensions/
+> 
+> And here was all the glory and awesome simple access to nbextensions!
+> Thanks so much for working on this so hard, but some of this extensions
+> are just brilliant for working all day long with Jupyter Notebooks!
+> 
+> SOLVED!
+> Looking forward for a simpler install procedure, for sharing this with my
+> peers in the near future.
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/jupyter/notebook/issues/389#issuecomment-154042197.
+
+## 
+
+Brian E. Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+@ellisonbg on Twitter and GitHub
+bgranger@calpoly.edu and ellisonbg@gmail.com
+@ellisonbg sounds interesting, is there anywhere I can read about that effort?
+Not yet, but soon...right now it is spread across many conversations on
+gitter, in person and work in many repos. We are working on a roadmap that
+will provide a centralize outline of this and other work.
+
+On Thu, Nov 5, 2015 at 7:04 PM, jcb91 notifications@github.com wrote:
+
+> @ellisonbg https://github.com/ellisonbg sounds interesting, is there
+> anywhere I can read about that effort?
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/jupyter/notebook/issues/389#issuecomment-154238919.
+
+## 
+
+Brian E. Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+@ellisonbg on Twitter and GitHub
+bgranger@calpoly.edu and ellisonbg@gmail.com
+Hi there, I attempted to build Ipython-notebook extensions as @willingc, however, I was not able to get through to step 2. And the result were generate below. I have checked and have Pyyaml version 3.11 installed.
+
+`Installed c:\anaconda3\envs_build\lib\site-packages\python_contrib_nbextensions-alpha-py3.5.egg
+Processing dependencies for Python-contrib-nbextensions===alpha
+Searching for pyyaml
+Traceback (most recent call last):
+  File "setup.py", line 92, in <module>
+    install_requires = ['ipython >=4','jupyter','psutil >=2.2.1','pyyaml'],
+  File "C:\Anaconda3\envs_build\lib\distutils\core.py", line 148, in setup
+    dist.run_commands()
+  File "C:\Anaconda3\envs_build\lib\distutils\dist.py", line 955, in run_commands
+    self.run_command(cmd)
+  File "C:\Anaconda3\envs_build\lib\distutils\dist.py", line 974, in run_command
+    cmd_obj.run()
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\setuptools\command\install.py", line 67, in run
+
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\setuptools\command\install.py", line 117, in do_egg_install
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\setuptools\command\easy_install.py", line 391, in run
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\setuptools\command\easy_install.py", line 621, in easy_install
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\setuptools\command\easy_install.py", line 672, in install_item
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\setuptools\command\easy_install.py", line 717, in process_distribution
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\pkg_resources__init__.py", line 827, in resolve
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\pkg_resources__init__.py", line 1072, in best_match
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\pkg_resources__init__.py", line 1084, in obtain
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\setuptools\command\easy_install.py", line 628, in easy_install
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\setuptools\package_index.py", line 608, in fetch_distribution
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\setuptools\package_index.py", line 445, in find_packages
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\setuptools\package_index.py", line 779, in scan_url
+  File "C:\Anaconda3\envs_build\lib\site-packages\setuptools-20.3-py3.5.egg\setuptools\package_index.py", line 287, in process_url
+RuntimeError: Setuptools downloading is disabled in conda build. Be sure to add all dependencies in the meta.yaml  url=https://pypi.python.org/simple/pyyaml/r
+Command failed: C:\WINDOWS\system32\cmd.exe /c call bld.bat`
+I have installed in my Windows Anaconda installation:
+
+```
+pyaml                     15.8.2                    <pip>
+```
+
+Feel free to open up an issue at [IPython-notebook-extension](https://github.com/ipython-contrib/IPython-notebook-extensions) as it is an issue with the installer from there.
+This thread is almost two years old, and yet I'm seeing some of the same error messages mentioned here. I'm only having troubles on Ubuntu. I did the following:
+
+- conda install -c conda-forge jupyter_contrib_nbextensions -n py36
+- conda install nb_conda_kernels -n py36
+
+Then when the NB Extensions tab failed to appear, I ran the first of these two commands in the following manner:
+- python -m pip install --user jupyter_contrib_nbextensions
+
+With that sequence, nbextensions works in Windows but not in Ubuntu. I continue to get 404 GET errors of the sort described in this thread on Ubuntu, so I tried modifying the .json file adding "codefolding/main": true:
+
+```
+{
+  "Notebook": {
+    "Toolbar": true
+  },
+  "load_extensions": {
+    "nbextensions_configurator/config_menu/main": true,
+    "codefolding/main": true
+  }
+}
+```
+So far nbextensions is still refusing to load on Ubuntu.

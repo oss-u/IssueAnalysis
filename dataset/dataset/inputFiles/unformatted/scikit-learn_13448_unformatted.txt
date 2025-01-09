@@ -1,0 +1,305 @@
+Here is an overview of the work done so far relating to plotting:
+
+- https://github.com/scikit-learn/scikit-learn/issues/8425 - Decision Regions of Classifiers
+- https://github.com/scikit-learn/scikit-learn/pull/9173 - Confusion matrix and grid search
+- https://github.com/scikit-learn/scikit-learn/issues/8425 - Calibration curve
+- https://github.com/scikit-learn/scikit-learn/pull/12599 - Partial Dependence
+
+To help control the scope of `sklearn.plot`, I propose we only do plotting on the axes level and **not** the figure level. The user would pass in the axes as a keyword. As a convenience, the default of `axes` will be `None`. Only in this case, will the plotting function generate a axes/figure to plot on.Thanks for opening this issue, ping @jnothman @amueller @GaelVaroquaux according to gitter
+#8425 is not related to Decision Regions of Classifiers,?
+I prefer to move plot_tree and plot_partial_dependence to sklearn.plot and solve #13335 in 0.21 (maybe introduce a function to plot the decision boundary, since it's important and not easy for beginners IMO). What do others think? 
+
+> To help control the scope of sklearn.plot, I propose we only do plotting on the axes level and not the figure level. The user would pass in the axes as a keyword. As a convenience, the default of axes will be None. Only in this case, will the plotting function generate a axes/figure to plot on.
+
+Good idea, but not consistent with existing functions (plot_tree and plot_partial_dependence), right?There are cases where you need to output/modify a figure, such as with
+multiple subplots (see seaborn's facet plots etc, and upsetplot for
+example). Can you give reasons why you want to limit it to axes?
+
+On Fri., 15 Mar. 2019, 2:19 am Hanmin Qin, <notifications@github.com> wrote:
+
+> Thanks for opening this issue, ping @jnothman
+> <https://github.com/jnothman> @amueller <https://github.com/amueller>
+> @GaelVaroquaux <https://github.com/GaelVaroquaux> according to gitter
+> #8425 <https://github.com/scikit-learn/scikit-learn/issues/8425> is not
+> related to Decision Regions of Classifiers,?
+> I prefer to move plot_tree and plot_partial_dependence to sklearn.plot and
+> solve #13335 <https://github.com/scikit-learn/scikit-learn/issues/13335>
+> in 0.21 (maybe introduce a function to plot the decision boundary, since
+> it's important and not easy for beginners IMO). What do others think?
+>
+> To help control the scope of sklearn.plot, I propose we only do plotting
+> on the axes level and not the figure level. The user would pass in the axes
+> as a keyword. As a convenience, the default of axes will be None. Only in
+> this case, will the plotting function generate a axes/figure to plot on.
+>
+> Good idea, but not consistent with existing functions (plot_tree and
+> plot_partial_dependence), right?
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/scikit-learn/scikit-learn/issues/13448#issuecomment-472914237>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AAEz6y4ZcL4WftNY92wCoz19vqtXL9Njks5vWmiCgaJpZM4b0Oiz>
+> .
+>
+> Good idea, but not consistent with existing functions (plot_tree and plot_partial_dependence), right?
+
+@qinhanmin2014 `plot_tree` does not seem to adjust the figure. `plot_partial_dependence` does make multiple plots based on `features`. Although, it can be refactored into an axes level plot. A user would need to call `plot_partial_dependence` multiple times giving it different axes (and features).
+
+> Can you give reasons why you want to limit it to axes?
+
+@jnothman Seaborn has [documentation](https://seaborn.pydata.org/api.html) that clearly separates "figure-level" plot and "axes-level" plots. If we can properly document this behavior in scikit-learn, it is possible to have these "figure-level" plots. My biggest concern with "figure-level" plots, is they are harder to maintain and test. There will be elements from one axes that may overlap with another axes. Although, we can work around this by structuring figures in such a way that overlapping happens less often.
+
+In terms of testing, we can go the way of seaborn and test directly matplotlib objects or the yellowbrick way where we do pixel level testing. I tend to favor the testing the matplotlib objects.My 2 cents:
+
+* +1 for containing the functions accessing matplotlib in a common subpackage, or, on a module in each subpackage (sklearn.linear_models.plot, sklearn.ensemble.plot).
+
+* As mentioned by @thomasjpfan, only accessing axes makes it easier to test.
+
+  Also, a long time ago, there was discussion in the ecosystem to give other plotting backends an "Axes"-like object for compatibility. I don't know where that went. A quick Googling doesn't show much. The closest is plotly.tools.mpl_to_plotly, which doesn't really need this restriction, so I think that argument is vain.> maybe introduce a function to plot the decision boundary, since it's important and not easy for beginners IMO
+
+I agree but I also think that showing the users how to plot results such as decision boundaries is one of the goals of the examples.
+
+If I want a quick first plot of a result, plotting functions are great, especially for complicated plots such as plotting a tree, but I very often like to tweak the plot to my needs and for that reason I prefer to rely on existing examples and modify the code.
+
+Regarding the name of the module, IMO `inspect` is more versatile than `plot`:
+
+- I can't think of any plot that isn't some kind of *inspection*
+- #12599 (Partial Dependence) already introduces `inspect`> IMO inspect is more versatile than plot
+
+no strong opinion, will vote +1 for both name. Maybe plot is more straightforward?
+
+Again I'm interested in creating the new module before 0.21 and move plot_tree and plot_partial_dependence there. Ideally we should also reach consensus on the API (e.g., axes level/ figure level).Other point in favor of `inspect`:
+
+We may want inspect tools that offer plotting as an option. For example, print the characteristics of a tree (number of nodes, leaves, split points, etc.) and optionally plot it with matplotlib.
+
+
+----
+
+I would be in favor of using axes instead of figures, as suggested (sigh, I'll need to change PDPs again). It's easier for us to support and test. It's a little more work for the users, but it also allows for more control.> >    IMO inspect is more versatile than plot
+
+> no strong opinion, will vote +1 for both name. Maybe plot is more straightforward?
+
+"inspect" is loaded in Python (it's a module in the standard library). I
+would avoid using the same name.
+
+> Again I'm interested in creating the new module before 0.21 and move plot_tree and plot_partial_dependence there. Ideally we should also reach consensus on the API (e.g., axes level/ figure level).
+
+This shouldn't delay 0.21. Our goal is to release early, and hopefully
+release early again.
+> "inspect" is loaded in Python (it's a module in the standard library). I
+would avoid using the same name.
+
+I propose `model_inspection`. It goes well with our `model_selection` name.We might want to inspect something that's not a model (encoder, preprocessor, grid search results...)
+
+`inspection` then?Those things are also models :)
+
+Gael's suggestion of a public plot submodule on each subpackage is worth
+considering.
+FWIW, I'd also prefer `plot` to `inspect`, since it's more intuitive for most users to find it. People are more likely trying to _plot_ their models than _inspect_ their models (when searching on search engines for instance, or looking at the possible autocomplete options on their IDE).> Gael's suggestion of a public plot submodule on each subpackage is worth considering.
+
+If so, where shall we put ``plot_decision_boundary``?
+
+Regarding #12599, @NicolasHug I doubt whether ``partial_dependence`` should be in the new module. (i.e., ensemble.partial_dependence + plot.plot_partial_dependence)> If so, where shall we put plot_decision_boundary?
+
+sklearn.plot ?
+
+I don't want to push too hard for this solution. However, I agree with
+the feeling that "plot" may be easier to discover for end users.
+
+>Regarding #12599, @NicolasHug I doubt whether partial_dependence should be in the new module. (i.e., ensemble.partial_dependence + plot.plot_partial_dependence)
+
+I don't understand what you mean. #12599 deprecates `ensemble.partial_dependence` in favor of `inspect.partial_dependence` (of course `inspect` is subject to change based on this discussion). The API also differs between the 2 implementations.
+
+-----
+
+I'm fine with `plot`, I'm just concerned about a potential high overlap with an eventual inspection module, but I won't push it further :)
+
+>a public plot submodule on each subpackage is worth considering.
+
+But so far all the plotting tools that are proposed (PDPs, Calibration, Confusion matrix and decision region) aren't specific to a single module.> I don't understand what you mean. #12599 deprecates ensemble.partial_dependence in favor of inspect.partial_dependence (of course inspect is subject to change based on this discussion). The API also differs between the 2 implementations.
+
+Apologies I haven't looked at that PR in detail. Maybe ``inspect.partial_dependence`` + ``plot.plot_partial_dependence``?> Maybe inspect.partial_dependence + plot.plot_partial_dependence?
+
+I like a clear separation between computing the values and plotting it.
+It's an model/view like separation, and it should help increase the
+reusability.
+Wasn't Gaël earlier proposing sklearn.inspect.partial_dependence and
+sklearn.inspect.plot.plot_partial_dependence (Substitute some other name
+for inspect if appropriate)? I don't mind this.
+> Wasn't Gaël earlier proposing sklearn.inspect.partial_dependence and sklearn.inspect.plot.plot_partial_dependence (Substitute some other name for inspect if appropriate)?
+
+Yes, but I asked him where shall we put ``plot_decision_boundary`` and seems that he changed his mind?FYI, I updated the PDP PR https://github.com/scikit-learn/scikit-learn/pull/12599 following the recommendations above:
+
+- `partial_dependence` is in `sklearn.model_inspection`
+- `plot_partial_dependence` is in `skearn.plot`
+
+The docs are here https://53182-843222-gh.circle-artifacts.com/0/doc/_changed.html
+
+Note that the user guide only includes the `plot` module for now. I don't think it makes sense to have a user guide section that would only talk about `model_inspection.partial_dependence`, since its constraints / behaviour is the same as that of `plot_partial_dependence`.
+
+(This is the kind of overlap that I was worried about)
+
+Of course if you think it's still better to have separate user guides for `partial_dependence` and `plot_partial_dependence`, I'll do it.> FYI, I updated the PDP PR #12599 following the recommendations above:
+partial_dependence is in sklearn.model_inspection
+plot_partial_dependence is in skearn.plot
+
++1
+
+> Note that the user guide only includes the plot module for now. I don't think it makes sense to have a user guide section that would only talk about model_inspection.partial_dependence, since its constraints / behaviour is the same as that of plot_partial_dependence.
+
++1
+
+So we've decided to use the name sklearn.plot?
+I find sklearn.plot importing dependencies from across sklearn to be a bit weird when we have avoided putting everyone in the root namespace.So you'd prefer `sklearn.model_inspection.plot` and put `plot_partial_dependence()` there?
+
+No `plot` module, i'm fine with thatI think I'd prefer that. Not yet certain how it generalises.
+> I think I'd prefer that. Not yet certain how it generalises.
+
+As long as we can figure out an appropriate place to put things like ``plot_decision_boundary``, I'll vote +1 for ``sklearn.XXX.plot``.Does this need a slep? we don't seem to be making much progress
+
+EDIT ugh, sleepy me read Joel's comment as *I **don't** think I'd prefer that*, sorry> Does this need a slep? we don't seem to be making much progress
+
+I'm fine with either solution (``sklearn.plot``/``sklearn.XXX.plot``). The main issue here IMO is that no one tells me where shall we put things like ``plot_decision_boundary`` if we use ``sklearn.XXX.plot`` :)`sklearn.model_inspection.plot`?> sklearn.model_inspection.plot?
+
+Interesting idea, I'll vote +1. Maybe it's not so good to throw all the things to sklearn.plot (https://github.com/rasbt/mlxtend put all the plotting functions in a single module).
+
+So we'll support ``from sklearn.XXX.plot import plot_XXX``? Will we support ``from sklearn.XXX import plot_XXX``?I think the explicit requirement of .plot in the import is something
+others here have sought.
+
+There's also the inverted from sklearn.plot.XXX import plot_YYY
+> I think the explicit requirement of .plot in the import is something others here have sought.
+
+So we've reached consensus to use ``sklearn.XXX.plot`` (only support from ``sklearn.XXX.plot`` import ``plot_XXX``)?
+
+> There's also the inverted from sklearn.plot.XXX import plot_YYY
+
+I can't understand.
+> There's also the inverted from sklearn.plot.XXX import plot_YYY
+
+I meant that we could have
+sklearn.plot.model_inspection.plot_partial_dependence rather than
+sklearn.model_inspection.plot.plot_partial_dependence. Not sure if this
+provides any benefit/clarity.
+> I meant that we could have
+sklearn.plot.model_inspection.plot_partial_dependence rather than
+sklearn.model_inspection.plot.plot_partial_dependence. Not sure if this
+provides any benefit/clarity.
+
+So now we have 3 options:
+(1) sklearn.plot.plot_YYY (e.g., sklearn.plot.plot_tree)
+(2) sklearn.plot.XXX.plot_YYY (e.g., sklearn.plot.tree.plot_tree)
+(3) sklearn.XXX.plot.plot_YYY (e.g., sklearn.tree.plot.plot_tree, do not support from sklearn.XXX import plot_YYY)
+I'll vote +1 for all these solutions.
+I prefer to make the decision before 0.21 to avoid deprecating sklearn.tree.plot_treeNot sure it needs a slep but might be worth inviting opinions on the
+mailing list
+> Not sure it needs a slep but might be worth inviting opinions on the mailing list
+
++1. It does not fall in the criteria of SLEPs, it seems.
+As I said on the mailing list, I think we should really also consider "where the work happens" or what the interface will be like. That was already quite unclear for partial dependence.
+Should ``plot_partial_dependence`` call to ``partial_dependence`` or get the output of ``partial_dependence`` as input? This questions is a valid question for basically all plot functions.
+The main consideration I discusses with @NicolasHug is that having ``plot_X`` call ``compute_X`` is convenient for the user - as long as they only want to plot the thing once. If they don't like the plot and want to change something, they need to ``compute_X`` again, which is potentially a waste.
+
+So we could either
+- always take the result of ``compute_X``. downside: inconvenient and error-prone: what was the order of precision, recall and thresholds again in precision_recall_curve?
+
+- always the take the input to ``compute_X`` and call ``compute_X`` from ``plot_X``. downside: you need to recompute for every plot.
+
+- allow both, so ``plot_X`` can take either the input to ``compute_X`` and call to ``compute_X`` or take the output of ``compute_X`` if the user already created it. That has the downside of complicating the signature (and possibly complicates documenting it). Also, if the user calls ``plot_X`` so that it internally does ``compute_X`` and then wants another plot, she needs to ``compute_X`` again. So you need to to anticipate that you want more than one plot *before* calling ``plot_X`` the first time. Or you need to expose the result of ``compute_X`` when calling ``plot_X``, but it's unclear to me how to do that without an object oriented design
+
+- make the decision depending on how expensive compute_X is, as for confusion matrix and partial dependence plots and calibration plots we don't care about the cost of recomputing, but for partial dependence plots we do. downside: inconsistent interface.> The main consideration I discusses with @NicolasHug is that having plot_X call compute_X is convenient for the user - as long as they only want to plot the thing once. If they don't like the plot and want to change something, they need to compute_X again, which is potentially a waste.
+
++1000. It's a common problem that I see in research code. 
+
+From a design problem, it violates an MVC separation (slightly pedantic,
+sorry).
+
+In the various solutions that you propose, would you consider taking a
+fitted model as an approach? I feel that it would mitigate the problem of
+remembering the order of parameters. But maybe there are additional
+problems.
+I'm not sure what you mean by fitted model. Often the output of computation is not a fitted model. We could define objects for all of the computation results, so that ``partial_dependence`` returns a ``PartialDependence`` object. Or a bunch. But it doesn't return an estimator.
+
+Oh the reason I bring this up now: without this decision I have no idea what user code will look like, and I don't like making naming / API decisions without being able to write down examples ;)returning an object would be pretty un-sklearn-like, imho. But it might solve the location problem: it could have a ``plot`` methods ;)> Often the output of computation is not a fitted model. We could define objects for all of the computation results, so that partial_dependence returns a PartialDependence object. Or a bunch. But it doesn't return an estimator.
+
+Point taken.
+
+One option (not saying that it is the best one) would be to have all the
+compute functions return named tuples and all the corresponding compute
+functions take this. It would be somewhat consistent with modern
+additions to the Python standard library.
+
+> and I don't like making naming / API decisions without being able to write down examples ;)
+
+I'm like you.
+
+So if the computation is expensive, we can do the computation outside the function. If so, we return an object and the plotting function take this object as its input, right? I'll vote +1.
+
+And maybe we need another issue to discuss this :)The benefit of @GaelVaroquaux's suggestion is that it might not require users to change their code because of tuple unpacking. But that wouldn't work if there's a single returned object like in ``confusion_matrix``. There a tuple would not be strictly necessary but then the interface becomes slightly inconsistent.
+
+@qinhanmin2014 if we return arbitrary objects we have to deprecate the return type for a function every time we create a plotting helper. That seems like a mess.
+
+I had one idea, and then a second better idea:
+1) create a second, object-oriented interface that calls the existing function, stores the object, and has a plot method, like
+```python
+cm = ConfusionMatrix(y, y_pred)
+cm.plot()
+```
+That would solve the problem, but would duplicate some interface and it would be a bit unclear. Actually the same principle can be done in a way that I think is more intuitive:
+2) have the ``plot_`` function always do the work, use the result to instantiate an object that stores the result and plots it:
+```python
+plot_confusion_matrix(y, y_pred)
+```
+would therefor just plot, and return a ``ConfusionMatrixPlotter`` object, that stores the result, and has a ``plot`` method.
+So in the simple case of just plotting once, it's just a single function call. If you then want the results to do something else with it, they are stored in the object. If you want to plot again, you can just call ``plot`` on the object again. If you already computed the results and then decide you want to plot, you can instantiate ``ConfusionMatrixPlotter`` directly.
+
+While this exposes an additional class for the more complex use-cases, I think it's a reasonable trade-off because it has a nice answer to all the situations.> would therefor just plot, and return a ConfusionMatrixPlotter object, that stores the result, and has a plot method.
+
+Why do users need to plot the same data again? @amueller adjust the format?@qinhanmin2014 yes, make the font bigger, change the colors, plot it with something else together in the same plot, add labels, ...> @qinhanmin2014 yes, make the font bigger, change the colors, plot it with something else together in the same plot, add labels, ...
+
+I doubt whether it’s worthwhile to consider these formatting issues here. Users can start will a small part of the dataset?And @amueller we’ll support passing axes, so users can easily adjust the plot after they call the plotting functions?@qinhanmin2014 no, many things can not easily be changed afterwards, and we don't need to think about all the formatting necessarily ourselves, but we should allow users to plot something again. It will basically happen any time you do a plot. And having to subsample datasets every time I want to do a plot is a bit annoying. And if I later change my mind I will still need to recompute.
+Basically the point is that you can't usually anticipate what exactly you want in your exploratory analysis, and having to recompute everything to change a visualization doesn't seem great.> @qinhanmin2014 no, many things can not easily be changed afterwards, and we don't need to think about all the formatting necessarily ourselves, but we should allow users to plot something again. It will basically happen any time you do a plot. And having to subsample datasets every time I want to do a plot is a bit annoying. And if I later change my mind I will still need to recompute.
+
+Yes, I know it might be useful, but the main issue here is that we don't have a clean way to support this functionality, and I guess most plotting functions do not require much calculation?I like that we're discussing this with a little more grounding, but tbh I'm
+still not entirely convinced that we even need to have plot in the import
+path at all. After all, we seem to have plot_ as a prefix for the
+functions. The question also relates to plot_tree: why *should* it be
+separated from other export and textual visualisation code?
+@qinhanmin2014 I don't think "we don't have a good API yet" is a good reason.
+And partial dependence, permutation importance, learning curves, validation curves and results of GridSearchCV and RandomizedSearchCV are all common examples that take a lot of computation. Though for gridsearchcv and randomizedsearchcv the obvious thing would be to pass either the object or the ``cv_results_``, doing the work inside the plotting function in those cases seems nonsensical. I'm not entirely sure about learning curves and validation curves tbh.@jnothman I think @GaelVaroquaux wanted to keep the matplotlib dependency confined to a module and that was one of the main motivations? I don't really have very coherent thoughts about this yet.> And partial dependence, permutation importance, learning curves, validation curves and results of GridSearchCV and RandomizedSearchCV are all common examples that take a lot of computation. 
+
+Thanks, I now realized that I'm wrong :)
+Though I'm still unable to understand why it's important to provide users with a way to plot without recomputing. But if others think so and there's a good way, I'll vote +1.
+
+> I like that we're discussing this with a little more grounding, but tbh I'm
+still not entirely convinced that we even need to have plot in the import
+path at all. After all, we seem to have plot_ as a prefix for the
+functions. The question also relates to plot_tree: why *should* it be
+separated from other export and textual visualisation code?
+
+Yes this can also be an option. If so, we can mention that all the functions which start with ``plot_`` requires matplotlib. Another advantage of this option is that we don't need to move existing functions.Going over this discussion, I agree with **not** adding a `sklearn.plot` module, and use the prefix `plot_` to signal a `matplotlib` requirement. 
+
+For example, in https://github.com/scikit-learn/scikit-learn/pull/12599, `partial_dependence` and `plot_partial_dependence` will be placed in `inspection`.Ok, unless someone disagrees with this in the following days, I'm going to update the PDP PR and:
+
+- put both `partial_dependence` and `plot_partial_dependence` in `sklearn.inspection`
+- make `plot_partial_dependence` return a bunch with the `fig` and `ax` objects as attributes (right now it returns them in a tuple). This way, we'll be able to keep these 2 functions backward compatible when we implement the second option from https://github.com/scikit-learn/scikit-learn/issues/13448#issuecomment-479512520Can we make the final decision here?
+Proposal agreed by @jnothman , @NicolasHug and me (apologies if I'm wrong): sklearn.XXX.plot_YYY (support from sklearn.XXX import plot_YYY). We'll mention that all the functions which start with plot_ requires matplotlib.
+A major advantage of this proposal is that we don't need to move existing functions.Sleeping over it I think it’s simple enough to explain and it avoids the difficulty to think of a shared plotting api between different modules. 
+Yes, let's do that. Make a helper function to provide a more helpful
+ImportError
+FYI, I'm adding `sklearn.utils.check_matplotlib_support` in #12599 
+
+```py
+def check_matplotlib_support(caller_name):
+    try:
+        import matplotlib
+    except ImportError as e:
+        raise ImportError(
+            "{} requires matplotlib. You can install matplotlib with "
+            "`pip install matplotlib`".format(caller_name)
+        ) from e
+
+```> FYI, I'm adding sklearn.utils.check_matplotlib_support in #12599
+
+That's great! Thanks.

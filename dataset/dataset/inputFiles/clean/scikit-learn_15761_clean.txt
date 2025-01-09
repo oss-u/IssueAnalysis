@@ -1,0 +1,287 @@
+ Description
+The documentation of default values in many classes is either not included, inconsistent in how it is written, or out of date. I would like to gather a few people to work on the default value documentation for every class as there are a ton of classes where these issues exist. I have been told that the default values should be documented as default and so I am creating this issue under that assumption.
+
+ Solution
+Here are a few things that I have seen for the parameters which should be changed:
+ no mention of whether there is a default should be checked against code as a few parameters are missing this entirely
+ optional should be changed to default 
+ make sure how the default values are documented is consistent within the class, for example change everything to the format default 
+ Modify a single file per PR
+
+If a few people work on a few classes each, then this should be done in no time! These should all be fairly simple fixes.
+
+ Examples
+ LINKLINK 
+The link above is an example where default values are not indicated but the parameters say optional, and where those with default values indicated are all inconsistently documented.Hello cgsavard, I would like to work on this. Can I start looking at the AgglomerativeClustering class? vachanda Go for it! We can continue posting here which ones we work on so that others know.Thanks for coordinating this cgsavard 
+
+Note to contributors: please follow the guidelines under: LINKLINK  cgsavard, Is there a list of classes that have discrepancies or do we have to go through each of them and update them? vachanda I do not have a list, unfortunately. I have just been going through the files and seeing what needs to be updated.I am working on AffinityPropagation, SpectralCoclustering, SpectralBiclustering, and Birch.I am working on FeatureAgglomeration, KMeans, and MiniBatchKMeans.Logically speaking, if a param is optional, shouldn't the default be CODESCODES always? Having a parameter with a default value other than CODESCODES suggests it should be required. 
+
+If there is a default, this usually means that the literature has found this to be a sensible default value which also suggests that this parameter has an impact on performance and thus it shouldn't be optional, but should just mention what the default is. Those seem closer to required parameters by definition, we just happened to make a sensible choice for the user so they can change it or not.
+
+Or more practically speaking, are there currently any optional parameters that we've found which have numeric default values, but for which specifying CODESCODES will raise an exception? That would also suggest that the parameter is actually required, but that a sensible default has been chosen based on literature research.
+
+Or maybe I've been confusing the meaning of CODESCODES and CODESCODES all these years? Lol. Would definitely love to help on this either way!
+
+ jmwoloso We were really inconsistent regarding the usage of CODESCODES and therefore we recently decided to remove it.i want to contribute as well. can i go ahead with this  glemaitre ok, that definitely makes sense. so then we're removing the CODESCODES verbage all together, right, while also noting default values in the doc strings?
+
+should each of these that we find be opened as an issue separately or how are we staging all of this work that we're doing since multiple people are working on multiple things relating to this single issue? cyrus303 jmwoloso You can get a class a module maximum and correct it. The idea is to remove the optional and add a default when there is one there is usually one. Since we are touching the documentation, we should make sure that the style on the line follow our new style guide: LINKLINK 
+
+You can mention which of the class module you are working, open a link a PR to avoid duplicate effort thumbs up. Looking forward to reviewing it.Hey! I will work on CODESCODES classes CODESCODES, CODESCODES, CODESCODES and CODESCODES. I will also fix this issue for the CODESCODES module.I'll take the CODESCODES module. glemaitre any preference on CODESCODES vs. CODESCODES? seeing a mix of both in CODESCODES, even in the same class. might as well get those in shape while i'm doing defaults.
+
+EDIT:
+
+ditto for CODESCODES vs CODESCODES. I'm assuming CODESCODES on that one, but wanted to confirm.
+
+
+EDIT again:
+
+also seeing docstrings with inconsistent values relative to the CODESCODES signature for that class, for example:
+
+ CODESCODES for CODESCODES 
+
+the CODESCODES signature has CODESCODES while the docstrings for it say CODESCODES. I would assume update the docstrings to match the signature since we'd want to keep the behavior of the class consistent for example we want the same defaults passed in upon instantiation? jmwoloso Could you refer to LINKLINK. Basically you should default to the python type name bool, str, int, float 
+
+
+
+We should match the parameter in the function signature. This value default parameter has changed and the docstring was not updated.Hi cgsavard, I'd like to contribute but this is going to be my first time so need some hand holding. I'm quite familiar with python, somewhat handy with text editors and recently went through the fork clone edit PR workflow tutorial LINKLINK. Please advise next step. Thank you!Hi cgsavard,
+Can I please work on Imputer?
+Hi cgsavard, I want to work on CODESCODES class.I am also working on CODESCODES, CODESCODES, CODESCODES, CODESCODES and CODESCODES classes.can some one please check my pr 15964 and see why code cov is failing. This is my first time for contribution. Please guide.Ignore codecov. This is a false positive since we don't touch code. I will review soon the PR
+
+
+
+
+Sent from my phone sorry to be brief and potential misspell.
+
+
+I just made my first contribution 15988 I will take the CODESCODES module.I just made my first contribution 16019 Hi All, working on CODESCODES, thank you.Contributed to sklearn semi supervised. ThanksHi cgsavard, I'd like to contribute too, i will take CODESCODES module. Thanks
+Are there some further edits needed on the PR 16042  glemaitre in 16105, I had to dig a little deep into constructs to fetch default values, docstrings seemed inaccurate and outdated at times. 
+
+Also I tried to use less ambiguous, concise and mathematically rigorous way of defining ranges of parameters. for example, I changed CODESCODES to CODESCODES or CODESCODES to CODESCODES. Long story short, I did the best i could to be concise and accurate but please pay 5 more attention reviewing this PR. Thanks.  cgsavard, this is a very nice issue for a sprint! If you are ok with that I'm planning to add it to our Sprint list. I have summarized the classes that have been addressed by a PR already, and their correspondent PR LINKLINK.
+Do you mind to link the gist in the issue description? This will make the information available from the beginning. May I also ask you to clarify in the description that each PR should address one file maximum one module at a time as in explained LINKLINK? This will really help contributors and reviewers! Thanks a lot!For those interested in this issue, the command
+ CODELCODEL 
+will output the files still affected by this problem thanks ogrisel! thumbs up. cgsavard Hello, I would like to work on CODESCODES WiMLDS lopusz and I want to work on random projection. py 
+
+Have fun to everyone!
+
+ adrinjalali noatamir WiMLDS ETay203 and I would like to work on CODESCODES WiMLDS Berlin sprint. magda zielinska and I want to work on pipeline. py
+
+ adrinjalali noatamir WiMLDS lopusz and magda zielinska and I want to work on kernel approximation. pyI'm going to tackle the optics. py nowReopening: was closed by Fixes keyword in 16216.Reopening: was closed by Fixes keyword in 16207I'm going to tackle the sklearn linear model coordinate descent. py nowI cleaned base. py and submitted PRI cleaned discriminant analysis. py and submitted a PRI will look now at sklearn gaussian process. pyThere is already a long pr for the GPs lopusz thumbs up  lopusz my apologies, that PR was touching other issues of the GP module, you can go ahead and work on it if you don't mind thumbs up  adrinjalali Thank you for keeping an eye on it! 
+
+Indeed, I have not scanned the open PRs well enough, so the fact that GPs are not taken is more of an accident thumbs up 
+
+I will make sure to keep track of what is PRed.
+
+And yes PR for GPs is comming thumbs up 
+ Is there anything else to be done here?
+I am working on CODESCODES what is left to do? I'm open to help. Figuring out what's left is probably a good place to start helping thumbs up Hi, I've been looking through to see what's left, I think there are still some updates to make in some of the modules looked at previously. 
+I was going to work through these, starting with the cluster module and could raise a PR for each module as I go along?
+This is my first contribution so please let me know if I'm not following the process correctly etc. 
+Thanks!This is the list of functions, classes and modules left to fix:
+
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES experimental 
+ CODESCODES experimental 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES except CODESCODES, CODESCODES, CODESCODES CODESCODES, CODESCODES, CODESCODES, CODESCODES, CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+
+Hope I am not missing anything.Hi. I'll go try make a pass in the feature selection documentationWe take the sklearn. mixture partTaking cross decomposition partFor the 2020 Scikit Learn Sprint, icoder18 and I are taking the sklearn. random projection part
+ adrinjalali we completed sklearn mixtureWorking on the sklearn. linear model for the sprint with genvalenTake sklearn. calibration. CalibratedClassifierCVWorking on this for sklearn. utils. validationNext we'll be tackling sklearn. utils. randomworking on sklearn. impute
+Working on CODESCODES Table 14 will take sklearn. neural networkTake sklearn. kernel approximationTaking CODESCODES Table 14 will take sklearn. preprocessingTaking datasetsTaking sklearn. mixture 17509 List updated.
+
+Thank you all!Taking sklearn. metrics for sprintTaking model selection module glemaitre Can we update the description of this to include it would be best to submit one file at a time?
+Hello I would like to contribute. It is my first time though. And it is not clear for me how I can know on which module there is still work to be done? Thanks!  LINKLINK contains the list of modules left to fix.Thanks. Take sklearn. decomposition then. I am working on 'sklearn. isotonic. isotonic regression'I am working on 'sklearn. multiclass. py'Hi, may I try to take the remaining on CODESCODES? This would be my first time contributing as well.Thanks for checking in, great to have your help! Please proceed; I think all of our sprint updates have been closed out. 
+
+
+
+
+
+
+
+
+
+Hi, I would like to make my first contribution. Can I take sklearn. multioutput?I'll continue with sklearn. utils, starting with encode. pyI am working on CODESCODES I'm working on CODESCODES in the sprintHi, I will start working on sklearn. feature extraction. image. img to graphI am working on CODESCODES I am working on CODESCODES I am working on CODESCODES 
+
+on this? Hoda1394 
+
+
+
+ TahiriNadia corrected. cgsavard Hey, Can I work on this? I'm a first timerI'll work on the files in CODESCODES.Can i work on CODESCODES 
+ glemaitre I'm working on CODESCODES and i found an inconsistency of the use of CODESCODES sometimes it indicates CODESCODES sometimes CODESCODES, this inconsistency is also in code not only in documentation, I can see that CODESCODES is the right one, could you confirm it, and i will make a PR. working on CODESCODES files need change:
+
+sklearn config. py
+sklearn dummy. py
+sklearn multioutput. py
+sklearn linear model huber. py
+sklearn linear model theil sen. py
+sklearn linear model ridge. py
+sklearn linear model omp. py 
+sklearn linear model sag. py
+sklearn externals lobpcg. py
+sklearn externals lobpcg. py
+sklearn utils extmath. py
+sklearn utils init. py
+sklearn utils graph. py
+sklearn utils mocking. py 
+sklearn utils sparsefuncs. py
+sklearn neighbors base. py
+sklearn gaussian process gpc. py
+sklearn gaussian process kernels. py
+sklearn model selection validation. py 
+ sklearn decomposition fastica. py 
+ sklearn decomposition dict learning. py 
+ sklearn decomposition factor analysis. py 
+ sklearn decomposition incremental pca. py 
+ sklearn decomposition lda. py 
+ sklearn decomposition pca. py 
+ sklearn decomposition truncated svd. py 
+ sklearn decomposition sparse pca. py 
+ sklearn decomposition nmf. py 
+sklearn manifold mds. py
+sklearn manifold spectral embedding. py
+sklearn manifold t sne. py
+sklearn ensemble hist gradient boosting grower. py
+sklearn ensemble hist gradient boosting binning. py
+sklearn metrics ranking. py
+sklearn tree classes. py
+sklearn preprocessing discretization. py
+sklearn preprocessing encoders. py line 620
+sklearn neural network multilayer perceptron. py line 1054 
+sklearn covariance robust covariance. py
+
+Please do check if someone is already working worked on the file you choosed  sadakmed, for all the decomposition files, there is an ongoing pull request 17739. working on CODESCODES and CODESCODES Hi, I am new, and I would like to start contributing. Do you still need some help on this issue? is there any file you still need help with?Hey boricles!
+
+Have a look to LINKLINK for a list with the modules still to be fixed. alfaro96 thanks. I did a quick look just now. I will select a module tonight, and work on it.I am working on sklearn config contextHey, thought I'd see if I could help with the docs.
+
+ alfaro96 I'd like to work on CODESCODES, if it hasn't already been taken, especially because I've personally encountered some pitfalls when working with Vectorizers in the past.
+
+Also, I noticed that although CODESCODES was updated, LINKLINK, should I leave it be? Or is it worth updating?Hi alfaro96,
+
+after edits:
+I see CODESCODES and CODESCODES from CODESCODES were fixed so it can be checked out from the LINKLINK.
+
+I would like to work on CODESCODES. I saw only once instance of parameter documentation where 'optional' is used in. That means that I need to fix only that instance, correct? It is in CODESCODES 
+
+
+
+Hey madprogramer,
+
+
+
+ I have had a look to the 15761 comment and LINKLINK and it does not seem to be fixed. A PR would be welcome. 
+
+ Edit: The CODESCODES is already fixed. 
+
+
+
+It is worth it updating, although this should be done in a separate PR.
+
+Thank you!
+
+Hey haiatn,
+
+
+
+
+I have updated the LINKLINK.
+
+
+
+That is the idea, although the classes in the CODESCODES file are not part of the public API, so I do not think that it is worthy to update them.
+
+Nevertheless, it would be nice if you could work in any of the other functions, classes and modules that are pending to be fixed.
+
+Thank you!I looked at the checklist. From what I saw the following can be checked from the checklist:
+
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ I did not find the file CODESCODES but all of CODESCODES is OK
+
+Can I work on CODESCODES and CODESCODES? I will do it in seperate PR. I think they are the only files left that need fixing assuming CODESCODES is taken.
+
+
+
+
+
+
+
+Thank you haiatn, I have updated the checklist.
+
+
+
+The CODESCODES and CODESCODES are in this file: CODESCODES. However, they have been already fixed.
+
+
+
+I have had a look to the CODESCODES module and CODESCODES and they have been already fixed I have updated the checklist accordingly.
+
+Nevertheless, there are several functions in the CODESCODES module that should be still fixed.
+
+Thank you haiatn, we really appreciate your help!I will now work on CODESCODES, CODESCODES and CODESCODES I will finish sklearn. utils. There are only 3 files I found that need fixing.hey alfaro96,
+could you review my open pull requests? I think they are the last ones.
+ 18360 18385 18386Hey haiatn!
+
+I have already have a look to your open PRs.
+
+Thank you!Now that we merged what's left off sklearn. utils and it was the last on LINKLINK, did we finish?There is one last open pull request 18025, then this issue could be eventually closed.Hello, 
+I want to start contributing. Is there any class pending for fixing doc of default values? If any then I can take it up.Hey new to the open source I am looking forward to fixing doc by any chance something is left which needs to be fixed
+ The last relevant PR 18025 to this issue has been merged. I'm closing this issue. Thanks to all people that has contributed to its solution!

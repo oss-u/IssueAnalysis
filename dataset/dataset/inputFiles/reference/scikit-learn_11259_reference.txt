@@ -1,0 +1,25 @@
+This discussion bring some insights about adding a multivariate imputer in scikit learn. Because of release time constraint, the development was moved into a specific branch FIXME: give a specific name see 11600.
+
+ Decide good default for the IterativeImputer ChaindedImputer 11350.
+ Modify the example for imputation to show a compelling example 11350.
+ Add an example to illustrate how to make multiple imputation 11370.
+ Add a meta estimator which does multiple imputations?
+
+ 
+
+From the discussion in 8478, we have to deal with the following issues in CODESCODES:
+
+We have the following things to do:
+
+ Determine the most appropriate way to use individual imputation samples in predictive modelling, clustering, etc, which are Scikit learn's focus.
+ is using a single draw acceptable?
+ is averaging over multiple draws from the final fit appropriate?
+ is ensembling multiple predictive estimators each trained on a different imputation most appropriate?
+ Perhaps determine if, in a predictive modelling context, it is necessary to have the sophistication of MICE in sampling each imputation value rather than just using point predictions.
+ Provide an example illustrating the inferential capabilities due to multiple imputation. I don't think there's anything limiting about our current interface, but it deserves an example.
+ Rename MICEImputer to de emphasise multiple imputation because it only performs a single one at a time.
+
+Minor things:
+
+ The documentation refer to CODESCODES instead of CODESCODES.
+ CODESCODES should be improved length of the list mainly.

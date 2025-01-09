@@ -1,0 +1,629 @@
+HI.
+
+Developing an android application using tensorflow-lite.
+
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/lite/g3doc/models.md
+Not found detection model.
+
+Also, I try to convert SSD-Inceptionv2 using tensorflow-lite-API. But there seems to be a problem.
+
+##Command
+<pre><code>
+bazel run --config=opt --copt=-msse4.1 --copt=-msse4.2 \
+  //tensorflow/contrib/lite/toco:toco -- \
+  --input_file=/home/danshin/tensorflow_lite/lite_model/fire_incpetion_v2.pb \
+  --output_file=/home/danshin/tensorflow_lite/lite_model/fire_inception_v2.lite \
+  --input_format=TENSORFLOW_GRAPHDEF \
+  --output_format=TFLITE \
+  --inference_type=FLOAT \
+  --input_shape=1,300,300,3 \
+  --input_array=image_tensor \
+  --output_array={detection_boxes,detection_scores,detection_classes,num_detections}
+</code></pre>
+
+##Error code
+<pre><code>
+2017-12-26 14:59:25.159220: I tensorflow/contrib/lite/toco/graph_transformations/graph_transformations.cc:39] Before general graph transformations: 2029 operators, 3459 arrays (0 quantized)
+2017-12-26 14:59:25.251633: F tensorflow/contrib/lite/toco/graph_transformations/resolve_tensorflow_switch.cc:95] Check failed: other_op->type == OperatorType::kTensorFlowMerge 
+</code></pre>
+
+The fire_inception_v2 file is created, but its size is zero bytes.
+What is a problem?
+
+
+also,
+**please let me know what's the best way to deploy custom model for object detection?**
+
+Somebody help me plz!.
+
+thank you.@aselle  can you please take a look at this issue? Thanks.We are currently working to convert mobilenet SSD (and then inception ssd after that) , but it contains ops that are not supported completely.  I will update this issue once we have that done.Great, I have asked similar question here: https://github.com/tensorflow/tensorflow/issues/14731
+
+How long do you reckon until you guys add support from ssd-mobilenet?
+
+Thanks,
+Martin PeniakA member of the TensorFlow organization has replied after the stat:awaiting tensorflower label was applied.?Nagging Assignee: It has been 14 days with no activity and this issue has an assignee. Please update the label and/or status accordingly.Any updates?
+I'm also facing a similar issue. Thanks in advance.@yucheelingCould you please suggest any dataset like "`ssd_mobilenet_v1_coco_2017_11_17.tar`" which can be used in a retail shop for different apparel identification like t-shirts, jeans etc. @rana3579, please ask such a question on stackoverflow. A quick update on mobilenet ssd. This is progressing and we hope we will have an example out soon.@rana3579 check my video, got this running on movidius, nvidia gpus as well as arm processors. I cannot share the dataset but if you are part of a company we could talk about potential collaboration: https://www.youtube.com/watch?v=3MinI9cCJrc@aselle thanks for the update! Where to look for the notifications on this? I would like to be notified as soon as it is out if that is possible. Thank you, I appreciate your hard-work on this!
+@andrewharp, is working on this and will be updating the Java TF Mobile app to use tflite. So watch for those changes in the repository. I'll leave this issue open for now.This is functional internally; should have something out in the next week or two.@andrewharp thats awesome!! Does that also go for the iOS camera example?
+Also what is the size of the weights and performance looking like?
+The TFLite classification mobilenet is tiny and the performance on iOS is buttery smooth so im really excited for TFLite.
+
+Some others already converted the existing SSD Mobilenet pb to a coreml model and wrote the missing output layers in Swift:
+https://github.com/vonholst/SSDMobileNet_CoreML
+
+But thats only really like 8-12 fps on an iPhone 7.Hi,
+Any update on this?I am also curious :)I have a commit porting the Android TF demo to tflite currently under review, should show up on github this week hopefully.
+
+@madhavajay It's Android only, but you should be able to adapt it for iOS. The only thing is that some of the pre-processing (image resizing/normalization) and post-processing (non-max suppression and adjustment by box priors) is done in Java as tflite doesn't fully support all the operators used by MobileNet SSD.@andrewharp That’s awesome. Can you briefly explain why those operations are not available currently in TF lite. Seems the same case for the tfcoreml conversion tool on regular SSD. Not complaining just asking out of technical interest, do they do something that’s particularly difficult to implement in the mobile stack or is it just low priority?Looking forwards to seeing your epic effort on the Android code!!! Thanks a lot. I know im not the only one looking forwards to this!@andrewharp,  and @aselle    Any update on getting demo for using SSD based Object Localization example for TFLite?It's live now at [tensorflow/contrib/lite/examples/android](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/lite/examples/android)! This is a more complete port of the original TF Android demo (only lacking the Stylize example), and will be replacing the other demo in tensorflow/contrib/lite/java/demo going forward.
+
+A converted TF Lite flatbuffer can be found in [mobilenet_ssd_tflite_v1.zip](https://storage.googleapis.com/download.tensorflow.org/models/tflite/mobilenet_ssd_tflite_v1.zip), and you can find the Java inference implementation in [TFLiteObjectDetectionAPIModel.java](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/lite/examples/android/src/org/tensorflow/demo/TFLiteObjectDetectionAPIModel.java). Note that this differs from the original TF implementation in that the boxes must be manually decoded in Java, and a box prior txt file needs to be packaged in the apps assets (I think the one included in the model zip above should be valid for most graphs). 
+
+During TOCO conversion a different input node (Preprocessor/sub) is used, as well as different output nodes (concat,concat_1). This skips some parts that are problematic for tflite, until either the graph is restructured or TF Lite reaches TF parity.
+
+Here are the quick steps for converting an SSD MobileNet model to tflite format and building the demo to use it:
+```
+# Download and extract SSD MobileNet model
+wget http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_2017_11_17.tar.gz
+tar -xvf ssd_mobilenet_v1_coco_2017_11_17.tar.gz 
+DETECT_PB=$PWD/ssd_mobilenet_v1_coco_2017_11_17/frozen_inference_graph.pb
+STRIPPED_PB=$PWD/frozen_inference_graph_stripped.pb
+DETECT_FB=$PWD/tensorflow/contrib/lite/examples/android/assets/mobilenet_ssd.tflite
+
+# Strip out problematic nodes before even letting TOCO see the graphdef
+bazel run -c opt tensorflow/python/tools/optimize_for_inference -- \
+--input=$DETECT_PB  --output=$STRIPPED_PB --frozen_graph=True \
+--input_names=Preprocessor/sub --output_names=concat,concat_1 \
+--alsologtostderr
+
+# Run TOCO conversion.
+bazel run tensorflow/contrib/lite/toco:toco -- \
+--input_file=$STRIPPED_PB --output_file=$DETECT_FB \
+--input_format=TENSORFLOW_GRAPHDEF --output_format=TFLITE \
+--input_shapes=1,300,300,3 --input_arrays=Preprocessor/sub \
+--output_arrays=concat,concat_1 --inference_type=FLOAT --logtostderr
+
+# Build and install the demo
+bazel build -c opt --cxxopt='--std=c++11' //tensorflow/contrib/lite/examples/android:tflite_demo
+adb install -r -f bazel-bin/tensorflow/contrib/lite/examples/android/tflite_demo.apk
+```@andrewharp Happy Easter 🥚🍫 you LEGEND! :) Gonna see if I can get this running.HI,is there any quantize version?I got it working with the instructions above but needed:
+- Android SDK 15 because of my bazel version
+- I also cannot open the project in Android Studio
+
+@andrewharp is this a new Android Studio thing you guys are heading towards that uses bazel to build projects instead of Gradle, or just missing some project settings for now because of the short time frame to get it working?
+
+Happy to supply a PR if I understand what the problem is.
+
+Also regarding performance, it seems to be slow on my LG G6 on Android 7.
+Is that because NN API is only on Android 8?
+
+Anyone able to test it on Android 8?I see, I thought the instructions were only for the conversion. I stopped reading after the first part of the sentence saying this is how you convert the model lol.
+
+Yeah I got pixel xl, I suppose your phone doesn’t have hardware that can accelerate inference or that hardware isn’t supported by software.
+
+I’ll try and let you know. I was assuming I could build that with android studio doh...
+
+Sent from my iPhone
+
+> On 31 Mar 2018, at 20:05, Madhava Jay <notifications@github.com> wrote:
+> 
+> I got it working with the instructions above but needed:
+> 
+> Android SDK 15 because of my bazel version
+> I also cannot open the project in Android Studio
+> @andrewharp is this a new Android Studio thing you guys are heading towards that uses bazel to build projects instead of Gradle, or just missing some project settings for now because of the short time frame to get it working?
+> 
+> Happy to supply a PR if I understand what the problem is.
+> 
+> Also regarding performance, it seems to be slow on my LG G6 on Android 7.
+> Is that because NN API is only on Android 8?
+> 
+> Anyone able to test it on Android 8?
+> 
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub, or mute the thread.
+> 
+Yes, I did the same thing and went straight to the code and Android studio. Then after you pinged this morning I was about to reply that I had the same problem and then RTFM'ed again. 🤣
+
+From what I can tell the LG G6 should be able to support NN API since it has the Qualcomm 821 SoC the same as the Pixel 1. But, unfortunately LG hasn't released Android 8 or 8.1 and the latest LineageOS builds look a bit sketchy so im gonna hold off unless I KNOW that it works better on Android 8.1. If you can fire it up on the Pixel that would be awesome! 👍 I've managed to test this but the demo runs really slow...even slower than the original version.
+I am using Pixel XL (first version) and I have previously compiled the old demo for 64bit arch, which made it to run almost twice as fast even without tfLite...the inference time in this case is around 450ms. When I try this demo, it runs at around 850ms and sometimes even over a second. Have I done something incorrectly or was I just being over-optimistic to expect a decent speed-up? Thanks.@mpeniak I got the same speeds on the LG G6, with debug on or off (Thought it was debug at first). I suspect NNAPI isn't being used. Perhaps we need to do something special with the nnapi_lib build?
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/lite/BUILD
+
+The dependency is listed but might need building for a specific architecture?
+Perhaps something in ./configure
+(btw I enabled XLA in my ./configure in case that was related but it didnt change the speed)@andrewharp 
+I want to use NNAPI, but I do not know how to use it.
+According to document, Neural Networks API is available in Android 8.1 >
+If it is 8.1 or higher, is it basically applied? or Do I need additional NDK work? [Document Link](https://github.com/googlesamples/android-ndk/tree/master/nn_sample)
+Have a nice day XD@andrewharp, I tried to enable NNAPI for tflite_demo and run the apk, however I found the apk crashed
+when call AddOpsAndParams, the operation tflite::BuiltinOperator_SQUEEZE is not supported and
+nn_op_type is set to -1, which will cause FATAL called, and exit(-1) . I think that's the
+root cause. Would you please tell if it will be supported in future version ? Is there any other way to work
+around to test NNAPI path? thanks.@andrehentz 
+bazel run -c opt tensorflow/python/tools/optimize_for_inference -- \
+--input=$DETECT_PB  --output=$STRIPPED_PB --frozen_graph=True \
+--input_names=Preprocessor/sub --output_names=concat,concat_1 \
+--alsologtostderr
+
+Why is not input_names image_tensor?
+I tried this way and I encountered an error.@nanamare
+You should use frozen_inference_graph_stripped.pb instead of frozen_inference_graph.pb.
+try "bazel-bin/tensorflow/tools/graph_transforms/summarize_graph --in_graph=frozen_inference_graph_stripped.pb"
+and you can see the following output:
+Found 1 possible inputs: (name=Preprocessor/sub, type=float(1), shape=None) 
+No variables spotted.
+Found 2 possible outputs: (name=concat, op=ConcatV2) (name=concat_1, op=ConcatV2) 
+
+The input name is Preprocessor/sub abd output name is concat.@nanamare
+The latest tensorflow lite code include a java interface to enable NNAPI.
+
+class Interpreter has function called: setUseNNAPI(true);
+You can directly call such interface.@zhangbo0325 
+I already try to call setUserNNAPI(true);, But there was no effect. 
+It was almost similar inference not using NNAPI.
+android specification: 8.1 version.@nanamare, are your running ssd-mobilenet? For such network, there is a SQUEEZE operation which is not supported by android NNAPI.  I asked the question above.  For mobilenet-v1, it is OK.    @andrewharp  Hi, andrewharp. i just followed your quick steps for converting an SSD MobileNet model to tflite format, and then i tried to  build the demo to use it. But something accurred in apk.
+    for the tflite from mobilenet_ssd_tflite_v1.zip, everything is ok! i can use mobile to detecter things.
+    And then i tried to use pet data to fine tune the model from the checkpoint in mobilenet_ssd_tflite_v1.zip. this process is also ok. i check the generated frozen_inference_graph.pb with the object_detection_tutorial.ipynb(https://github.com/tensorflow/models/blob/master/research/object_detection/object_detection_tutorial.ipynb). the result shown this pb can used to object detection. And then i followed the script to convert frozen pb to tflite. Then build demo with tflite, unfortunately something wrong ocurred. Then log is written below. 
+    It seems the Shape of output target [1, 1917, 4] does not match with the shape of the Tensor [1, 1917, 1, 4]. Because i am new to use object detection api, i donot know how to deal with the problem. 
+    Hope you can point out some solutions, Thx! 
+
+Mobile Log here:
+04-04 19:46:36.099 28864-28882/org.tensorflow.lite.demo E/AndroidRuntime: FATAL EXCEPTION: inference Process: org.tensorflow.lite.demo, PID: 28864  java.lang.IllegalArgumentException: Shape of output target [1, 1917, 4] does not match with the shape of the Tensor [1, 1917, 1, 4].       at org.tensorflow.lite.Tensor.copyTo(Tensor.java:44)   at org.tensorflow.lite.Interpreter.runForMultipleInputsOutputs(Interpreter.java:139)   at org.tensorflow.demo.TFLiteObjectDetectionAPIModel.recognizeImage(TFLiteObjectDetectionAPIModel.java:226) at org.tensorflow.demo.DetectorActivity$3.run(DetectorActivity.java:248)   at android.os.Handler.handleCallback(Handler.java:761)  at android.os.Handler.dispatchMessage(Handler.java:98)at android.os.Looper.loop(Looper.java:156)  at android.os.HandlerThread.run(HandlerThread.java:61)Amazing! Trying to get this working on iOS. How do I parse the Tensor output?
+```
+interpreter->Invoke();
+float* output = interpreter->typed_output_tensor<float>(0);
+```The DetectorActivity interface is stuck in my project, do you exist, how can I solve it?@zhangbo0325 Thanks for the details. Since the squeeze is not supported by the NNAPI, does that mean that the NNAPI is not used at all and inference will remain as slow as it is? As I mentioned in the earlier comment, I get really poor performance on Pixel XL. I would expect inference times somewhere around 80-120ms. Thanks!@mpeniak , I asked the same question to andrewharp.  I just ran the ssd-mobilenet with the help of tensorflow-lite cpu implementation and also got the poor performance. The TensorFlow Lite talk at Dev Summit 2018 showed 3x performance on MobileNet:
+https://youtu.be/FAMfy7izB6A?t=530
+
+Maybe thats not for SSD though?
+Possibly requires weight quantization first?
+
+I have tried mobilnet and it is much faster, this does not apply to mobilnet-ssd though...Sad Panda ☹️🐼
+@andrewharp Any idea when a performant SSD implementation will be available? Is it a question of Weight Quantization?I also got the poor performance for ssd-mobilenet on TensorFlowLite :(
+But, I  have another question. Why does the score of the result exceed 1? Is it not the probability?@a1103304122 as what I understand, the score is output of node "concat", before softmax, so, it isn't the probability.
+> During TOCO conversion a different input node (Preprocessor/sub) is used, as well as different output nodes (concat,concat_1). This skips some parts that are problematic for tflite, until either the graph is restructured or TF Lite reaches TF parity.Does anybody have idea why TFlite is slower than TFmobile in this model?@andrewharp is it possible to comment on the performance of the TF Lite SSD? Also is quantization possible / coming? I know you guys are working hard to make this all happen but it would be good to know if this is just a short term hiccup or there is a solution we can apply. 😄 @andrewharp Thanks for your great posting. However, I have one question for your steps.
+
+# Strip out problematic nodes before even letting TOCO see the graphdef
+bazel run -c opt tensorflow/python/tools/optimize_for_inference -- \
+--input=$DETECT_PB  --output=$STRIPPED_PB --frozen_graph=True \
+--input_names=Preprocessor/sub --output_names=concat,concat_1 \
+--alsologtostderr
+
+If I don't misunderstand, here you want to produce STRIPPED_PB, right? If so, currently, our input file's input should be image_tensor. So, I don't very understand why we use Preprocessor/sub. Could you explain more detail? 
+
+Secondly, here we use optimize_for_inference, can we use transform_graph tool? because new tensorflow documentation recommend transform_graph instead of optimize_for_inference.@mpeniak how do u do it? Please say some details.org.tensorflow.lite.demo E/AndroidRuntime: FATAL EXCEPTION: inference Process: org.tensorflow.lite.demo, PID: 28864 java.lang.IllegalArgumentException: Shape of output target [1, 1917, 4] does not match with the shape of the Tensor [1, 1917, 1, 4]. 
+
+@Haijunlv Have you solved the problem? Can you share the solution?Upon importing the TF Lite new Android demo I'm getting `Error:Plugin with id 'com.android.application' not found.` on OS X.same problem as @csmith105 ! I managed to build and install the demo with bazel but I can't compile or run the project on Android Studio ... any solution for this problem ?@Eddy-zheng If you saw the node "concat"  in the frozen graph, you will find the squeeze op is excuted after concat op. I think that is the reason why the shape is incompatable. I did not test the speed of the squeeze op. But I think there are two ways to solve the problem.
+1. change the order of squeeze and concat op. In the ssd_meta_arch.py, slightly change " box_encodings = tf.squeeze(tf.concat(prediction_dict['box_encodings'], axis=1), axis=2)"
+2. directly kill the shape 1 at the axis 2. In the box_predictor.py, slightly change " box_encodings =tf.reshape(
+            box_encodings, tf.stack([combined_feature_map_shape[0],
+            combined_feature_map_shape[1] *
+            combined_feature_map_shape[2] *
+            num_predictions_per_location,
+            1, self._box_code_size]))"
+
+Actually i donot understand the reason why reshape tensor with extra "1" shape. May be it is a redundant
+op. 
+I have tried way 1 and success to run model in mobile. But still a little slow.  later i will try way 2 to see if it can get a better speed 
+
+ @Haijunlv How good are the detections? The lite model from @andrewharp 's demo simply removes all preprocess and postprocess nodes (thousands of them) from the graph and replace them with several lines of code. I am not sure how it'll work..I think there is a solution to the android studio and gradle issue. (please correct me if I'm wrong or if there is a better solution ) : 
+
+- It's not the best approach but there is a Bazel plugin that we can install inside Android Studio to "replace" Gradle and we can build and run our project using Bazel through AS.
+
+- I read several articles about Bazel and I came across this [question](https://www.quora.com/Why-did-Google-decide-to-use-Bazel-with-TensorFlow) in Quora.. and according to the answer tensorflow will continue using Bazel since it exploits the framework better and gives better results.. so I think as developers  in this particular case we should adapt to it and leave Gradle behind until tensorflow supports it completely.@davidfant 
+Did you manage to get to the multiple outputs in TensorFlow Lite C++?
+
+```
+interpreter->Invoke();
+???? output = interpreter->typed_output_tensor<?????>(0);
+```I am progressing, but still I don't know how to get the outputs in C++. **Is there any documentation about this?** This is what I have at the moment. **How do I have to access the data array to get the scores?**
+
+```
+(fill inputs)
+.......
+intepreter->Invoke();
+const std::vector<int>& results = interpreter->outputs();
+TfLiteTensor* outputLocations = interpreter->tensor(results[0]);
+TfLiteTensor* outputClasses   = interpreter->tensor(results[1]);
+float *data = tflite::GetTensorData<float>(outputClasses);
+for(int i=0;i<NUM_RESULTS;i++)
+{
+   for(int j=1;j<NUM_CLASSES;j++)
+   {
+      float score = expit(data[i*NUM_CLASSES+j]); // ¿?
+    }
+}
+```
+@JaviBonilla I did similar thing and found it doesn't work. Using the cutoff from the android demo app, it just outputs too much noise. If you use tensorboard to read the graph, you'll find that the lite model prunes thousands of postprocess nodes. I don't think the current way would work. I hope tensorflow lite will support those postprocess nodes in the future, instead of asking people to do such not-working hacks..Thanks @YijinLiu. I saw your repository tf-cpu, I will have a look at your code to check that my implementation is correct, and see the results even if they are not good.@JaviBonilla please let us know when you've figured out how to run with C++! 🙌Hi @davidfant, 
+
+I still have to test it, but @YijinLiu already figured it out!. 
+
+Have a look at his repository (https://github.com/YijinLiu/tf-cpu). In particular, you can find how to get the outputs in the `tf-cpu/benchmark/obj_detect_lite.cc` file, `AnnotateMat()` function, which is executed after the `Interpreter->Invoke()`.@JaviBonilla I didn't finish obj_detect_lite.cc, specially, to use priors to decode the detection boxes.
+What I found is that the scores doesn't make sense in all scenarios. For some cases, it generate too much noise. For other cases, it may lose some good detections. I looked at those nodes to convert these intermediate scores to the final possibility scores. There are thousands of nodes...@YijinLiu thanks for clarifying this. Then, I think it is better to wait until more improvements are included in TensorFlow Lite for object detection. Anyway, I will try to decode the detection boxes in C++ if I have time.Hi @andrewharp ,
+
+Thanks for your effort for making the new android demo project, but could you please write a readme.md or some description document in [tensorflow/contrib/lite/examples/android](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/lite/examples/android) so that we could all easily understand the process to make tensorflow lite? thanks~!Hello,I have runned the ssd_mobilenet_v1_coco_2017_11_17 demo successfully,then I get a fine-tuned model.When I run the @andrehentz 's process on it,problem occured:
+`bazel run tensorflow/contrib/lite/toco:toco -- --input_file=$STRIPPED_PB --output_file=$DETECT_FB --input_format=TENSORFLOW_GRAPHDEF --output_format=TFLITE --input_shapes=1,300,300,3 --input_arrays=Preprocessor/sub --output_arrays=concat,concat_1 --inference_type=FLOAT --logtostderr`
+> Before Removing unused ops: 586 operators, 871 arrays (0 quantized)
+2018-06-12 15:29:54.273221: I tensorflow/contrib/lite/toco/graph_transformations/graph_transformations.cc:39] Before general graph transformations: 586 operators, 871 arrays (0 quantized)
+2018-06-12 15:29:54.300213: I tensorflow/contrib/lite/toco/graph_transformations/graph_transformations.cc:39] After general graph transformations pass 1: 409 operators, 688 arrays (0 quantized)
+2018-06-12 15:29:54.309735: I tensorflow/contrib/lite/toco/graph_transformations/graph_transformations.cc:39] Before dequantization graph transformations: 409 operators, 688 arrays (0 quantized)
+2018-06-12 15:29:54.317395: I tensorflow/contrib/lite/toco/allocate_transient_arrays.cc:329] Total transient array allocated size: 2880256 bytes, theoretical optimal value: 2880128 bytes.
+2018-06-12 15:29:54.319173: F tensorflow/contrib/lite/toco/tflite/export.cc:330] Some of the operators in the model are not supported by the standard TensorFlow Lite runtime. If you have a custom implementation for them you can disable this error with --allow_custom_ops, or by setting allow_custom_ops=True when calling tf.contrib.lite.toco_convert(). Here is a list of operators for which  you will need custom implementations: RSQRT, SquaredDifference, Stack, TensorFlowShape.
+
+Here is my model[https://drive.google.com/open?id=1IxRSU4VSmVmhUtUpSQew_5anEfxTg3Ca](https://drive.google.com/open?id=1IxRSU4VSmVmhUtUpSQew_5anEfxTg3Ca)
+
+Can anyone help me?
+@andrehentz 
+@JaviBonilla and @YijinLiu I have a [Python implementation](https://github.com/freedomtan/tensorflow/blob/object_detection_tflite_object_dtection_python/tensorflow/contrib/lite/examples/python/object_detection.py) that I tested with Google's pretained SSD MobileNet V{1,2} and SSDLIte MobileNet V2 models. See simple documentation [here](https://github.com/freedomtan/tensorflow/blob/object_detection_tflite_object_dtection_python/tensorflow/contrib/lite/examples/python/object_detection_ssd_coco.md).@freedomtan  which version of tf do you use ? tf 1.8 ? @hengshanji master branch after tflite interpreter Python binding (29c129c6). I don't think 1.8 has the binding.@freedomtan tf1.8 has interpreter Python binding, but I meet such kind of problem "nnapi error: unable to open library libneuralnetworks.so". where to get this .so or how to generate it? Thanks.Ignore it :) It's for Android NNAPI.@freedomtan Did you test the example on the device or on the pc? When I test it on the pc, use the android-28/x86 libneuralnetworks.so, it shows error  "Aborting since tflite returned failure".As I said, please ignore that NNAPI problem. You are not expected to have a working `libneuralnetwork.so`. I tested my scripts on both an x86 running Ubuntu and an ARMv8 board running Debian.@freedomtan, thanks for sharing the code and documentation.Based on repository (https://github.com/YijinLiu/tf-cpu). I have updated the  tf-cpu/benchmark/obj_detect_lite.cc to get the outputs. In function AnnotateMat() add  decodeCenterSizeBoxes code to handle the output_locations, Then do nms for these results.
+At the same time, using the https://github.com/tensorflow/tensorflow/issues/14688 to generate the libtensorflow-lite.a, it can run on both an x86 running Ubuntu and an android device with tflite model in ssdlite_mobilenet_v2_coco_2018_05_09.tar.gz.
+Thanks all.@WeiboXu Can you share the code and model here?Here is the updated code for obj_detect_lite.cc
+[obj_detect_lite.cc.zip](https://github.com/tensorflow/tensorflow/files/2153563/obj_detect_lite.cc.zip)
+
+The model is http://download.tensorflow.org/models/object_detection/ssdlite_mobilenet_v2_coco_2018_05_09.tar.gz 
+@freedomtan In your python implementation code, there is one file "/tmp/box_priors.txt", do you know how  to generate this file ? Or how the data in this file was calculated? There is no problem to do inference for the image with size 300X300, but, the inference accuracy will drop down when do inference for the image with size 224X224@freedomtan, @andrewharp , The prev model by following [this instructions](https://github.com/tensorflow/tensorflow/issues/15633#issuecomment-377652630) can not work in [the latest TFLite Demo](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/lite/examples/android), Whether it is quantified or float, because the tflite model in the latest TFLite demo requires 4 outputs , but prev model only have 2 outputs( concat, concat1).
+
+Please help , Thanks!These instructions are being updated at the moment. Will provide link for updated instructions in the next week.@frontword What in `/tmp/box_priors.txt` are boxes for post processing. If you use the newer one mentioned by @WenguoLi, you don't need it. However, as far as I can tell, those post-processing ops are implemented as TF Lite custom ops. Meaning that you cannot accelerated them with NNAPI accelerators without further efforts.
+
+For image size problems, yes, I think feeding 224x224 images to SSD300 (the models released by Google were trained with 300x300 images) and getting worse accuracy is not unexpected.
+
+@WenguoLi It seems to me the updated model you mentioned is quite easy to handle. See my [update scirpt](https://github.com/freedomtan/tensorflow/blob/freedom/object_detection_tflite_object_dtection_python_w_postprocessing/tensorflow/contrib/lite/examples/python/object_detection.py). The following figure is generated by 
+```
+python  tensorflow/contrib/lite/examples/python/object_detection.py --image /tmp/image2.jpg  --show_image True
+```
+
+![image](https://user-images.githubusercontent.com/3395998/42428690-8ee7a76c-8367-11e8-8487-1bf207771147.png)
+To fix the score of the inference result exceeding 1 is it possible to use the Java method TrackedObject.getCurrentCorrelation() because that always seems to return something less than 1 (not sure if its correct or not though). The TFLite Android example uses Recognition.getConfidence()  which always seems to return something greater than 1@mpeniak You ran the ssd mobilenet tflite model on Movidius. I am also planning to do something similar. Can you please guide a bit on how you did it?@achowdhery Hi, I saw some updates of the building instructions for the latest android demo here (https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/lite/examples/android/app), but it didn't indicate how we can actually convert the frozen pb model to tflite model (the quantized detect.tflite which was used in the latest demo). Any further instructions on the quantized model conversion flow? Also, I think we should first run quantized training with fake quantization operations as instructed here (https://www.tensorflow.org/performance/quantization) and then perform the model conversion, correct? Also, is it possible to enable NNAPI in the latest android demo? I tried to use tfLite.setUseNNAPI(true) in TFLiteObjectDetectionAPIModel.java but it crashed on my Pixel 2 running Android 8.1 (it can work well without NNAPI). Any suggestions? Thanks!@tenoyart The short answer for "is it possible to enable NNAPI in the latest android demo?" should be NO. Not so short answer is that it's kinda possible if you modify TF Lite interpreter do something like splitting the model or adding corresponding custom ops to NNAPI.@achowdhery I saw a TensorFlow blog [article](https://medium.com/tensorflow/training-and-serving-a-realtime-mobile-object-detector-in-30-minutes-with-cloud-tpus-b78971cf1193) by you. Is this the instructions you mentioned or more are coming?Yes. This are the instructions for training and serving the object detection model on Android.@freedomtan Thanks for sharing the script.
+In your [latest script with postprocessing](https://github.com/freedomtan/tensorflow/blob/freedom/object_detection_tflite_object_dtection_python_w_postprocessing/tensorflow/contrib/lite/examples/python/object_detection.py) which model file are you using?
+Did you specifiy argument of optimize_for_inference.py like
+--input_names="Preprocessor/sub"
+--output_names="detection_boxes,detection_scores,num_detections,detection_classes"
+
+Do you see any difference with/without postprocessing?
+
+Thanks!
+Is there any way to convert SqueezeNet models with 4 outputs to tflite?@chanchanzhang  Please follow the new instructions toward the end of tutorial in https://medium.com/tensorflow/training-and-serving-a-realtime-mobile-object-detector-in-30-minutes-with-cloud-tpus-b78971cf1193
+Note that this uses a different workflow than using optimize_for_inference.py@ashwaniag If you would like to replace Mobilenet with SqueezeNet classifier while keeping SSD after that for detection, that is fine for current workflow.@achowdhery Great to see the TF Lite model on ssd mobilenet v1. Does TF Lite fully support ssdlite mobilenet v2?@tenoyart Yes. Any Mobilenet SSD will work through this pipeline. We have not released the corresponding tflite files in open source. If you encounter issues, please file a bug.@chanchanzhang as @achowdhery said, please use `object_detection/export_tflite_ssd_graph.py` rather than `optimized_for_inference.py`. And the tflite model file I used is from the one used by Android example. You can get it [here](https://storage.googleapis.com/download.tensorflow.org/models/tflite/coco_ssd_mobilenet_v1_0.75_quant_2018_06_29.zip).
+
+@achowdhery I think there are not FakeQuant nodes and tensors in checkpoints of [ssd_mobilenet_v1_quantized_coco](http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_quantized_300x300_coco14_sync_2018_07_03.tar.gz)  and [ssd_mobilenet_v1_0.75_depth_quantized_coco](http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_0.75_depth_quantized_300x300_coco14_sync_2018_07_03.tar.gz). Could you check them?@freedomtan I do see weight_quant and act_quant nodes in the exported graph after using object_detection/export_tflite_ssd_graph.py.
+Please give a screenshot or exact instructions of how you verified it has no Fakequant nodes.
+I am also able to successfully convert the checkpoints@achowdhery Thanks for checking. When I ran `export_tflite_ssd_graph.py` on those two, I couldn't get tflite models, so I inspected checkpoints. What I did is something like
+
+```
+curl http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_quantized_300x300_coco14_sync_2018_07_03.tar.gz | tar xzvf -
+cd ssd_mobilenet_v1_quantized_300x300_coco14_sync_2018_07_03
+strings model.ckpt.index  |grep quant
+```
+Nothing shows up.@andrewharp Thank you so much for your cutosm inference class [TFLiteObjectDetectionAPIModel.java](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/lite/examples/android/src/org/tensorflow/demo/TFLiteObjectDetectionAPIModel.java)  , I've tried it with your ssd mobilenet v1 tflite  [mobilenet_ssd_tflite_v1.zip](https://storage.googleapis.com/download.tensorflow.org/models/tflite/mobilenet_ssd_tflite_v1.zip) but when the app starts seems there is  problem in the function recognizeImage(final Bitmap bitmap) when i call tfLite.runForMultipleInputsOutputs(inputArray, outputMap); it throws this exception 
+
+```
+07-18 10:37:02.416 19957-19996/com.app.cerist.realtimeobjectdetectionapi E/AndroidRuntime: FATAL EXCEPTION: Camera
+    Process: com.app.cerist.realtimeobjectdetectionapi, PID: 19957
+    java.lang.IllegalArgumentException: Output error: Outputs do not match with model outputs.
+        at org.tensorflow.lite.Interpreter.runForMultipleInputsOutputs(Interpreter.java:170)
+        at com.app.cerist.realtimeobjectdetectionapi.ImageClassifierTFLiteAPI.recognizeImage(ImageClassifierTFLiteAPI.java:207)
+        at com.app.cerist.realtimeobjectdetectionapi.MainActivity.classifyFrame(MainActivity.java:421)
+        at com.app.cerist.realtimeobjectdetectionapi.MainActivity.access$1000(MainActivity.java:48)
+        at com.app.cerist.realtimeobjectdetectionapi.MainActivity$4.run(MainActivity.java:455)
+        at android.os.Handler.handleCallback(Handler.java:739)
+        at android.os.Handler.dispatchMessage(Handler.java:95)
+        at android.os.Looper.loop(Looper.java:159)
+        at android.os.HandlerThread.run(HandlerThread.java:61)
+07-18 10:37:02.436 19957-19996/com.app.cerist.realtimeobjectdetectionapi V/Process: killProcess [19957] Callers=com.android.internal.os.RuntimeInit$UncaughtHandler.uncaughtException:99 java.lang.ThreadGroup.uncaughtException:693 java.lang.ThreadGroup.uncaughtException:690 <bottom of call stack> 
+07-18 10:37:02.436 19957-19996/com.app.cerist.realtimeobjectdetectionapi I/Process: Sending signal. PID: 19957 SIG: 9
+```
+
+the error said that the length of outputs array is bigger than the length of inputs array
+Here is the condition in Interpreter.java
+
+``` 
+public void runForMultipleInputsOutputs(Object[] inputs, @NonNull Map<Integer, Object> outputs) {
+        if (this.wrapper == null) {
+            throw new IllegalStateException("Internal error: The Interpreter has already been closed.");
+        } else {
+            Tensor[] tensors = this.wrapper.run(inputs);
+            if (outputs != null && tensors != null && outputs.size() <= tensors.length) {
+                int size = tensors.length;
+                Iterator var5 = outputs.keySet().iterator();
+            }
+       }
+}
+```
+
+and this is my inputs and outputs arrays : 
+
+```      
+d.imgData = ByteBuffer.allocateDirect(1 * d.inputSize * d.inputSize * 3 * numBytesPerChannel);
+d.imgData.order(ByteOrder.nativeOrder());
+d.intValues = new int[d.inputSize * d.inputSize];
+```
+
+```
+ imgData.rewind();
+        for (int i = 0; i < inputSize; ++i) {
+            for (int j = 0; j < inputSize; ++j) {
+                int pixelValue = intValues[i * inputSize + j];
+                if (isModelQuantized) {
+                    // Quantized model
+                    imgData.put((byte) ((pixelValue >> 16) & 0xFF));
+                    imgData.put((byte) ((pixelValue >> 8) & 0xFF));
+                    imgData.put((byte) (pixelValue & 0xFF));
+                } else { // Float model
+                    imgData.putFloat((((pixelValue >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
+                    imgData.putFloat((((pixelValue >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
+                    imgData.putFloat(((pixelValue & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
+```
+
+The outputs array :
+
+```
+// Copy the input data into TensorFlow.
+        Trace.beginSection("feed");
+        outputLocations = new float[1][NUM_DETECTIONS][4];
+        outputClasses = new float[1][NUM_DETECTIONS];
+        outputScores = new float[1][NUM_DETECTIONS];
+        numDetections = new float[1];
+
+        Object[] inputArray = {imgData};
+        Map<Integer, Object> outputMap = new HashMap<>();
+        outputMap.put(0, outputLocations);
+        outputMap.put(1, outputScores);
+        outputMap.put(2, numDetections);
+        outputMap.put(3, outputClasses);
+        Trace.endSection();
+```
+
+And the Inference :
+```
+// Run the inference call.
+        Trace.beginSection("run");
+        Log.d("TAG_INPUT",""+String.valueOf(inputArray.length));
+        Log.d("TAG_OUTPUT",""+String.valueOf(outputMap.size()));
+
+        tfLite.runForMultipleInputsOutputs(inputArray, outputMap);
+        Trace.endSection();
+```
+
+I didn't understand the meaning of this Error cuz i did exactly the same as your TFLiteObjectDetectionAPIModel.java class .
+thank you for Help
+@achowdhery  Hi, following your blog I converted the model from ssd_mobilenet_v1_coco_2017_11_17. However when I used the converted mobilenet_ssd.tflite in tflite_demo.apk, I got the following error:
+```
+    java.lang.IllegalArgumentException: Cannot copy between a TensorFlowLite tensor with shape [1, 1917, 4] and a Java object with shape [1, 10, 4].
+```
+
+Any ideas why I got it? Thanks.This is a shape mismatch because the expected output tensor is 1,10,4 in size not 1,1917,4. For the old model file, you will need to regress to the demo app version of May. Otherwise please use the latest released models for conversion.@achowdhery I converted my own model to tflite and when I run it. The interpreter->invoke() call throws a seg fault. Any idea what might be wrong?@ashwaniag Do the downloaded models on https://medium.com/tensorflow/training-and-serving-a-realtime-mobile-object-detector-in-30-minutes-with-cloud-tpus-b78971cf1193
+compile for you?
+If yes, then please provide new instructions you are using now when you get seg fault?
+There could be a mismatch in input type/size etc.@achowdhery  It worked. I was giving the wrong input_arrays. Thanks anyways!updated [ssd_mobilenet_v1_quantized_coco](http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_quantized_300x300_coco14_sync_2018_07_18.tar.gz) and [ssd_mobilenet_v1_0.75_depth_quantized_coco](http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_0.75_depth_quantized_300x300_coco14_sync_2018_07_18.tar.gz) work, if you followed the tutorial. Thanks @achowdhery.I was looking at `TFLiteObjectDetectionAPIModel.java` in the example demo app. Is there a reason that `outputLocations`, `outputClasses`, `outputScores` and `numDetections` are allocated on each `recognizeImage` call [here](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/lite/examples/android/app/src/main/java/org/tensorflow/demo/TFLiteObjectDetectionAPIModel.java#L179)? It seems that they are meant to be preallocated.
+I've tried running the code with preallocation and it seems to work fine, but I just wanted to make sure there's nothing going under the covers that would introduce problems later.Preallocating is probably more efficient. Where are you preallocating that you may foresee problems?thanks for the reply @achowdhery. I'm leaving preallocation in the static `create` method as is. My only concern was that the code seems to be written to use preallocation (the static method preallocates the arrays), but for some reason the arrays are reallocated on each call.hi @achowdhery , I tested the new Android tflite app demo. It works perfectly for **ssd_mobilenet_v1_coco, ssd_mobilenet_v1_0.75_depth_coco, ssd_mobilenet_v1_quantized_coco**.
+But I got this exception for the other ssd-mobilenet models:
+```
+07-25 07:41:25.292 31515-31532/org.tensorflow.lite.demo E/AndroidRuntime: FATAL EXCEPTION: inference
+    Process: org.tensorflow.lite.demo, PID: 31515
+    java.lang.ArrayIndexOutOfBoundsException: length=160; index=-2147483648
+        at java.util.Vector.elementData(Vector.java:734)
+        at java.util.Vector.get(Vector.java:750)
+        at org.tensorflow.demo.TFLiteObjectDetectionAPIModel.recognizeImage(TFLiteObjectDetectionAPIModel.java:218)
+        at org.tensorflow.demo.DetectorActivity$3.run(DetectorActivity.java:249)
+        at android.os.Handler.handleCallback(Handler.java:790)
+        at android.os.Handler.dispatchMessage(Handler.java:99)
+        at android.os.Looper.loop(Looper.java:164)
+        at android.os.HandlerThread.run(HandlerThread.java:65)
+
+```
+The tflite model produced wrong class index. The exception makes app crash after detect well for couple of seconds.
+**ssd_mobilenet_v1_ppn_coco** produces wrong messy bounding box, label as well.PPN is a float model: are you converting the TFLITE model using float conversion commands.
+https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/running_on_mobile_tensorflowlite.md
+Then you also need to change the following in DetectorActivity.java:
+private static final boolean TF_OD_API_IS_QUANTIZED = true;I knew that config. Actually when that config is wrong, the app cannot run at all.
+Could you see the ArrayIndexOutOfBoundsException? I also tried your tutorial's docker, but it's same.Okay. please file a new GitHub issue with exact repro instructions.  PPN model is a new feature request for java app -  We will reply when we can prioritize itThanks. The ArrayIndexOutOfBoundsException also happen to ssd_mobilenet_v1_0.75_depth_quantized_coco, ssdlite_mobilenet_v2_coco. The difference from PPN is that makes correct results before the app crashed by that exception.@achowdhery Is there anyway to train quantize model with 4 outputs for tflite using legacy/train.py since the new model_main.py has bugs?
+https://github.com/tensorflow/models/issues/4798@ashwaniag You can diff the two code and add the part that adds quantization: Note that graph_rewriter function is where quantization ops get added.@achowdhery : https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/running_on_mobile_tensorflowlite.md 
+is there an example or sample code of how to do the same in iOS. So far the closest thing i found has been this https://github.com/YijinLiu/tf-cpu/blob/master/benchmark/obj_detect_lite.cc which it does not always work.
+
+the current iOS demo app does not work with ssd and float model. @achowdhery I trained my model using tensorflow v1.9. Converted to tflite using the steps in the blog. I do not get any detections. Do you have any idea about this?@ashwaniag COCO or pets? Please open a new bug with exact repro instructions. Other GitHub users have confirmed its working with Tensorflow 1.10@achowdhery It is my own dataset. I trained for mobilenetv2 architecture. When I run the .pb model (tensorflow model), I get 
+Not found: Op type not registered 'NonMaxSuppressionV3' in binary running on VAL5-04. Make sure the Op and Kernel are registered in the binary running in this process.
+
+Do you think its related?@ashwaniag Please open a new bug and provide exact reproducible instructions@ashwaniag check these both issues, i had a similar problem : [#10254](https://github.com/tensorflow/tensorflow/issues/10254) and [#19854](https://github.com/tensorflow/tensorflow/issues/19854)@achraf-boussaada Thank you! I fixed it. It was a version mismatch issue.
+@achowdhery Now, the problem is that the full tensorflow model gives me great results but the tflite model gives very bad results.@ashwaniag Please define very bad results. Do you have small objects? Please attach a model checkpoint, pipeline config and label file as well as a sample image to help us reproduce the issue. Thanks@oopsodd   hello, I get a wrong class index either . it complained "java.lang.ArrayIndexOutOfBoundsException: length=10; index=-739161663", Can you help me ?Note I have created TensorFlow Lite SSD (Object Detection) minimal working examples for iOS and Android; https://github.com/baxterai/tfliteSSDminimalWorkingExample. The iOS version is based on obj_detect_lite.cc by YijinLiu (with nms function by WeiboXu), and the Android version is based on https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/lite/examples/android tflDetect. It removes all overhead like the internal camera, and isolates the core code required to detect objects and display the detection boxes.@baxterai great work! thanks, I will test it.Thanks for your amazing work everybody! I have another question regarding the recently added postprocessing operation.
+
+The output of the pretrained **ssd_mobilenet_v1_quantized_coco**
+is currently limited to the top **10** detections in the frame, even though the default configs in models/research/object_detection/samples/configs/ like  
+ssd_mobilenet_v1_quantized_300x300_coco14_sync.config all specify a higher limit of total detections.
+
+ `    post_processing {
+      batch_non_max_suppression {
+        score_threshold: 1e-8
+        iou_threshold: 0.6
+        max_detections_per_class: 100
+        max_total_detections: 100
+      }
+      score_converter: SIGMOID
+    }`
+
+is this resolved by retraining the network with this pipeline configuration or is the dimensionality of 
+'TFLite_Detection_PostProcess' fixed to 10 by other configurations?@Georg-W You will need to change max detection in export_tflite_ssd_graph.py as well. There is a command line option.@achowdhery ah thank you ! Thats what I missed.> @andrewharp Thank you so much for your cutosm inference class [TFLiteObjectDetectionAPIModel.java](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/lite/examples/android/src/org/tensorflow/demo/TFLiteObjectDetectionAPIModel.java) , I've tried it with your ssd mobilenet v1 tflite [mobilenet_ssd_tflite_v1.zip](https://storage.googleapis.com/download.tensorflow.org/models/tflite/mobilenet_ssd_tflite_v1.zip) but when the app starts seems there is problem in the function recognizeImage(final Bitmap bitmap) when i call tfLite.runForMultipleInputsOutputs(inputArray, outputMap); it throws this exception
+> 
+> ```
+> 07-18 10:37:02.416 19957-19996/com.app.cerist.realtimeobjectdetectionapi E/AndroidRuntime: FATAL EXCEPTION: Camera
+>     Process: com.app.cerist.realtimeobjectdetectionapi, PID: 19957
+>     java.lang.IllegalArgumentException: Output error: Outputs do not match with model outputs.
+>         at org.tensorflow.lite.Interpreter.runForMultipleInputsOutputs(Interpreter.java:170)
+>         at com.app.cerist.realtimeobjectdetectionapi.ImageClassifierTFLiteAPI.recognizeImage(ImageClassifierTFLiteAPI.java:207)
+>         at com.app.cerist.realtimeobjectdetectionapi.MainActivity.classifyFrame(MainActivity.java:421)
+>         at com.app.cerist.realtimeobjectdetectionapi.MainActivity.access$1000(MainActivity.java:48)
+>         at com.app.cerist.realtimeobjectdetectionapi.MainActivity$4.run(MainActivity.java:455)
+>         at android.os.Handler.handleCallback(Handler.java:739)
+>         at android.os.Handler.dispatchMessage(Handler.java:95)
+>         at android.os.Looper.loop(Looper.java:159)
+>         at android.os.HandlerThread.run(HandlerThread.java:61)
+> 07-18 10:37:02.436 19957-19996/com.app.cerist.realtimeobjectdetectionapi V/Process: killProcess [19957] Callers=com.android.internal.os.RuntimeInit$UncaughtHandler.uncaughtException:99 java.lang.ThreadGroup.uncaughtException:693 java.lang.ThreadGroup.uncaughtException:690 <bottom of call stack> 
+> 07-18 10:37:02.436 19957-19996/com.app.cerist.realtimeobjectdetectionapi I/Process: Sending signal. PID: 19957 SIG: 9
+> ```
+> the error said that the length of outputs array is bigger than the length of inputs array
+> Here is the condition in Interpreter.java
+> 
+> ```
+> public void runForMultipleInputsOutputs(Object[] inputs, @NonNull Map<Integer, Object> outputs) {
+>         if (this.wrapper == null) {
+>             throw new IllegalStateException("Internal error: The Interpreter has already been closed.");
+>         } else {
+>             Tensor[] tensors = this.wrapper.run(inputs);
+>             if (outputs != null && tensors != null && outputs.size() <= tensors.length) {
+>                 int size = tensors.length;
+>                 Iterator var5 = outputs.keySet().iterator();
+>             }
+>        }
+> }
+> ```
+> and this is my inputs and outputs arrays :
+> 
+> ```
+> d.imgData = ByteBuffer.allocateDirect(1 * d.inputSize * d.inputSize * 3 * numBytesPerChannel);
+> d.imgData.order(ByteOrder.nativeOrder());
+> d.intValues = new int[d.inputSize * d.inputSize];
+> ```
+> ```
+>  imgData.rewind();
+>         for (int i = 0; i < inputSize; ++i) {
+>             for (int j = 0; j < inputSize; ++j) {
+>                 int pixelValue = intValues[i * inputSize + j];
+>                 if (isModelQuantized) {
+>                     // Quantized model
+>                     imgData.put((byte) ((pixelValue >> 16) & 0xFF));
+>                     imgData.put((byte) ((pixelValue >> 8) & 0xFF));
+>                     imgData.put((byte) (pixelValue & 0xFF));
+>                 } else { // Float model
+>                     imgData.putFloat((((pixelValue >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
+>                     imgData.putFloat((((pixelValue >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
+>                     imgData.putFloat(((pixelValue & 0xFF) - IMAGE_MEAN) / IMAGE_STD);
+> ```
+> The outputs array :
+> 
+> ```
+> // Copy the input data into TensorFlow.
+>         Trace.beginSection("feed");
+>         outputLocations = new float[1][NUM_DETECTIONS][4];
+>         outputClasses = new float[1][NUM_DETECTIONS];
+>         outputScores = new float[1][NUM_DETECTIONS];
+>         numDetections = new float[1];
+> 
+>         Object[] inputArray = {imgData};
+>         Map<Integer, Object> outputMap = new HashMap<>();
+>         outputMap.put(0, outputLocations);
+>         outputMap.put(1, outputScores);
+>         outputMap.put(2, numDetections);
+>         outputMap.put(3, outputClasses);
+>         Trace.endSection();
+> ```
+> And the Inference :
+> 
+> ```
+> // Run the inference call.
+>         Trace.beginSection("run");
+>         Log.d("TAG_INPUT",""+String.valueOf(inputArray.length));
+>         Log.d("TAG_OUTPUT",""+String.valueOf(outputMap.size()));
+> 
+>         tfLite.runForMultipleInputsOutputs(inputArray, outputMap);
+>         Trace.endSection();
+> ```
+> I didn't understand the meaning of this Error cuz i did exactly the same as your TFLiteObjectDetectionAPIModel.java class .
+> thank you for Help
+
+i have the same issue.. got solution?
+thanks..> @Georg-W You will need to change max detection in export_tflite_ssd_graph.py as well. There is a command line option.
+
+Hi 
+
+I'm trying to detect more than 10 objects in the image ( which is default )
+I'm usin the following commands:
+bazel run -c opt tensorflow/contrib/lite/toco:toco -- --input_file=$OUTPUT_DIR/tflite_graph.pb --output_file=$OUTPUT_DIR/mobile_net_500.tflite --input_shapes=1,300,300,3 --input_arrays=normalized_input_image_tensor --output_arrays='TFLite_Detection_PostProcess','TFLite_Detection_PostProcess:1','TFLite_Detection_PostProcess:2','TFLite_Detection_PostProcess:3' --inference_type=FLOAT --max_detections=500 --max_classes_per_detection=1 --allow_custom_ops 
+
+I also modified 
+export_tflite_ssd_graph.py
+flags.DEFINE_integer('max_detections', 500 <--- instead of 10,
+'Maximum number of detections (boxes) to show.')
+flags.DEFINE_integer('max_classes_per_detection', 1,
+'Number of classes to display per detection box.')
+
+but still giving 10 objects as output in the android [1,10,4].
+
+any idea?I would be also interested in the solution of  @KaviSanth issue.This solution of @Stevelb should work. You may want to visualize the frozen graph to make sure that max_detections is set correctly.@achowdhery  Thank you for your reply. I tried to execute the commands written by @andrewharp but I get the following error. Indeed, toco isn't located at this place. I am using the master version and the r1.95 version from the github repository.
+
+bazel run tensorflow/contrib/lite/toco:toco -- --input_file=$STRIPPED_PB --output_file=$DETECT_FB --input_format=TENSORFLOW_GRAPHDEF --output_format=TFLITE --input_shapes=1,300,300,3 --input_arrays=Preprocessor/sub --output_arrays=concat,concat_1 --inference_type=FLOAT --logtostderr
+INFO: Invocation ID: 0e58a5ef-9fee-4619-b760-aeb1c83c9661
+ERROR: Skipping 'tensorflow/contrib/lite/toco:toco': no such package 'tensorflow/contrib/lite/toco': BUILD file not found on package path
+WARNING: Target pattern parsing failed.
+ERROR: no such package 'tensorflow/contrib/lite/toco': BUILD file not found on package path
+INFO: Elapsed time: 0.179s
+INFO: 0 processes.
+FAILED: Build did NOT complete successfully (0 packages loaded)
+FAILED: Build did NOT complete successfully (0 packages loaded)
+ I have to amend that I am executing those commands from my local tensorflow folder that was pulled from the git.
+
+I could find a toco under tensorflow/lite/toco and I am just testing whether it works.
+ok, it seems to work using this toco and apart from that you have to change the $DETECT_FB path to $PWD/ssd_mobilenet.tflite since in the contrib/lite folder only some python is located an nothing else. There appears a runtime error when adding the .tflite file in the DetectorActivity from https://github.com/tensorflow/tensorflow/tree/master/tensorflow/examples/android (https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/android/src/org/tensorflow/demo/DetectorActivity.java) with the line 
+```
+private static final String TF_OD_API_MODEL_FILE =
+            "file:///android_asset/ssd_mobilenet_v1.tflite";
+```
+
+E/AndroidRuntime: FATAL EXCEPTION: main
+    Process: myProcess, PID: 32611
+    java.lang.RuntimeException: Failed to find input Node 'image_tensor'
+        at myPackage.myClass.TensorFlowObjectDetectionAPIModel.create(TensorFlowObjectDetectionAPIModel.java:106)
+
+Is it not possible to use .tflite models in that app?@defaultUser3214 you are using a classifier model in the detection app. MobileNet v1 is classification model. Please use MobileNet SSD model@achowdhery Thank you! Using the model from wget http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_2017_11_17.tar.gz resulted in that error. But I thought that this was the ssd version?
+
+But using the ssd_mobilenet_v1_android_export.pb converted to .tflite that worked as .pb before produces the same error.@defaultUser3214 Thats an old version of the model that will not work in latest demo app released in July 2018. Please download the latest models in July 2018 in detection model zoo : they do work in the app. Please open a new issue if this is still blocked.@SteveIb   You also need to change  NUM_DETECTIONS = 500 in TFLiteObjectDetectionAPIModel.javanot able to convert ssdmobilenet v1 .pb to .tflite 
+pb generated through Tensorflow object detection api @aselle  @achowdhery Any progress on this? Trying to convert frozen_inference_graph.pb to .TFLITE file but getting error
+
+`java.lang.IllegalArgumentException: Cannot convert between a TensorFlowLite buffer with 49152 bytes and a ByteBuffer with 270000 bytes`
+
+For custom object detection in Android. Any ideas on different conversion methods? Transfer learned ssd_mobilenet_v1_pets on Windows 10 following the tutorial here: https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10> Any progress on this? Trying to convert frozen_inference_graph.pb to .TFLITE file but getting error
+> 
+> `java.lang.IllegalArgumentException: Cannot convert between a TensorFlowLite buffer with 49152 bytes and a ByteBuffer with 270000 bytes`
+> 
+> For custom object detection in Android. Any ideas on different conversion methods? Transfer learned ssd_mobilenet_v1_pets on Windows 10 following the tutorial here: https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10
+
+Just to follow up on this and to help anyone else who was having the same error - this is caused by using an incorrect model checkpoint to train from. To work on Android with .tflite, the initial model must MobileNet and must also be quantized and will have this section of code or something similar in the .config file: 
+
+`graph_rewriter {
+  quantization {
+    delay: 48000
+    weight_bits: 8
+    activation_bits: 8
+  }
+}`
+> It's live now at [tensorflow/contrib/lite/examples/android](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/lite/examples/android)! This is a more complete port of the original TF Android demo (only lacking the Stylize example), and will be replacing the other demo in tensorflow/contrib/lite/java/demo going forward.
+> 
+> A converted TF Lite flatbuffer can be found in [mobilenet_ssd_tflite_v1.zip](https://storage.googleapis.com/download.tensorflow.org/models/tflite/mobilenet_ssd_tflite_v1.zip), and you can find the Java inference implementation in [TFLiteObjectDetectionAPIModel.java](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/lite/examples/android/src/org/tensorflow/demo/TFLiteObjectDetectionAPIModel.java). Note that this differs from the original TF implementation in that the boxes must be manually decoded in Java, and a box prior txt file needs to be packaged in the apps assets (I think the one included in the model zip above should be valid for most graphs).
+> 
+> During TOCO conversion a different input node (Preprocessor/sub) is used, as well as different output nodes (concat,concat_1). This skips some parts that are problematic for tflite, until either the graph is restructured or TF Lite reaches TF parity.
+> 
+> Here are the quick steps for converting an SSD MobileNet model to tflite format and building the demo to use it:
+> 
+> ```
+> # Download and extract SSD MobileNet model
+> wget http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_2017_11_17.tar.gz
+> tar -xvf ssd_mobilenet_v1_coco_2017_11_17.tar.gz 
+> DETECT_PB=$PWD/ssd_mobilenet_v1_coco_2017_11_17/frozen_inference_graph.pb
+> STRIPPED_PB=$PWD/frozen_inference_graph_stripped.pb
+> DETECT_FB=$PWD/tensorflow/contrib/lite/examples/android/assets/mobilenet_ssd.tflite
+> 
+> # Strip out problematic nodes before even letting TOCO see the graphdef
+> bazel run -c opt tensorflow/python/tools/optimize_for_inference -- \
+> --input=$DETECT_PB  --output=$STRIPPED_PB --frozen_graph=True \
+> --input_names=Preprocessor/sub --output_names=concat,concat_1 \
+> --alsologtostderr
+> 
+> # Run TOCO conversion.
+> bazel run tensorflow/contrib/lite/toco:toco -- \
+> --input_file=$STRIPPED_PB --output_file=$DETECT_FB \
+> --input_format=TENSORFLOW_GRAPHDEF --output_format=TFLITE \
+> --input_shapes=1,300,300,3 --input_arrays=Preprocessor/sub \
+> --output_arrays=concat,concat_1 --inference_type=FLOAT --logtostderr
+> 
+> # Build and install the demo
+> bazel build -c opt --cxxopt='--std=c++11' //tensorflow/contrib/lite/examples/android:tflite_demo
+> adb install -r -f bazel-bin/tensorflow/contrib/lite/examples/android/tflite_demo.apk
+> ```
+
+This works like a charm!

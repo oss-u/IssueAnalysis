@@ -1,0 +1,540 @@
+Since we haven't agreed on this yet, I'm opening an issue instead of writing an IPEP. If this is agreed on, I'll write an IPEP.
+
+The week before last, ellisonbg and I brainstormed about Jupyter packaging. As I remember it, the best solution we came up with requires a combination of Python packaging entry points, a new message type, and static asset caching in the web server. This is my understanding of how this solution would work my notes from our meeting are at home, and my apartment is being fumigated, so I don't have access to them.
+ Jupyter level, kernel extensions
+
+ LINKLINK 
+A new message, the first, in blue would be added, allowing the server to ask the kernel if the static assets it knows about, associated with that kernel, is correct. The message would be a dict of static asset path and contents hashes.
+
+The same message in the opposite direction is the kernel's response. It would be some type of data structure, maybe a binary message, containing static asset paths and their contents, and a list of the static assets that can be deleted from the cache.
+
+A second new message in red, would be added that would allow the kernel to invoke a require. js call in the front end. This is preferred over standard display JS calls, because the notebook contents will remain unaffected.
+ IPython level, kernel extensions
+
+Python entry points will be used as a registry. Two entry points will be defined: an entry point for code to run when the kernel is started. an entry point for a method that returns static assets paths.
+ Jupyter level, server extensions and notebook extensions
+
+Python entry points will be used as a registry. Three entry points will be defined: an entry point for code to run when the server is started. an entry point for a method that returns static assets paths. an entry point for a paths to be CODESCODES ed when the notebook page loads.
+
+ EDIT 
+To help the discussion, issues and specific cases are listed here: LINKLINK 
+
+
+
+
+I certainly like this approach. It makes sure that assets are based on the kernel runtime rather than associated with the overall notebook server or other frontend.
+
+Can path be remote or local, depending on the author's implementation?
+It breaks the assumption that the kernel does not know it is in a notebook js environment, and make it complicated to map kernel path, to server path, to frontend path. 
+
+The Python packaging registry is not language agnostic. It forces each kernel s to reimplement a static webserver, our server only act as a proxy.
+
+I can see a problem with identical path in many kernels. Once one is cached, it shadows other kernels resources. or you install a new version, and restart your kernel. You get the cached versions. 
+
+Kernel authors will never bother to implement delete messages.
+
+
+If you include the require bits, I'd say that's true. However, treating this as a resource query and response relative to the kernel does not make it coupled to the notebook. We'd want this for any other HTML based frontends, including LINKLINK.
+
+I'm not in agreement about this using a Python packaging registry, as I think resources should be installed per kernel.
+
+
+
+Don't you think that would effect their users negatively enough that eventually they would?
+The kernel knowing about static assets and telling the server seems problematic. I think if the kernel is being asked about the assets, it should be responsible for serving them, as well.
+
+
+No they won't thay are developper, it work for them if they restart the server, which they do every 10 minutes. 
+
+
+
+Nothing tell you that resources will be the same for hydrogen and the notebook.
+
+
+I don't expect this to be a problem. Any resource fetched from a kernel should necessarily be served from a kernel specific path. So when kernel K is asked for resource R, the server maps it to CODESCODES, not CODESCODES, so kernels are not capable of collision with each other.
+
+I do think if we are going as far as making the Kernels responsible for static resources via messages, the most logical way to do that is to proxy requests to the Kernels themselves, and expect Kernels to run an HTTP server to serve the files. HTTP already has all the features we are describing here, I think.
+
+
+This statement isn't true. nbextensions aren't limited to kernel specific behavior. toc, slideshow, nbgrader, etc. would all not be addressed by the proposal, and continue to require nbextensions as it is.
+Hey guys, glad we are talking about this. Here are my responses.
+
+ rgbkrk 
+
+
+
+Sorry! I really should have clarified, path here means unique name. It can be whatever string the package author wants!
+
+ Carreau 
+
+
+
+The only piece of the above that the kernel authors need to implement is the single message, in blue.
+
+It's up to kernel authors to choose a mechanism equivalent to Python's entry points, or something that can be used as an alternative.
+
+
+
+No. 
+Webserver says hey these are assets I know about 
+Kernel says these are assets you are missing, and while you're at it delete these others 
+Kernel says load this asset which doesn't have to be JS 
+Webserver says to client load this asset which doesn't have to be JS 
+
+
+
+You missed the part where I mentioned caches are associated to specific kernels, by id.
+
+
+
+That means their kernels aren't up to spec.
+
+ minrk 
+
+
+
+But then if the kernel hangs, or is thinking, the assets are unavailable.
+
+
+Thanks for catching that! I'll edit my post.
+
+
+That's fair. Wait. How many ports are we talking then? That doesn't seem tractable unless those are proxied to the main notebook server.
+
+
+That's true, but how else are you going to get the resources from the kernel to the notebook server? It sounds like you have to either: assume shared filesystem, and make it impossible for kernels to be isolated or remote reimplement http over zmq, and fetch from the kernel anway
+
+
+I don't think we'd need to differentiate. The same way the rich display system works, if a front end can load an asset, it wont.
+I mean the JS could be different in notebook than in hydrogen. or rodeo, or thebe. do you introduce mimetype per frontend? 
+ minrk
+
+
+
+I'm certainly going to reject that one. Doesn't work right for thebe or any other remote context.
+
+
+
+At first I thought you were joking, then I assumed someone implemented that. Like this? LINKLINK 
+
+My thinking was that resources can be local paths or fully qualified URLs.
+
+
+One. The notebook server would proxy requests like CODESCODES to CODESCODES.
+
+There's also a question of whether these should be per kernel name or per kernel id. If it's per id, it's going to mean roughly 0 cache hits as every kernel instance would get its own URL.
+
+
+I may not understand, but this is what the cache is for. The webserver would ask the kernel about the assets once the kernel is started, and wouldn't need to later. 
+
+
+That is forcing knowledge of the notebook server onto the kernels. Do we really want to do that? I assumed not.
+
+
+Yes
+
+
+Cache only helps mitigate future requests, it still needs to get them from the kernel in the first place.
+
+
+
+So all resources are known ahead of time, and no new resources are requested during the lifetime of the kernel?
+
+
+This feels like the wrong way round to do things. The webserver shouldn't be telling the client what to load, the client should be asking the server for the things it determines it needs. Like the way widget display messages can include a require path for a module to load the view from. There are established mechanisms for caching to avoid loading the same thing twice.
+
+
+Yes, that was our thinking. It's totally possible we overlooked a use case where that was incorrect.
+
+Also, you could re request assets on kernel restart not just first start.
+I'm struggling to see what problems this solves. If we are assuming the kernel knows everything about the server's filesystem in order to tell the server where verything else, then what's the advantage of the kernel managing resources at all, if it can only manage them in a way that the server can understand and access?
+
+
+The widget display message does exactly that, hey load this 
+Does this mechanism provide any benefit over a CODESCODES directory?
+
+
+Possibly I misunderstood. It sounds like in your proposal, the server is just telling the frontend to load something, as a separate message from anything that might actually use it. The widget display messages say 'create this class, loading it from X if you need to'. Crucially, loading the resource is tightly tied to using it, which makes it easy to avoid the race conditions where something would try to use the resource just before it was loaded.
+
+
+If the client, webserver, and kernel exist on three different machines, it does.
+
+Also, the CODESCODES directory still has the problem of installation being a two step process yes this is a problem. This is where the kernel being in control of the asset locating offers a large benefit. Package writers can use methods native to their language for packaging static assets, for IPython & Python this is entry points.
+
+
+That's a good point, about the backend not being aware of when the resource is loaded. Unfortunatley this problem already exists in our current architecture. A solution would be to make the red message request response, so in the kernel the API could be implemented using an asynchronous design pattern.
+
+
+How? I don't see a mechanism for getting the files from the kernel to the webserver, only communicating paths, which require the filesystem to be the same.
+
+
+
+It also doesn't solve that problem, it just punts it to the kernel. How does the package communicate this information to the kernel, such that the kernel knows at startup, before any imports, what resources are available?
+If we use setuptools entrypoints for this, and communicate files from the kernel to the server at startup and only at startup, this means potentially 100s of MB of file transfer on every kernel startup to the web server. for example if a kernel plugin makes MathJax available, there's no mechanism to make the pieces available on request, which proxying http would do, instead it requires all possible resources to be moved at once to the server on every kernel start.
+
+
+The bit about request response makes sense to me, but I'm not sure what you mean about using async patterns in the kernel. I was thinking about race conditions in the frontend: if 'load this resource' and 'do something that needs that resource' are two separate messages, the 'do something' message can arrive before loading has finished, and then things get tricky. If the frontend requests with caching the resources as it needs them, you avoid this problem.
+Even if the caching works well, you will have to hash every resource at startup to validate the cache, rather than at request time. To get a sense of what order of magnitude this might have, try:
+
+ CODELCODEL 
+
+in the notebook repo
+
+
+This is why I apologized in my first response, path really should be name. What's being communicated in the message to the kernel are names & hashes of corresponding contents. And the other way is names and actual file contents. How the file contents make there way over the line is up for discussion, but I was thinking binary messages of some sort.
+
+
+
+Punting the problem to the kernel is the whole point. Python has a mechanism for this, entry points, which means it's solved for IPython and Jupyter which is all I'm concerned about. The generic messages allow other kernel authors to solve the problem how they want. for example IJulia will have to implement their own registry, but as long as they implement the messages, they can do it however they want.
+
+
+
+The caches stored in the web server would be persisted to the disk. On request, if a resource doesn't exist because blue message 2 hasn't been received yet, the request will be deferred until that message has been received. Once the message is received, if the content still doesn't exist, 404, otherwise respond with the contents.
+
+
+The 'do something' message, like the 'load this resource' message comes from the kernel. Hence, if the message is request response, 'load this resource' function in the kernel would return a defered or something, whatever is best for the language, in which, once it's resolved would send the 'do something' message.
+
+
+Yes, that could be a problem for the kernel. hmmm. I hope I don't sound ridiculous saying this, but you could cache the hashes in the kernel by the file name and timestamp.
+ jdfreder I'm not sure what the initial kernel server publish accomplishes. Why not load on first request for a given resource from the server, and cache that? It wouldn't have the unbounded cost at startup. It would be possible for the kernel to be slow on the first request of a particular resource if the kernel is busy, but I'm not sure that's worse than being slow on every startup.
+ CODELCODEL 
+Kyle machine is faster than mine: 
+
+ CODELCODEL 
+
+
+Not ridiculous, we probably should do that if we require publishing all resources at kernel start time. But now we're caching our cache, so we can cache while we cache thumbs up 
+I also feel that this thread is a let's abstract things in a way that will allow us to get an abstraction to abstract what we need to be abstracted to solve it. 
+
+
+But to implement that, you need the frontend to send a receipt right back to the kernel to acknowledge that the resource has been received. It's not enough for the kernel to know that it sent the resource, it has to wait until the frontend has received it. And then it needs to think about what to do if it doesn't get that receipt within a timeout, and so on.
+
+It really seems like it would be much simpler to have the frontend request resources when it's trying to do something that requires them. That's already the way HTTP+HTML works anyway, so it should be easier to implement.
+We should probably loop in kernel authors, but I would guess you can serve static resources with http is simpler than our own http lite.
+The scheme I'd want is to be able to request from the kernels, specific resources.
+
+If I have a notebook server, I want it on CODESCODES, for the sake of a standalone server, JupyterHub, etc.
+
+If I have a local app yes, I'm talking Electron Hydrogen Atom, then I probably want to get the local path.
+
+If the asset is external, loaded from a CDN, I should be able to get it in either case.
+Plus, if resources are actually kernel spec specific, rather than kernel instance specific like kernels: name static, but handled by the kernel, the resources could be served by a dedicated kernel that's not actually running code for a notebook, with only one resource serving kernel per spec.
+
+That might be a terrible idea, though.
+
+
+Yeah, this was my concern. Also, if the kernel is responsible for serving the files while the kernel is running user code which tells the front end to load a file, you may get a deadlock depending on how the 'load this resource' function is implemented.
+
+
+
+Needs to start somewhere: wink: 
+
+
+
+Yup.
+
+
+
+That's a small detail, which I'd hope the asynchronous pattern of choice could handle well.
+
+
+That's the kind I was thinking. Packages would install resources into that kernelspecs namespace CSS, JS, etc. 
+
+
+python 3.5 only, you need to use CODESCODES and CODESCODES.
+
+
+Depends on how lite. For the R kernel, I don't relish the idea of trying to integrate an HTTP server event loop with the loop listening on the ZMQ sockets which currently just uses zmq poll.
+
+
+
+
+
+I feel like we're talking at cross purposes here. I know it could all be solved with enough async cleverness. My point is that if you don't have this message asking the frontend to load a specific resource, you avoid the whole problem entirely, and the kernel code doesn't need to do clever async stuff.
+
+By analogy, when you request a web page, it contains references to images, JS etc. that the page requires. It doesn't try to tell the frontend to load those resources before loading the page: the frontend parses the page and requests the resources it needs.
+
+
+
+
+If I were writing this for IPython, I would run an HTTP server in a thread, so a deadlock should not be an issue, and even performance problems would be minimized unless the blocking execution is a single long running GIL holding call, which is rare. Even if we make this a zmq channel, I would make it a dedicated zmq channel, so it can be handled concurrently with execution without blocking, and I would still run it in a background thread in IPython, and not part of the shell channel dispatch loop.
+ takluyver I understand where you are coming from, but still don't see it as much of a problem and there is still the more important opinion problem of the two step install. Unless you're suggesting my third bullet, under the last section, is enough an entry point for a paths to be CODESCODES ed when the notebook page loads. 
+ rgbkrk how much better would it be for sidecar, etc. if we returned CODESCODES vs CODESCODES? I wouldn't expect it to be much.
+ rgbkrk said over Gitter we were a bit far in trying to discuss this
+Maybe it would be worth stating the problem, the consumers of the API, etc.
+User experience for those, UX for the notebook.
+
+I think this is a good idea. LINKLINK 
+ minrk Loading it in either case makes no difference. We can load resources from either of CODESCODES or CODESCODES just fine.
+
+I'm going to admit that I was aiming for purity of pulling local resources when using a local app, to limit how many web services are being run. It's a bit silly of me, considering that each running kernel has 5 open ports for ZMQ sockets.
+
+Either URL is fine.
+Hi all! I am excited that this discussion is happening. I just got back
+from traveling for the week and am now sick. I will try to catch up and
+provide comments. thanks for starting this jdfreder
+
+ Kyle Kelley 
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+Brian Granger
+Cal Poly State University, San Luis Obispo
+ ellisonbg on Twitter and GitHub
+ and 
+ minrk I'm starting to lean towards your idea of not having a cache, and here's an example of why I added it to the 'specifics' in the hackpad.
+
+py astronomy extension an extension that contains 100s of GB of image static assets. A widget is displayed in the front end that allows users to navigate through the images, one at a time. The webserver shouldn't duplicate all of the static assets, and unless the user views every single image, not all of the images should be sent over any network connection.
+ jdfreder you can still have a cache it could last for the lifetime of the server or kernel or some other metric. The main piece I find problematic is attempting to populate that cache all in one go, whether it's used or not, rather than at request time, like one does with HTTP.
+How about the following revision:
+
+ LINKLINK 
+ Browser handles the cache
+ Browser requests things to be loaded instead of kernel pushing them
+That seems more reasonable at a glance.
+I think that makes more sense. Is there any difference between the red and blue requests other than time? It seems like they are identical in content and structure, other than the time when the send.
+ minrk they could be the same, but there would have to be a standardized name for the asset that is requested by the messages in red. Something like notebook kernel assets, that the kernel would recognize and return a list of assets to be loaded on notebook page load, IPython would populate this using entry points for example.
+Can we turn this into an enhancement proposal?
+
+ cc parente
+If discussion of this is starting up again, jupyter notebook 839 is probably relevant. The proposal here solves part of the problem if all the static assets dependencies are known at notebook start and cell execution is blocked until all those assets load. If not, the kernel might emit JS that requires another dependency that is not yet loaded.
+
+Any web assets not known at notebook load time are still a problem.
+The R kernel discussed this or a subset of this problem recently: LINKLINK Basically: how should JS css libs for visualisations be handled
+
+The knitr rmarkdown system in R has this problem solved: the knit asis object kind of like the display data message gets styling in an extra attribute LINKLINK which lists dependencies each time such an object is produced and rmarkdown in this case in a similar role like the notebook frontend manages what is outputted in the final document. Knitr rmarkdown has is slightly easier, as it only makes one pass over the document and you can't reevaluate the notebook, so the solution here needs to handle reevaluating cells and removing styling when no cell references it and this needs to be in the on disc format as well. Also, the producer of the knit asis object has information about the final output format html latex and so knitmeta only contains stuff for that format.
+
+As such visualisations need to be available in html content which is derived from ipynb files nbconvert, nbviewer, github, I don't think any request from kernel steps can be part of a solution for this problem, as the ipynb file needs to have all such dependencies available. A solutions should also handle that different output formats html, latex, need different dependencies message format and stored in the ipynb.
+
+But this would also make the implementation for this easier:
+ The messaging format would need an update to handle assets, maybe by using CODESCODES with xxx js html latex. whatever the mimetype can handle 
+ The frontend would need to implement a deduplicator to only include this code only once per document and handle removals if reevaluation of cells is possible: 
+ the ipynb model would include each dependency only once new dependencies section in the json CODESCODES 
+ each cell contains only a reference to the hash of the dependency 
+ when new messages come in, all dependencies are moved to the dependency store and removed from the message, which is then normally handled. moved to the dependency store means, that each dependency is hashed and either newly included in the store and in the document in a special section, not the output area! or simply dropped.
+ periodically or on removal reevaluation, the dependency store is cleaned of all not anymore used dependencies and such dependencies are removed from the document. Or this only happens on save and the user would need to reload to clean up such libraries.
+
+The downside is that each time such a message is send, the whole dependency chain is send as well: But this is happening right now anyway and such dependencies are included in the ipynb file each tome. This will probably encourage the use of external dependencies URLs instead of files. Pandoc AFAIK can then include url content inline: 
+There are three or more! parts to write a specification for. The backend filesystem layout, how a frontend requests them is it direct, is it a url path in the notebook server CODESCODES, is it per running kernel, as well as how it ends up in the notebook document per cell, metadata across the notebook.
+
+
+
+Definitely. It seems like the approach you outlined for knitr is great for us all to think about in terms of the notebook janschulz. I prefer a URL based approach to asset requiring up until I'm offline which is fairly frequent. A big draw to our current format is that it works without having to be connected to the wider internet all the time.
+
+Since I also care about Hydrogen, Thebe, and other frontends beyond the notebook, my primary interest is in getting the backend specification done across kernels. One approach is for kernel spec directories to contain static assets:
+
+ CODELCODEL 
+
+What belongs in static I'm unsure of. Let's say we operated with npm packages underneath:
+
+ CODELCODEL 
+
+While this would work well for node based frontends LINKLINK, LINKLINK, LINKLINK, it would not work well on the main notebook or any other remote environment thebe, dashboards, etc. without also specifying how we do bundling webpack, browserify, etc.
+What is actually the problem here?
+ Too big ipynb files or too much in RAM because every plot includes jquery. again solved by properly labeling dependencies in the over the wire messages and deduplicating them in the frontend
+ too much send over the wire not solved by deduplicating in the frontend and must get a solution in the kernel or in a caching webserver if it acts as a proxy between kernel and frontend
+
+If the latter is a problem and one assumes that the kernelserver webserver and the kernel are on the same host and the frontend communicates with the kernel via the webserver, then the above labeled dependencies in the message plus a proxy which does caching and replaces dependencies with hashes which are then loaded from the webserver could work:
+
+ kernel sends message with css html labeled as dependency
+ proxy webserver replaces dependency with hashes
+ frontend finds hashes requests content from webserver
+ webserver sends content for hash or error message
+ frontend includes hash and dependency in json and sends the complete stuff to be saved or the frontend sends only hashes and the webserver replaces them 
+
+Going through LINKLINK, the above can be used to solve the ipywidget case widgets would add their js css dependecies on cell execution and these would be included when the notebook is reloaded but not the other three e. g is has nothing to with packaging extensions for the frontend or backend.
+To summarize the 3 areas we need to solve that rgbkrk listed: The backend filesystem layout of static assets. How a frontend requests them is it direct, is it a url path in the notebook server kernelspec ir static. is it per running kernel. How it ends up in the notebook document per cell, metadata across the notebook.
+
+On 1 my initial though is that because different deployment scenarios and frontend architetures will be so different, that we don't specify the filesytem layout. If we get into that, I can't imagine things get really difficult to reason about all of the different choices: inside outside Docker, using conda or not, electron or server, where is the kernel running. By this, I mean that a given frontend should be able the use the information from parts 2 3 and translate that into whatever filesytem layout is needed. The other issue is how to deal with a node modules that is effectively spread out all over the place between the main server and kernels. Do you end up with multiple deployment bundles? How do you deduplicate packages across them?
+
+On 2 is it not sufficient to specify all the things using npm package names and versions? If not, what is missing? I am concerned about making decisions at this level that assume particular bundling tools or path conventions.
+
+One 3 I do think it is pretty important that it is easy for track down all of the static assets for a single notebook, so those assets can be bundled in different contexts such as nbonvert static, etc. That would seem to point to notebook level metadata, but it probably also has to be in the cells that use those assets? Maybe both? Not sure.
+
+
+I'd say there's a 4th: how to deal with the asynchronicity of loading frontend assets with respect to kernel code execution. 
+
+For example, how do you ensure the future version of jupyter js widgets is done loading on the page before some CODESCODES decorator or the equivalent JS tries to instantiate a view when a user does a Run All?
+
+EDIT: s emails tries. thanks a lot autocorrect!
+
+
+We need to specify or even just explore the filesystem layout so that:
+ the server in 2 that is publishing assets actually knows how to load serve them
+ package authors and kernel authors need a place to install them
+
+If the answer continues to be nbextensions, we still run into the problem across multiple kernels.
+
+At least for kernel gateway and the notebook, whether they exist in Docker or not, it's the same local directory structure for that kernel.
+Ok, now I recall why there was hesitance to having a filesystem layout as outlined in this issue at the top: wink thumbs up. We would make the actual kernel serve the assets.
+
+
+What packages are you talking here and so I know if this affects the R kernel: R Python packages which the user uses in the code cells of the notebook and which implement functions which need to send js css dependencies? Or things like a nbextension which wants to install something so that the notebook has a new function? My above comments were only for the first case package which are executed in the code cells and if this is only about the second case, then I should open a new issue here: 
+I want to echo the issue that parente is adding to this PR and maybe the hardest to fix; the loading of dependency libraries and the right timing to render execute cell output. 
+
+As we've been working in declarativewidgets on a way to change how the user initializes the extension on a particular notebook, we've been struggling a lot with the 'chicken or the egg' problem. We've tried many things, and along the way, it was surprising to find out that on a page refresh, cell output is rendered before extensions are fully loaded. I guess the limitation is understandable after you think about the implications, but at least form me, that was an expectation.
+
+Anyway, I think that to fully understand this issue, we need to think about different scenarios on the client side and the timing of execution as it relates to kernel code and client side extension library. Here are some of the ones that I can think of. User creates a new notebook and executes a cell that requires some client side code. when is that cell really done User visits an existing notebook that is cleared of output but performs a Run all inter cell dependencies User saves a notebook with output and refreshes the browser. rendering of cell output in relation to dependencies being loaded User restarts the kernel and re run cells client side code is already loaded, should it be reinit 
+
+For all the above we need to answer:
+ when can cells be executed?
+ when can cell output be rendered?
+ when is the cell output done so that the next cell can execute
+
+
+I'm talking about any kernel, this definitely affects the R kernel. If for some reason the R kernel wants to use the frontend bits of ipywidgets yet is dependent on an older version than is installed or newer than the Python side installed into nbextensions, it would have problems. I'd like a way for frontend dependencies to be isolated to the environment they're running with and to provide a means for fetching them.
+
+
+That is likely the hardest to fix as it very much dictates how a frontend gets built.
+All the scenarios you outlined lbustelo I've run into in the current notebook in some way, or have assumed I would run into an issue. While developing a custom widget, this forced me to clear all output, restart the kernel, and hard refresh the page.
+All: can this issue be closed? If not, what next steps are required? thanks!I think we have basically solved this in JupyterLab and we don't have plans on back porting to the classic notebook as it would require a massive amount of work. Closing.Certainly going to agree there, we ran into too much difficulty with needing to continue support of requirejs. It's still a core problem that people want to be able to declare an asset once for the life of a document we're not solving this in Jupyter notebooks spec wise at least.As this is also a topic which is relevant to other clients kernels implementing the stuff: can someone give a pointer how to issue should now be handled? AT a first glance, I couldn't find anything about this in LINKLINK 
+
+E. g. how should a javascript library for example for a plot be sent from an R kernel so that it is cached in the frontend and doesn't need to be resent or at least not be saved multiple times?
+Both the classic notebook and jupyterlab have extension mechanisms. I will
+comment here on that of JupyterLab as it better represents how things will
+work in the future.
+
+ All frontend extensions are just npm packages. While one could bundle
+an npm package in a Python package, that is not required.
+ We are moving away from kernels sending JS code to the frontend as much a
+possible. While not an official position of the project, I can imagine that
+eventually we will remove JavaScript outputs as it is a huge security
+problem.
+ The frontend JS code is triggered by using various declarative message
+sent to the frontend. For things like plots, that would be to return a
+display message with a custom MIME type that has an installed npm
+package extension that is registered to render that MIME type.
+ Any kernel can send such a message and utilize the same frontend
+extension.
+ In no cases is it ever required for a kernel to send JS to the frontend.
+
+Cheers,
+
+Brian
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Brian Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+ ellisonbg on Twitter and GitHub
+ and 
+To add on, my position on javascript and html is that outputs should be sandboxed in an iframe. Within that iframe though, we should be able to load assets. ellisonbg Are there any examples, where a python R package implemented such a thing to display something? 
+
+Also, is there an implementation of a consumer of such new mime types, for example how would nbconvert handle such messages when converting to docx via pandoc and how would a package contribute a handler to such a consumer?
+
+Building a npm extension to display a R based plot sounds like a lot of work judging by my knowledge of npm and such stuff, it's probably for most R python devs something new to learn. On the R side, knitr is king and they have a very easy model with a way to display certain js html only once. It would be unfortunate if we can't match the ease to display something. So I would be very interested to see such examples. I'm interested to hear how knitr does it, since they receive such high praise from a lot of folks I work with.See here LINKLINK the Metadata section.
+
+The biggest difference between jupyter an knitr is that knitr is optimized for converting an object to single output format mostly markdown+html js and jupyter to display something in as much ways as possible. In contrast to jupyter, knitr knows all displayed objects as the complete document is converted and not like in the notebook, only a single cell. Knitr and the objects which get converted also know the final output format.
+
+To display something you would add a single dispatch implementation of the CODESCODES method for you data structure similar to IPythons display system for mpl CODESCODES. In it's low level implementation is returns a structure 'asis output which contains the representation of the object in the current output format and you can add a metadata object which contains stuff like javascript libs and css.
+
+From the above sections:
+
+ CODELCODEL 
+
+Knitr will then render the whole document, insert the object representation in the document and collect the meta objects. The meta objects will be made unique and then inserted in the head of the document. 
+
+When we implemented LINKLINK the equivalent of the ipython display system in the IRkernel, one big problem was that we couldn't reuse the CODESCODES implementations which almost every object in the R world has. The problem was that you can't be sure what kind of mimetype js, png, etc the knit print call would return, as a sometimes it's not markdown + js html and b sometimes an object can change the output based on the current final output format it's available in the CODESCODES argument to CODESCODES. On the other hand, you can't use the CODESCODES methods to implement a CODESCODES method, as we didn't add a way to add meta objects as the jupyter messages didn't have a way to handle such display only once stuff. 
+
+R also has a very nice way to create and display LINKLINK, which are then handled nicely by knitr knitr even LINKLINK to embedded in other than html formats. LINKLINK demonstrates one way to get JS to the notebook interface without re sending it every time: it copies JS to the nbextensions directory, and then sends code to load it from there. The limitation, of course, is that the JS does not become part of the notebook, so it's harder to share the notebook with all its output.
+
+So this is as best a workaround for python packages, but not kernels of other languages. It would also not work on nbviewer. Is that right? How would nbviewer actually handle plots from plotting libs which send their plot as a new mimetype?
+
+As for the question about support for new mimetypes on nbviewer, support has to be added. Plotly, Vega, geojson, and the new tables are the prime ones to bring in.Yes, the javascript in the python package is not ideal for non Python
+languages. That is why we are improving it in JupyterLab. But at this
+point, we don't have plans on fixing it in the classic notebook. We have
+actually attempted to fix it, but we would have to break all the APIs
+significantly to do so.
+
+My hope is that once JupyterLab stabilizes, we can use its notebook+output
+rendering packages to do client side rendering of notebooks on nbviewer,
+with the extensible MIME based output rendering.
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Brian Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+ ellisonbg on Twitter and GitHub
+ and 
+
+
+I don't think this is specific to Python kernels. It's convenient to reuse the existing Python function to install the nbextension, but all it's really doing is copying some files, and it wouldn't be hard to implement in another language.
+
+It does assume that the kernel is accessing the same filesystem as the server, which doesn't have to be true, but in practice it usually is.
+
+
+
+That is right.Re reading this from the future, and I want to add some clarification to this comment that prompted closing:
+
+
+
+JupyterLab does not solve this. I think it would be more accurate to say that JuptyerLab has instead committed to not solving this issue. The JupyterLab approach to extensions makes solving these target use cases that prompted this issue more difficult to impossible:
+
+ installing a kernel package not in the server env wants to deliver the required js at a minimum, requires runtime loaded js 
+ two kernels require incompatible versions of the same extension, for example myextension 2.0 and myextension 1.0 requires being able to load different versions of the same library in different notebooks, which is possible via nbextensions if installed with a version in the path, but impossible in JupyterLab, in my understanding, due to the monolithic app bundle 
+
+Instead, I would say that JupyterLab draws a more explicit line, that kernel packages and frontend packages are fundamentally separate, and to install a tool that has both frontend and backend components will always require two separate, explicit installation steps which may be encapsulated in a single metapackage install in the common case where the kernel and server are in the same env. I think the JupyterLab position is that kernel packages should never be able to deliver javascript to the frontend, and instead choose to communicate with mime types and protocols. There are plenty of reasons for working this way, but we shouldn't claim to have a solution to this issue.I agree that there's still a problem worth solving here. Today's workarounds require kernel packages to know what notebook client they are installed to. Suboptimal
+
+I think generically, Packages need to be able to define blobs. These blobs can then be loaded dynamically by the client by hash or by alias. Blobs don't have to be JS.
+
+Whether the blobs would be stored in the kernel, cached in the notebook server, stored in the notebook server, or a separate service is still unknown. Since I operate at a much lower capacity now, my hope is that you guys can take ownership of this and push it forward.

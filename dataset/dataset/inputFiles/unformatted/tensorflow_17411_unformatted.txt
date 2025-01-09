@@ -1,0 +1,549 @@
+### System information
+- **Have I written custom code (as opposed to using a stock example script provided in TensorFlow)**: No
+- **OS Platform and Distribution (e.g., Linux Ubuntu 16.04)**: Linux Ubuntu 16.04
+- **TensorFlow installed from (source or binary)**: binary
+- **TensorFlow version (use command below)**: 
+1.6.0-cp27-cp27mu-manylinux1_x86_64 (can only guess since `python -c "import tensorflow as tf; print(tf.GIT_VERSION, tf.VERSION)"` gives me an error already)
+- **Python version**: Python 2.7.12
+- **Exact command to reproduce**: `import tensorflow`
+
+I created a fresh virtual environment: `virtualenv -p python2 test_venv/`
+And installed tensorflow: `pip install --upgrade --no-cache-dir tensorflow`
+`import tensorflow` gives me `Illegal instruction (core dumped)`
+
+Please help me understand what's going on and how I can fix it. Thank you.
+
+CPU information:
+```
+-cpu
+          description: CPU
+          product: Intel(R) Core(TM) i3 CPU       M 330  @ 2.13GHz
+          bus info: cpu@0
+          version: CPU Version
+          capabilities: x86-64 fpu fpu_exception wp vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni dtes64 monitor ds_cpl vmx est tm2 ssse3 cx16 xtpr pdcm sse4_1 sse4_2 popcnt lahf_lm tpr_shadow vnmi flexpriority ept vpid dtherm arat cpufreq
+```
+*EDIT*
+Stacktrace obtained with gdb:
+
+```
+#0  0x00007fffe5793880 in std::pair<std::__detail::_Node_iterator<std::pair<tensorflow::StringPiece const, std::function<bool (tensorflow::Variant*)> >, false, true>, bool> std::_Hashtable<tensorflow::StringPiece, std::pair<tensorflow::StringPiece const, std::function<bool (tensorflow::Variant*)> >, std::allocator<std::pair<tensorflow::StringPiece const, std::function<bool (tensorflow::Variant*)> > >, std::__detail::_Select1st, std::equal_to<tensorflow::StringPiece>, tensorflow::StringPieceHasher, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::_M_emplace<std::pair<tensorflow::StringPiece, std::function<bool (tensorflow::Variant*)> > >(std::integral_constant<bool, true>, std::pair<tensorflow::StringPiece, std::function<bool (tensorflow::Variant*)> >&&) ()
+   from /media/gerry/hdd_1/ws_hdd/test_venv/local/lib/python2.7/site-packages/tensorflow/python/../libtensorflow_framework.so
+#1  0x00007fffe5795735 in tensorflow::UnaryVariantOpRegistry::RegisterDecodeFn(std::string const&, std::function<bool (tensorflow::Variant*)> const&) () from /media/gerry/hdd_1/ws_hdd/test_venv/local/lib/python2.7/site-packages/tensorflow/python/../libtensorflow_framework.so
+#2  0x00007fffe5770a7c in tensorflow::variant_op_registry_fn_registration::UnaryVariantDecodeRegistration<tensorflow::Tensor>::UnaryVariantDecodeRegistration(std::string const&) ()
+   from /media/gerry/hdd_1/ws_hdd/test_venv/local/lib/python2.7/site-packages/tensorflow/python/../libtensorflow_framework.so
+#3  0x00007fffe56ea165 in _GLOBAL__sub_I_tensor.cc ()
+   from /media/gerry/hdd_1/ws_hdd/test_venv/local/lib/python2.7/site-packages/tensorflow/python/../libtensorflow_framework.so
+#4  0x00007ffff7de76ba in call_init (l=<optimized out>, argc=argc@entry=2, argv=argv@entry=0x7fffffffd5c8, env=env@entry=0xa7b4d0)
+    at dl-init.c:72
+#5  0x00007ffff7de77cb in call_init (env=0xa7b4d0, argv=0x7fffffffd5c8, argc=2, l=<optimized out>) at dl-init.c:30
+#6  _dl_init (main_map=main_map@entry=0xa11920, argc=2, argv=0x7fffffffd5c8, env=0xa7b4d0) at dl-init.c:120
+#7  0x00007ffff7dec8e2 in dl_open_worker (a=a@entry=0x7fffffffb5c0) at dl-open.c:575
+#8  0x00007ffff7de7564 in _dl_catch_error (objname=objname@entry=0x7fffffffb5b0, errstring=errstring@entry=0x7fffffffb5b8, 
+    mallocedp=mallocedp@entry=0x7fffffffb5af, operate=operate@entry=0x7ffff7dec4d0 <dl_open_worker>, args=args@entry=0x7fffffffb5c0)
+    at dl-error.c:187
+#9  0x00007ffff7debda9 in _dl_open (
+    file=0x7fffea7cbc34 "/media/gerry/hdd_1/ws_hdd/test_venv/local/lib/python2.7/site-packages/tensorflow/python/_pywrap_tensorflow_internal.so", mode=-2147483646, caller_dlopen=0x51ad19 <_PyImport_GetDynLoadFunc+233>, nsid=-2, argc=<optimized out>, argv=<optimized out>, env=0xa7b4d0)
+    at dl-open.c:660
+#10 0x00007ffff75ecf09 in dlopen_doit (a=a@entry=0x7fffffffb7f0) at dlopen.c:66
+#11 0x00007ffff7de7564 in _dl_catch_error (objname=0x9b1870, errstring=0x9b1878, mallocedp=0x9b1868, operate=0x7ffff75eceb0 <dlopen_doit>, 
+    args=0x7fffffffb7f0) at dl-error.c:187
+#12 0x00007ffff75ed571 in _dlerror_run (operate=operate@entry=0x7ffff75eceb0 <dlopen_doit>, args=args@entry=0x7fffffffb7f0) at dlerror.c:163
+#13 0x00007ffff75ecfa1 in __dlopen (file=<optimized out>, mode=<optimized out>) at dlopen.c:87
+#14 0x000000000051ad19 in _PyImport_GetDynLoadFunc ()
+#15 0x000000000051a8e4 in _PyImport_LoadDynamicModule ()
+#16 0x00000000005b7b1b in ?? ()
+#17 0x00000000004bc3fa in PyEval_EvalFrameEx ()
+#18 0x00000000004c136f in PyEval_EvalFrameEx ()
+#19 0x00000000004b9ab6 in PyEval_EvalCodeEx ()
+#20 0x00000000004b97a6 in PyEval_EvalCode ()
+#21 0x00000000004b96df in PyImport_ExecCodeModuleEx ()
+#22 0x00000000004b2b06 in ?? ()
+#23 0x00000000004a4ae1 in ?? ()
+```
+
+*EDIT 2*
+Bazel version: N/A
+CUDA/cuDNN version: N/A
+GPU model and memory: N/A
+
+After downgrading to an older version of tensorflow the error goes away. I've been advised that my CPU (see information above) might not work with some improvements in the new API. If this is the case, I suppose there's no solution for my problem. Therefore, I will close this thread. Feel free to correct me though. Thank you for your supportThank you for your post. We noticed you have not filled out the following field in the issue template. Could you update them if they are relevant in your case, or leave them as N/A? Thanks.
+Bazel version
+CUDA/cuDNN version
+GPU model and memoryI'm having the same (or similar) "illegal instruction" problem when I run
+
+    import tensorflow as tf
+
+I'm only using the CPU 1.6 version on 64 bit Ubuntu Linux.
+
+After downgrading to the CPU 1.5 version, it doesn't have this problem. How i can downgrade to the CPU 1.5 version?Try running
+pip uninstall tensorflow
+And then
+pip install tensorflow==1.5
+
+EDIT
+just to give credit, solution is from here:
+https://stackoverflow.com/questions/49094597/illegal-instruction-core-dumped-after-running-import-tensorflowThanks konnerthg, even i was having the same problem. Your command helped me to sort this issue. Thanks again.Same here. 
+With the latest wheel, I had the illegal instruction problem on Ubuntu 16.04, however I downgraded to tensorflow-gpu==1.5 and it works!downgrade to 1.5 worked for me, too@konnerthg Downgrading to 1.5 is just work around, this issue is not solved yet.
+Which commit/PR solved this issue?I am also getting this error in python 3.6Hey !
+Thank you for your solution ! Really. I have this problem for a week now and I was starting to become crazy ! Thx !THANKS for solution.It worked on my Ubuntu 16.04, 64 bit, python3.5 .Thanks for the solution! Downgrading to version 1.5 fixed the issue. Tested on a Ubuntu 16.04 server with python 2.7Same issue, downgrading from Tensorflow 1.6 to 1.5 solved it. Running Xubuntu 16.04 64-bit, Python 3.5.Thanks for all this solve my issue on Python 3.6 
+
+>_ (tensorflow) naniny@Aspire-E5-573:~$ pip unistall tensorflow
+
+>_(tensorflow) naniny@Aspire-E5-573:~$ pip install tensorflow==1.5
+
+>_(tensorflow) naniny@Aspire-E5-573:~$ python
+
+>_ (tensorflow) naniny@Aspire-E5-573:~$ import tensorflow as tf
+
+now works without any problem ...
+
+This is really weird. Does anyone know what causes the issue? I'm surprised that TensorFlow 1.6 would have a bug this big.I am encountering this issue as well with tensorflow-gpu 1.6.0, on linux, using python 3.6.4.  I have installed tensorflow using pip itself.  Simply running this produces a SIGILL:
+
+```
+$ python3 -m tensorflow
+zsh: illegal hardware instruction  python3 -m tensorflow
+```
+I get stack traces similar to what is mentioned in this ticket's description.
+
+This seems to be occurring due to the use of AVX instructions in the latest Tensorflow packages uploaded to pip.  Running python3 through GDB and disassembling the crashing function points to this instruction:
+
+```
+=> 0x00007fffb9689660 <+80>:    vmovdqu 0x10(%r13),%xmm1
+```
+
+Which is an AVX instruction not supported on older or less-featureful CPUs that do not have AVX support.  The tensorflow(-gpu) 1.5.0 pip packages do not use AVX instructions, and thus there are no problems using it with these CPUs.
+
+The solution would be for a build of tensorflow(-gpu) that is not compiled with AVX instructions to be published (or to build a copy locally).  The provided [installation instructions](https://www.tensorflow.org/install/install_linux) do not mention any specific CPU requirements nor how to determine compatibility with the provided binaries.
+
+In the meantime, reverting to tensorflow(-gpu) 1.5.0 using something like what @NinemillaKA mentioned above is an effective workaround.I have the same issue, and, as many have commented, downgrade from `1.6.0` to `1.5.0`.
+
+For the record, I tried running tensorflow (CPU-only version) on 2 different computers:
+
+Computer 1:
+```
+OS = Ubuntu 16.04 x64 LTS
+Python = Python 3.6
+pip version = 9.0.1
+tensorflow version = TensorFlow 1.6.0
+CPU = Intel Core 2 Quad Q6600  @2.40GHz
+```
+Computer 2:
+```
+OS = Ubuntu 16.04 x64 LTS
+Python = Python 3.6
+pip version = 9.0.1
+tensorflow version = TensorFlow 1.6.0
+CPU = Intel Celeron N2820 @2.413GHz
+```
+
+I agree with @nacl that we should have those requirements about the instruction set more clear, and if possible, a separated, updated build for processors that doesn't support AVX instructions. To be honest, I find a bit discouraging have to work with outdated version of any technology, I think many feel the same.
+The alternative to having a different build for each architecture type is to use dynamic dispatch. IE, PyTorch has one binary for all architectures and selects most efficient ops during runtime @caisq ThanksI also encounter the same issue. I tried it on two machines, and it works on one of them.
+
+First, I installed it on my MacBook Pro. And I did not have any issues.
+```
+MacBook Pro (Retina, Mid 2012)
+CPU = 2.3 GHz Intel Core i7
+OS = MacOS 10.13.3
+Python = Python 3.6.4
+pip version = 9.0.3
+TensorFlow version = 1.6.0
+```
+
+So I upgraded my MacPro. But this time, I am getting `Illegal instruction: 4` when I try to import tensorflow.
+
+```
+Mac Pro (Mid 2010)
+CPU = 2 x 2.4 GHz Quad-Core Intel Xeon
+OS = MacOS 10.13.3
+Python = Python 3.6.4
+pip version = 9.0.3
+TensorFlow version = 1.6.0
+```
+
+(Update on 3/30/2018)
+The same problem with TensorFlow 1.7. So I guess I use TensorFlow 1.5. This is still an issue in 1.6 and potentially in 1.7.  Why is this closed?  @yaroslavvb 's solution seems reasonable.  I have downgraded to 1.5 for now.Not sure but from this link, since ver1.6.0, intel CPU instruction optimizer had been introduced to tensorflow. I think that probably this is the cause.
+https://software.intel.com/en-us/articles/intel-optimized-tensorflow-wheel-now-available@captainst that's Intel-specific release, different from the official release that you get by doing `pip install`. SIGILL issues after 1.6 upgrade are likely caused by adding AVXI have the same issue.
+Ubuntu 18.04 x64
+Python 3.6.5rc1
+TensorFlow 1.7.0I had the same issue. Downgrade to 1.5 worked for me.Same here.Me too. Arch Linux and Intel CPU.Same here on Ubuntu 17. 10.1 VM, KVM hypervisor on Slackware, Intel KabyLake CPU I think I figured it out. I have a G4600 CPU which lacks AVX support and this was added in 1.6. Yes, I lock of AVX support too.To fix this on v1.6 and above, you need to compile tensorflow from source. I want to use the latest tensorflow-gpu (1.7) and don't want to stick to 1.5. So is the solution to build tensorflow from source without AVX support enabled? I have an old Xeon E5420 but am using tensorflow-gpudmoham1476 <notifications@github.com>于2018年4月7日 周六上午2:28写道：
+
+> I want to use the latest tensorflow-gpu (1.7) and don't want to stick to
+> 1.5. So is the solution to build tensorflow from source without AVX support
+> enabled? I have an old Xeon E5420 but am using tensorflow-gpu
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/17411#issuecomment-379337106>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AGeJnptN5yMdVaVdWTsIwcjOAJuJbUDQks5tl7PKgaJpZM4SbSGu>
+> .
+>
+You can build from source from the git clone master. It should auto adjust
+to ur cpu.
+-- 
+Regards,
+
+Jin
+Downgrading to version 1.5 fixed the issue. I am using Ubuntu 16.04  with python 2.7Same Problem
+Ubuntu=16.10
+python=3.6
+pip=9.0.3
+with tensorflow-gpu= 1.7
+NVIDIA GTX 1070
+CUDA 9.0
+
+solved by:
+pip3 install tensorflow-gpu==1.5the same problemsame problem
+Ubuntu 16.04
+with tensorflow-gpu 1.7 and 1.6Same problem on [this Docker image](https://hub.docker.com/r/ufoym/deepo/) running in a Paperspace notebook.
+
+Issue is with versions 1.6 and 1.7Having the same issue, downgraded to 1.5. Tensorflow imports now but I'm running a script that needs tensorflow_hub. Script is throwing RuntimeError: TensorFlow Hub depends on 'tf-nightly' build after 20180308 or 'tensorflow~=1.7'. Found tf.VERSION = 1.5.0thanks going back to version 1.5 worked for me alsoI had the same problem with tf`1.8 on CentOS 7, CPU only. Downgrading to 1.5 worked.For those that do not want to downgrade if you build from source the problem is resolved.Having the same problem, Downgrading to 1.5 worked for me.Just had this issue too, on tensorflow-gpu 1.8.0, at paperspace fast.ai template machineI have the same issue with tensorflow-1.8.0. The problem is I can't downgrade to version 1.5 as I want to train with retrain.py and for this tensorflow version greater than 1.7 is a requirement. So, any suggestions? Will it be helpful if I build tensorflow from source?!Same issue here:
+paperspace VM with fast.ai template
+GPU: nvidia quadro P4000
+tensorflow 1.8.0 installed in virtualenv as in https://www.tensorflow.org/install/install_linux#installing_with_virtualenv gave the error above (including when installing the recommended wheel mentioned at the bottom of the page)
+ubuntu 16.04, python 3.6.3
+`pip uninstall tensorflow && pip install tensorflow-gpu==1.5.0` fixed the problem. I have not tried compiling from source yet.
+
+As a side note, `grep avx /proc/cpuinfo` returns nothing, so my VM's cpu doesn't support avx instructions.Hello everyone,  building from source solved the issue for me.
+
+در تاریخ یکشنبه ۱۳ مهٔ ۲۰۱۸،‏ ۱:۴۷ laurentS <notifications@github.com> نوشت:
+
+> Same issue here:
+> paperspace VM with fast.ai template
+> GPU: nvidia quadro P4000
+> tensorflow 1.8.0 installed in virtualenv as in
+> https://www.tensorflow.org/install/install_linux#installing_with_virtualenv
+> gave the error above
+> ubuntu 16.04, python 3.6.3
+> pip uninstall tensorflow && pip install tensorflow-gpu==1.5.0 fixed the
+> problem. I have not tried compiling from source yet.
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/17411#issuecomment-388583280>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/APaJX3BUFgxCemEueanuAXMfqboX5MNqks5tx1FugaJpZM4SbSGu>
+> .
+>
+I phase the same problem, but after shift to tensorflow-1.5 it worked for me.
+My Problem:- error -> core dumped
+Processor: AMD® A4-3330mx apu with radeon(tm) hd graphics × 2 
+Graphics:  AMD® Sumo
+GNOME: 3.28.1
+OS type:  64-bit, Ubuntu 18.04 LTS
+
+Credit:-https://github.com/konnerthgof course it works with earlier versions of tensorflow but i need more specifically the 1.7.0 version that is compatible with the new tensorflowjs. How can?@mctrjalloh  buy new CPU, I guessI solved it. Not by buying new CPU😏
+You have to build from sources it's not that complicated Same issue in tensorflow-gpu 1.8.0 as well
+
+OS: Ubuntu 18.04
+Python: 3.6.5
+Same for me:
+
+OS: Ubuntu 16.04
+Python: 3.5
+NVIDIA Driver Version: 384.130
+
+**Edit:** building from sources worksThank you so much!!!CUDA9.0+cuDNN7.1+Tensorflow-gpu1.5 is workingSame problem. Tested on Ubuntu 16 and Ubuntu 17, on 3 different machines each with >8GB RAM and >4ghz CPU. Also getting issue with GPU machines. Same problem on my Ubuntu Server 16.04. Solved by compiling TensorFlow (r1.8) from source and pip install from that locally :+1: The issue comes with docker images too. I don't want to compile from source. Is there a way around it? I don't want to downgrade either.In my case, compiling TensorFlow (on Ubuntu 18.04) with Bazel solved the issue. The compilation did take time though.My case as well, recompiling TensorFlow 1.9 solved the issue. However I encountered another issue related to numpy 1.15. Downgrading to numpy 1.14.5 and the compilation worked, and been able to install the pip package.Why is this issue closed? It's still occurring in TensorFlow 1.10.I posted some links to a few community builds of tensorflow [here](https://stackoverflow.com/a/51777012/1138710) which might help avoid having to build from source.Indeed, I followed the instructions found at https://www.tensorflow.org/install/install_linux and get nothing more than the "Illegal instruction (core dumped)" when testing as requested on that installation page.
+
+This issue should either not be closed or have an actual solution that makes sense (i.e. not installing version 1.5)
+
+It worked on Ubuntu 18.04. So again, mentioning the version on the installation page may be a good idea as a solution about what works and what doesn't.
+well this issue seems to still going on.. but i have a very simple solution
+that will make you follow the trends at the same time :-).
+
+INSTALL CONDA !!!
+to install conda, just google it :-)
+
+create a conda evironment if you like:
+
+conda create <name_of_environment>
+
+and simply run:
+
+conda install tensorflow
+
+if the last command doesn't work then search through another channel by
+running:
+
+anaconda search tensorflow
+
+this outputs a list of channels from where you can download it.
+choose one channel and run:
+
+anaconda show <channel>
+
+this will prompt you the command you need to enter to downloading
+tensorflow.
+Run that command.
+
+That's it !
+
+MOVE TO CONDA !!!
+
+On Thu, Aug 23, 2018 at 10:38 PM Alexis Wilke <notifications@github.com>
+wrote:
+
+> Indeed, I followed the instructions found at
+> https://www.tensorflow.org/install/install_linux and get nothing more
+> than the "Illegal instruction (core dumped)" when testing as requested on
+> that installation page.
+>
+> This issue should either not be closed or have an actual solution that
+> makes sense (i.e. not installing version 1.5)
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/17411#issuecomment-415592389>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AWESkUXD-4XomnnPgF6D5QToWVH74JzAks5uTy7PgaJpZM4SbSGu>
+> .
+>
+Root problem may have to do with protobuf and incompatibility around pthread_once and std::call_once. I ran into a segfault myself when importing tensorflow right after another google package called sentencepiece, and the maker of sentencepiece fixed it by making a patch for protobuf that replaces the std::call_once implementation with another.
+
+https://github.com/google/sentencepiece/issues/186To make this issue more constructive, I think it would be useful it TensorFlow would check for instructions it requires on the CPU first, and print an error if they are missing. Similarly how it currently says that some instructions are available but not compiled against. Then it would be easier to differentiate between bugs and simply not using correct binary for a given CPU.Mr royyannick ..Infact i have been searching google for many times and it has affected my studying both Keras and Tensoflow but today you have made my day..You are great.
+ThanksTried both virtual environment and (f...ing) conda (you, dude upstream, go f y s!) on the tensorflow 1.10.1 (latest) in Ubuntu 16.04 with the same error. Switched to the previous version 1.9 - everything works fine.I happened to reproduce this issue on a machine running an old CPU. Here is [the article that explains the possible options to resolve the issue](https://tech.amikelive.com/node-887/how-to-resolve-error-illegal-instruction-core-dumped-when-running-import-tensorflow-in-a-python-program/).
+
+Those who want to install the latest TensorFlow for old CPU without AVX support but does not have the time to build from source can also download the WHL file from [this Github repository](https://github.com/amikelive/tf-build).This is BS. I rolled my installation back to 1.9 (not 'before 1.6' as you say in this article) and the binary worked (the day before yesterday).
+If you run this on command line:
+
+1)
+
+    $ lsb_release -a| grep "Release" | awk '{print $2}'
+
+2)
+
+    $ grep flags -m1 /proc/cpuinfo | cut -d ":" -f 2 | tr '[:upper:]' '[:lower:]' | { read FLAGS; OPT="-march=native"; for flag in $FLAGS; do case "$flag" in "sse4_1" | "sse4_2" | "ssse3" | "fma" | "cx16" | "popcnt" | "avx" | "avx2") OPT+=" -m$flag";; esac; done; MODOPT=${OPT//_/\.}; echo "$MODOPT"; }
+
+and see `16.04` for 1) and `-mavx` or `-mavx2`  for 2) in the output, it can be another problem that is not related with AVX support.
+
+If those flags are not there, that's something that I should add into my note, thanks to you.Same error here,
+
+CentOS 7, Python 3.6.5, Intel CPU core2 duo e8500. pip install.
+
+version 1.9 does't work. version 1.5 imports ok.
+
+version 1.10 seems ok on my laptop which has Ubuntu 18.04 and Intel i5-6200U.This is stated at https://www.tensorflow.org/install/install_sources
+**Note: Starting from 1.6 release, our prebuilt binaries will use AVX instructions. Older CPUs may not be able to execute these binaries.**
+
+I think that might have been mentioned at the much more prominent location!This solved my issue:
+After installing NVIDIA driver, CUDA Toolkit, and CUDNN.
+First uninstall `tensorflow-gpu`: 
+```
+$ pip uninstall tensorflow-gpu
+```
+Then install tensorflow-gpu using [Anaconda](https://www.anaconda.com/download/#linux):
+```
+$ conda create -n tensorflow
+$ conda install tensorflow-gpu -n tensorflow
+```> Try running
+> pip uninstall tensorflow
+> And then
+> pip install tensorflow==1.5
+> 
+> EDIT
+> just to give credit, solution is from here:
+> https://stackoverflow.com/questions/49094597/illegal-instruction-core-dumped-after-running-import-tensorflow
+
+Thanks it worksMaybe related to AVX instruction. pip prebuilt tensorflow-1.6 and higher versions are built with AVX instruction, some CPUs don't have AVX instruction. pip prebuilt tensorflow-1.5is not built with AVX instruction.
+Suggestion: 1): use lower version of tensorflow
+2): compile higher version of tensorflow from sourceYes. Indeed. It would be better, though, if the software would tell me rather than just crash. I don't have a problem with the requirement, just the way it is handled... On Linux, it would be very easy to check in `/proc/cpuinfo` for the `flags` line where `avx` would need to appear. If not, generate an error and `exit(1)`.
+
+Here is my flags on my old computer without AVX
+
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm sse4_1 sse4_2 popcnt lahf_lm ssbd ibrs ibpb stibp kaiser tpr_shadow vnmi flexpriority ept vpid dtherm ida flush_l1d
+System information
+
+-
+   Lenovo-G500 8GB RAM          description: CPU
+          product: Intel(R) Core(TM) i3 CPU       M 330  @ 2.13GHz
+          bus info: cpu@0
+          version: CPU Version
+ OS; Ubuntu-16.05
+pip : 18 version latest
+I dont have gpu
+
+ i also getting   illegal instruction core dumped. tensorforflow 1.5 is working for me , 
+but 
+I need to install tensorflowv1.10 0r latest for my project .
+
+I tried to to install in tensorflow in different ways , those are
+1. without anacoda , python 2.7,   using pip  ...pip install --upgrade tensorflow
+2 without anacoda , python 3.5,   using pip     ""
+3.without anacoda , python 3.6,   using pip   ""
+4.with anacoda , python 2.7,   using conda     conda install -c conda-forge tensorflow 
+5.without anacoda , python 2.7,   using pip   ""
+6.without anacoda , python 2.7,   using pip      ""
+
+neither worked for me,
+what is the issue.@bandarikanth 
+
+The manner in which you install tensorflow shouldn’t matter. The problem is that the tensorflow 1.6+ prebuilt binaries require the [AVX](
+https://en.m.wikipedia.org/wiki/Advanced_Vector_Extensions) instruction set extensions, and your processor doesn’t support AVX. You can either build from source, move to a computer with a new-enough processor, or stick with 1.5.Thanks
+
+On Sun, 30 Dec 2018, 12:24 am Dan Stine <notifications@github.com wrote:
+
+> @bandarikanth <https://github.com/bandarikanth>
+>
+> The manner in which you install tensorflow shouldn’t matter. The problem
+> is that the tensorflow 1.6+ prebuilt binaries require the AVX
+> <https://en.m.wikipedia.org/wiki/Advanced_Vector_Extensions> instruction
+> set extensions, and your processor doesn’t support AVX. You can either
+> build from source, move to a computer with a new-enough processor, or stick
+> with 1.5.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/17411#issuecomment-450512554>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AZf77RdABm0uQsxiPx0uxd45q_rz9pUVks5u97pPgaJpZM4SbSGu>
+> .
+>
+works for me if downgrade to 1.5 (pip install tensorflow==1.5)Related: https://github.com/tensorflow/tensorflow/issues/19584I have this issue with tensorflow-gpu 2.0 
+```
+▶ uname -r; pacman -Q linux
+5.0.10-arch1-1-ARCH
+linux 5.0.10.arch1-1
+
+▶ conda env export
+name: Science
+channels:
+  - defaults
+dependencies:
+  - cudatoolkit=10.0.130=0
+  - cudnn=7.3.1=cuda10.0_0
+prefix: /home/archangel/anaconda3/envs/Science
+```
+```
+▶ pip freeze | ack "tensor"
+tensorflow-gpu==2.0.0a0
+▶ ipython                                                          
+Python 3.7.3 (default, Mar 27 2019, 22:11:17)                      
+Type 'copyright', 'credits' or 'license' for more information      
+IPython 7.4.0 -- An enhanced Interactive Python. Type '?' for help.
+                                                                   
+In [1]: import tensorflow as tf                                    
+[1]    25429 illegal hardware instruction (core dumped)  ipython   
+```
+
+```
+[18556.882892] traps: ipython[25429] trap invalid opcode ip:7fc41cde1a22 sp:7ffe68904500 error:0 in libtensorflow_framework.so[7fc41c877000+104c000]
+[18556.885033] audit: type=1701 audit(1556951396.587:43): auid=4294967295 uid=1000 gid=1000 ses=4294967295 pid=25429 comm="ipython" exe="/home/archangel/anaconda3/bin/python3.7" sig=4 res=1
+[18556.894046] audit: type=1130 audit(1556951396.594:44): pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=systemd-coredump@4-25462-0 comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=?
+ res=success'
+[18557.506049] audit: type=1131 audit(1556951397.204:45): pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=systemd-coredump@4-25462-0 comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=?
+ res=success'
+
+
+```I'm getting this crash on an i7-3520M which [does support AVX](http://www.cpu-world.com/CPUs/Core_i7/Intel-Core%20i7-3520M%20(PGA)%20Mobile%20processor.html).
+
+EDIT: Nevermind, the crash happens on a `shlx` instruction which is part of AVX2. At least it shows that vanilla AVX support is not enough.Still have the problem with tensorflow 1.14.0 and 2.0.0b1.Same error on Linux Mint 19 with 2.0.0b1. 
+Just installed with pip3 like instructed from the install page of the official sitetf1.5 isn't available in the Debian 8.8 repos.
+
+Time to try avx.This was ridiculously hard to find on managed cluster nodes, since the OS kills the related python processes before they can even write and flush this "Illegal instructions" line to a output log file, and the exit code of the python process seems to be 0.
+
+I was also using 2.0.0-beta1, currently finding out if replacing it with 2.0.0 fixes this.I also got this problem. I'm using `python2`. Downgrading to the CPU 1.5 version helped.I'm having this problem with Tensorflow 2 runing in a virtual environment in Ubuntu 18.04. It just blows my mind that the Tensorflow developers would put TF 2 as ready and available with this crap happening. NOT Impressed, you TF developers .
+
+dmesg output (from bash):
+[333908.854310] traps: python[12862] trap invalid opcode ip:7f8c46e6d820 sp:7ffc87609f78 error:0 in _pywrap_tensorflow_internal.so[7f8c3e250000+a9f8000]
+linuxmint 19
+Intel(R) Pentium(R) CPU        P6200  @ 2.13GHz
+8Gb ram (kingston)
+
+This is a BIG CPU-RELATED issue.After reading this thread and having  the same experience, my problem is that my linux conputer is older and has a CPU which does not support the AVX instruction set. I have tensorflow 1.5 on another virtual environment, bu to use tensorflow 2, I amd going to have to run my scripts on Google ColabI don't have the knowledge to say if the requirement of AVX makes sense or not. What I know is that the problem presents itself not only with older CPUs, but also with fairly recent ones, like mine Intel N5000. I get that doing deep learning on a N5000 is a bit of a stretch, but if the tensorflow is supported also by the RaspberryPi, I don't see the problem.
+
+Anyway, I installed the last version of TensorFlow (2.0) on my Intel N5000 by compiling it from source. It took 14 hours because I had to run the compilation on a single core, since it needs a lot of RAM and I have only 4Gb invited to the party. 
+
+I took inspiration from this guide [here](https://tech.amikelive.com/node-882/how-to-build-and-install-the-latest-tensorflow-without-cuda-gpu-and-with-optimized-cpu-performance-on-ubuntu/) but the experience was far from smooth, there were constantly dependencies missing that I need to install and re-launch the compilation. And some other stuff too that I solved when the compilation crashed.
+
+Have fun and thanks for the hassle. Providing through pip a binary already compiled for non-AVX was clearly too much to add in your continuous integration workflow Thanks for your response, Luca. I have a really old Ubuntu 18.04 desktop
+which works really well except in running the TF2 and as a matter of fact,
+the latest PyTorch (1.3.0) I think.
+Torch 1.1.0 works fine for me, and regarding TF2, I use Google Colab which
+works fine. Am a retired data analyst and maintaining my hobbyist profile
+
+Thans for your post
+
+On Sat, Dec 7, 2019 at 6:52 PM Luca Olivieri <notifications@github.com>
+wrote:
+
+> I don't have the knowledge to say if the requirement of AVX makes sense or
+> not. What I know is that the problem presents itself not only with older
+> CPUs, but also with fairly recent ones, like mine Intel N5000. I get that
+> doing deep learning on a N5000 is a bit of a stretch, but if the tensorflow
+> is supported also by the RaspberryPi, I don't see the problem.
+>
+> Anyway, I installed the last version of TensorFlow (2.0) on my Intel N5000
+> by compiling it from source. It took 14 hours because I had to run the
+> compilation on a single core, since it needs a lot of RAM and I have only
+> 4Gb invited to the party.
+>
+> I took inspiration from this guide here
+> <https://tech.amikelive.com/node-882/how-to-build-and-install-the-latest-tensorflow-without-cuda-gpu-and-with-optimized-cpu-performance-on-ubuntu/>
+> but the experience was far from smooth, there were constantly dependencies
+> missing that I need to install and re-launch the compilation. And some
+> other stuff too that I solved when the compilation crashed.
+>
+> Have fun and thanks for the hassle. Providing through pip already binary
+> compiled for non-AVX was clearly too much to add in your continuous
+> integration worklow
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/17411?email_source=notifications&email_token=ACYHH362LGI5EZY3G74CMVLQXQZKDA5CNFSM4ETNEGXKYY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOEGGSCPQ#issuecomment-562897214>,
+> or unsubscribe
+> <https://github.com/notifications/unsubscribe-auth/ACYHH3YLNAER6NGNLKYNMPDQXQZKDANCNFSM4ETNEGXA>
+> .
+>
+
+
+-- 
+Clive DaSilva CPA,CMA
+Home:  416-421-2480|Mobile: 416-560-8820
+Email: clive.dasilva@gmail.com
+LinkedIN:  http://ca.linkedin.com/pub/clive-dasilva/3/197/b89
+I had the same problem when running CI pipelines on a Gitlab server. The (emulated) CPU of the runners did not provide AVX instructions.
+
+Installing Tensorflow with Conda instead of using PyPI's wheels fixed the problem. :+1: I have the same issue with Tensorflow 2.1.0. What to do?
+```
+Architecture:        x86_64
+CPU op-mode(s):      32-bit, 64-bit
+Byte Order:          Little Endian
+CPU(s):              48
+On-line CPU(s) list: 0-47
+Thread(s) per core:  1
+Core(s) per socket:  12
+Socket(s):           4
+NUMA node(s):        8
+Vendor ID:           AuthenticAMD
+CPU family:          16
+Model:               9
+Model name:          AMD Opteron(tm) Processor 6176
+Stepping:            1
+CPU MHz:             800.000
+CPU max MHz:         2300.0000
+CPU min MHz:         800.0000
+BogoMIPS:            4599.77
+Virtualization:      AMD-V
+L1d cache:           64K
+L1i cache:           64K
+L2 cache:            512K
+L3 cache:            5118K
+NUMA node0 CPU(s):   0-5
+NUMA node1 CPU(s):   6-11
+NUMA node2 CPU(s):   12-17
+NUMA node3 CPU(s):   18-23
+NUMA node4 CPU(s):   24-29
+NUMA node5 CPU(s):   30-35
+NUMA node6 CPU(s):   36-41
+NUMA node7 CPU(s):   42-47
+Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate vmmcall npt lbrv svm_lock nrip_save pausefilter
+```I managed to fix my problem by building from source using bazel. It created a whl file. Then I did pip install whl file pathYes, if your CPU does not support AVX (the likely cause for `Illegal instruction (core dumped)` error) then you need to compile from source. This causes the code to be generated without AVX instructions and then you can use it.
+
+Furthermore, this guarantees that the pip is built with the highest optimization level available to your platform, so you might actually see some speedup compared to using a pip built on a different platform. Focus on might.To install tensorflow with conda run this command : 
+conda install -c conda-forge tensorflow
+it works for me.

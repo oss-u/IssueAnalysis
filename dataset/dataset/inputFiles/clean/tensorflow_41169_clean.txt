@@ -1,0 +1,501 @@
+
+I am unable to train my model. I get the below error after around the 100th epoch or so randomly. Sometimes it fails on the 500th or so epoch. There are a few times I won't get this error.
+
+Python Version: 3.7
+Tesorflow Version: 2.3
+Tensorflow Installed: From binary.
+OS: Windows 10
+GPU Card: Nvidia Titan V
+CUDA: 10.1
+CUDNN: 7.5.32
+: failed to query event: CUDA ERROR LAUNCH FAILED: unspecified launch failure
+2020 07 07 17:15:37.551112: E tensorflow stream executor dnn. cc:613 CUDNN STATUS INTERNAL ERROR
+
+2020 07 07 17:15:37.551176: F tensorflow stream executor cuda cuda dnn. cc:189 Check failed: status CUDNN STATUS SUCCESS 7 vs. 0 Failed to set cuDNN stream.
+
+
+
+ Please make sure that this is a bug. As per our
+ LINKLINK,
+we only address code doc bugs, performance issues, feature requests and
+build installation issues on GitHub. tag: bug template 
+
+ System information 
+ Have I written custom code as opposed to using a stock example script provided in TensorFlow:
+ OS Platform and Distribution for example, Linux Ubuntu 16.04:
+ Mobile device for example iPhone 8, Pixel 2, Samsung Galaxy if the issue happens on mobile device:
+ TensorFlow installed from source or binary:
+ TensorFlow version use command below:
+ Python version:
+ Bazel version if compiling from source:
+ GCC Compiler version if compiling from source:
+ CUDA cuDNN version:
+ GPU model and memory:
+
+You can collect some of this information using our environment capture
+ LINKLINK 
+You can also obtain the TensorFlow version with: TF 1. CODESCODES  TF 2. CODESCODES 
+
+
+ Describe the current behavior 
+
+ Describe the expected behavior 
+
+ Standalone code to reproduce the issue 
+Provide a reproducible test case that is the bare minimum necessary to generate
+the problem. If possible, please share a link to Colab Jupyter any notebook.
+
+ Other info logs Include any logs or source code that would be helpful to
+diagnose the problem. If including tracebacks, please include the full
+traceback. Large logs and files should be attached.
+ nectario,
+Could you please provide the complete code to reproduce the issue reported here?
+
+Also, please take a look at LINKLINK from a similar issue and let us know if it helps. Thanks!I can't post the code since it's a proprietary model. It seems this is related to NVIDA drivers. This happens RANDOMNLY. Last night it happened on epoch 2500 for example.My model is a 6 layer LSTM.I really do not want to downgrade my NVIDIA GPU driver in order for this issue to go away. It's becoming impossible to train a model till completion because of this issue.
+
+ nectario,
+As an alternative, is it possible for you to provide a working example which can mimic the error? Thanks!This issue has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you.
+Yes, I will soon be posting sample code that recreates this issue.This is an extremely serious issue. It prevents me from training a model till the end.This issue has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you.
+Hi,
+
+Here is the code that recreates this issue. I was able to make the error happen twice, although it happens randomly.
+
+First time it happened at epoch 1548 
+Second time it happened at epoch 524 
+
+ To Download: 
+ url 
+
+ To Run: 
+unzip cudnn error. zip
+ CODESCODES 
+
+I have tensorflow 2.3 
+GPU is the Nvidia Titan V 
+I am running this on Windows 10 
+
+ Note: you need to have it run for 3000 epochs and it will happen as some point.
+
+Please note, in the code you will see a Callback that deliberately tries to load data on epoch end just to add a bit of a delay that mimics my own callbacks. nectario,
+I was able to run the code without any issues with TF v2. Please find the gist of it LINKLINK.
+
+Could you please try setting a hard limit on the total GPU memory as show in LINKLINK and check if it works. Thanks! amahendrakar Thank you. I will try your suggestion. Looking at how you ran it, I don't believe this is repeatable in a server GPU like the V100 or any other ones. It really needs to run in a consumer GPU like the Titan V, and in a PC desktop environment. As of now, I can never finish training so it reaches the last epoch. I think it's related to the Nvidia driver.
+
+Also, this gets triggered quicker if I am watching a YouTube video as I am training. I started getting this only after Nvidia updated their drivers.
+
+Here is a person who also experienced a similar issue. Check this link:
+ LINKLINK 
+
+But it seems it was hardware memory issue which needed a GPU replacement?
+If someone can run the above in their local desktop environment with the latest Nvidia gpu drivers would be great.I keep getting this issue, in different variations. Very rarely am I able to complete training. It's extremely frustrating. 
+ CODELCODEL 
+Is this some kind of hardware issue I am facing with my Titan V? Today I was only able to have one successful run.I have made the following observation:
+When my room temperature is 73F or below, the problem does not seem to happen. Generally, on average, my room temperature is 78F. 
+Could this be an overheating issue of the GPU?I think I may have finally resolved this issue. It seems I had two CUDA versions installed: 10. and 10. My installation was pointing to the 10.2 version. After uninstalling all the other other versions and having only 10.1 I was able to finally train more than once without issues. I will run a couple more tests. Bottom line: After uninstalling all my previous CUDA CUDNN versions and reinstalling the correct ones, it seems to have resolved the issue.I had this same issue and read all the comments here. I recognized that a pip install software I made updated my tensorflow to 2.3 which is not even a stable build that conda supports. But my tensorflow gpu version stayed at 1.14. 
+I realized this and forces both my tensorflow and tensorflow gpu versions to 2. This solved my issue. Thank you. Apparently this issue is still not gone for me. It is extremely frustrating. I cannot train till completion. TensorFlow is becoming unusable for me. Even using Python 3.8 with a fresh install I still get this. Thank you too, I have been running for 20 minutes without a crash so far. Try Python 3.7 with tensorflow 2.1 and tensorflow gpu 2.1 thumbs up 
+I hate downgrades, but I will give it a shot!Good luck!  nectario Confirming, got an error with CUDNN Error. py at epoch 1683. Python 3. TF 2.1, CUDA 10. RTX 2070S.
+
+Although a bit different error:
+ CODELCODEL 
+By the way, switching between CUDA versions in Win is easy without uninstall&reinstall. NVIDIA drivers are backwards compatible with CUDA 10. x and 11. x, so one can always have the latest drivers installed. Just have to make sure to install CUDA & CuDNN separately. nvidia smi reported CUDA version output is irrelevant. To switch, I'm using env cmds:
+ CODELCODEL 
+
+Training the same example with CUDA 10.1 in progress.
+
+If I get time, will try again the CUDA 10.2 run with CODESCODES to see if there's any extra bits coming out.Wow, yeap, the error message would also change a bit sometimes for me. A few times I am able to complete an entire training run out of pure luck, but 90 of the time it fails. It can fail on epochs 50, 300, 800, 1100 it can be anywhere really. 
+
+Let me know how the 10.1 training goes.
+
+ThanksCUDA 10.1 training succeeded. Might be worth waiting a few weeks for the TF 2.4 release with CUDA 11 support and would be fun to try again. Don't know if it's going to be CUDA 11.0 or 11.
+
+To be fair, TensorFlow 2.0 officially supports only CUDA 10. in that sense works as expected.
+
+ Btw, my GPU utilization was quite low with this training batch size was optimal for max gpu memory use, so the error was not coming from power consumption and definitely not from overheating.Thank you. For me it happens with CUDA 10. Oh well. At least I now feel confident it is not a hardware issue. nectario I did run the same model training on the latest TF 2.4 release candidate r2.4 branch at 541fd26bd37 with CUDA 11.0 and CuDNN 8.4.30. For some reason this same TF code did not compile for CUDA 11.
+
+Unfortunately failed again at epoch 2720. CUDA utilization perfectly fine, 80, GPU temperature 70C.
+
+ CODELCODEL 
+I see. It is interesting that your failures occur close to the 3000 epochs. In my case, it almost always happens below 1200.This really needs to get fixed, LSTM's can't be run with Cuda now.Absolutely. It is even preventing another issue I reported to be debugged because of this issue. It's this one 45676
+This issue belongs in a range of issues related to LSTMs and CUDA CUDNN. Each time the error is a bit different but same effect.Probably NVIDIA needs to be involved also for this to be fixed.When I train on AWS on their V100s, this never happens. Seems to be happening mainly with the consumer based graphics cards.
+
+Yeah, I get all of them, sometimes this Cuda error, sometimes the rnnbackward or rnnforward error. The strange thing is that it only occurred after I had swapped out my motherboard and CPU and reinstalled my windows. 
+
+I downloaded the same drivers as before, did a complete reinstall of my conda environment, but somehow I got this issue in the process. I know! I have been living with this for way too long. More than six months. Do you get this with 2.With 2.4 it seems to have made it better, but training got slower.
+
+Yep thumbs down I had bought a couple of months ago a RTX 3080, was using TF 2.4 RC0 up to the final release with no issues. Could run LSTM's without a problem, but after swapping my cpu and motherboard and reinstalling windows, I can't seem to get around this problem.
+
+I even reinstalled windows another time, but still getting the issue. So maybe it's also hardware related. Yeah. I suspect it's a combination of gfx driver tensorflow cuda cudnn. Was the gfx driver updated around that time?
+This issue needs tensorflow heavyweights to look into it! The credibility of the entire framework is in line! I am this close to completely switching frameworks!
+
+No, I simply reinstalled all the same drivers so that everything was in the same condition.Ooh, I see. It's surely seems there may be some hardware issue because it never happens with the V100s.This requires TensorFlow and NVIDA to look into it. 
+
+Probably a combination of multiple things. It is strange that it did not occur for me before though.
+
+
+
+Definitely, but have they have even acknowledged this issue yet? It seems that Tensorflow contributors keep closing all these tickets.
+
+The only thing which allows me to train on LSTMs now is to just train on cpu. I am currently also trying to disable eager mode with the gpu, so that it stops using the Cudnn kernel. Perhaps that is a good enough fix for now. I believe it's been acknowledged but this issue is unique as it's hard to reproduce. If they try to reproduce this on any cloud machine it will never happen. It requires these consumer based graphics cards. Like I have a Titan V or an RTX 3080 which you have. It's good that we are keeping this thread warm 
+
+I hope someone from TensorFlow can update us here if they are investigating it on what is causing it.
+
+My resolution for now: I reduced the number of epochs. When it fails, I load the last saved weights and continue on.
+
+
+
+
+
+
+Ah I see, let's hope they are looking into it and they are able to reproduce it. I'll try if just disabling the cudnn lstm kernel is enough. I'll give an update if it works!  nectario So disabling eager execution helps, because it's not using the cudnn kernel for lstm anymore. nectario I'm curious, which cudnn versions did you test with when running with the TF 2.4 final? There's now 8.3, 8.4.30 and 8.5.39, all having CUDA 11.0 support. I presume the same crash still happened with the 2.4 as well, not just the slowdown issue?
+
+I tried all of those versions, but no avail. All of them showed the same behaviour. 
+
+I initially tested with the latest versions 8.5.39 and then went back to the advertised versions.￼ Same issue. 
+ nectario I ran your cudnn error. zip through my setup and at least the 1st run worked fine. Although, I did do a couple of optimizations to speed it up.
+
+Started with 487ms step, 3s epoch.
+Added to the beginning of the CUDNN Error. py to enable mixed precision and changed all LSTM units from 150 to 152 to be more friendly for the mixed precision n 8 0 
+ CODELCODEL 
+
+Went down to 280ms step. After enabling mixed precision I could also double the batch size from 620 to 1240 and went further down to 440ms step for previous batch size normalization: 220ms step. Each epoch down to 1s.
+
+There might be room for XLA based optimizations, but I'm getting CODESCODES from XLA.
+
+Win10, Graphics driver 460.89, CUDA 11.2, cudnn 8.5.39. ahtik Thank you! I will try those changes, except the batch change. The batch was carefully selected to yield better metrics. A bigger batch does not necessarily give me better metric performance.
+
+I wonder if this explains the drop in performance in 2.
+
+
+
+
+
+
+
+
+
+
+
+
+ nikitamaia I wonder if the above solution is what is needed to fix the slow performance for 45676?
+ nikitamaia ahtik 
+
+Adding your code ahtik at the start, dropped my per epoch time to 1 second!
+
+from tensorflow. keras. mixed precision import experimental as mixed precision
+policy mixed precision. Policy 'mixed float16' 
+mixed precision. set policy policy  nectario To be honest, I suspect the 2.3 vs 2.4 slowdown in 45676 difference is still somewhere else because mixed precision has never been enabled by default, so it's an extra improvement on top of whatever else is going on.
+
+Got it.  nectario TF2.3 and Cuda 10.1 and cudnn 7.5 don't cause any crashes with the cudnn accelerated LSTMs for me, but the only downside with an RTX 3080 is that the initial loading takes up to 15 min! 👎 So also not really a solution. I even tried to install older versions of windows, but also no success. Something within cudnn 8+ and cuda 11+ is causing this. ion elgreco Could you share your minimim LSTM code that is crashing with 
+TF2. I was no longer able to reproduce the crash with the setup described 
+above with RTX2070S. I did enable mixed precision to speed it up, so maybe 
+cudnn didn't get enough stress load. How long it takes in your case to 
+crash it?
+
+
+ CODELCODEL 
+
+
+It will already crash with 5 units after 3 epochs. 
+
+PS
+I have tried all cuda 11+ with all cudnn 8+ versions. Nothing helps. ion elgreco Can you provide the full code together with batchsize etc hyper parameters, train & val datasets etc. Otherwise, it's a bit too much effort to reproduce.
+
+Does it also crash after adding this to the beginning of the file?
+ CODELCODEL 
+In case of mixed precision, also worth testing with 8 units instead of 5 for better performance.
+
+
+
+
+
+This is the code: LINKLINK 
+
+However, I cannot share the datasets because of a legal agreement. The thing is, I hadn't changed a bit to this code. It worked fine before on my i7 7700k + rtx 3080, but after upgrading to a 5800x processor and having to reinstall windows, I keep getting this issue. I even tried reinstalling windows, 5 times.
+
+I already tried the mixed float16 policy, but this makes everything slower in addition it still crashes. ion elgreco I'm not aware of a good reason how the training could become slower after enabling mixed precision. Initial graph building, yes.
+
+Do I understand correctly that you're also running TF2.3 right now inside this new desktop with a Ryzen CPU, and just switching between active CUDA version? So the TF2.3 is not crashing and TF2.4 does with the exact same hw and software conf.
+
+Couldn't rule out the HW issue as well, this one is from pytorch, but still relevant. LINKLINK 
+
+As there can be many causes for CUDNN STATUS INTERNAL ERROR, the only pragmatic way to help here, is to also provide the dataset processed enough to not cause the legal issues, that would be as small and compact as possible to reproduce the issue with TF2. Also include the affected version info etc. Might be worth opening as a separate issue, as the cause seems to be different from the one from nectario.
+
+I noticed a comment of using conda. To be 100 clean, I'd definitely try to reproduce this also with a clean venv install with pip. Smth like
+ CODELCODEL 
+
+
+
+
+
+
+
+
+
+
+
+I have two environments, my main one with TF 2.4 with Cuda 11 and Cudnn 8.5, and TF 2.3 with Cuda 10.1 with Cudnn 7.5. After running TF 2.3 longer it also seems to crash also, so I was mistaken that it only was with Cuda 11+ and Cudnn 8+.
+
+I am not only getting CUDNN STATUS INTERNAL ERROR, I also get:
+
+ CODELCODEL 
+
+And some other cudnn crashes, they all happen at random and the error code is each time random.
+
+I'll try in a clean venv environment later today.
+
+
+
+
+
+
+
+
+
+
+
+That is interesting. It could be definitely the case that the 5800x is causing it, since that's the only I swapped besides motherboard and ram. I am going to try if turning off xmp profiles for my ram also has an effect. Ram is not the cause, only hardware related thing left is CPU, but I don't have any spare ryzen cpu's laying around so I cant actually check this.  ion elgreco It could also help if you have a non Ryzen GPU setup somewhere that can be used for this private dataset training making sure it works there with both TF2.3 and TF2.
+
+I had an i7 7700k a week ago, with TF2.3 and TF2.4 my code worked. I cant switch back to Intel because then I would have to lend components from someone. One interesting thing that is happening right now in regards to this issue:
+After upgrading to TensorFlow 2.0, and ugrading my CUDA to 11.0 and 8.02 then downgrading to TensorFlow 2.1 and downgrading my CUDA to the version supported by TF 2.1, the issue seems to have stopped happening.
+
+I have trained twice already with 1500 epochs, and no failures so far.My NVIDIA driver is also different. I am using the studio version rather than the gaming version.It is a bit slower. I remember running this at 1sec per epoch.
+
+Studio and game ready drivers are the same if the versions are the same
+
+
+
+I see. It's strange, issue not happening now.
+
+
+
+
+
+
+I have tried either version of studio and game ready. Tried all of them which are available for the RTX 3080, but the issue persists. This is my training output wen it starts:
+
+ 2020 thumbs down 2 28 13:59:46.246094: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library nvcuda. dll
+2020 thumbs down 2 28 13:59:46.275929: I tensorflow core common runtime gpu gpu device. cc:1716 Found device 0 with properties: 
+pciBusID: 0000:83:00.0 name: TITAN V computeCapability: 7.0
+coreClock: 1.455GHz coreCount: 80 deviceMemorySize: 12.00GiB deviceMemoryBandwidth: 607.97GiB s
+2020 thumbs down 2 28 13:59:46.276253: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library cudart64 101. dll
+2020 thumbs down 2 28 13:59:46.288071: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library cublas64 10. dll
+2020 thumbs down 2 28 13:59:46.294217: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library cufft64 10. dll
+2020 thumbs down 2 28 13:59:46.296723: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library curand64 10. dll
+2020 thumbs down 2 28 13:59:46.305299: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library cusolver64 10. dll
+2020 thumbs down 2 28 13:59:46.311567: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library cusparse64 10. dll
+2020 thumbs down 2 28 13:59:46.346196: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library cudnn64 7. dll
+2020 thumbs down 2 28 13:59:46.346475: I tensorflow core common runtime gpu gpu device. cc:1858 Adding visible gpu devices: 0
+2020 thumbs down 2 28 13:59:46.362025: I tensorflow compiler xla service service. cc:168 XLA service 0x20e513b8d80 initialized for platform Host this does not guarantee that XLA will be used. Devices:
+2020 thumbs down 2 28 13:59:46.362291: I tensorflow compiler xla service service. cc:176 StreamExecutor device 0: Host, Default Version
+2020 thumbs down 2 28 13:59:46.362731: I tensorflow core common runtime gpu gpu device. cc:1716 Found device 0 with properties: 
+pciBusID: 0000:83:00.0 name: TITAN V computeCapability: 7.0
+coreClock: 1.455GHz coreCount: 80 deviceMemorySize: 12.00GiB deviceMemoryBandwidth: 607.97GiB s
+2020 thumbs down 2 28 13:59:46.363085: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library cudart64 101. dll
+2020 thumbs down 2 28 13:59:46.363276: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library cublas64 10. dll
+2020 thumbs down 2 28 13:59:46.363465: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library cufft64 10. dll
+2020 thumbs down 2 28 13:59:46.363648: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library curand64 10. dll
+2020 thumbs down 2 28 13:59:46.363841: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library cusolver64 10. dll
+2020 thumbs down 2 28 13:59:46.364033: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library cusparse64 10. dll
+2020 thumbs down 2 28 13:59:46.364218: I tensorflow stream executor platform default dso loader. cc:48 Successfully opened dynamic library cudnn64 7. dll
+2020 thumbs down 2 28 13:59:46.364439: I tensorflow core common runtime gpu gpu device. cc:1858 Adding visible gpu devices: 0
+2020 thumbs down 2 28 13:59:47.265842: I tensorflow core common runtime gpu gpu device. cc:1257 Device interconnect StreamExecutor with strength 1 edge matrix:
+2020 thumbs down 2 28 13:59:47.266092: I tensorflow core common runtime gpu gpu device. cc:1263 0 
+2020 thumbs down 2 28 13:59:47.266217: I tensorflow core common runtime gpu gpu device. cc:1276 0: N 
+2020 thumbs down 2 28 13:59:47.266667: I tensorflow core common runtime gpu gpu device. cc:1402 Created TensorFlow device job: localhost replica:0 task:0 device: GPU:0 with 10245 MB memory physical GPU device: 0, name: TITAN V, pci bus id: 0000:83:00. compute capability: 7.0 
+2020 thumbs down 2 28 13:59:47.271449: I tensorflow compiler xla service service. cc:168 XLA service 0x20ea8d5c4c0 initialized for platform CUDA this does not guarantee that XLA will be used. Devices:
+2020 thumbs down 2 28 13:59:47.271684: I tensorflow compiler xla service service. cc:176 StreamExecutor device 0: TITAN V, Compute Capability 7.0 
+
+
+
+
+So it's working now with the exact same model and data? Because somehow I can run LSTM fine with some small text data set, but not with my big image dataset.
+
+
+
+It's the same large data although slightly different some content is different.The difference right now is that I can control training based to cutoff dates. My cutoff date right now is at Sept 30th.The main difference is the NVIDIA driver. It was different before. I am now using: 460.89 Studio Version 
+My existing training would almost always fail. I am on the third run right now.I found the cause of cuda crashes. it is the RMSprop optimizer. With all other leaners, I can run the LSTM fine, this is mad. Wow! What about adam? That is what I have.
+
+Oh never mind. With Adam it will crash simply not as fast as with RMSprop. Everytime I think I have found the problem, but eventually, it will still crash. This has got to be the most frustrating thing I have encountered with tensorflow.Ok I have some good news thumbs up I was messing around with WSL2 to simply run tensorflow gpu in Linux. So I had to install the cuda capable driver 465.12 developer driver, which now does not cause anymore crashes in Windows.
+
+PS
+In case someone has experience with WSL2, I am struggling to get it to recognize my GPU.Wow, awesome! So it's a driver issue! 
+
+Funny you are messing with WSL2 I was doing the same a couple of days back. Haven't gotten too deep into it. Maybe this will help:
+ LINKLINK 
+
+
+
+
+Yeah I found that guide already, but Ubuntu with WSL2 won't recognize my gpu. Even though I have installed the right driver.Same for me. 2.4 was core dumping and I had to install 2.1 but it was CPU version. If I get it to work with the GPU I will let you know. 
+
+But man, after all these months, finally a solution with the above problem! Today is the first time I can train with no issue for hours!
+
+
+
+Yeah it's nice to see TF working properly again! If you got GPU working in WSL Lett me know thumbs up I don't know where I read it but it seems like they want to push GPU support more towards WSL.You got it! That would be great.
+
+I think I have found the cause. I am not on a windows insider build. I am on:
+
+ CODELCODEL 
+
+But according to the cuda docs I should be on 20145 or higher and for tensorflow directml 20150 or higher to be able to use cuda in wsl2.
+
+
+Ah, great. I just initiated the enrollment on the Windows Insider Build. This is great.I know you found a fix, but another fix i found is changing the settings so they do not align with the cudnn requirements:
+ LINKLINK for example adding recurrent dropout which can be very useful.
+If you change these settings it forces it to use the generic GPU kernel and seems to work even if at a performance cost.
+
+
+
+That is not a fix though, because you are not using the Cudnn kernel. It's a nice trick though, I used it too in the mean while by disabling eager executionSorry, this solution will not work for me. I need the speed increase that the CUDNN optimization provides due to the large number of epochs.Have you tried and compared the speed? From what you said you are using a lot of RNN my trick doesn't hurt performance too much for one RNN layer as the rest of the layers CNN, Dense still use CUDNN. With many RNN layers maybe not. Another option is to use ConvLSTM2D with appropriately resized inputs. That also worked for me.
+
+
+
+
+
+
+
+ ion elgreco 
+
+I finally got TensorFlow with CUDA CUDNN to work WSL 2 without using Docker containers. Just a few things:
+ I had to use TF 2.1 as 2.4 would core dump. It's actually slower: It takes 6 seconds per epoch versus 2 seconds on Windows 10.
+
+If the speed issue can be resolved hands down this would be the only environment I will use!
+
+Could you maybe explain in detail, which OS build, driver versions etc you needed to get it to work?
+
+
+
+Here is the info:
+
+ Build: 10.21277 Build 21277
+ Nvidia Driver Version: 460.89 Studio 
+
+As for the commands, I ran a bunch but I think these made it work:
+
+ CODELCODEL 
+
+ ion elgreco 
+I was trying many things for a long time not realizing the issue was with TF 2.0
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hmm interesting, because you are installing the Nvidia driver inside the WSL ubuntu env. According to env to properly use your GPU is to install the driver only on your main OS and not inside the WSL ubuntu. Maybe that's why it's slower?
+
+I'll give your commands a try later this week! Thanks. ion elgreco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Maybe you are right. I was having a ton of issues before that. I will try uninstalling it and see what happens.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Only the developer driver version is supported according to Nvidia. LINKLINK 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Actually, I had the correct driver version installed the one in the link you sent. I confused the new driver update message with the version installed. I am still at 6 seconds even after uninstalling nvidia 440. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+It's probably the slow IO with WSL. Do you need to load a lot of files? nectario There's an interesting observation and a fix regarding the TDR setting causing issues, MAYBE it's also relevant to your CUDA ERROR LAUNCH FAILED case. LINKLINK 
+
+ ahtik Thank you for bringing this to our attention! I just applied the fix. Let's see.
+were you able to resolve the error? I am getting the same thing currently. ericvoots Yes. It has not happened ever since I upgraded my driver. I also applied the above fix. Although this issue was already resolved with the driver upgrade. ion elgreco, upgrading to the driver version 465.12 developer solved this problem for me as well with Win10 TF2.2 Cuda 10. Wonder whether this version in off the master release path and when a supported release driver will work. I did not try the latest suggested driver to check. Just happy I'm running again. One gotcha is that for some reason nvidia smi. exe does not display GPU status with this driver, making it hard to monitor for batch size tweaking. Many thanks.
+
+Do you mean upgrade the drive version not the cuda version? this Bcuda10.1 amd64. deb link is not working and I think make sure tensorflow 3.1 is installed is not correct.
+
+ CODELCODEL 
+
+I have the same problem, I think it's because the versions of cuda and cudnn have been messed up.
+
+My tensorflow is 2.1
+CUDA Version: 11.2
+Driver Version: 460.39
+
+I installed cudnn by CODELCODEL and CODELCODEL 
+
+But I cannot find the correct output via
+ CODELCODEL 

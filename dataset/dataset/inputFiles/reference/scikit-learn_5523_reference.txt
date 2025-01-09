@@ -1,0 +1,5 @@
+At the moment, it's possible to use a pandas dataframe as an input for most sklearn fit predict transform methods, but you get a numpy array out. It would be really nice to be able to get data out in the same format you put it in.
+
+This isn't perfectly straightforward, because if your Dataframe contains columns that aren't numeric, then the intermediate numpy arrays will cause sklearn to fail, because they wil be CODESCODES, instead of CODESCODES. This can be solved by having a Dataframe ndarray transformer, that maps the non numeric data to numeric data for example integers representing classes categories. LINKLINK already does this, although it currently LINKLINK, but that shouldn't be hard to add.
+
+I feel like a transform like this would be really useful to have in sklearn it's the kind of thing that anyone working with datasets with multiple data types would find useful. What would it take to get something like this into sklearn?

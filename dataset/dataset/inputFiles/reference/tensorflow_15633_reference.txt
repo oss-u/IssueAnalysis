@@ -1,0 +1,8 @@
+It's live now at LINKLINK! This is a more complete port of the original TF Android demo only lacking the Stylize example, and will be replacing the other demo in tensorflow contrib lite java demo going forward.
+
+A converted TF Lite flatbuffer can be found in LINKLINK, and you can find the Java inference implementation in LINKLINK. Note that this differs from the original TF implementation in that the boxes must be manually decoded in Java, and a box prior txt file needs to be packaged in the apps assets I think the one included in the model zip above should be valid for most graphs. 
+
+During TOCO conversion a different input node Preprocessor sub is used, as well as different output nodes concat, concat 1. This skips some parts that are problematic for tflite, until either the graph is restructured or TF Lite reaches TF parity.
+
+Here are the quick steps for converting an SSD MobileNet model to tflite format and building the demo to use it:
+ CODELCODEL 

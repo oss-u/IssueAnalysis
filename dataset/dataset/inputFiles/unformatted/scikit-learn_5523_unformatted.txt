@@ -1,0 +1,598 @@
+At the moment, it's possible to use a pandas dataframe as an input for most sklearn fit/predict/transform methods, but you get a numpy array out. It would be really nice to be able to get data out in the same format you put it in.
+
+This isn't perfectly straightforward, because if your Dataframe contains columns that aren't numeric, then the intermediate numpy arrays will cause sklearn to fail, because they wil be `dtype=object`, instead of `dtype=float`. This can be solved by having a Dataframe->ndarray transformer, that maps the non-numeric data to numeric data (e.g. integers representing classes/categories). [sklearn-pandas](https://github.com/paulgb/sklearn-pandas/) already does this, although it currently [doesn't have an `inverse_transform`](https://github.com/paulgb/sklearn-pandas/issues/41), but that shouldn't be hard to add.
+
+I feel like a transform like this would be _really_ useful to have in sklearn - it's the kind of thing that anyone working with datasets with multiple data types would find useful. What would it take to get something like this into sklearn?
+Scikit-learn was designed to work with a very generic input format. Perhaps the world around scikit-learn has changed a lot since in ways that make Pandas integration more important. It could still largely be supplied by third-party wrappers.
+
+But apart from the broader question, I think you should try to give examples of how Pandas-friendly output from standard estimators will differ and make a difference to usability. Examples I can think of:
+- all methods could copy the index from the input
+- transformers should output appropriately-named columns
+- multiclass predict_proba can label columns with class names
+Yep, off the top of my head:
+- the index can be really useful, e.g. for creating timed lagged variables (e.g lag 1 day, on daily data with some missing days)
+- sklearn regressors could be used transparently with categorical data (pass mixed dataframe, transform categorical columns with LabelBinarizer, the inverse_transform it back).
+- sklearn-pandas already provides a nice interface that allows you to pass a dataframe, and only use a subset of the data, and arbitrarily transform individual columns.
+
+If this is all in a transform, then it doesn't really affect how sklearn works by default.
+I don't think it can be implemented nicely as a transformer. It would be
+one or more metaestimators or mixins. I think they should be initially
+implemented externally and demonstrated as useful
+
+On 22 October 2015 at 17:40, naught101 notifications@github.com wrote:
+
+> Yep, off the top of my head:
+> - the index can be really useful, e.g. for creating timed lagged
+>   variables (e.g lag 1 day, on daily data with some missing days)
+> - sklearn regressors could be used transparently with categorical data
+>   (pass mixed dataframe, transform categorical columns with LabelBinarizer,
+>   the inverse_transform it back).
+> - sklearn-pandas already provides a nice interface that allows you to
+>   pass a dataframe, and only use a subset of the data, and arbitrarily
+>   transform individual columns.
+> 
+> If this is all in a transform, then it doesn't really affect how sklearn
+> works by default.
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/5523#issuecomment-150123228
+> .
+Making "pandas in" better was kind of the idea behind the column transformer PR #3886. Maybe I should have looked more closely into what sklearn-pandas is already doing. I'm not entirely sure what the best way forward is there.
+
+The other thing that would be nice would be preserving column names in transformations / selecting them when doing feature selection. I don't find the issue where we discussed this right now. Maybe @jnothman remembers. I would really like that, though it would require major surgery with the input validation to preserve the column names :-/
+
+Related #4196
+> though it would require major surgery with the input validation to
+> preserve the column names :-/
+
+Not only input validation: every transform would have to describe what it
+does to the input columns.
+True, but that I think would be nice ;)
+
+One question is maybe whether we want this only in pipelines or everywhere. If we restrict it to pipelines, the input validation surgery would be less big. But I'm not sure how useful it would be.
+You can always do a pipeline with just one thing in it, right? So we _kind of_ handle all cases (though it is hacky in the limit of 1 object) by restricting to just pipeline at first...
++1. Starting with pipeline sounds nice, and cover all transformer in next step.
+
+I also have an impl with pandas and sklearn integration, which can revert columns info via `inverse_transform` (dirty hack though...)
+
+http://pandas-ml.readthedocs.org/en/latest/sklearn.html
+>   • the index can be really useful, e.g. for creating timed lagged variables
+>     (e.g lag 1 day, on daily data with some missing days)
+
+I am a bit stupid, but aren't talking about something in the sample
+direction here, rather than the feature direction?
+
+>   • sklearn regressors could be used transparently with categorical data (pass
+>     mixed dataframe, transform categorical columns with LabelBinarizer, the
+>     inverse_transform it back).
+> 
+>   • sklearn-pandas already provides a nice interface that allows you to pass a
+>     dataframe, and only use a subset of the data, and arbitrarily transform
+>     individual columns.
+
+OK, but that's all at the level of one transformer that takes Pandas in,
+and gives a data matrix out, isn't it? Rather than attempting a
+modification on all the objects of scikit-learn (which is a risky
+endeavior), we could first implement this transformer (I believe that
+@amueller has this on his mind).
+> sample direction here, rather than the feature direction?
+
+Yep. 
+
+> OK, but that's all at the level of one transformer that takes Pandas in, and gives a data matrix out, isn't it?
+
+Yep, that's what I was thinking to start with. I would be more than happy with a wrapper that dealt with `X` and `y` as dataframes. I don't see an obvious reason to screw with sklearn's internals.
+> ```
+> OK, but that's all at the level of one transformer that takes Pandas in,
+> and gives a data matrix out, isn't it?
+> ```
+> 
+> Yep, that's what I was thinking to start with. I would be more than happy with
+> a wrapper that dealt with X and y as dataframes. I don't see an obvious reason
+> to screw with sklearn's internals.
+
+Then we are on the same page. I do think that @amueller has ideas about
+this, and we might see some discussion, and maybe code soon.
+> The other thing that would be nice would be preserving column names in transformations / selecting them when doing feature selection. I don't find the issue where we discussed this right now.
+
+#5172 
+A note: I had wondered if one would only want to wrap the outermost estimator in an ensemble to provide this functionality to a user. I think the answer is: no, one wants to wrap atomic transformers too, to allow for dataframe-aware transformers within a pipeline (why not?). Without implementing this as a mixin, I think you're going to get issues with unnecessary parameter prefixing or else problems cloning (as in #5080).
+:+1:
+Just wanted to toss out the solution I am using:
+
+``` python
+def check_output(X, ensure_index=None, ensure_columns=None):
+    """
+    Joins X with ensure_index's index or ensure_columns's columns when avaialble
+    """
+    if ensure_index is not None:
+        if ensure_columns is not None:
+            if type(ensure_index) is pd.DataFrame and type(ensure_columns) is pd.DataFrame:
+                X = pd.DataFrame(X, index=ensure_index.index, columns=ensure_columns.columns)
+        else:
+            if type(ensure_index) is pd.DataFrame:
+                X = pd.DataFrame(X, index=ensure_index.index)
+    return X
+```
+
+I then create wrappers around sklearn's estimators that call this function on the output of transform e.g.,
+
+``` python
+from sklearn.preprocessing import StandardScaler as _StandardScaler 
+class StandardScaler(_StandardScaler):
+    def transform(self, X):
+        Xt = super(StandardScaler, self).transform(X)
+        return check_output(Xt, ensure_index=X, ensure_columns=X)
+```
+
+Classifiers that need use of the index of the input dataframe X can just use its index (useful for timeseries as was pointed out).
+
+This approach has the benefit of being completely compatible with the existing sklearn design while also preserving the speed of computation (math operations and indexing on dataframes are up to 10x slower than numpy arrays, http://penandpants.com/2014/09/05/performance-of-pandas-series-vs-numpy-arrays/). Unfortunately, it's a lot of tedious work to add to each estimator that could utilize it.
+Maybe it's only necessary to make a Pipeline variant with this magic...
+
+On 15 January 2016 at 02:30, Dean Wyatte notifications@github.com wrote:
+
+> Just wanted to toss out the solution I am using:
+> 
+> def check_output(X, ensure_index=None, ensure_columns=None):
+>     """
+>     Joins X with ensure_index's index or ensure_columns's columns when avaialble
+>     """
+>     if ensure_index is not None:
+>         if ensure_columns is not None:
+>             if type(ensure_index) is pd.DataFrame and type(ensure_columns) is pd.DataFrame:
+>                 X = pd.DataFrame(X, index=ensure_index.index, columns=ensure_columns.columns)
+>         else:
+>             if type(ensure_index) is pd.DataFrame:
+>                 X = pd.DataFrame(X, index=ensure_index.index)
+>     return X
+> 
+> I then create wrappers around sklearn's estimators that call this function
+> on the output of transform e.g.,
+> 
+> from sklearn.preprocessing import StandardScaler as _StandardScaler
+> class MinMaxScaler(_MinMaxScaler):
+>     def transform(self, X):
+>         Xt = super(MinMaxScaler, self).transform(X)
+>         return check_output(Xt, ensure_index=X, ensure_columns=X)
+> 
+> Classifiers that need use of the index of the input dataframe X can just
+> use its index (useful for timeseries as was pointed out).
+> 
+> This approach has the benefit of being completely compatible with the
+> existing sklearn design while also preserving the speed of computation
+> (math operations and indexing on dataframes are up to 10x slower than numpy
+> arrays). Unfortunately, it's a lot of tedious work to add to each estimator
+> that could utilize it.
+> 
+> —
+> Reply to this email directly or view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/5523#issuecomment-171674105
+> .
+Or just something that wraps a pipeline/estimator, no?
+
+I don't really understand why you'd call a function like that "check_*" when it's doing far more than just checking though...
+
+On 14 January 2016 10:45:44 am CST, Joel Nothman notifications@github.com wrote:
+
+> Maybe it's only necessary to make a Pipeline variant with this magic...
+> 
+> On 15 January 2016 at 02:30, Dean Wyatte notifications@github.com
+> wrote:
+> 
+> > Just wanted to toss out the solution I am using:
+> > 
+> > def check_output(X, ensure_index=None, ensure_columns=None):
+> >     """
+> >     Joins X with ensure_index's index or ensure_columns's columns
+> > when avaialble
+> >     """
+> >     if ensure_index is not None:
+> >         if ensure_columns is not None:
+> >             if type(ensure_index) is pd.DataFrame and
+> > type(ensure_columns) is pd.DataFrame:
+> >                 X = pd.DataFrame(X, index=ensure_index.index,
+> > columns=ensure_columns.columns)
+> >         else:
+> >             if type(ensure_index) is pd.DataFrame:
+> >                 X = pd.DataFrame(X, index=ensure_index.index)
+> >     return X
+> > 
+> > I then create wrappers around sklearn's estimators that call this
+> > function
+> > on the output of transform e.g.,
+> > 
+> > from sklearn.preprocessing import StandardScaler as _StandardScaler
+> > class MinMaxScaler(_MinMaxScaler):
+> >     def transform(self, X):
+> >         Xt = super(MinMaxScaler, self).transform(X)
+> >         return check_output(Xt, ensure_index=X, ensure_columns=X)
+> > 
+> > Classifiers that need use of the index of the input dataframe X can
+> > just
+> > use its index (useful for timeseries as was pointed out).
+> > 
+> > This approach has the benefit of being completely compatible with the
+> > existing sklearn design while also preserving the speed of
+> > computation
+> > (math operations and indexing on dataframes are up to 10x slower than
+> > numpy
+> > arrays). Unfortunately, it's a lot of tedious work to add to each
+> > estimator
+> > that could utilize it.
+> > 
+> > —
+> > Reply to this email directly or view it on GitHub
+> > 
+> > https://github.com/scikit-learn/scikit-learn/issues/5523#issuecomment-171674105
+> > .
+> 
+> ---
+> 
+> Reply to this email directly or view it on GitHub:
+> https://github.com/scikit-learn/scikit-learn/issues/5523#issuecomment-171697542
+
+## 
+
+Sent from my Android device with K-9 Mail. Please excuse my brevity.
+I'm not sure if Pipeline is the right place to start because all column name inheritance is estimator-specific e.g., scalers should inherit the column names of the input dataframe whereas models like PCA, should not. Feature selection estimators should inherit specific column names, but that is another problem, probably more related to #2007.
+
+Is it always the case that n_rows of all arrays is preserved during transform? If so, just inheriting the index of the input (if it exists) seems safe, but I'm not sure that getting a dataframe with default column names (e.g., [0, 1, 2, 3, ...]) is better than the current behavior from an end-user perspective, but if an explicit wrapper/meta-estimator is used, then at least the user will know what to expect.
+
+Also, agreed that check_\* is a poor name -- I was doing quite a bit more validation in my function, and just stripped out the dataframe logic to post here.
+I think pipeline would be the place to start, though we would need to add something to all estimators that map the column names appropriately.
+> transformers should output appropriately-named columns @naught101 
+> 
+> though it would require major surgery with the input validation to preserve the column names :-/  @amueller 
+> 
+> Not only input validation: every transform would have to describe what it does to the input columns. @GaelVaroquaux 
+
+Has anyone thought about the mechanics of how to pass the names around, from transformer to transformer, and perhaps how to track the provenance? Where would one store this?
+
+A friend of mine, @cbrummitt , has a similar problem, where each column of his design matrix is a functional form (e.g. x^2, x^3, x_1^3x_2^2, represented as sympy expressions), and he has transformers that act similarly to PolynomialFeatures, that can take in functional forms and generate more ones based on that. But he's using sympy to take the old expressions and generate new ones, and storing the expressions as string labels doesn't cut it, and gets complicated when you layer the function transformations. He could do all this outside the pipeline, but then he doesn't get the benefit of GridSearch, etc.
+
+I guess the more general version of our question is, how do you have some information that would be passed from transformer to transformer that is NOT the data itself? I can't come up with a great way without having pipeline-global state or having each transformer / estimator know about the previous ones, or having each step return multiple things, or something.
+
+We then also came up with the idea to modify pipeline to keep track of this, you'd have to change _fit() and _transform() and perhaps a few other things. That seems like our best option.
+
+This sounds crazy but what it feels like is that we really want our data matrix to be sympy expressions , and each transformation generates new expressions? This is gross, check_array() stops it from happening, and it'd make other steps down the pipeline angry.
+see #6425 for the current idea.
+All you want is a mapping, for each transformer (including a pipeline of
+transformers), from input feature names to output feature names (or some
+structured representation of the transformations, which I suspect is more
+engineering than we're going to get). That's what #6425 provides.
+
+On 8 October 2016 at 03:42, Andreas Mueller notifications@github.com
+wrote:
+
+> see #6425 https://github.com/scikit-learn/scikit-learn/issues/6425 for
+> the current idea.
+> 
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> https://github.com/scikit-learn/scikit-learn/issues/5523#issuecomment-252301608,
+> or mute the thread
+> https://github.com/notifications/unsubscribe-auth/AAEz65fBsMwqmkDq3DEjMSUC-W-nfn9zks5qxnZxgaJpZM4GThGc
+> .
+We'll look into this, thank you!
+Can someone provide a general update on the state of the world wrt this issue?
+
+Will pandas `DataFrame` support always be a YMMV thing?
+Guidance on what is/isn't considered safe for use with a pandas `DataFrame` instead of just an `ndarray` would be helpful. Perhaps something along the lines of the following (MADE UP EXAMPLE TABLE):
+
+module/category|can safely consume pandas DataFrame
+--|--
+sklearn.pipeline|SAFE
+sklearn.feature_selection|SAFE
+regressors|YMMV
+sklearn.feature_extraction|NOT SAFE, no plan to implement
+etc|...
+
+Right now, I'm not sure of an approach other than "just try it and see if it throws exceptions".
+
+We've tested a handful of hand-coded examples that seem to work just fine accepting a pandas DataFrame, but can't help thinking this will inevitably stop working right when we decide we need to make a seemingly trivial pipeline component swap... at which point everything falls down like a house of cards in a cryptic stack trace.
+
+My initial thought process was to create a replacement pipeline object that can consume a pandas `DataFrame` that auto-generated wrappers for standard scikit-learn components to convert input/output `DataFrame` objects into numpy `ndarray` objects as necessary. That way I can write my own custom Selectors/Transformers so I can make use of pandas `DataFrame` primitives, but that seems a bit heavy handed. Especially so, if we're on the cusp of having "official" support for them.
+
+I've been following a few different PRs, but it's hard to get a sense for which ones are abandoned and/or which reflect the current thinking:
+Example:
+#6425 (referenced Oct 2016 above in this thread)
+#9012 (obvious overlaps with sklearn-pandas, but annotated as experimental?)
+#3886 (superceded by #9012 ?)This hinges critically on what you mean by "Can safely consume pandas DataFrame". If you mean a DataFrame containing only float numbers, we guarantee that everything will work. If there is even a single string anywhere, nothing will work.
+
+I think any scikit-learn estimator returning a dataframe for any non-trivial (or maybe even trivial) operation is something that might never happen (though It would like it to).#9012 will happen and will become stable, the PR is a first iteration (or 10th iteration, if you count non-merged ones ;)
+#6425 is likely to happen, though it is not entirely related to pandas.
+#3886 is indeed superceded by #9012 The functionality #6425 is currently implemented (for some transformers and
+extensible to others) via singledispatch in
+https://codecov.io/gh/TeamHG-Memex/eli5 for what it's worth.
+
+On 21 June 2017 at 13:25, Andreas Mueller <notifications@github.com> wrote:
+
+> #9012 <https://github.com/scikit-learn/scikit-learn/pull/9012> will
+> happen and will become stable, the PR is a first iteration.
+> #6425 <https://github.com/scikit-learn/scikit-learn/issues/6425> is
+> likely to happen, though it is not entirely related to pandas.
+> #3886 <https://github.com/scikit-learn/scikit-learn/pull/3886> is indeed
+> superceded by #9012
+> <https://github.com/scikit-learn/scikit-learn/pull/9012>
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/scikit-learn/scikit-learn/issues/5523#issuecomment-309952467>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AAEz61lgGBW1AoukPm_87elBjF2NGOUwks5sGI0-gaJpZM4GThGc>
+> .
+>
+Oh and when I say " If you mean a DataFrame containing only float numbers, we guarantee that everything will work." I mean with location-based column indexing. training and test set columns are assumed to be the same by position.> This hinges critically on what you mean by "Can safely consume pandas DataFrame". If you mean a DataFrame containing only float numbers, we guarantee that everything will work. If there is even a single string anywhere, nothing will work.
+
+I think that's good enough for us.
+
+We are using a pipeline of custom components (thin wrappers around existing tooling that is not pipeline friendly) to convert mixed types (strings, floats, and ints) into floats via encoding/scaling before reaching scikit-learn components such as selectors or models.All my transformers return `DataFrame`s when given `DataFrame`s.
+When I input a 300-column `DataFrame` into a `Pipeline` and receive a 500-column `ndarray`, I cannot effectively learn much from it, by, e.g., `feature_selection`, because I do not have the column names anymore. If, say, `mutual_info_classif` tells me that only columns 30 and 75 are important, I cannot figure out how to simplify my original `Pipeline` for production.
+Thus it is critical for my use case to keep my data in a `DataFrame`.
+Thank you.@sam-s I totally agree. In the "short" term, this will be addressed by https://github.com/scikit-learn/scikit-learn/pull/13307 and https://github.com/scikit-learn/enhancement_proposals/pull/18
+
+You won't get a pandas dataframe, but you'll get the column name to create one.
+
+Can you please give a more concrete example, though? Because if all transformers return DataFrames, things should work (or be made to work more easily than the proposals above).Slight update via https://github.com/pandas-dev/pandas/issues/27211
+which puts a damper on my hopes. It looks like we can not trust there to be a zero-copy round-trip, and so wrapping and unwrapping into pandas will result in substantial cost.> Slight update via pandas-dev/pandas#27211 which puts a damper on my hopes. It looks like we can not trust there to be a zero-copy round-trip, and so wrapping and unwrapping into pandas will result in substantial cost.
+
+yeah, but I guess once we cover the feature and sample props (row names and "indices" being a kinda sample prop), most related usecases which kinda need pandas now would be covered, right?  @adrinjalali I'm not sure what you mean by "most related usecases with kinda need pandas". I saw this issue not primarily as supporting pandas to implement features within scikit-learn, but to have scikit-learn integrate more easily in a pandas-based workflow.Just out of curiosity, is there a timeframe within which improved Pandas compatibility is expected to land? I'm specifically interested in Pandas in -> Pandas out for `StandardScaler`.I have a use case where I need pandas dataframes preserved through each step in a `Pipeline`.  For example a pipeline with 1) feature selection step filtering features based on data, 2) data transformation step, 3) another feature selection step to filter for specific feature column names or original indices, 4) standardization, 5) classification.
+
+Step 3) I believe is currently not possible in sklearn, even with a numpy array input, because original feature indices are meaningless when the the data gets to 3) since in 1) there was a feature selection step.  If pandas dataframes were being preserved in the pipeline it would work because I could filter by column name in 3).
+
+Am I wrong in thinking there is currently no way to do this even with numpy array input?You're right that it's not supported, and supporting it would not be trivial. Related to your usecase, we're working on passing feature names along the pipeline (as you see in the linked PRs and proposals above). That should hopefully help with your case once it's done. I'm not sure if it helps, but you could also have a look at https://github.com/scikit-learn-contrib/sklearn-pandas> You're right that it's not supported, and supporting it would not be trivial. Related to your usecase, we're working on passing feature names along the pipeline (as you see in the linked PRs and proposals above). That should hopefully help with your case once it's done.
+
+Thanks for confirmation, yes being able to pass around feature names (or other feature properties) to fit methods and have them properly sliced during each feature selection step would be fine for this use case.
+
+> I'm not sure if it helps, but you could also have a look at https://github.com/scikit-learn-contrib/sklearn-pandas
+
+Earlier I read through their docs and maybe I'm not seeing it but most (or all) of their features are obsolete now in scikit-learn 0.21 with `sklearn.compose.ColumnTransformer`?  Also it doesn't seem that they support pandas out it looks like numpy arrays after transforms.
+
+(I wonder whether supporting Pandas out in feature selection would break
+much...)
+Just checking briefly the code, there are all sorts of checks that happen arbitrarily at many place, using for instance https://github.com/scikit-learn/scikit-learn/blob/939fa3cccefe708db7a81c5248db32a1d600bf8d/sklearn/utils/validation.py#L619
+
+Plus many operations use indexing in a numpy fashion that wouldn't be accepted by pandas dataframe.
+
+Keeping pandas in/out would be a must for day-to-day data science IMO, but scikit-learn seems to be designed in a way that would make it hard to be implemented.> Keeping pandas in/out would be a must for day-to-day data science IMO, but
+> scikit-learn seems to be designed in a way that would make it hard to be
+> implemented.
+
+Good numerics are hard to implement on pandas dataframes. They are just
+not meant for that, in particular for multivariate operations (numerical
+operations across columns).
+
+Machine learning is mostly mutlivariate numerics.
+> Good numerics are hard to implement on pandas dataframes. They are just not meant for that, in particular for multivariate operations (numerical operations across columns). Machine learning is mostly mutlivariate numerics.
+
+That decision should be left up to the user?  In my experience using scikit-learn extensively over the past two years I think two core and important functionalities that are missing and are a must have for a lot of ML use cases is support for passing sample and feature metadata.  Full pandas dataframe support is a natural and elegant way to deal with some of this.
+
+These kind of core functionalities are very important to keep the user base and bring in new users.  Otherwise I see libraries like e.g. mlr3 eventually maturing and attracting users away from sklearn because I know they do (or will) fully support data frames and metadata.
+> That decision should be left up to the user?
+
+Well, the user is not implementing the algorithm.
+
+> Otherwise I see libraries like e.g. mlr3 eventually maturing and
+> attracting users away from sklearn because I know they do (or will)
+> fully support data frames and metadata.
+
+mlr3 is in R, the dataframes are quite different from pandas dataframe.
+Maybe this makes it easier to implement.
+
+I agree that better support for feature names and heterogeneous data
+types is important. We are working on finding good technical solutions
+that do not lead to loss of performance and overly complicated code.
+> That decision should be left up to the user?
+> Well, the user is not implementing the algorithm.
+> Otherwise I see libraries like e.g. mlr3 eventually maturing and attracting users away from sklearn because I know they do (or will) fully support data frames and metadata.
+> mlr3 is in R, the dataframes are quite different from pandas dataframe. Maybe this makes it easier to implement. I agree that better support for feature names and heterogeneous data types is important. We are working on finding good technical solutions that do not lead to loss of performance and overly complicated code.
+
+I think your approach of sticking with numpy arrays and at least supporting passing feature names or even better multiple feature metadata would work for many use cases.  For passing training sample metadata you already support it in `**fit_params` and I know there is an effort to improve design.  But I mentioned in https://github.com/scikit-learn/enhancement_proposals/pull/16 that there are use cases where you would also need test sample metadata passed to `transform` methods and this isn't currently supported.
+> mlr3 is in R, the dataframes are quite different from pandas dataframe.
+
+Computational scientists in life sciences research are usually very comfortable with both python and R and use both together (myself included).  I'm pretty sure a significant percentage of the scikit-learn user base are life sciences researchers.
+
+Currently the available mature ML libraries in R IMHO don't even come close to scikit-learn in terms of providing a well-designed API and making the utilitarian parts of ML very straightforward (pipelines, hyperparameter search, scoring, etc) whereas in R with these libraries you have to code it pretty much yourself.  But mlr3 I see as a future big competition to scikit-learn as they are designing it from the ground up the right way.
+> Good numerics are hard to implement on pandas dataframes. They are just
+not meant for that, in particular for multivariate operations (numerical
+operations across columns).
+
+Maybe I am missing something, but wouldn't it be possible to unwrap the DataFrame (using `df.values`), do the computations and then wrap back to a new DataFrame ?
+
+That is basically what I do manually between steps, and the only thing preventing the use of a `Pipeline`.> Maybe I am missing something, but wouldn't it be possible to unwrap the
+> DataFrame (using df.values), do the computations and then wrap back to a new
+> DataFrame ?
+
+In general no: it might not work (heterogeneous columns), and it will
+lead to a lot of memory copies.
+> In general no: it might not work (heterogeneous columns)
+
+I think that Column Transformers and such can handle it indicidually.
+
+>it will lead to a lot of memory copies.
+
+I understand that there are difficult design & implementation choices to make, and that is a sound argument.
+
+However, I don't understand why you would argue that it is not a good idea to improve the way sklearn supports column meta data.
+
+Allowing for instance to ingest a df with features, add a column thanks to a predictor, do more data manipulations, do another predict, all that in a Pipeline, is something that would be useful because it would (for instance) allow hyper parameters optimization in a much better integrated and elegant way.
+
+Doing it with or without pandas is just a suggestion since it is the most common, easy and popular way to manipulate data, and that I don't see any benefits to rewrite more than what they did.
+
+It would be up to the user to decide not to use this workflow when optimizing performances.Leaving things up to the user to decide requires clearly explaining the
+choice to the user. Most users do not read the documentation that would
+explain such choices. Many would try what they think might work, and then
+give up when they find it slow, not realising that it was their choice of
+daraframe that made it so.
+
+ So we need to step with some care here. But we do need to keep solving
+this as a high priority.
+I think the best solution would be to support pandas dataframes in and out for the sample and feature properties and properly passing and slicing them into train and test fit/transform. That would solve most uses cases while keeping the speed of the data matrix X as numpy arrays.One important point missing from this arguments is that pandas is moving towards a columnar representation of the data, in a way that `np.array(pd.DataFrame(numpy_data))` will have two _guaranteed_ memory copies. That's why it's not as easy as just keeping the dataframe and using `values` whenever we need speed.> One important point missing from this arguments is that pandas is moving towards a columnar representation of the data, in a way that `np.array(pd.DataFrame(numpy_data))` will have two _guaranteed_ memory copies. That's why it's not as easy as just keeping the dataframe and using `values` whenever we need speed.
+
+I hope I was clear in my previous post.  I believe scikit-learn doesn't currently need to support pandas dataframes for X data, keep them as speedy numpy arrays.  But what would solve many use cases is full support through the framework for pandas dataframes for metadata, i.e. sample properties and feature properties.  This shouldn't be a performance burden even for memory copies as these two data structures will be minor compared to X and really only subsetting will be done on these.
+
+Yes, those changes do help in many usecases, and we're working on them. But this issue is beyond that: https://github.com/scikit-learn/scikit-learn/issues/5523#issuecomment-508807755@hermidalc are you suggesting we let `X` be a numpy array, and assign the meta data in other dataframe object(s)?> @hermidalc are you suggesting we let `X` be a numpy array, and assign the meta data in other dataframe object(s)?
+
+Yes, full support for sample properties and feature properties as pandas dataframes.  Discussion is already happening on sample properties and feature names in other PRs and issues, e.g. here #9566 and #14315
+I've read up on this issue and looks like there are two major blockers here:
+1. https://github.com/pandas-dev/pandas/issues/27211
+2. That pandas does not handle N-D arrays.
+
+Have you considered adding support for xarrays instead? They don't have those limitations of pandas.
+```python
+X = np.arange(10).reshape(5, 2)
+assert np.asarray(xr.DataArray(X)) is X
+assert np.asarray(xr.Dataset({"data": (("samples", "features"), X)}).data).base is X.base
+```
+There is a package called `sklearn-xarray`: https://phausamann.github.io/sklearn-xarray/content/wrappers.html that wraps scikit estimators to handle xarrays as input and output but that seems to have gone unmaintained for years. However, I wonder if wrappers are the way to go here.xarray is actively being considered. It is being prototyped and worked on here: https://github.com/scikit-learn/scikit-learn/pull/16772 There is a usage notebook on what the API would look like in the PR.
+
+(I will get back to it after we finish with the 0.23 release)I am also very interested in this feature.
+It would solve infinite problems. Currently this is the solution I am using.
+I wrote a wrapper around the `sklearn.preprocessing` module, which I called `sklearn_wrapper`
+
+So instead of importing from `sklearn.preprocessing` I import from `sklearn_wrapper`.
+For example:
+
+```
+# this
+from sklearn.preprocessing import StandardScaler 
+# becomes 
+from sklearn_wrapper import StandardScaler
+```
+
+Below the implementation of this module. Try it out and let me know what you guys think
+
+```
+from functools import wraps
+from itertools import chain
+
+import pandas as pd
+from sklearn import preprocessing, compose, feature_selection, decomposition
+from sklearn.compose._column_transformer import _get_transformer_list
+
+modules = (preprocessing, feature_selection, decomposition)
+
+
+def base_wrapper(Parent):
+    class Wrapper(Parent):
+
+        def transform(self, X, **kwargs):
+            result = super().transform(X, **kwargs)
+            check = self.check_out(X, result)
+            return check if check is not None else result
+
+        def fit_transform(self, X, y=None, **kwargs):
+            result = super().fit_transform(X, y, **kwargs)
+            check = self.check_out(X, result)
+            return check if check is not None else result
+
+        def check_out(self, X, result):
+            if isinstance(X, pd.DataFrame):
+                result = pd.DataFrame(result, index=X.index, columns=X.columns)
+                result = result.astype(X.dtypes.to_dict())
+            return result
+
+        def __repr__(self):
+            name = Parent.__name__
+            tmp = super().__repr__().split('(')[1]
+            return f'{name}({tmp}'
+
+    Wrapper.__name__ = Parent.__name__
+    Wrapper.__qualname__ = Parent.__name__
+
+    return Wrapper
+
+
+def base_pca_wrapper(Parent):
+    Parent = base_wrapper(Parent)
+
+    class Wrapper(Parent):
+        @wraps(Parent)
+        def __init__(self, *args, **kwargs):
+            self._prefix_ = kwargs.pop('prefix', 'PCA')
+            super().__init__(*args, **kwargs)
+
+        def check_out(self, X, result):
+            if isinstance(X, pd.DataFrame):
+                columns = [f'{self._prefix_}_{i}' for i in range(1, (self.n_components or X.shape[1]) + 1)]
+                result = pd.DataFrame(result, index=X.index, columns=columns)
+            return result
+
+    return Wrapper
+
+
+class ColumnTransformer(base_wrapper(compose.ColumnTransformer)):
+
+    def check_out(self, X, result):
+        if isinstance(X, pd.DataFrame):
+            return pd.DataFrame(result, index=X.index, columns=self._columns[0]) if self._remainder[1] == 'drop' \
+                else pd.DataFrame(result, index=X.index, columns=X.columns). \
+                astype(self.dtypes.iloc[self._remainder[-1]].to_dict())
+
+
+class SelectKBest(base_wrapper(feature_selection.SelectKBest)):
+
+    def check_out(self, X, result):
+        if isinstance(X, pd.DataFrame):
+            return pd.DataFrame(result, index=X.index, columns=X.columns[self.get_support()]). \
+                astype(X.dtypes[self.get_support()].to_dict())
+
+
+def make_column_transformer(*transformers, **kwargs):
+    n_jobs = kwargs.pop('n_jobs', None)
+    remainder = kwargs.pop('remainder', 'drop')
+    sparse_threshold = kwargs.pop('sparse_threshold', 0.3)
+    verbose = kwargs.pop('verbose', False)
+    if kwargs:
+        raise TypeError('Unknown keyword arguments: "{}"'
+                        .format(list(kwargs.keys())[0]))
+    transformer_list = _get_transformer_list(transformers)
+    return ColumnTransformer(transformer_list, n_jobs=n_jobs,
+                             remainder=remainder,
+                             sparse_threshold=sparse_threshold,
+                             verbose=verbose)
+
+
+def __getattr__(name):
+    if name not in __all__:
+        return
+
+    for module in modules:
+        Parent = getattr(module, name, None)
+        if Parent is not None:
+            break
+
+    if Parent is None:
+        return
+
+    if module is decomposition:
+        Wrapper = base_pca_wrapper(Parent)
+    else:
+        Wrapper = base_wrapper(Parent)
+
+    return Wrapper
+
+
+__all__ = [*[c for c in preprocessing.__all__ if c[0].istitle()],
+           *[c for c in decomposition.__all__ if c[0].istitle()],
+           'SelectKBest']
+
+
+def __dir__():
+    tmp = dir()
+    tmp.extend(__all__)
+    return tmp
+```
+
+
+
+
+
+
+https://github.com/koaning/scikit-lego/issues/304 provided another solution by Hot-fixing on the sklearn.pipeline.FeatureUnion> [koaning/scikit-lego#304](https://github.com/koaning/scikit-lego/issues/304) provided another solution by Hot-fixing on the sklearn.pipeline.FeatureUnion
+
+I like the solution with `pandify` decorator - it's very ellegant IMHO (provided that the columns **remain unchanged** during transformation and there is no need to pickle the object). Thanks for letting us know!

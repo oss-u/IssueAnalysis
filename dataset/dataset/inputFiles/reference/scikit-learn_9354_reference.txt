@@ -1,0 +1,15 @@
+ CODESCODES 
+
+is numerically unstable, if dot x, x and dot y, y are of similar magnitude as dot x, y because of what is known as catastrophic cancellation.
+
+This not only affect FP32 precision, but it is of course more prominent, and will fail much earlier.
+
+Here is a simple test case that shows how bad this is even with double precision:
+ CODELCODEL 
+sklearn computes a distance of 0 here both times, rather than sqrt 2.
+
+A discussion of the numerical issues for variance and covariance and this trivially carries over to this approach of accelerating euclidean distance can be found here:
+
+
+
+

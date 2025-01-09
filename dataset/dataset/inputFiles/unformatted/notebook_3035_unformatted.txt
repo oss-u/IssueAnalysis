@@ -1,0 +1,223 @@
+Hi! I'm having an issue with this specific notebook where it doesn't render at all in github. I get the message "Sorry, something went wrong. Reload?". It does work in nbviewer though. 
+
+Here is the link to the notebook: 
+https://github.com/erichamers/Cursos/blob/master/Regressa%CC%83o%20Linear/Mercado%20Imobilia%CC%81rio%20USA%20-%20Regressa%CC%83o%20Linear.ipynb
+
+I also have this problemNice i have the same problem i have commtited less than one hour, i think if de push tomorrow again it will be goodI also have the same issue for all my notebooks, which previously worked :/ f.e. https://github.com/vevurka/mt-lob/blob/master/queue_imbalance/kernel_choice.ipynbHey, same issue here. Any news?@vevurka's example seems to work from me. Github runs the rendering on their site themselves, so we don't have any direct insight when it goes wrong. But if there's a problem, don't forget you can always copy the URL into https://nbviewer.jupyter.org/ .@takluyver yeah, right now it seems to work. That's weird. Maybe github has some issues with aws (I saw some 404 in my browsers console when it tried to get https://github-render.s3.amazonaws.com/prod/... when it didn't work). It should always work though :(.My Notebooks still aren't showing.
+
+An example: https://github.com/bugo99iot/airbnb_k_nearest/blob/master/airbnb_k_nearest.ipynb
+
+Any idea why?Even I have the same issue.. There were many solutions provided in another thread to open the notebook in nbviewer. Here is the reply 
+
+"try to open that notebook that you want using nbviewer online, you
+don't need to install it, i will try with that link you sent:
+
+open "https://nbviewer.jupyter.org/" ans paste the notebook link. this is
+an independent tool that may work when github doesnt"
+
+Try and see if this works. I was getting 404 : Not Found error though.
+ Hi @yash64  "https://nbviewer.jupyter.org/" works.
+Just paste entire github link in ithttps://nbviewer.jupyter.org/ is not a solution for private repos though ... 
+
+I realize that it might be a size issue...does it make sense ? @takluyver  
+GitHub would not render notebooks above x size ...what is x ? around 10 MB  ? (in my experience ...)
+Is x browser-dependent ?I am having the same issue where my work private repo will not show jupyter notebooks only anymore, starting just this afternoon, including jupyter notebooks that i have not recently pushed.After working on a repo of jupyter notebooks over the past month, I've had this intermittent issue twice.  It seems to resolve itself in 4-5 hours.  Here is an example that is currently failing to render: https://github.com/Microsoft/NimbusML-Samples/blob/master/samples/1.1%20%5BNumeric%5D%20Classification%20with%20Synthetic%20Data.ipynb
+
+Here is another that is failing: https://github.com/jupyter/notebook/blob/master/docs/source/examples/Notebook/What%20is%20the%20Jupyter%20Notebook.ipynb
+
+And one that is succeeding:
+https://github.com/julienr/ipynb_playground/blob/master/perceptron/perceptron.ipynbFailing to render jupyter notebook 
+Here's an example : 
+[Jupyter noteook](https://github.com/ameyyadav09/supervisedLearning/blob/master/SupervisedLearning/K%20Nearest%20Neighbors.ipynb)
+To add some temporal info in case it is helpful, the notebooks from my comment 16 hours ago are now rendering.  The notebook from @Raghavendra-Gali's comment is still not rendering 4 hours after his comment.  Based on my past experience my guess is that that notebook will resume rendering soon. (Again, all of these render on https://nbviewer.jupyter.org/.)I'm having this problem right now, but only with Chrome. It renders fine with Firefox. Might be one of my Chrome extensions I guess. I have the same problem. The problem is even there with the links posted obove. So it is not a question of time. I use Firefox btw...Any options as a work around (off github)? I think it is a Firefox specific bug. I tried it with iPad (Safari) and with Edge and it was fine with them.Guys, with time it will fix itself and give the appropriate format, check mine out: https://gist.github.com/haryodollybim419/2599b336d82eef4f4a6a9a224a369273For me it's working again. I think they fixed it.um...not really...for instance I cannot see @haryodollybim419 's 
+https://gist.github.com/haryodollybim419/2599b336d82eef4f4a6a9a224a369273 
+
+- safari 12.0.1 -- it keep telling me `Sorry, something went wrong. Reload?`
+- firefox 64.0 and chrome 71.0.3578.98 give this
+<img width="998" alt="screenshot 2019-01-03 at 16 50 34" src="https://user-images.githubusercontent.com/15370425/50646986-c6106980-0f77-11e9-806b-99c4f04a418c.png">
+
+@PhilipMay   I just push my .ipynb to Gist，and still can't render. Anyone have the same issue at this moment? Yes, Github is still not rendering iPython files right now. Even new or existing iPython files that it used to render. I suspect that Github is still working on trying to resolve this problem.
+
+When I try to view a iPython file, it tries to render it for about 20 seconds and then gives me an message that says, "Sorry, something went wrong. Reload?"For me this here is rendering correctly at the moment:
+https://github.com/Microsoft/NimbusML-Samples/blob/master/samples/1.1%20%5BNumeric%5D%20Classification%20with%20Synthetic%20Data.ipynb
+
+Mac, FirefoxThank you PhilipMay. Yes, it is now rendering. Even my existing stuff is rendering now. Thank you for your reply.I was able to fix it after I turned off the Ghostery-Plugin in Chromeexample from @PhilipMay  is also rendering on Safari 12.0.1So, nobody actually knows why some jupyter-notebooks fail to render and the problem is still here?)I keep getting (not all the times though) the 404 error from S3 AWS server, as already reported by https://github.com/jupyter/notebook/issues/3035#issuecomment-396077462
+The failure seems to be random, but more frequent for larger and more complex Jupyter notebooks. Has anyone figured out a reason why GitHub is not rendering certain notebooks? It seems mysterious to me. The size alone can not be the crucial factor, even notebooks smaller than 1 MB are not rendered correctly in certain cases.One reason seems to be for me that I have used the [query method](http://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html#pandas.DataFrame.query)
+
+For some reason it seems to work again if I replace it by normal methods
+```
+data = data.query("rating > 0").query("price > 0")
+=>
+data = data[data["rating"] > 0]
+data = data[data["price"] > 0]
+```> The failure seems to be random, but more frequent for larger and more complex Jupyter notebooks. Has anyone figured out a reason why GitHub is not rendering certain notebooks? It seems mysterious to me. The size alone can not be the crucial factor, even notebooks smaller than 1 MB are not rendered correctly in certain cases.
+
+It seems it has the prerequisites for a ML problem :) -- we could feed thousands of notebooks, together with the browser settings and train a classifier on rendered/not-rendered I also have the same issue with my jupyter notebook. It worked fine, but today the error message "Sorry, something went wrong. Reload?" keeps showing up.  I tried on Mac os Safari 12.0.3 and Windows firefox. None worked. But my jupyter notebooks all work well on https://nbviewer.jupyter.org/.same problem https://github.com/isaiMercado/Deep_Learning_Class_Projects/blob/master/Lab07_Tensorflow_Generative_Adversarial_Network/load_model_and_test_it.ipynbI'm wondering if this is maybe a GitHub issue.  Here is what I'm looking at:
+
+When I try loading one of these ipynb files that is not loading, I get the following information in the dev tools in Chrome: 
+```
+<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>prod/d49d3c992c3ef3e2d7f863e6acb853a2-render.html</Key><RequestId>15544B77B71C4AA4</RequestId><HostId>fxgn5AKG08mx1HqEz4ZlSC+buaE2XLRT15R3wRbCdyX0ZFV4wFPvdVQU5/mlRt9PrBknyVhucTY=</HostId></Error>
+```
+
+This is coming from ipynb in sources: 
+
+![image](https://user-images.githubusercontent.com/7451178/56709759-9f25a100-66e8-11e9-9a40-d489ebe7fe4e.png)
+
+Here are the github links although they won't give the same message as they expire pretty quickly: 
+
+<https://github-render.s3.amazonaws.com/prod/d49d3c992c3ef3e2d7f863e6acb853a2-render.html?AWSAccessKeyId=AKIAJILR36AMCOMBK3MQ&Signature=2pMM/48kST9psW21RvVYSUDSaXA%3D&Expires=1556167452>
+and
+<https://github-render.s3.amazonaws.com/prod/d49d3c992c3ef3e2d7f863e6acb853a2-meta.json?AWSAccessKeyId=AKIAJILR36AMCOMBK3MQ&Signature=rilU5%2Bf2k0m/1oA%2BXtBOsyYYoy8%3D&Expires=1556167452>
+
+I was able to get one jupyter notebook to work and it used the same AWSAccessKeyId, so I'm thinking the issue is maybe the signature or possible something else.  Not really sure what else to try with this.  It also seems like some people are having better luck on other browsers.  I am using Chrome 73.0.3683.103 if that helps with anything.  
+
+I found it happening after I have been logged in for many days. Log out and log back in fixes the issue for me.I'm having this problem now.  I tried logging out and re login as diegoscarabelli suggested above, but still doesn't work.@Lucecpkn that's unfortunate. For me it is a 100% reproducible fix when a notebook fails to be displayed. I'm having this problem nowStill facing it.Yes, I'm still having the exact some problem. GitHub, it's been 1.5 years since first reported. Can you please fix it ?.... Yep, also having this problem.Have this problem currently.It was working ok for me on Chrome when I uploaded the .ipynb files last week but this is not the case any longer. Its Microsoft I guess!!!
+This is really terrible, my notebook with just 280 lines of 25 kb size is not opening
+https://github.com/braindotai/Deep-Learning-Scratch-Arena/blob/master/07.%20Convolutional%20Neural%20Networks/02.%20Convolutional%20with%20Strides%20-%20MXNet.ipynbIt's the size of the notebook I guess. Notebooks with a number of lines from 200 to 300 are working just fine, larger files tend to produce an error while rendering. 
+It is working for me again. No changes made affecting the number of lines.
+
+On Wed, Jul 10, 2019 at 11:04 AM Amrouane Mohamed <notifications@github.com>
+wrote:
+
+> It's the size of the notebook I guess. Notebooks with a number of lines
+> from 200 to 300 are working just fine, larger files tend to produce an
+> error while rendering.
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/3035?email_source=notifications&email_token=ABEG4MCRC7UBR6YFXQMTOBLP6WX33A5CNFSM4EDHYEX2YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGODZS7M5Y#issuecomment-509998711>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/ABEG4MG24Q7CPXAYIRBM3KLP6WX33ANCNFSM4EDHYEXQ>
+> .
+>
+I don't think it is the size of the file . For me also it's not working , sometimes big files get uploaded but small files sometimes doesn't . I have seen a trend , after logout and login in again , the first file clicked gets uploaded after that no other files get loaded.I've last commited day before yesterday, and no notebooks were opening in my repository. 
+But Today all the notebooks are opening like champ!!! Guys it's almost 2 years and still no fix?I'm facing the same issue now.> Guys it's almost 2 years and still no fix?
+
+As @takluyver pointed out [above](https://github.com/jupyter/notebook/issues/3035#issuecomment-396076506), this is a GitHub issue, not a Jupyter issue, nor a Jupyter notebook issue. GitHub does its own rendering of Jupyter notebooks that is completely independent of Jupyter. This is the wrong place to be raising this issue, as we can do nothing about GitHub's notebook rendering. Please contact GitHub: https://github.com/contactI created a notebook using google colab and saved in github, but it keeps showing me like 'Sorry, something went wrong. Reload?' why?I don't think it has anything to do with google colab, I've done this many times and every time my notebook loads perfectly. But sometimes, like today, none of em are opening. I think github does some periodic system refresh, that causes this, I'm just guessing. 
+You just have to wait for a while(may be hours), then everything should work fine(at least we can hope so).@braindotai let's see what happens.btw, GitLab seems to have no problem... (apart from the rendering of the Table of Contents )Is the issue resolved? I haven't found a solution in the thread@braindotai you were right, there might be some periodic system refresh, it is working fine now. @gaseln it is working now.Two years later, still an issue. Having an issue with several recent notebooks.
+
+Perhaps GitHub runs some sort of notebook check post-push? Like Google Drive’s “scanning for viruses” step? Or youtube’s video processing step?> Is the issue resolved? I haven't found a solution in the thread
+
+Nope, there is still a problem with rendering notebooks on Github... But it looks like it's a Github problem, not jupyter related...Same issue here... I really can't understand that, at this point, with the popularity of Notebooks, that Github isn't more Notebooks friendly... I mean, not only I am expecting to be able to render it, but why not run it... but no... :( @adumont Github is very unstable with this Jupyter-Notebook compatibility. As stated before, the best approach to render your files is to use [nbviewer](https://nbviewer.jupyter.org/).I noticed that Github renders asynchronously the notebooks. After a while
+of committing it appeared just fine. Thanks.
+
+El mar., 13 ago. 2019 22:22, Vinícius Orsi Valente <notifications@github.com>
+escribió:
+
+> @adumont <https://github.com/adumont> Github is very unstable with this
+> Jupyter-Notebook compatibility. The best approach to render your files is
+> to use nbviewer <https://nbviewer.jupyter.org/>.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/3035?email_source=notifications&email_token=AACRLWS6EVHXWRJQRA574ELQEMJ2BA5CNFSM4EDHYEX2YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOD4G33KQ#issuecomment-520994218>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AACRLWXKIAM7CV7HND3UYFTQEMJ2BANCNFSM4EDHYEXQ>
+> .
+>
+Same issue [for this notebook](https://github.com/PrometheusPi/particle-in-cell_tutorial/blob/dev/01_Electromagnetics_in_1D_with_Yee.ipynb) - yesterday evening it just showed the standard error message (using Firefox, MacOS), today it renders fine (without another commit). 
+
+This supports the previous statement by @adumont that rendering might happen  asynchronously. I believe it's not an issue per se, it's how Github renders. It seems to
+queue the rendering and process it asynchronously, after the commits. I
+believe they should put some message on the page saying that it will be
+rendered lately, maybe say some estimation of how long it will take.
+
+El mié., 14 ago. 2019 13:07, Richard Pausch <notifications@github.com>
+escribió:
+
+> Same issue for this notebook
+> <https://github.com/yPrometheusPi/particle-in-cell_tutorial/blob/dev/01_Electromagnetics_in_1D_with_Yee.ipynb>
+> - yesterday evening it just showed the standard error message (using
+> Firefox, MacOS), today it renders fine (without another commit).
+>
+> This supports the previous statement by @adumont
+> <https://github.com/adumont> that rendering might happen asynchronously.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/3035?email_source=notifications&email_token=AACRLWTDVTSMFBYLZ2ZPBA3QEPRPLA5CNFSM4EDHYEX2YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOD4IOUVI#issuecomment-521202261>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AACRLWRRGCH5CZ5NEXPO44DQEPRPLANCNFSM4EDHYEXQ>
+> .
+>
+1) Is there a GitHub issue (not a Jupyter one) where this is being tracked?  I have to imagine someone opened one, but a link to it would be helpful so that we can move the discussion there where it belongs, and get them to prioritizing fixing it.  
+
+2) One could develop an extension to rewrite the iframe on the GitHub page for the notebook to contain the nbviewer URL instead of the broken one produced by GitHub.  This solution would then be robust to changes in the notebook specification, although it would only work for public repos.  @rgerkin 
+to 1.) Definitely GitHub would be the right address for this issue. However, there seems to be no official issue tracker for github - only an unofficial one: https://github.com/isaacs/github (detailed discussion on the missing GitHub issue tracker can be found here: https://github.com/isaacs/github/issues/6) - the only option is sending an email to the support. https://github.com/contact
+
+to 2.) I agree, this is a nice workaround (I recommended that on some of my repositories after I found this issue) - but as you mentioned this would never work with private repositories and thus is no general solution. 
+For solution kindly go through this link https://medium.com/@pg170898/problem-facing-at-github-ipynb-is-not-loading-f986a04649f3This is bad. If not for Jupyter notebooks rendering, what's the point of Github in 2019? Annoying :|I hope here You will find the solution ....just go through this link
+
+https://medium.com/@pg170898/problem-facing-at-github-ipynb-is-not-loading-f986a04649f3
+
+On Tue, 8 Oct 2019 6:17 pm Aditya Kaushik, <notifications@github.com> wrote:
+
+> This is bad. If not for Jupyter notebooks rendering, what's the point of
+> Github in 2019? Annoying :|
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/3035?email_source=notifications&email_token=AI77RAQWO4XAAGY6K5KLJWTQNR6PHA5CNFSM4EDHYEX2YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOEAUA6NQ#issuecomment-539496246>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AI77RAVZJTDHBMX336MA5YLQNR6PHANCNFSM4EDHYEXQ>
+> .
+>
+@priyanshgupta1998 i went to the medium page and i followed solution#1 ,what it does is show me the jupyter notebook correctly , which is great
+but i wouldn't be able to link a section of it to the read me. would I ?
+Everyone should reach out to the support of Github: https://support.github.com/contact. They might solve this bug if they get many complaints about it. That medium post unfortunately doesn't work for private repos (of which all of my company's are).yes facing same issue, jupyter notebook unable to render correctly on github gist, which is impacting medium post as wellsame problem reoccurring, whenever we don't need it, thanks to Murphy 's law
+https://github.com/theofil/CompPhysics/tree/master/examplesThis affects me too. Before it happened sometimes, and I could refresh to get it working. Now I havent been able to render notebooks for several weeks.Github needs to fix this. It's been days and still no luck on multiple notebooks I uploaded. And some of them work for some time then fail again. Very dodgey renderingI'm currently having the same issue (with [this notebook](https://gist.github.com/gdcutting/92322a5717cefa556047e76f1529f655#file-google-bigquery-getting-started-ipynb) and others). Uploaded a few hours ago, it wouldn't render at first, then it did for a while, now it's not again. I didn't make any changes to the notebook, so it seems unnecessary to refresh the render.
+
+The problem for me (and others I'm sure) is that occasional rendering isn't really helpful. I am trying to embed the gist for this notebook in a [blog post](https://www.guydcutting.com/blog/108-bigquery); if someone sees the post with the broken Gist, they probably will assume it's my mistake and not a GitHub problem, which makes me look bad.
+
+It's unfortunate because these notebook embeds are quite useful, but until they are working reliably again I guess I will have to find another solution. @gdcutting, your blog post renders for me right now. I have been in contact with github over this and they were very responsive. They could not provide any ETA for a final fix. Maybe we should all head over to https://github.community and collect all our woes in order to raise this issue on the github priority list.What is the cause behind this?Kindly go through below link ,
+
+https://medium.com/@pg170898/problem-facing-at-github-ipynb-is-not-loading-f986a04649f3
+
+On Wed, 23 Oct 2019 5:14 am Lei Mao, <notifications@github.com> wrote:
+
+> What is the cause behind this?
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/3035?email_source=notifications&email_token=AI77RATPHD252T5EQIE2BK3QP6F7FA5CNFSM4EDHYEX2YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOEB7R6LY#issuecomment-545201967>,
+> or unsubscribe
+> <https://github.com/notifications/unsubscribe-auth/AI77RAQONQ6WDWCNLYJLMCDQP6F7FANCNFSM4EDHYEXQ>
+> .
+>
+@priyanshgupta1998 will not work for private repos, I presume. 
+
+One cumbersome workaround is to download the notebook file and use [this](https://jsvine.github.io/nbpreview) 
+
+Still not working for our private repo notebooksYup same here, we're using private notebooksPerhaps that this issue should be reopened.
+I get horizontal display from a notebook just saved in a gitHub repository.
+https://github.com/VerifyH2020/VERIFY_examples_notebooks/blob/master/Time_serie_plot_01.ipynb
+
+![image](https://user-images.githubusercontent.com/5402758/73092021-0bce0600-3edc-11ea-95a8-0df40c232eae.png)
+
+Tested with different browsers. So don't understand what is happening...@PBrockmann This is the first notebook I have seen with this issue. Might this be caused by the cell before which contains some (wrongly formatted?) html tags? 
+```html
+<img align="left" width="10%" src="http://verify.lsce.ipsl.fr/images/drawing_20180302.png" >
+Patrick BROCKMANN - LSCE (Climate and Environment Sciences Laboratory)
+</div> 
+```
+![grafik](https://user-images.githubusercontent.com/5121158/73448620-96da5080-4361-11ea-8182-8dca091f35ff.png)
+Indeed.
+But why a markdown cell would have this implication ?
+Note the the markdown produces a correct display when used from the notebook. 
+
+It is ok when I pass the html tag hr in a markdown cell after.I've had this problem for over a year.  And I don't think it is caused by github because if I try to export the notebook as html, the html version also appears horizontal and squeezed. nbviewer produces the same view as does Firefox and Chrome.
+
+Can anyone here even get a proper looking html export at all?
+
+https://github.com/pypinkfloydfan/Time_Series/blob/master/Time_Series_Project.ipynb
+Well, for me, only renders in github if i click on the "Raw" button, 
+![Screenshot from 2020-05-28 11-27-00](https://user-images.githubusercontent.com/61469147/83130409-299fb780-a0d6-11ea-83bb-8ed440eb48ca.png)
+And now is rendering!
+if i go back, renders
+![Screenshot from 2020-05-28 11-27-22](https://user-images.githubusercontent.com/61469147/83130462-3c19f100-a0d6-11ea-9e18-32751359d287.png)
+

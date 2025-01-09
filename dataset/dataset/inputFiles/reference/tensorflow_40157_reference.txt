@@ -1,0 +1,29 @@
+ System information 
+ OSX
+ TF 2.0 dev20200602
+
+
+ Command used to run the converter or code if you’re using the Python API 
+If possible, please share a link to Colab Jupyter any notebook.
+
+Conversion code:
+ CODELCODEL 
+
+
+Inference code:
+ CODELCODEL 
+The model I'm trying to convert to tflite and run inference on is SSDLite MobileNetV2, obtained rom the Model Zoo:
+
+ LINKLINK 
+
+ Failure details 
+
+Conversion is successful, however I cannot run inference: Here is the error that I run into:
+ CODELCODEL 
+
+I've been playing around with converter settings with no luck
+ for example combinations of: 
+ CODELCODEL 
+
+With none of the settings above set, or the supported ops set, I can convert the model but cannot run inference, with a similar error as above.
+With optimizations set to default, it gives me an error in conversion

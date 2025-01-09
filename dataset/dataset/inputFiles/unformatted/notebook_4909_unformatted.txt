@@ -1,0 +1,1439 @@
+```  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+    km.start_kernel(**kwargs)
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+    self.write_connection_file()
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+    kernel_name=self.kernel_name
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+    with secure_write(fname) as f:
+  File "C:\Users\Khushboo.Girotra\anaconda3\lib\contextlib.py", line 112, in __enter__
+    return next(self.gen)
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 100, in secure_write
+    win32_restrict_file_to_user(fname)
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 53, in win32_restrict_file_to_user
+    import win32api
+ImportError: DLL load failed: The specified procedure could not be found.``` 
+
+I have re-install the anaconda as well . but still It is showing the same kernel error.
+ Kernel json file shows :
+{
+ "argv": [
+  "C:\\Users\\Khushboo.Girotra\\python.exe",
+  "-m",
+  "ipykernel_launcher",
+  "-f",
+  "{connection_file}"
+ ],
+ "display_name": "Python 3",
+ "language": "python"
+} 
+
+I have tried lot of solution which are already there but nothing works out . Kindly help
+Kindly respond
+You might want to be sure the latest version (`5.3.3`) of `jupyter_client` is fully installed.  Looks like this portion of its setup.py didn't run `pywin32 >=1.0 ; sys_platform == 'win32'`. It's 5.3.3 version only but there is no file = setup.py under jupyter _client. Kindle elaborate jupyter core     : 4.5.0
+jupyter-notebook : 6.0.1
+qtconsole        : 4.5.5
+ipython          : 7.8.0
+ipykernel        : 5.1.2
+jupyter client   : 5.3.3
+jupyter lab      : 1.1.3
+nbconvert        : 5.6.0
+ipywidgets       : 7.5.1
+nbformat         : 4.4.0
+traitlets        : 4.3.2I'm referring to the setup.py that's in the repository: https://github.com/jupyter/jupyter_client/blob/5.3.3/setup.py
+This file isn't laid down during installation but it's what is used during `jupyter_client`'s installation.
+
+You might try `pip install --upgrade jupyter_client`.  You should have `pywin32` installed.I have installed anaconda , under that jupyter notebook also get installed . 
+I have 5.3.3 version and pywin32 is installed . Still there is kernel error.>I have 5.3.3 version and pywin32 is installed . Still there is kernel error.
+
+Is the kernel failure still due to a DLL load failure - or something different now?
+`ImportError: DLL load failed: The specified procedure could not be found.`It's a same error of DLL load failed
+ ```To access the notebook, open this file in a browser:
+        file:///C:/Users/Khushboo.Girotra/AppData/Roaming/jupyter/runtime/nbserver-13148-open.html
+    Or copy and paste one of these URLs:
+        http://localhost:8888/?token=ecaf07a435edebf1a26c758893d1dac7c4996693520529ff
+     or http://127.0.0.1:8888/?token=ecaf07a435edebf1a26c758893d1dac7c4996693520529ff
+[W 22:08:54.472 NotebookApp] Notebook Documents/Analytics bootcamp/python_decision_trees/decision_trees/decision_trees.ipynb is not trusted
+[E 22:08:58.108 NotebookApp] Uncaught exception POST /api/sessions (::1)
+    HTTPServerRequest(protocol='http', host='localhost:8888', method='POST', uri='/api/sessions', version='HTTP/1.1', remote_ip='::1')
+    Traceback (most recent call last):
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\tornado\web.py", line 1699, in _execute
+        result = await result
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+        yielded = self.gen.throw(*exc_info)  # type: ignore
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+        type=mtype))
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+        value = future.result()
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+        yielded = self.gen.throw(*exc_info)  # type: ignore
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+        kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+        value = future.result()
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+        yielded = self.gen.throw(*exc_info)  # type: ignore
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+        self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+        value = future.result()
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 209, in wrapper
+        yielded = next(result)
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+        super(MappingKernelManager, self).start_kernel(**kwargs)
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+        km.start_kernel(**kwargs)
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+        self.write_connection_file()
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+        kernel_name=self.kernel_name
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+        with secure_write(fname) as f:
+      File "C:\Users\Khushboo.Girotra\anaconda3\lib\contextlib.py", line 112, in __enter__
+        return next(self.gen)
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 100, in secure_write
+        win32_restrict_file_to_user(fname)
+      File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 53, in win32_restrict_file_to_user
+        import win32api
+    ImportError: DLL load failed: The specified procedure could not be found.
+[W 22:08:58.140 NotebookApp] Unhandled error
+[E 22:08:58.140 NotebookApp] {
+      "Content-Type": "application/json",
+      "Accept": "application/json, text/javascript, */*; q=0.01",
+      "X-Xsrftoken": "2|272e5111|35d3dd9abc94bc322626eb0226eb4688|1568606969",
+      "X-Requested-With": "XMLHttpRequest",
+      "Referer": "http://localhost:8888/notebooks/Documents/Analytics%20bootcamp/python_decision_trees/decision_trees/decision_trees.ipynb",
+      "Accept-Language": "en-IN",
+      "Accept-Encoding": "gzip, deflate",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko",
+      "Host": "localhost:8888",
+      "Content-Length": "163",
+      "Connection": "Keep-Alive",
+      "Cache-Control": "no-cache",
+      "Cookie": "_xsrf=2|272e5111|35d3dd9abc94bc322626eb0226eb4688|1568606969; username-localhost-8890=\"2|1:0|10:1569241500|23:username-localhost-8890|44:NjhmYTcwN2UyOWU3NGZkN2EzNDg2NWNkYWRiYjAwM2M=|2dd0b3cbedd7aec9ddb5a5487f6431906a442b75380dd0587e1d1b3e9f5f7475\"; username-localhost-8889=\"2|1:0|10:1569253558|23:username-localhost-8889|44:Mjg4OTcwZjIyMzJiNDkzMDkwZmVhZGY1Mzk2MGIwMGQ=|16708bbdcf21858ebb05eb126eea8fd1d1d23a770dd78f4c00427469bfa17d3c\"; username-localhost-8888=\"2|1:0|10:1569256712|23:username-localhost-8888|44:YjZkM2JjZDAwZmEyNDllMWI0NThhNzg0OTQ1YTRjM2M=|4d33dac2a071434c20d5ed0e0320c827950ec822c40925d68aa42b936e1e39e7\""
+    }
+[E 22:08:58.155 NotebookApp] 500 POST /api/sessions (::1) 312.31ms referer=http://localhost:8888/notebooks/Documents/Analytics%20bootcamp/python_decision_trees/decision_trees/decision_trees.ipynb```Thanks for the update.  You'll need to figure out why `import win32api` is not working.  There are a number of SO hits on this issue, some of which state that `pip install pypiwin32` resolved the issue.  I don't have access to a windows machine, so can't really help much more than this - sorry.Thanks for giving me the directions !Now it shows me the error of dead kernel. Kindly help on this
+
+```(base) C:\Users\Khushboo.Girotra>jupyter notebook
+[I 10:33:32.182 NotebookApp] Loading IPython parallel extension
+[I 10:33:32.292 NotebookApp] JupyterLab extension loaded from C:\Users\Khushboo.Girotra\anaconda3\lib\site-packages\jupyterlab
+[I 10:33:32.292 NotebookApp] JupyterLab application directory is C:\Users\Khushboo.Girotra\anaconda3\share\jupyter\lab
+[I 10:33:32.297 NotebookApp] Serving notebooks from local directory: C:\Users\Khushboo.Girotra
+[I 10:33:32.298 NotebookApp] The Jupyter Notebook is running at:
+[I 10:33:32.299 NotebookApp] http://localhost:8888/?token=8e24cc355a607b399fedca623643ddf1b2ebb428f69c39bc
+[I 10:33:32.300 NotebookApp]  or http://127.0.0.1:8888/?token=8e24cc355a607b399fedca623643ddf1b2ebb428f69c39bc
+[I 10:33:32.301 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 10:33:32.755 NotebookApp]
+
+    To access the notebook, open this file in a browser:
+        file:///C:/Users/Khushboo.Girotra/AppData/Roaming/jupyter/runtime/nbserver-8844-open.html
+    Or copy and paste one of these URLs:
+        http://localhost:8888/?token=8e24cc355a607b399fedca623643ddf1b2ebb428f69c39bc
+     or http://127.0.0.1:8888/?token=8e24cc355a607b399fedca623643ddf1b2ebb428f69c39bc
+[W 10:33:50.064 NotebookApp] Notebook Documents/Analytics bootcamp/python_decision_trees/decision_trees/decision_trees.ipynb is not trusted
+[I 10:33:53.885 NotebookApp] Kernel started: a869e91b-d19d-478e-b2a7-6fda11ce89f5
+Traceback (most recent call last):
+  File "C:\Users\Khushboo.Girotra\lib\runpy.py", line 193, in _run_module_as_main
+    "__main__", mod_spec)
+  File "C:\Users\Khushboo.Girotra\lib\runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\ipykernel_launcher.py", line 16, in <module>
+    app.launch_new_instance()
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\traitlets\config\application.py", line 657, in launch_instance
+    app.initialize(argv)
+  File "<C:\Users\Khushboo.Girotra\lib\site-packages\decorator.py:decorator-gen-125>", line 2, in initialize
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\traitlets\config\application.py", line 87, in catch_config_error
+    return method(app, *args, **kwargs)
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\ipykernel\kernelapp.py", line 530, in initialize
+    self.write_connection_file()
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\ipykernel\kernelapp.py", line 227, in write_connection_file
+    iopub_port=self.iopub_port, control_port=self.control_port)
+  File "C:\Users\Khushboo.Girotra\lib\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+    with secure_write(fname) as f:
+  File "C:\Users\Khushboo.Girotra\lib\contextlib.py", line 112, in __enter__
+    return next(self.gen)
+  File "C:\Users\Khushboo.Girotra\lib\site-packages\jupyter_client\connect.py", line 100, in secure_write
+    win32_restrict_file_to_user(fname)
+  File "C:\Users\Khushboo.Girotra\lib\site-packages\jupyter_client\connect.py", line 53, in win32_restrict_file_to_user
+    import win32api
+ImportError: DLL load failed: The specified procedure could not be found.
+[I 10:33:59.591 NotebookApp] KernelRestarter: restarting kernel (1/5), keep random ports
+[IPKernelApp] ERROR | Failed to load connection file: 'C:\\Users\\Khushboo.Girotra\\AppData\\Roaming\\jupyter\\runtime\\kernel-a869e91b-d19d-478e-b2a7-6fda11ce89f5.json'
+Traceback (most recent call last):
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\ipykernel\kernelapp.py", line 252, in init_connection_file
+    self.load_connection_file()
+  File "C:\Users\Khushboo.Girotra\lib\site-packages\jupyter_client\connect.py", line 569, in load_connection_file
+    info = json.load(f)
+  File "C:\Users\Khushboo.Girotra\lib\json\__init__.py", line 296, in load
+    parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
+  File "C:\Users\Khushboo.Girotra\lib\json\__init__.py", line 348, in loads
+    return _default_decoder.decode(s)
+  File "C:\Users\Khushboo.Girotra\lib\json\decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Users\Khushboo.Girotra\lib\json\decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[I 10:34:02.637 NotebookApp] KernelRestarter: restarting kernel (2/5), keep random ports
+[IPKernelApp] ERROR | Failed to load connection file: 'C:\\Users\\Khushboo.Girotra\\AppData\\Roaming\\jupyter\\runtime\\kernel-a869e91b-d19d-478e-b2a7-6fda11ce89f5.json'
+Traceback (most recent call last):
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\ipykernel\kernelapp.py", line 252, in init_connection_file
+    self.load_connection_file()
+  File "C:\Users\Khushboo.Girotra\lib\site-packages\jupyter_client\connect.py", line 569, in load_connection_file
+    info = json.load(f)
+  File "C:\Users\Khushboo.Girotra\lib\json\__init__.py", line 296, in load
+    parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
+  File "C:\Users\Khushboo.Girotra\lib\json\__init__.py", line 348, in loads
+    return _default_decoder.decode(s)
+  File "C:\Users\Khushboo.Girotra\lib\json\decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Users\Khushboo.Girotra\lib\json\decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[I 10:34:05.668 NotebookApp] KernelRestarter: restarting kernel (3/5), keep random ports
+[IPKernelApp] ERROR | Failed to load connection file: 'C:\\Users\\Khushboo.Girotra\\AppData\\Roaming\\jupyter\\runtime\\kernel-a869e91b-d19d-478e-b2a7-6fda11ce89f5.json'
+Traceback (most recent call last):
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\ipykernel\kernelapp.py", line 252, in init_connection_file
+    self.load_connection_file()
+  File "C:\Users\Khushboo.Girotra\lib\site-packages\jupyter_client\connect.py", line 569, in load_connection_file
+    info = json.load(f)
+  File "C:\Users\Khushboo.Girotra\lib\json\__init__.py", line 296, in load
+    parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
+  File "C:\Users\Khushboo.Girotra\lib\json\__init__.py", line 348, in loads
+    return _default_decoder.decode(s)
+  File "C:\Users\Khushboo.Girotra\lib\json\decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Users\Khushboo.Girotra\lib\json\decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[I 10:34:08.695 NotebookApp] KernelRestarter: restarting kernel (4/5), keep random ports
+[IPKernelApp] ERROR | Failed to load connection file: 'C:\\Users\\Khushboo.Girotra\\AppData\\Roaming\\jupyter\\runtime\\kernel-a869e91b-d19d-478e-b2a7-6fda11ce89f5.json'
+Traceback (most recent call last):
+  File "C:\Users\Khushboo.Girotra\AppData\Roaming\Python\Python37\site-packages\ipykernel\kernelapp.py", line 252, in init_connection_file
+    self.load_connection_file()
+  File "C:\Users\Khushboo.Girotra\lib\site-packages\jupyter_client\connect.py", line 569, in load_connection_file
+    info = json.load(f)
+  File "C:\Users\Khushboo.Girotra\lib\json\__init__.py", line 296, in load
+    parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
+  File "C:\Users\Khushboo.Girotra\lib\json\__init__.py", line 348, in loads
+    return _default_decoder.decode(s)
+  File "C:\Users\Khushboo.Girotra\lib\json\decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "C:\Users\Khushboo.Girotra\lib\json\decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[W 10:34:11.713 NotebookApp] KernelRestarter: restart failed
+[W 10:34:11.714 NotebookApp] Kernel a869e91b-d19d-478e-b2a7-6fda11ce89f5 died, removing from map.
+[W 10:34:54.178 NotebookApp] Timeout waiting for kernel_info reply from a869e91b-d19d-478e-b2a7-6fda11ce89f5
+[E 10:34:54.181 NotebookApp] Error opening stream: HTTP 404: Not Found (Kernel does not exist: a869e91b-d19d-478e-b2a7-6fda11ce89f5)
+[W 10:34:55.240 NotebookApp] 404 GET /api/kernels/a869e91b-d19d-478e-b2a7-6fda11ce89f5/channels?session_id=fe921aa3776f48e79b7232347f66318f (::1): Kernel does not exist: a869e91b-d19d-478e-b2a7-6fda11ce89f5
+[W 10:34:55.286 NotebookApp] 404 GET /api/kernels/a869e91b-d19d-478e-b2a7-6fda11ce89f5/channels?session_id=fe921aa3776f48e79b7232347f66318f (::1) 46.89ms referer=None
+[W 10:34:57.395 NotebookApp] Replacing stale connection: a869e91b-d19d-478e-b2a7-6fda11ce89f5:fe921aa3776f48e79b7232347f66318f```
+This is still the same issue, failed import of `win32api`.  Did you try `pip install pywin32` into the correct environment?  Looks like you're hitting this issue: https://github.com/conda-forge/jupyter_client-feedstock/issues/29  (so at least you're not alone :smile:)I have installed pywin32 , what does correct environment mean here?How should I resolve it ? I tried a lot reading lot of stuffs on github and solving it, but nothing works out.  Please helpIf you're dealing with virtual envs or conda environments, where you installed pywin32 matters.  I would create a one line python script that imports win32api and get that python script to not throw `ModuleNotFoundError`.
+```python
+import win32api
+```
+save into `import_win32api.py`.  If you invoke `python import_win32api.py` in the same env as you run Notebook, you should get something like `ModuleNotFoundError: No module named 'win32api'`.  You'll know things are better when that same invocation yields nothing (indicating the import statement worked).
+
+Also focus on where your `python` command is coming from (and relative to your `jupyter` command). The multiple envs can be confusing.
+
+((I had also referenced `pypiwin32` before since that's what SO posts used, but try `pywin32` as well.))I got this error when I run this :
+
+(base) C:\Users\Khushboo.Girotra>python import_win32api.py
+Traceback (most recent call last):
+  File "import_win32api.py", line 1, in <module>
+    import win32api
+ImportError: DLL load failed: The specified procedure could not be found.That's good actually.  So now try to get `pywin32` installed in such a way that the import statement succeeds.  but how ? what's the other way Try `conda install pywin32` if you are using conda.I did that , still showing the same error.
+2 days back everything was working fine. Suddenly dead kernel issue pops upModuleNotFoundError: No module named 'win32api' . This is the error which I am getting now@minrk updated the dependencies in conda-forge earlier today.  These instructions might help get you going: https://github.com/conda-forge/jupyter_client-feedstock#installing-jupyter_clientSame problem [kernel error]
+I've got this error
+
+Traceback (most recent call last):
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\tornado\web.py", line 1699, in _execute
+    result = await result
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+    type=mtype))
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+    kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+    self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\tornado\gen.py", line 209, in wrapper
+    yielded = next(result)
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+    super(MappingKernelManager, self).start_kernel(**kwargs)
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+    km.start_kernel(**kwargs)
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+    self.write_connection_file()
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+    kernel_name=self.kernel_name
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+    with secure_write(fname) as f:
+  File "C:\Users\Lemuel\Anaconda3\lib\contextlib.py", line 112, in __enter__
+    return next(self.gen)
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 100, in secure_write
+    win32_restrict_file_to_user(fname)
+  File "C:\Users\Lemuel\AppData\Roaming\Python\Python37\site-packages\jupyter_client\connect.py", line 53, in win32_restrict_file_to_user
+    import win32api
+ImportError: DLL load failed: %1 is not a valid Win32 application.
+
+please help me. thanks
+
+
+I try installing `pip install pypiwin32` but when i run `import win32api` i got this error
+`Traceback (most recent call last):  
+File "<stdin>", line 1, in <module>
+ImportError: DLL load failed: %1 is not a valid Win32 application.`Please try relative to `pywin32`.  Since this is a conda env - you might be better off with `conda install pywin32`.It wont worked. I will try to re-install anaconda3 then create env for tensorflow-gpu then retry the process on launching jupyter notebook, I will update you if i got same error. Thank you for your response sir.
+
+I've been following this step on installing tensorflow-gpu for object_detection but i stack while running this command `(tensorflow1) C:\tensorflow1\models\research\object_detection> jupyter notebook object_detection_tutorial.ipynb`. This is the github repository that i followed on installing tensorflow-gpu.[https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10#appendix-common-errors](url)Hello, 
+
+I got through the same error today (this is really annoying, especially because it also breaks vscode interactive window and all my kernels). 
+
+After checking, pywin32 had a release 15 days ago for the first time in one year. Downgrading in my environment make jupyter work again (but it is obviously not a fix) : 
+```pip install --upgrade pywin32==224 ```
+
+Note that creating a new environment from scratch does not fix your problem : ```pip install jupyter``` reinstall ```pywin32==225``` which is buggued and seems not to work on windows in its current state.Thanks Galileo,
+
+The downgrade fixes the issue.
+Currently testing Tensorflow2 on conda and the first obstacle comes from this notebook complaint. Runnig the postinstall from an elevated command prompt worked for me:
+
+`python Scripts/pywin32_postinstall.py -install`> pip install --upgrade pywin32==224
+
+This solved my problem.> Hello,
+> 
+> I got through the same error today (this is really annoying, especially because it also breaks vscode interactive window and all my kernels).
+> 
+> After checking, pywin32 had a release 15 days ago for the first time in one year. Downgrading in my environment make jupyter work again (but it is obviously not a fix) :
+> `pip install --upgrade pywin32==224 `
+> 
+> Note that creating a new environment from scratch does not fix your problem : `pip install jupyter` reinstall `pywin32==225` which is buggued and seems not to work on windows in its current state.
+
+Same issue, fixed downgrading to pywin32==224. Thanks a lot!Thank you, I fixed the problem when i reinstalled it. I think the problem
+is i dont set the right path.
+
+On Mon, Sep 30, 2019, 21:39 Kevin Bates <notifications@github.com> wrote:
+
+> Please try relative to pywin32. Since this is a conda env - you might be
+> better off with conda install pywin32.
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/4909?email_source=notifications&email_token=AMZGCQFB4GBZUJ4O6W7EUCLQMH6R7A5CNFSM4IZJOUDKYY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOD75VLZY#issuecomment-536565223>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AMZGCQFSQ4DWCDTKYOKHRV3QMH6R7ANCNFSM4IZJOUDA>
+> .
+>
+I had the same issue and was resolved by running the anaconda navigator as administrator and launched jupyter Thanks big time Galileo-Galilei, downgrading pywin32 to 224 fixed the issue for me too. For my virtualenv, that is:
+`pipenv run pip install --upgrade pywin32==224`
+And ye, pywin32==225 was released 15 Sep, pretty much the time I updated a load of modules + when Jupyter broke, so it all makes sense now.Thanks, @Galileo-Galilei, downgrading pywin32 from 225 to 224 resolved every kernel issue I'm having (ir, python2, and python3). Like @rbscholtus said the new version of pywin32 broke Jupyter completly. Thanks a lot @Galileo-Galilei! This solved the issue for me too. As for the others, please note that if you have several conda virtual environments and you use them as a kernel in jupyter notebook. The process he mentioned needs to be repeated for each of them after activating them! So happy I got this working after 2 useless days  > Try `conda install pywin32` if you are using conda.
+
+this solved it for me> @minrk updated the dependencies in conda-forge earlier today. These instructions might help get you going: https://github.com/conda-forge/jupyter_client-feedstock#installing-jupyter_client
+
+This worked for me. Thanks a bunch.> Hello,
+> 
+> I got through the same error today (this is really annoying, especially because it also breaks vscode interactive window and all my kernels).
+> 
+> After checking, pywin32 had a release 15 days ago for the first time in one year. Downgrading in my environment make jupyter work again (but it is obviously not a fix) :
+> `pip install --upgrade pywin32==224 `
+> 
+> Note that creating a new environment from scratch does not fix your problem : `pip install jupyter` reinstall `pywin32==225` which is buggued and seems not to work on windows in its current state.
+
+Thanks, confirming that downgrading solved the same issue for me as well.`Traceback (most recent call last):
+  File "E:\Anaconda\lib\site-packages\tornado\web.py", line 1699, in _execute
+    result = await result
+  File "E:\Anaconda\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "E:\Anaconda\lib\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+    type=mtype))
+  File "E:\Anaconda\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "E:\Anaconda\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "E:\Anaconda\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+    kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+  File "E:\Anaconda\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "E:\Anaconda\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "E:\Anaconda\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+    self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+  File "E:\Anaconda\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "E:\Anaconda\lib\site-packages\tornado\gen.py", line 209, in wrapper
+    yielded = next(result)
+  File "E:\Anaconda\lib\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+    super(MappingKernelManager, self).start_kernel(**kwargs)
+  File "E:\Anaconda\lib\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+    km.start_kernel(**kwargs)
+  File "E:\Anaconda\lib\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+    self.write_connection_file()
+  File "E:\Anaconda\lib\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+    kernel_name=self.kernel_name
+  File "E:\Anaconda\lib\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+    with secure_write(fname) as f:
+  File "E:\Anaconda\lib\contextlib.py", line 112, in __enter__
+    return next(self.gen)
+  File "E:\Anaconda\lib\site-packages\jupyter_client\connect.py", line 102, in secure_write
+    with os.fdopen(os.open(fname, open_flag, 0o600), mode) as f:
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Shivu\\AppData\\Roaming\\jupyter\\runtime\\kernel-a385ff0a-a21f-4f08-a75f-f22555578da2.json'
+`
+
+What can be the issue? Please helpThis is shown under kernel error. None of the notebooks are being ExecutedPlease update jupyter_client and jupyter_core to their latest versions - 5.3.4 and 4.6.1 respectively.  If that doesn't solve your issue, the error message produced has better diagnostics to help drive the exercise.  Thanks.Had same issue and upgrading jupyter_client worked.
+
+`pip3 install --upgrade jupyter_client`Closing issue based on recent successes.  
+
+Using the latest versions of jupyter_client (>=5.3.4) and jupyter_core (>=4.6.1) should be attempted prior to opening a new issue.  Thank you.I encountered this problem too but I wasn't using Anaconda. Turns out there's another step (it's in the pywin32 README): 
+
+> Note that if you want to use pywin32 for "system wide" features, such as registering COM objects or implementing Windows Services, then you must run the following command from an elevated command prompt:
+>```python Scripts/pywin32_postinstall.py -install```
+
+Hope this helps someone! $  pip3 install --upgrade pywin32==224 --force-reinstall
+ERROR: Could not find a version that satisfies the requirement pywin32==224 (from versions: 225)
+ERROR: No matching distribution found for pywin32==224
+> I encountered this problem too but I wasn't using Anaconda. Turns out there's another step (it's in the pywin32 README):
+> 
+> > Note that if you want to use pywin32 for "system wide" features, such as registering COM objects or implementing Windows Services, then you must run the following command from an elevated command prompt:
+> > `python Scripts/pywin32_postinstall.py -install`
+> 
+> Hope this helps someone!
+
+Thanks! It helped me with this problem having all updated versions of python and jupyter.> Please try relative to `pywin32`. Since this is a conda env - you might be better off with `conda install pywin32`.
+
+Thx, it worked for meMy system is Windows 64 bit. This solved for me.
+
+conda install -c conda-forge pywin32
+conda install -c anaconda jupyter_client
+conda install -c conda-forge jupyter_coreThat didnt solve for me :(
+I've already uninstalled and reinstalled using different options, nothing worked.
+When I start Spyder the same error happens.
+I already uninstalled, cleaned the registry, deleted anything I could find related to Anaconda, and reinstalled it, and the same error happens. It's very frustrating.Solved now! I had to uninstall and also delete the Python folder inside C:\Users\[MY  USER NAME]\AppData\Roaming before reinstalling. I also deleted everything related to Anaconda and Python in the disk and registry. Thank you anyway.> My system is Windows 64 bit. This solved for me.
+> 
+> conda install -c conda-forge pywin32
+> conda install -c anaconda jupyter_client
+> conda install -c conda-forge jupyter_core
+
+OMG bro you save me!
+Thanks!pip install --upgrade pywin32==224
+thank you very much,it work`(my_env) C:\Users\11576> pip install --upgrade pywin32==224` works for me
+but there is one error when running it:  
+
+ERROR: Could not install packages due to an EnvironmentError: [WinError 5] Acess Denied:  
+'c:\\users\\11576\\appdata\\roaming\\python\\python37\\site-packages\\~in32\\win32cred.pyd'
+Consider using the `--user` option or check the permissions.  
+
+Anyway, it works
+
+Traceback (most recent call last):
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\web.py", line 1699, in _execute
+    result = await result
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+    type=mtype))
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+    kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+    self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 209, in wrapper
+    yielded = next(result)
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+    super(MappingKernelManager, self).start_kernel(**kwargs)
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+    km.start_kernel(**kwargs)
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+    self.write_connection_file()
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+    kernel_name=self.kernel_name
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+    with secure_write(fname) as f:
+  File "C:\Users\Toyosi\Anaconda3\lib\contextlib.py", line 112, in __enter__
+    return next(self.gen)
+  File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 102, in secure_write
+    with os.fdopen(os.open(fname, open_flag, 0o600), mode) as f:
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Toyosi\\AppData\\Roaming\\jupyter\\runtime\\kernel-a98340e4-22b5-4437-b93a-d01839ee180e.json'
+
+
+
+I'm new to anaconda and this is what my kernel error says
+could someone help me fix it
+i've tried all the solutions, uninstalled and installed, but none worked. 
+I'm sorry,I don't konw:(
+
+
+
+
+------------------&nbsp;原始邮件&nbsp;------------------
+发件人: "Toyosie"<notifications@github.com&gt;; 
+发送时间: 2019年12月24日(星期二) 上午8:19
+收件人: "jupyter/notebook"<notebook@noreply.github.com&gt;; 
+抄送: "Kun"<759382530@qq.com&gt;; "Comment"<comment@noreply.github.com&gt;; 
+主题: Re: [jupyter/notebook] Kernel error in jupyter notebook (#4909)
+
+
+
+
+Traceback (most recent call last):
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\web.py", line 1699, in _execute
+ result = await result
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+ yielded = self.gen.throw(*exc_info)  # type: ignore
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+ type=mtype))
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+ value = future.result()
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+ yielded = self.gen.throw(*exc_info)  # type: ignore
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+ kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+ value = future.result()
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+ yielded = self.gen.throw(*exc_info)  # type: ignore
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+ self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+ value = future.result()
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 209, in wrapper
+ yielded = next(result)
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+ super(MappingKernelManager, self).start_kernel(**kwargs)
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+ km.start_kernel(**kwargs)
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+ self.write_connection_file()
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+ kernel_name=self.kernel_name
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+ with secure_write(fname) as f:
+ File "C:\Users\Toyosi\Anaconda3\lib\contextlib.py", line 112, in enter
+ return next(self.gen)
+ File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 102, in secure_write
+ with os.fdopen(os.open(fname, open_flag, 0o600), mode) as f:
+ PermissionError: [Errno 13] Permission denied: 'C:\Users\Toyosi\AppData\Roaming\jupyter\runtime\kernel-a98340e4-22b5-4437-b93a-d01839ee180e.json'
+ 
+I'm new to anaconda and this is what my kernel error says
+ could someone help me fix it
+ i've tried all the solutions, uninstalled and installed, but none worked.
+ 
+—
+You are receiving this because you commented.
+Reply to this email directly, view it on GitHub, or unsubscribe.> Hello,
+> 
+> I got through the same error today (this is really annoying, especially because it also breaks vscode interactive window and all my kernels).
+> 
+> After checking, pywin32 had a release 15 days ago for the first time in one year. Downgrading in my environment make jupyter work again (but it is obviously not a fix) :
+> `pip install --upgrade pywin32==224 `
+> 
+> Note that creating a new environment from scratch does not fix your problem : `pip install jupyter` reinstall `pywin32==225` which is buggued and seems not to work on windows in its current state.
+
+Thank you, solved to me too. my actual pywin32 ver is 227, downgrading solved the problem. 
+
+Regards> Traceback (most recent call last):
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\web.py", line 1699, in _execute
+> result = await result
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+> yielded = self.gen.throw(*exc_info) # type: ignore
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\notebook\services\sessions\handlers.py", line 72, in post
+> type=mtype))
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+> value = future.result()
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+> yielded = self.gen.throw(*exc_info) # type: ignore
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+> kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+> value = future.result()
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+> yielded = self.gen.throw(*exc_info) # type: ignore
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 101, in start_kernel_for_session
+> self.kernel_manager.start_kernel(path=kernel_path, kernel_name=kernel_name)
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+> value = future.result()
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\tornado\gen.py", line 209, in wrapper
+> yielded = next(result)
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+> super(MappingKernelManager, self).start_kernel(**kwargs)
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\multikernelmanager.py", line 110, in start_kernel
+> km.start_kernel(**kwargs)
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\manager.py", line 240, in start_kernel
+> self.write_connection_file()
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 547, in write_connection_file
+> kernel_name=self.kernel_name
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 212, in write_connection_file
+> with secure_write(fname) as f:
+> File "C:\Users\Toyosi\Anaconda3\lib\contextlib.py", line 112, in **enter**
+> return next(self.gen)
+> File "C:\Users\Toyosi\Anaconda3\lib\site-packages\jupyter_client\connect.py", line 102, in secure_write
+> with os.fdopen(os.open(fname, open_flag, 0o600), mode) as f:
+> PermissionError: [Errno 13] Permission denied: 'C:\Users\Toyosi\AppData\Roaming\jupyter\runtime\kernel-a98340e4-22b5-4437-b93a-d01839ee180e.json'
+> 
+> I'm new to anaconda and this is what my kernel error says
+> could someone help me fix it
+> i've tried all the solutions, uninstalled and installed, but none worked.
+
+Thats happend to me when i instaled Anaconda for the first Time, i just clicked on next, next, next and close, at the end of the process, boom, nothing works.
+
+Your Anaconda installed on directory do not permit the scripts running correctly, try to create new folder on local disc (c:) called Anaconda3 or what you prefer and then install Anaconda inside that folder.
+
+Remember to correctly unninstal older Anaconda before everything!
+
+Regards> Closing issue based on recent successes.
+> 
+> Using the latest versions of jupyter_client (>=5.3.4) and jupyter_core (>=4.6.1) should be attempted prior to opening a new issue. Thank you.
+
+I was facing the same issue with `jupyter-client==5.3.4`, `jupyter_core==4.6.1`, and `pywin32==227`. Running `pip install --upgrade pywin32==224 --force-reinstall` then fixed the issue for me.`(base) C:\Users\NANI>jupyter notebook
+[I 18:18:49.117 NotebookApp] JupyterLab extension loaded from C:\Users\NANI\Anaconda3\lib\site-packages\jupyterlab
+[I 18:18:49.117 NotebookApp] JupyterLab application directory is C:\Users\NANI\Anaconda3\share\jupyter\lab
+[I 18:18:49.129 NotebookApp] Serving notebooks from local directory: C:\Users\NANI
+[I 18:18:49.129 NotebookApp] The Jupyter Notebook is running at:
+[I 18:18:49.137 NotebookApp] http://localhost:8888/?token=ba3023afa0109fa2b443f9a40f8382f9f68feb5c3998531e
+[I 18:18:49.137 NotebookApp]  or http://127.0.0.1:8888/?token=ba3023afa0109fa2b443f9a40f8382f9f68feb5c3998531e
+[I 18:18:49.141 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 18:18:49.301 NotebookApp]
+
+    To access the notebook, open this file in a browser:
+        file:///C:/Users/NANI/AppData/Roaming/jupyter/runtime/nbserver-17600-open.html
+    Or copy and paste one of these URLs:
+        http://localhost:8888/?token=ba3023afa0109fa2b443f9a40f8382f9f68feb5c3998531e
+     or http://127.0.0.1:8888/?token=ba3023afa0109fa2b443f9a40f8382f9f68feb5c3998531e
+[I 18:19:20.751 NotebookApp] 302 GET /?token=ba3023afa0109fa2b443f9a40f8382f9f68feb5c3998531e (127.0.0.1) 0.00ms
+[I 18:19:31.952 NotebookApp] Kernel started: be9cf94a-d4a0-4de5-b352-c33d499ce5bd
+Traceback (most recent call last):
+  File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 193, in _run_module_as_main
+    "__main__", mod_spec)
+  File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel_launcher.py", line 16, in <module>
+    app.launch_new_instance()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 663, in launch_instance
+    app.initialize(argv)
+  File "<C:\Users\NANI\Anaconda3\lib\site-packages\decorator.py:decorator-gen-125>", line 2, in initialize
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 87, in catch_config_error
+    return method(app, *args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 542, in initialize
+    self.init_kernel()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 447, in init_kernel
+    user_ns=self.user_ns,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+    inst = cls(*args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\ipkernel.py", line 67, in __init__
+    kernel      = self,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+    inst = cls(*args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 693, in __init__
+    self.init_magics()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\zmqshell.py", line 593, in init_magics
+    super(ZMQInteractiveShell, self).init_magics()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 2246, in init_magics
+    m.PylabMagics, m.ScriptMagics,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magic.py", line 405, in register
+    m = m(shell=self.shell)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magics\osm.py", line 52, in __init__
+    self.execre = re.compile(r'(.*)\.(%s)$' % winext,re.IGNORECASE)
+  File "C:\Users\NANI\Anaconda3\lib\re.py", line 234, in compile
+    return _compile(pattern, flags)
+  File "C:\Users\NANI\Anaconda3\lib\re.py", line 286, in _compile
+    p = sre_compile.compile(pattern, flags)
+  File "C:\Users\NANI\Anaconda3\lib\sre_compile.py", line 764, in compile
+    p = sre_parse.parse(p, flags)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 930, in parse
+    p = _parse_sub(source, pattern, flags & SRE_FLAG_VERBOSE, 0)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+    not nested and not items))
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 816, in _parse
+    p = _parse_sub(source, state, sub_verbose, nested + 1)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+    not nested and not items))
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 507, in _parse
+    code = _escape(source, this, state)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 369, in _escape
+    raise source.error("incomplete escape %s" % escape, len(escape))
+re.error: incomplete escape \U at position 52
+[I 18:19:34.914 NotebookApp] KernelRestarter: restarting kernel (1/5), new random ports
+Traceback (most recent call last):
+  File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 193, in _run_module_as_main
+    "__main__", mod_spec)
+  File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel_launcher.py", line 16, in <module>
+    app.launch_new_instance()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 663, in launch_instance
+    app.initialize(argv)
+  File "<C:\Users\NANI\Anaconda3\lib\site-packages\decorator.py:decorator-gen-125>", line 2, in initialize
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 87, in catch_config_error
+    return method(app, *args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 542, in initialize
+    self.init_kernel()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 447, in init_kernel
+    user_ns=self.user_ns,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+    inst = cls(*args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\ipkernel.py", line 67, in __init__
+    kernel      = self,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+    inst = cls(*args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 693, in __init__
+    self.init_magics()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\zmqshell.py", line 593, in init_magics
+    super(ZMQInteractiveShell, self).init_magics()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 2246, in init_magics
+    m.PylabMagics, m.ScriptMagics,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magic.py", line 405, in register
+    m = m(shell=self.shell)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magics\osm.py", line 52, in __init__
+    self.execre = re.compile(r'(.*)\.(%s)$' % winext,re.IGNORECASE)
+  File "C:\Users\NANI\Anaconda3\lib\re.py", line 234, in compile
+    return _compile(pattern, flags)
+  File "C:\Users\NANI\Anaconda3\lib\re.py", line 286, in _compile
+    p = sre_compile.compile(pattern, flags)
+  File "C:\Users\NANI\Anaconda3\lib\sre_compile.py", line 764, in compile
+    p = sre_parse.parse(p, flags)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 930, in parse
+    p = _parse_sub(source, pattern, flags & SRE_FLAG_VERBOSE, 0)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+    not nested and not items))
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 816, in _parse
+    p = _parse_sub(source, state, sub_verbose, nested + 1)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+    not nested and not items))
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 507, in _parse
+    code = _escape(source, this, state)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 369, in _escape
+    raise source.error("incomplete escape %s" % escape, len(escape))
+re.error: incomplete escape \U at position 52
+[I 18:19:37.931 NotebookApp] KernelRestarter: restarting kernel (2/5), new random ports
+Traceback (most recent call last):
+  File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 193, in _run_module_as_main
+    "__main__", mod_spec)
+  File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel_launcher.py", line 16, in <module>
+    app.launch_new_instance()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 663, in launch_instance
+    app.initialize(argv)
+  File "<C:\Users\NANI\Anaconda3\lib\site-packages\decorator.py:decorator-gen-125>", line 2, in initialize
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 87, in catch_config_error
+    return method(app, *args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 542, in initialize
+    self.init_kernel()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 447, in init_kernel
+    user_ns=self.user_ns,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+    inst = cls(*args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\ipkernel.py", line 67, in __init__
+    kernel      = self,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+    inst = cls(*args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 693, in __init__
+    self.init_magics()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\zmqshell.py", line 593, in init_magics
+    super(ZMQInteractiveShell, self).init_magics()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 2246, in init_magics
+    m.PylabMagics, m.ScriptMagics,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magic.py", line 405, in register
+    m = m(shell=self.shell)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magics\osm.py", line 52, in __init__
+    self.execre = re.compile(r'(.*)\.(%s)$' % winext,re.IGNORECASE)
+  File "C:\Users\NANI\Anaconda3\lib\re.py", line 234, in compile
+    return _compile(pattern, flags)
+  File "C:\Users\NANI\Anaconda3\lib\re.py", line 286, in _compile
+    p = sre_compile.compile(pattern, flags)
+  File "C:\Users\NANI\Anaconda3\lib\sre_compile.py", line 764, in compile
+    p = sre_parse.parse(p, flags)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 930, in parse
+    p = _parse_sub(source, pattern, flags & SRE_FLAG_VERBOSE, 0)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+    not nested and not items))
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 816, in _parse
+    p = _parse_sub(source, state, sub_verbose, nested + 1)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+    not nested and not items))
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 507, in _parse
+    code = _escape(source, this, state)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 369, in _escape
+    raise source.error("incomplete escape %s" % escape, len(escape))
+re.error: incomplete escape \U at position 52
+[I 18:19:40.960 NotebookApp] KernelRestarter: restarting kernel (3/5), new random ports
+Traceback (most recent call last):
+  File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 193, in _run_module_as_main
+    "__main__", mod_spec)
+  File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel_launcher.py", line 16, in <module>
+    app.launch_new_instance()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 663, in launch_instance
+    app.initialize(argv)
+  File "<C:\Users\NANI\Anaconda3\lib\site-packages\decorator.py:decorator-gen-125>", line 2, in initialize
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 87, in catch_config_error
+    return method(app, *args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 542, in initialize
+    self.init_kernel()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 447, in init_kernel
+    user_ns=self.user_ns,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+    inst = cls(*args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\ipkernel.py", line 67, in __init__
+    kernel      = self,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+    inst = cls(*args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 693, in __init__
+    self.init_magics()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\zmqshell.py", line 593, in init_magics
+    super(ZMQInteractiveShell, self).init_magics()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 2246, in init_magics
+    m.PylabMagics, m.ScriptMagics,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magic.py", line 405, in register
+    m = m(shell=self.shell)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magics\osm.py", line 52, in __init__
+    self.execre = re.compile(r'(.*)\.(%s)$' % winext,re.IGNORECASE)
+  File "C:\Users\NANI\Anaconda3\lib\re.py", line 234, in compile
+    return _compile(pattern, flags)
+  File "C:\Users\NANI\Anaconda3\lib\re.py", line 286, in _compile
+    p = sre_compile.compile(pattern, flags)
+  File "C:\Users\NANI\Anaconda3\lib\sre_compile.py", line 764, in compile
+    p = sre_parse.parse(p, flags)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 930, in parse
+    p = _parse_sub(source, pattern, flags & SRE_FLAG_VERBOSE, 0)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+    not nested and not items))
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 816, in _parse
+    p = _parse_sub(source, state, sub_verbose, nested + 1)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+    not nested and not items))
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 507, in _parse
+    code = _escape(source, this, state)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 369, in _escape
+    raise source.error("incomplete escape %s" % escape, len(escape))
+re.error: incomplete escape \U at position 52
+[I 18:19:43.976 NotebookApp] KernelRestarter: restarting kernel (4/5), new random ports
+Traceback (most recent call last):
+  File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 193, in _run_module_as_main
+    "__main__", mod_spec)
+  File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel_launcher.py", line 16, in <module>
+    app.launch_new_instance()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 663, in launch_instance
+    app.initialize(argv)
+  File "<C:\Users\NANI\Anaconda3\lib\site-packages\decorator.py:decorator-gen-125>", line 2, in initialize
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 87, in catch_config_error
+    return method(app, *args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 542, in initialize
+    self.init_kernel()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 447, in init_kernel
+    user_ns=self.user_ns,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+    inst = cls(*args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\ipkernel.py", line 67, in __init__
+    kernel      = self,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+    inst = cls(*args, **kwargs)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 693, in __init__
+    self.init_magics()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\zmqshell.py", line 593, in init_magics
+    super(ZMQInteractiveShell, self).init_magics()
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 2246, in init_magics
+    m.PylabMagics, m.ScriptMagics,
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magic.py", line 405, in register
+    m = m(shell=self.shell)
+  File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magics\osm.py", line 52, in __init__
+    self.execre = re.compile(r'(.*)\.(%s)$' % winext,re.IGNORECASE)
+  File "C:\Users\NANI\Anaconda3\lib\re.py", line 234, in compile
+    return _compile(pattern, flags)
+  File "C:\Users\NANI\Anaconda3\lib\re.py", line 286, in _compile
+    p = sre_compile.compile(pattern, flags)
+  File "C:\Users\NANI\Anaconda3\lib\sre_compile.py", line 764, in compile
+    p = sre_parse.parse(p, flags)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 930, in parse
+    p = _parse_sub(source, pattern, flags & SRE_FLAG_VERBOSE, 0)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+    not nested and not items))
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 816, in _parse
+    p = _parse_sub(source, state, sub_verbose, nested + 1)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+    not nested and not items))
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 507, in _parse
+    code = _escape(source, this, state)
+  File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 369, in _escape
+    raise source.error("incomplete escape %s" % escape, len(escape))
+re.error: incomplete escape \U at position 52
+[W 18:19:47.004 NotebookApp] KernelRestarter: restart failed
+[W 18:19:47.004 NotebookApp] Kernel be9cf94a-d4a0-4de5-b352-c33d499ce5bd died, removing from map.
+[W 18:20:32.022 NotebookApp] Timeout waiting for kernel_info reply from be9cf94a-d4a0-4de5-b352-c33d499ce5bd
+[E 18:20:32.022 NotebookApp] Error opening stream: HTTP 404: Not Found (Kernel does not exist: be9cf94a-d4a0-4de5-b352-c33d499ce5bd)
+[W 18:20:33.080 NotebookApp] 404 GET /api/kernels/be9cf94a-d4a0-4de5-b352-c33d499ce5bd/channels?session_id=2154bf90daec4baa9350a1f2374e8027 (127.0.0.1): Kernel does not exist: be9cf94a-d4a0-4de5-b352-c33d499ce5bd
+[W 18:20:33.104 NotebookApp] 404 GET /api/kernels/be9cf94a-d4a0-4de5-b352-c33d499ce5bd/channels?session_id=2154bf90daec4baa9350a1f2374e8027 (127.0.0.1) 28.01ms referer=None
+[W 18:20:35.133 NotebookApp] Replacing stale connection: be9cf94a-d4a0-4de5-b352-c33d499ce5bd:2154bf90daec4baa9350a1f2374e8027
+
+`
+this is the error  i got when i open a file in jupyter notebook and kernel is not starting
+help me, please
+Hiii nani try installing and reinstalling anaconda and run as administrator. That should help.On 23 Feb 2020 1:52 pm, nani samireddy <notifications@github.com> wrote:`(base) C:\Users\NANI>jupyter notebook
+[I 18:18:49.117 NotebookApp] JupyterLab extension loaded from C:\Users\NANI\Anaconda3\lib\site-packages\jupyterlab
+[I 18:18:49.117 NotebookApp] JupyterLab application directory is C:\Users\NANI\Anaconda3\share\jupyter\lab
+[I 18:18:49.129 NotebookApp] Serving notebooks from local directory: C:\Users\NANI
+[I 18:18:49.129 NotebookApp] The Jupyter Notebook is running at:
+[I 18:18:49.137 NotebookApp] http://localhost:8888/?token=ba3023afa0109fa2b443f9a40f8382f9f68feb5c3998531e
+[I 18:18:49.137 NotebookApp]  or http://127.0.0.1:8888/?token=ba3023afa0109fa2b443f9a40f8382f9f68feb5c3998531e
+[I 18:18:49.141 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 18:18:49.301 NotebookApp]
+To access the notebook, open this file in a browser:
+    file:///C:/Users/NANI/AppData/Roaming/jupyter/runtime/nbserver-17600-open.html
+Or copy and paste one of these URLs:
+    http://localhost:8888/?token=ba3023afa0109fa2b443f9a40f8382f9f68feb5c3998531e
+ or http://127.0.0.1:8888/?token=ba3023afa0109fa2b443f9a40f8382f9f68feb5c3998531e
+
+[I 18:19:20.751 NotebookApp] 302 GET /?token=ba3023afa0109fa2b443f9a40f8382f9f68feb5c3998531e (127.0.0.1) 0.00ms
+[I 18:19:31.952 NotebookApp] Kernel started: be9cf94a-d4a0-4de5-b352-c33d499ce5bd
+Traceback (most recent call last):
+File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 193, in _run_module_as_main
+"main", mod_spec)
+File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 85, in _run_code
+exec(code, run_globals)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel_launcher.py", line 16, in 
+app.launch_new_instance()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 663, in launch_instance
+app.initialize(argv)
+File "<C:\Users\NANI\Anaconda3\lib\site-packages\decorator.py:decorator-gen-125>", line 2, in initialize
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 87, in catch_config_error
+return method(app, *args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 542, in initialize
+self.init_kernel()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 447, in init_kernel
+user_ns=self.user_ns,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+inst = cls(*args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\ipkernel.py", line 67, in init
+kernel      = self,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+inst = cls(args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 693, in init
+self.init_magics()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\zmqshell.py", line 593, in init_magics
+super(ZMQInteractiveShell, self).init_magics()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 2246, in init_magics
+m.PylabMagics, m.ScriptMagics,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magic.py", line 405, in register
+m = m(shell=self.shell)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magics\osm.py", line 52, in init
+self.execre = re.compile(r'(.).(%s)$' % winext,re.IGNORECASE)
+File "C:\Users\NANI\Anaconda3\lib\re.py", line 234, in compile
+return _compile(pattern, flags)
+File "C:\Users\NANI\Anaconda3\lib\re.py", line 286, in _compile
+p = sre_compile.compile(pattern, flags)
+File "C:\Users\NANI\Anaconda3\lib\sre_compile.py", line 764, in compile
+p = sre_parse.parse(p, flags)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 930, in parse
+p = _parse_sub(source, pattern, flags & SRE_FLAG_VERBOSE, 0)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+not nested and not items))
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 816, in _parse
+p = _parse_sub(source, state, sub_verbose, nested + 1)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+not nested and not items))
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 507, in _parse
+code = _escape(source, this, state)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 369, in _escape
+raise source.error("incomplete escape %s" % escape, len(escape))
+re.error: incomplete escape \U at position 52
+[I 18:19:34.914 NotebookApp] KernelRestarter: restarting kernel (1/5), new random ports
+Traceback (most recent call last):
+File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 193, in _run_module_as_main
+"main", mod_spec)
+File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 85, in _run_code
+exec(code, run_globals)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel_launcher.py", line 16, in 
+app.launch_new_instance()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 663, in launch_instance
+app.initialize(argv)
+File "<C:\Users\NANI\Anaconda3\lib\site-packages\decorator.py:decorator-gen-125>", line 2, in initialize
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 87, in catch_config_error
+return method(app, *args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 542, in initialize
+self.init_kernel()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 447, in init_kernel
+user_ns=self.user_ns,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+inst = cls(*args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\ipkernel.py", line 67, in init
+kernel      = self,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+inst = cls(args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 693, in init
+self.init_magics()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\zmqshell.py", line 593, in init_magics
+super(ZMQInteractiveShell, self).init_magics()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 2246, in init_magics
+m.PylabMagics, m.ScriptMagics,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magic.py", line 405, in register
+m = m(shell=self.shell)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magics\osm.py", line 52, in init
+self.execre = re.compile(r'(.).(%s)$' % winext,re.IGNORECASE)
+File "C:\Users\NANI\Anaconda3\lib\re.py", line 234, in compile
+return _compile(pattern, flags)
+File "C:\Users\NANI\Anaconda3\lib\re.py", line 286, in _compile
+p = sre_compile.compile(pattern, flags)
+File "C:\Users\NANI\Anaconda3\lib\sre_compile.py", line 764, in compile
+p = sre_parse.parse(p, flags)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 930, in parse
+p = _parse_sub(source, pattern, flags & SRE_FLAG_VERBOSE, 0)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+not nested and not items))
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 816, in _parse
+p = _parse_sub(source, state, sub_verbose, nested + 1)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+not nested and not items))
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 507, in _parse
+code = _escape(source, this, state)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 369, in _escape
+raise source.error("incomplete escape %s" % escape, len(escape))
+re.error: incomplete escape \U at position 52
+[I 18:19:37.931 NotebookApp] KernelRestarter: restarting kernel (2/5), new random ports
+Traceback (most recent call last):
+File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 193, in _run_module_as_main
+"main", mod_spec)
+File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 85, in _run_code
+exec(code, run_globals)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel_launcher.py", line 16, in 
+app.launch_new_instance()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 663, in launch_instance
+app.initialize(argv)
+File "<C:\Users\NANI\Anaconda3\lib\site-packages\decorator.py:decorator-gen-125>", line 2, in initialize
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 87, in catch_config_error
+return method(app, *args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 542, in initialize
+self.init_kernel()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 447, in init_kernel
+user_ns=self.user_ns,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+inst = cls(*args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\ipkernel.py", line 67, in init
+kernel      = self,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+inst = cls(args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 693, in init
+self.init_magics()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\zmqshell.py", line 593, in init_magics
+super(ZMQInteractiveShell, self).init_magics()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 2246, in init_magics
+m.PylabMagics, m.ScriptMagics,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magic.py", line 405, in register
+m = m(shell=self.shell)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magics\osm.py", line 52, in init
+self.execre = re.compile(r'(.).(%s)$' % winext,re.IGNORECASE)
+File "C:\Users\NANI\Anaconda3\lib\re.py", line 234, in compile
+return _compile(pattern, flags)
+File "C:\Users\NANI\Anaconda3\lib\re.py", line 286, in _compile
+p = sre_compile.compile(pattern, flags)
+File "C:\Users\NANI\Anaconda3\lib\sre_compile.py", line 764, in compile
+p = sre_parse.parse(p, flags)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 930, in parse
+p = _parse_sub(source, pattern, flags & SRE_FLAG_VERBOSE, 0)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+not nested and not items))
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 816, in _parse
+p = _parse_sub(source, state, sub_verbose, nested + 1)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+not nested and not items))
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 507, in _parse
+code = _escape(source, this, state)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 369, in _escape
+raise source.error("incomplete escape %s" % escape, len(escape))
+re.error: incomplete escape \U at position 52
+[I 18:19:40.960 NotebookApp] KernelRestarter: restarting kernel (3/5), new random ports
+Traceback (most recent call last):
+File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 193, in _run_module_as_main
+"main", mod_spec)
+File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 85, in _run_code
+exec(code, run_globals)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel_launcher.py", line 16, in 
+app.launch_new_instance()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 663, in launch_instance
+app.initialize(argv)
+File "<C:\Users\NANI\Anaconda3\lib\site-packages\decorator.py:decorator-gen-125>", line 2, in initialize
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 87, in catch_config_error
+return method(app, *args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 542, in initialize
+self.init_kernel()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 447, in init_kernel
+user_ns=self.user_ns,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+inst = cls(*args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\ipkernel.py", line 67, in init
+kernel      = self,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+inst = cls(args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 693, in init
+self.init_magics()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\zmqshell.py", line 593, in init_magics
+super(ZMQInteractiveShell, self).init_magics()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 2246, in init_magics
+m.PylabMagics, m.ScriptMagics,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magic.py", line 405, in register
+m = m(shell=self.shell)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magics\osm.py", line 52, in init
+self.execre = re.compile(r'(.).(%s)$' % winext,re.IGNORECASE)
+File "C:\Users\NANI\Anaconda3\lib\re.py", line 234, in compile
+return _compile(pattern, flags)
+File "C:\Users\NANI\Anaconda3\lib\re.py", line 286, in _compile
+p = sre_compile.compile(pattern, flags)
+File "C:\Users\NANI\Anaconda3\lib\sre_compile.py", line 764, in compile
+p = sre_parse.parse(p, flags)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 930, in parse
+p = _parse_sub(source, pattern, flags & SRE_FLAG_VERBOSE, 0)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+not nested and not items))
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 816, in _parse
+p = _parse_sub(source, state, sub_verbose, nested + 1)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+not nested and not items))
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 507, in _parse
+code = _escape(source, this, state)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 369, in _escape
+raise source.error("incomplete escape %s" % escape, len(escape))
+re.error: incomplete escape \U at position 52
+[I 18:19:43.976 NotebookApp] KernelRestarter: restarting kernel (4/5), new random ports
+Traceback (most recent call last):
+File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 193, in _run_module_as_main
+"main", mod_spec)
+File "C:\Users\NANI\Anaconda3\lib\runpy.py", line 85, in _run_code
+exec(code, run_globals)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel_launcher.py", line 16, in 
+app.launch_new_instance()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 663, in launch_instance
+app.initialize(argv)
+File "<C:\Users\NANI\Anaconda3\lib\site-packages\decorator.py:decorator-gen-125>", line 2, in initialize
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\application.py", line 87, in catch_config_error
+return method(app, *args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 542, in initialize
+self.init_kernel()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\kernelapp.py", line 447, in init_kernel
+user_ns=self.user_ns,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+inst = cls(*args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\ipkernel.py", line 67, in init
+kernel      = self,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\traitlets\config\configurable.py", line 412, in instance
+inst = cls(args, **kwargs)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 693, in init
+self.init_magics()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\ipykernel\zmqshell.py", line 593, in init_magics
+super(ZMQInteractiveShell, self).init_magics()
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 2246, in init_magics
+m.PylabMagics, m.ScriptMagics,
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magic.py", line 405, in register
+m = m(shell=self.shell)
+File "C:\Users\NANI\Anaconda3\lib\site-packages\IPython\core\magics\osm.py", line 52, in init
+self.execre = re.compile(r'(.).(%s)$' % winext,re.IGNORECASE)
+File "C:\Users\NANI\Anaconda3\lib\re.py", line 234, in compile
+return _compile(pattern, flags)
+File "C:\Users\NANI\Anaconda3\lib\re.py", line 286, in _compile
+p = sre_compile.compile(pattern, flags)
+File "C:\Users\NANI\Anaconda3\lib\sre_compile.py", line 764, in compile
+p = sre_parse.parse(p, flags)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 930, in parse
+p = _parse_sub(source, pattern, flags & SRE_FLAG_VERBOSE, 0)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+not nested and not items))
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 816, in _parse
+p = _parse_sub(source, state, sub_verbose, nested + 1)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 426, in _parse_sub
+not nested and not items))
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 507, in _parse
+code = _escape(source, this, state)
+File "C:\Users\NANI\Anaconda3\lib\sre_parse.py", line 369, in _escape
+raise source.error("incomplete escape %s" % escape, len(escape))
+re.error: incomplete escape \U at position 52
+[W 18:19:47.004 NotebookApp] KernelRestarter: restart failed
+[W 18:19:47.004 NotebookApp] Kernel be9cf94a-d4a0-4de5-b352-c33d499ce5bd died, removing from map.
+[W 18:20:32.022 NotebookApp] Timeout waiting for kernel_info reply from be9cf94a-d4a0-4de5-b352-c33d499ce5bd
+[E 18:20:32.022 NotebookApp] Error opening stream: HTTP 404: Not Found (Kernel does not exist: be9cf94a-d4a0-4de5-b352-c33d499ce5bd)
+[W 18:20:33.080 NotebookApp] 404 GET /api/kernels/be9cf94a-d4a0-4de5-b352-c33d499ce5bd/channels?session_id=2154bf90daec4baa9350a1f2374e8027 (127.0.0.1): Kernel does not exist: be9cf94a-d4a0-4de5-b352-c33d499ce5bd
+[W 18:20:33.104 NotebookApp] 404 GET /api/kernels/be9cf94a-d4a0-4de5-b352-c33d499ce5bd/channels?session_id=2154bf90daec4baa9350a1f2374e8027 (127.0.0.1) 28.01ms referer=None
+[W 18:20:35.133 NotebookApp] Replacing stale connection: be9cf94a-d4a0-4de5-b352-c33d499ce5bd:2154bf90daec4baa9350a1f2374e8027
+`
+this is the error  i got when i open a file in jupyter notebook and kernel is not starting
+
+—You are receiving this because you commented.Reply to this email directly, view it on GitHub, or unsubscribe.I have reinstalled it 5 times no use of reinstalling
+my friend said that it is a networking issue my pc is connecting to localhost how can I solve it.@nani-samireddy - your traceback output strikes me as more to do with ipykernel and ipython than jupyter_client and jupyter_core issues - which was the original problem reported on this issue.
+
+I would make sure you're running the latest versions of ipykernel and ipython.
+
+Also, does your notebook start but you only see this issue upon execution of a cell?  There's some aspect to this that I wonder if the issue is related to what's in the cell.  I'm assuming that's not the case, but I need to ask if you're able to run some simple cells prior to the issue?@kevin-bates I am running latest versions of ipykernel and ipython.
+and my notebook is starting but I am not able to execute a single line of code 
+![Annotation 2020-02-26 222745](https://user-images.githubusercontent.com/60937910/75368141-4b2ab080-58e7-11ea-8aab-5610bc1f5849.png)
+Googling led me to [this Spyder issue](https://github.com/spyder-ide/spyder/issues/9832) - which implies it's probably not in Notebook itself.  More googling led me to [this IPython issue](https://github.com/ipython/ipython/issues/11860) - which I believe is your scenario.
+
+Please check the contents of your `PATHEXT` environment variable and ensure it only contains extension names (suffixes).  [This article](https://www.nextofwindows.com/what-is-pathext-environment-variable-in-windows) might help how to go about that.  Like the IPython issue, I suspect your `PATHEXT` has path names in it and that's where the invalid escape sequence of '`\U'` is coming from.Collecting pycocotools
+Using cached pycocotools-2.0.0.tar.gz (1.5 MB)
+Building wheels for collected packages: pycocotools
+Building wheel for pycocotools (setup.py): started
+Building wheel for pycocotools (setup.py): finished with status 'error'
+Running setup.py clean for pycocotools
+Failed to build pycocotools
+Installing collected packages: pycocotools
+Running setup.py install for pycocotools: started
+Running setup.py install for pycocotools: finished with status 'error'
+ERROR: Command errored out with exit status 1:
+command: 'c:\programdata\anaconda3\python.exe' -u -c 'import sys, setuptools, tokenize; sys.argv[0] = '"'"'C:\Users\admin\AppData\Local\Temp\pip-install-gbwkk1le\pycocotools\setup.py'"'"'; file='"'"'C:\Users\admin\AppData\Local\Temp\pip-install-gbwkk1le\pycocotools\setup.py'"'"';f=getattr(tokenize, '"'"'open'"'"', open)(file);code=f.read().replace('"'"'\r\n'"'"', '"'"'\n'"'"');f.close();exec(compile(code, file, '"'"'exec'"'"'))' bdist_wheel -d 'C:\Users\admin\AppData\Local\Temp\pip-wheel-f2t8qhve'
+cwd: C:\Users\admin\AppData\Local\Temp\pip-install-gbwkk1le\pycocotools
+Complete output (13 lines):
+running bdist_wheel
+running build
+running build_py
+creating build
+creating build\lib.win-amd64-3.7
+creating build\lib.win-amd64-3.7\pycocotools
+copying pycocotools\coco.py -> build\lib.win-amd64-3.7\pycocotools
+copying pycocotools\cocoeval.py -> build\lib.win-amd64-3.7\pycocotools
+copying pycocotools\mask.py -> build\lib.win-amd64-3.7\pycocotools
+copying pycocotools_init_.py -> build\lib.win-amd64-3.7\pycocotools
+running build_ext
+building 'pycocotools._mask' extension
+error: Microsoft Visual C++ 14.0 is required. Get it with "Build Tools for Visual Studio": https://visualstudio.microsoft.com/downloads/need help to solve above error 
+[W 15:31:02.063 NotebookApp] Terminals not available (error was DLL load failed: %1 is not a valid Win32 application.)
+[I 15:31:02.101 NotebookApp] JupyterLab extension loaded from C:\Users\nadia\Anaconda3\lib\site-packages\jupyterlab
+[I 15:31:02.101 NotebookApp] JupyterLab application directory is C:\Users\nadia\Anaconda3\share\jupyter\lab
+[I 15:31:02.103 NotebookApp] Serving notebooks from local directory: C:\Users\nadia
+[I 15:31:02.103 NotebookApp] The Jupyter Notebook is running at:
+[I 15:31:02.103 NotebookApp] http://localhost:8888/?token=5024d8db2d803fc4c0c3194677ddcb520230109fd1e9efa2
+[I 15:31:02.103 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 15:31:02.185 NotebookApp] 
+
+To access the notebook, open this file in a browser:
+file:///C:/Users/nadia/AppData/Roaming/jupyter/runtime/nbserver-28920-open.html
+Or copy and paste one of these URLs:
+http://localhost:8888/?token=5024d8db2d803fc4c0c3194677ddcb520230109fd1e9efa2
+
+I get this too> My system is Windows 64 bit. This solved for me.
+> 
+> conda install -c conda-forge pywin32
+> conda install -c anaconda jupyter_client
+> conda install -c conda-forge jupyter_core
+
+Thank you so much!! this worked me!Not able to get  frozen inference graph module in notebook what will the error so that can get that module for object detection using tensorflow ?? (tensorflow_gpu) c:\tensorflow\models\research\object_detection\builders>python model_builder_test.py
+Traceback (most recent call last):
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "model_builder_test.py", line 20, in <module>
+    import tensorflow as tf
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\site-packages\tensorflow\__init__.py", line 41, in <module>
+    from tensorflow.python.tools import module_util as _module_util
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\site-packages\tensorflow\python\__init__.py", line 50, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 69, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\admin\anaconda3\envs\tensorflow_gpu\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+
+Failed to load the native TensorFlow runtime.
+
+See https://www.tensorflow.org/install/errors
+
+for some common reasons and solutions.  Include the entire stack trace
+above this error message when asking for help.
+
+(tensorflow_gpu) c:\tensorflow\models\research\object_detection\builders>
+
+
+
+help me with issue ASAP please.....As best as I can tell, this module (`ntsecuritycon`) comes from the `pywin32` package, so I would focus on ensuring its proper installation.  You might try `conda update -c conda-forge pywin32`.> I'm referring to the setup.py that's in the repository: https://github.com/jupyter/jupyter_client/blob/5.3.3/setup.py
+> This file isn't laid down during installation but it's what is used during `jupyter_client`'s installation.
+> 
+> You might try `pip install --upgrade jupyter_client`. You should have `pywin32` installed.
+
+I had the same issue and It actually worked for me  
+seems like there it was craving for an update
+
+Thank you > My system is Windows 64 bit. This solved for me.
+> 
+> conda install -c conda-forge pywin32
+> conda install -c anaconda jupyter_client
+> conda install -c conda-forge jupyter_core
+
+Worked like a charm dude!> Try `conda install pywin32` if you are using conda.
+
+thanks for this solution.> Collecting pycocotools
+> Using cached pycocotools-2.0.0.tar.gz (1.5 MB)
+> Building wheels for collected packages: pycocotools
+> Building wheel for pycocotools (setup.py): started
+> Building wheel for pycocotools (setup.py): finished with status 'error'
+> Running setup.py clean for pycocotools
+> Failed to build pycocotools
+> Installing collected packages: pycocotools
+> Running setup.py install for pycocotools: started
+> Running setup.py install for pycocotools: finished with status 'error'
+> ERROR: Command errored out with exit status 1:
+> command: 'c:\programdata\anaconda3\python.exe' -u -c 'import sys, setuptools, tokenize; sys.argv[0] = '"'"'C:\Users\admin\AppData\Local\Temp\pip-install-gbwkk1le\pycocotools\setup.py'"'"'; file='"'"'C:\Users\admin\AppData\Local\Temp\pip-install-gbwkk1le\pycocotools\setup.py'"'"';f=getattr(tokenize, '"'"'open'"'"', open)(file);code=f.read().replace('"'"'\r\n'"'"', '"'"'\n'"'"');f.close();exec(compile(code, file, '"'"'exec'"'"'))' bdist_wheel -d 'C:\Users\admin\AppData\Local\Temp\pip-wheel-f2t8qhve'
+> cwd: C:\Users\admin\AppData\Local\Temp\pip-install-gbwkk1le\pycocotools
+> Complete output (13 lines):
+> running bdist_wheel
+> running build
+> running build_py
+> creating build
+> creating build\lib.win-amd64-3.7
+> creating build\lib.win-amd64-3.7\pycocotools
+> copying pycocotools\coco.py -> build\lib.win-amd64-3.7\pycocotools
+> copying pycocotools\cocoeval.py -> build\lib.win-amd64-3.7\pycocotools
+> copying pycocotools\mask.py -> build\lib.win-amd64-3.7\pycocotools
+> copying pycocotools_init_.py -> build\lib.win-amd64-3.7\pycocotools
+> running build_ext
+> building 'pycocotools._mask' extension
+> error: Microsoft Visual C++ 14.0 is required. Get it with "Build Tools for Visual Studio": https://visualstudio.microsoft.com/downloads/
+
+DID U GET THE SOLUTION  FOR THIS ERROR?? EVEN IM STUCK WITH THIS ERROR@Himani3344 - did you resolve the `pycocotools` issue?
+
+This output seems unrelated to the discussion - which is focused on an issue relative to `pywin32`.   There are infinite ways a "Kernel error in jupyter notebook" can rear its head - so you might be better off creating a new issue specific to a failure with pycocotools. 
+after pip install --upgrade jupyter_client works fine for me## Solved for me 
+
+`conda install pywin32` 
+installs :
+  >  certifi-2020.4.5.1         |           py38_0         156 KB
+    pywin32-227                |   py38he774522_1         5.6 MB
+
+`conda install jupyter_client`
+installs :
+
+> package                    |            build
+    ---------------------------|-----------------
+    decorator-4.4.2            |             py_0          14 KB
+    entrypoints-0.3            |           py38_0          11 KB
+    ipython_genutils-0.2.0     |           py38_0          40 KB
+    jupyter_client-6.1.2       |             py_0          82 KB
+    jupyter_core-4.6.3         |           py38_0          98 KB
+    libsodium-1.0.16           |       h9d3ae62_0         416 KB
+    pyzmq-18.1.1               |   py38ha925a31_0         407 KB
+    traitlets-4.3.3            |           py38_0         138 KB
+    zeromq-4.3.1               |       h33f27b4_3        10.6 MB
+    ------------------------------------------------------------
+
+**Version: 1.44.2 (system setup)
+Commit: ff915844119ce9485abfe8aa9076ec76b5300ddd
+Date: 2020-04-16T16:36:23.138Z
+Electron: 7.1.11
+Chrome: 78.0.3904.130
+Node.js: 12.8.1
+V8: 7.8.279.23-electron.0
+OS: Windows_NT x64 10.0.18363
+Python extension version 2020.3.71659 (2 April 2020)**
+
+## Fixes this issue raised by **win32api** 
+[Jupyter.log](https://github.com/jupyter/notebook/files/4510565/Jupyter.log)
+
+> import win32api
+    ImportError: DLL load failed while importing win32api: The specified module could not be found.
+[W 16:56:16.502 NotebookApp] Unhandled error> pywin32==225
+
+but I get this error
+ERROR: Could not install packages due to an EnvironmentError: [WinError 5] Access is denied: 'C:\\Users\\Nishant\\AppData\\Local\\Temp\\pip-uninstall-0dcy_q_8\\win32\\win32api.pyd'
+Consider using the `--user` option or check the permissions.Sir My laptop is ASUS X510U . I've installed Anaconda and i opened jupyter notebook but it is showing  Connection failed
+![Screenshot (277)](https://user-images.githubusercontent.com/57451819/85301017-efeb8200-b4c4-11ea-8497-911ea54d79ee.png)
+![page1](https://user-images.githubusercontent.com/57451819/85301065-fda10780-b4c4-11ea-9ced-80ea4580aa50.PNG)
+![page2](https://user-images.githubusercontent.com/57451819/85301072-009bf800-b4c5-11ea-9413-3f2c6d4d168b.PNG)
+
+Sir i hope you could resolve the issue Asap.
+I am facing Kernel Error and code is not running. It is moving to next cell when I click run. Plz help.
+```
+Traceback (most recent call last):
+File "C:\Users\USER\anaconda3\lib\site-packages\tornado\web.py", line 1703, in _execute
+    result = await result
+  File "C:\Users\USER\anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\USER\anaconda3\lib\site-packages\notebook\services\sessions\handlers.py", line 69, in post
+    model = yield maybe_future(
+  File "C:\Users\USER\anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\USER\anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\USER\anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 88, in create_session
+    kernel_id = yield self.start_kernel_for_session(session_id, path, name, type, kernel_name)
+  File "C:\Users\USER\anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\USER\anaconda3\lib\site-packages\tornado\gen.py", line 742, in run
+    yielded = self.gen.throw(*exc_info)  # type: ignore
+  File "C:\Users\USER\anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 100, in start_kernel_for_session
+    kernel_id = yield maybe_future(
+  File "C:\Users\USER\anaconda3\lib\site-packages\tornado\gen.py", line 735, in run
+    value = future.result()
+  File "C:\Users\USER\anaconda3\lib\site-packages\tornado\gen.py", line 209, in wrapper
+    yielded = next(result)
+  File "C:\Users\USER\anaconda3\lib\site-packages\notebook\services\kernels\kernelmanager.py", line 168, in start_kernel
+    super(MappingKernelManager, self).start_kernel(**kwargs)
+  File "C:\Users\USER\anaconda3\lib\site-packages\jupyter_client\multikernelmanager.py", line 186, in start_kernel
+    km.start_kernel(**kwargs)
+  File "C:\Users\USER\anaconda3\lib\site-packages\jupyter_client\manager.py", line 308, in start_kernel
+    self.kernel = self._launch_kernel(kernel_cmd, **kw)
+  File "C:\Users\USER\anaconda3\lib\site-packages\jupyter_client\manager.py", line 215, in _launch_kernel
+    return launch_kernel(kernel_cmd, **kw)
+  File "C:\Users\USER\anaconda3\lib\site-packages\jupyter_client\launcher.py", line 135, in launch_kernel
+    proc = Popen(cmd, **kwargs)
+  File "C:\Users\USER\anaconda3\lib\subprocess.py", line 854, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "C:\Users\USER\anaconda3\lib\subprocess.py", line 1307, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+FileNotFoundError: [WinError 2] The system cannot find the file specified
+
+```
+You might try taking a look at https://github.com/jupyter/notebook/issues/2301#issuecomment-287119893 and the surrounding comments/instructions.step 2 command :-  "conda activate (location of your env folder)"
+step 3 command: - "python -m ipykernel install --user"
+
+
+worksconda install pywin32 resolved the issue for me> conda install pywin32
+
+This worked for me like a charm@kevin-bates 
+I'm running latest version.
+And the notebook is starting but I'm not able to execute anything I tried like 2+3 also but nothing is going.
+And kernel is not starting..
+
+hi @nani-samireddy - I'm assuming this latest issue is related to your this issue you amended at about the same time: https://github.com/jupyter/notebook/issues/2990#issuecomment-694896087
+@kevin-bates
+
+If codes are not visible then you can use your desktop or laptop for better visualization.
+Here is commands that are used in the video..!!
+step 2 command :-  "conda activate (location of your env folder)"
+step 3 command: - "python -m ipykernel install --user"

@@ -1,0 +1,618 @@
+I plan on implementing the hiding of input cells. Might not happen for 4. but I will be optimistic for now.
+Woot! 
+
+BTW, I like our variation of making a Tabbed Input Output cell such that you can see the code in the Input tab, but defaults to showing the Output tab initially. Also can display the input next to output.
+
+ LINKLINK 
+I can imagine that this view would be useful sometimes. But initially this
+will be as simple as possible possibly without UI just in the command
+palette.
+
+ Doug Blank wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+Brian Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+ ellisonbg on Twitter and GitHub
+ and 
+Would it be possible to expose the JS so that it survives nbconvert? Otherwise any derived materials would need to re implement show hide machinery.
+
+I'm also thumbs up on the possibility of switching input on one cell only, imagine publishing lecture materials in a non programming course, where you only might want to check how a particular thing is produced.
+Here's a snipped that works for me if I run as HTML in the 1st cell.
+
+ CODELCODEL 
+
+Here's the button.
+
+ CODELCODEL 
+I just signed in to thank Saynah for that great hack. I don't use Jupyter specifically because it doesn't have cell folding, but this is the closest I've found so far. 
+ Saynah, ecollins, I created a code hiding plugin for Jupyter a couple of months ago. If you're interested in check out LINKLINK.
+
+Edit: fixed a typo.
+Thanks kirbs, had some LINKLINK the first time around the install. It'd definitely be nice to see this feature upstream.
+It seems like this would be nice done a cell magic, then it's easy to selectively hide cells, not sure though. still learning the system. Plus I seem to be running an ancient version
+I don't think a cell magic is the right thing for this:
+ Hiding cells should work the same way for any kernel, and magics are not general.
+ Cell magics usually affect what the kernel does with code, whereas here we don't want that to change
+
+If you're on an old version, have a look at the upgrade instructions here:
+ LINKLINK 
+Hiding input cells for HTML output would be greatly appreciated!
+I second that!
+I have cell hiding on HTML export figured out with a helpful piece of code to trigger upon export; but now that I'm moving to deploying Jupyterhub in my organization I really would appreciate the ability to hide live input cells so users don't see them when they run their notebooks. 
+The CODESCODES notebook extension is nice, but it doesn't hide the code when exporting. Can an nbextension register preprocessors? As CODESCODES adds a variable to the meta data, that should be trivial to implement.
+You can hide the code in nbconvert using a custom template.
+Like this template LINKLINK for conversion to HTML. You have to change the metadata variable name in the template, because it was made for another notebook extension.
+
+For conversion to TeX or PDF you can take a look at this template LINKLINK and modify it accordingly.
+I think it would be cleaner to do this with a preprocessor which I just did locally. I fell the hiding of cells should be independent of the template.
+It would be neat if in addition to the feature we could allow to export to pdf html removing hiding input cell code and prompt so we could have a clean pdf html output without any code but with the beautiful graphs, markdown and results. 
+A man can dream. 
+ BreitA that's super easy. The hard part is getting rid of the prompt for the output. Lemme send a PR.
+Hm actually I realized that I was doing the wrong thing and also removed the output of the cell. That was simple.
+Oops, ping jamiesHQ
+I actually already do all of that with a mix of workarounds like theses one 
+ LINKLINK 
+
+ CODELCODEL 
+
+and use LINKLINK to convert the rendered HTML into pdf but with this the layout is atrocious as expected. 
+
+If you guys provide an embeded good solution on jupyter for this it would be perfect! 
+ CODELCODEL 
+This is good to have, though I believe the initial discussion was about
+hide fold functionality within Jupyter
+ Joel Bondurant wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I was just trying to hack something like this together.
+My idea was a bit different. I try to use damianavila RISE plugin to create lecture notes. I would like to see code blocks within the notebook, but mark them hide during the presentation. Hence, I can easily read and follow what is done, but the presentation stays clean.
+I am trying to merge the hide plugin from kirbs by adding a Boolean expression to the if clause:
+
+ CODELCODEL 
+
+whereas, ' maintoolbar'. hasClass 'reveal tagging' is set by RISE to identify whether the presentation mode is on or off as far as I understood.
+
+
+
+EDIT: Just to get this again more on topic. Implementing this directly into Jupyter sounds great but please make sure, that different plugins or exports can easily utilise resp. customize the hide code functionality.
+Just wanted to call out that the hiding of the output prompt for example Out should be included in this feature. I think the majority of use cases that want to hide the input cell want to hide all references to the code, which includes the prompts. 
+
+Still eager to see this feature integrated into Jupyter. thumbs up 
+I remember to read months year ago that Jupyter at that time IPython Notebook would not allow to hide input cells for security reasons. Can anyone point me to that discussion?
+Any update as to the hiding of input cells? Would love to be able to use Jupyter to create the equivalent of RMarkdown reports. Thanks overall for this wonderful Jupyter project!
+I'm wanting to do the same. Is creating Rmarkdown style reports on the
+Jupyter roadmap?
+
+On Tue, 19 Jul 2016 at 14:24 Levi Thatcher wrote:
+
+
+
+
+
+
+
+
+
+
+
+Thanks for the reminder on this one. will try to get some time back on it. 
+
+Could you give an examples of the Rmarkdown reports?
+No problem; the package LINKLINK is currently
+my go to package for generating reports with python though it's a long
+way off R's LINKLINK in terms of functionality;
+have a look at the pweave examples LINKLINK and KnitR examples LINKLINK.
+
+The philosophy is admittedly slightly different from a notebook your goal
+from the start is to write code chronologically such that you 'Restart &
+Run All' at the end to generate your document. However, enabling this
+functionality could be quite simple: adding ' LINKLINK LINKLINK ' to all code cells should allow
+jupyter notebooks to be used for this purpose without any other changes.
+
+From my perspective, the reason why this style of working is important is
+twofold:
+ Make creating reports easier
+ no faffing with latex though you can use latex within the document
+ when you want already implemented in jupyter markdown cells 
+ write the report as you code
+ allow inline references to the data and results for example instead of
+ writing 'The mean of the column was 2.6' you would write 'The mean of the
+ column was CODESCODES ', such that, if and when your data
+ changes, you simply regenerate your report, safe in the knowledge the text
+ is still correct
+ 1000s of researchers worldwide would benefit from the time saved
+ Make reports reproducible
+ You know exactly what code you executed to create all the figures,
+ tables, and text
+ Reproducibility in academic research is currently pretty poor 
+ creating tools to make this easier will have widespread benefits to the
+ academic community
+
+I think a good first step would be a markdown cell toolbar that controls
+simple cell options like hiding like the 'edit metadata' cell toolbar but
+higher level. Most of the back end work appears to already be done I
+detail a solution LINKLINK 
+that uses an nbextension but an easy user interface that doesn't require
+faffing with the cell metadata would be useful such that the user can see
+at a glance what to expect the generated report to look like.
+
+A more difficult next step, I imagine, would be thinking about how to
+implement caching and whether that idea is compatible with the notebook
+philosophy.
+
+I'm keen to contribute if I can so do let me know if I can help in some way.
+I haven't seen it expressly mentioned yet, and it is similar enough to many of the requests being made to deserve a mention:
+
+The LINKLINK notebook extension provides some of the functionality users need. 
+
+I use this extension in combination with a few other tricks to achieve a result similar to Sweave, Pweave, Rmarkdown, etc. See LINKLINK.
+I just want to point out that this thread has conflated two different
+functionalities.
+
+The one Levi and James seem to want is to configure Jupyter to export
+output cells but not code cells to pdf html latex.
+The other which I thought was the original one under discussion was to
+hide or fold input cells within the Jupyter notebook itself.
+
+ Gordon Bean 
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ brazilbean Oh nice! I didn't know about the CODESCODES and CODESCODES Raw NBConvert cells. Thanks.
+
+ ecollins You're quite right. Sorry for this.
+My interest in this feature aligns with kungfujam. A critical feature and advantage of R is its ability to link code directly to reports without manual intervention. While I like the convenience that affords, the reproducibility of entirely code generated reports is my primary concern. That said showing all code in a report becomes unreadable particularly when doing all the plot formatting. We
+While I do think we can improve the notebook's ability to handle the report usage case, it may make sense to build other tools for those usages cases. For example, we should be able to build support for knitr and a python variant into juptyerlab itself. That is one of the big underlying ideas of jupyterlab that the same building block may be better assembled in different wants for different purposes.
+
+
+Agreed. Brian, do you know if there's an issue in Jupyterlab for connecting kernels to text files? LINKLINK discusses it, but only tangentially. Perhaps we can move further discussion of report generation issue there, and limit this issue to the original hide input in the notebook.
+To separate out the requests a bit, having the ability to hide input cells ie, code would be a fantastic first step and would get us functionality that's akin to RMarkdown reports since we can export a Jupyter notebook to html pdf. Whatever you decide, thanks for a fantastic product overall!
+
+
+For now we are trying to reach feature parity with current notebook, which is already a lot of work, and yes we will discuss attaching kernel to classic text files, though it is a complex question as soon as you want to enable real time collaboration as well, as there are security implications. 
+
+
+
+You can already tag cell with metadata and drop them when using nbconvert exporters, michaelpacer is going to work in making that more straightforward, and improve the documentation. 
+ Carreau Thanks for the info!
+ vavachan If you look at LINKLINK that should give you a good idea of how to do this while hard hiding killing cells, inputs or outputs on the basis of the tags that you've applied to individual cells in case you don't want to make it universal. 
+
+If you want to get rid of all input you could modify that template and get rid of the CODESCODES statement that limits the application of the hiding to only those cells you have tagged as such. 
+ thumbs up for being able to selectively hide input cells any progress on this? dpsanders do you mean in the notebook or in a converted notebook? If after conversion, then LINKLINK might be what you're looking for. If you want it to be in nbconvert itself, please comment on LINKLINK. 
+
+I'm not sure if there's been any forward motion on either how to apply tags in a more user friendly manner or actually hiding input from within an active notebook. I meant in an active notebook.Another request for this today will this for sure be in 5.We are working on the design for this in JupyterLab right now. I would
+rather focus on implementing new features first in JupyterLab and the back
+porting as time allows. Getting the design right for this is challenging,
+but we are making progress even in the last week: Because of these
+things I don't want to commit to it being in any particular release of
+classic notebook. This brings up another issue and that is how when do we
+back off on new features in classic notebook. My own personal preference
+would be to start dramatically scale back new features in classic notebook,
+and if they do get added, make sure they are in lab first.
+
+Also, keep in mind, this is the longest standing feature request we have
+had since 2011. we have implemented it multiple times in different
+ways. the bottleneck is design. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Brian Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+ ellisonbg on Twitter and GitHub
+ and 
+I always wanted to hide code because 99 of people will shut down emotionally if they see code. The big workflow gulf in Jupyter for me is between analysis and presentation. The dashboarding widgets might offer a nice context in which to frame design considerations on making notebooks more presentable. JoelBondurant If you are presenting code and don't need to actually execute it which is presumably what you would be doing if you're hiding the code you can use CODESCODES. 
+
+How exactly you would use it would depend on what exactly you want. 
+
+For example, if you wanted to explore a notebook as though you were going through the notebook but without having to see or execute any of the code, you could export to html and use something like parente's solution to hide all of the input cells as an nbviewer PR LINKLINK and as a LINKLINK. 
+
+If you want a bit more flexibility for example, showing some inputs, but not all; or being able to toggle the visibility of individual cells' input, you could use the approach I took in LINKLINK. In that case, you would tag all the cells that for which the input would be eliminated with CODESCODES and you would use the CODESCODES template. That would solve your problem in the same way as above, but on a per cell basis. 
+
+However, suppose someone asked a question specifically about the code, you might want to make it accessible; that wouldn't be possible if the cells were actually not present which is what the CODESCODES does… thus the ominous moniker of CODESCODES. However, you might want to only apply this to some cells, and you might not want to have to toggle all the cells at once in order to show just one which may cause scrolling issues for that one cell. Then you want the CODESCODES template, which creates per cell visibility that is controlled by a toggle control for example, see the checkbox next to CODESCODES at LINKLINK for to see what I mean. In that case, you would tag code cells with CODESCODES and would use the CODESCODES. 
+
+If you wanted to have a blending of the two, that's just a matter of me writing a new template which wouldn't be hard, but won't a priority for me unless someone specifically asks for it.
+
+Let me know if I can be of any other help!Thanks Min!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Brian Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+ ellisonbg on Twitter and GitHub
+ and 
+ ellisonbg if you meant me, I am flattered to be mistaken for minrk if that's happening, I'm clearly doing something right thumbs up.LOL, after over 10 years of reading emails from MinRK, my brain is
+hardwired to greedily autocomplete M. to MinRK. Many apologies, and
+thank you for the detailed reply and gentle correction. Cheers, Brian.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Brian Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+ ellisonbg on Twitter and GitHub
+ and 
+Right now nteract is respecting two different metadata keys for hidden inputs: CODESCODES and CODESCODES. I'd love to have one standard for that metadata, especially if we end up with it in the core nbformat. Otherwise we'll probably support multiple extensions.
+
+Ref: LINKLINK 
+
+Would also love to see jupyterlab ship with input hiding available as a toggle by default.Yes! The dev meeting will be a great place to work through this. A few
+other thoughts in the meantime:
+
+ We are thinking of having some distinction between the view state, the
+document state and the shared state in real time collaboration. Just
+because one user has collapsed input output, doesn't mean it should go into
+the document or by sync'ed with all collaborators.
+ Because of that, there may be different places these things are stored.
+ nbviewer also has related metadata that we may want to consolidate or not.
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Brian Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+ ellisonbg on Twitter and GitHub
+ and 
+Whoops, I forgot to note why we support two different ones jupyter extension used CODESCODES while nteract used CODESCODES. Since everything else in the notebook format uses underscores, I'd prefer to align on something like that.Another voice vote request for this feature. I understand that there are other development priorities but I hope the team will consider these types of relatively basic requests that can help non power users such as myself manage code development and exploration.
+
+This Julia notebook implements it in Javascript and I am trying to understand Javascript well enough to adapt it for my own Python Notebooks. 
+
+ LINKLINK Seconded. I'd love to be using Jupyter for writing projects, but I have
+trouble doing anything beyond cute throwaway snippets until we can fold
+code.
+
+
+
+ Old Guy in the Club 
+ wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+For the use case of hiding code cells in reveal. js slides made from a notebook, one can just make a template for example, CODESCODES like below and then call CODESCODES.
+
+ LINKLINK and some of the comments above talk about this. However, they add complexity by including a toggle for the code which might be problematic in some rare cases since the code is still in the slides HTML source.
+
+ CODELCODEL 
+
+Perhaps it'd be worth adding this as a default template, or at least linking to LINKLINK from LINKLINK. This seems like a pretty common use case.
+
+I am hesitant to make that hide template the default option.
+
+
+
+I think that would be helpful.
+
+Oh oops. That was a typo on my part. I meant to say something like include it as a pre made template like the basic and full options. I agree that the current default template for slides seems like the most sensible default if somebody just runs CODESCODES What is the current state of this? 
+
+ I know that cell tags are now available in classic notebook LINKLINK 
+ I also know that cell hiding is available in jupyterlab LINKLINK 
+ blink1073 When an input is hidden, is metadata written to the notebook file? 
+ ellisonbg is working on revising the notebook format to support features like this. 
+ mpacer Is input hiding supported in nbviewer?  LINKLINK. It does persist to disk. Cell tags are not to be used for core notebook state.
+
+Originating PR in nbformat: LINKLINK Document wide input hiding is supported in nbconvert. 
+
+I am still working out how to implement filtering based on tags, but that's not togglable hiding. 
+
+Hiding can be done based on tags and templates, but it will only be possible in certain formats, such as HTML. There is a prototype of how to do that using only CSS at LINKLINK 
+
+There are issues with how to avoid jitter with hiding large sections of text. There was an issue on nbviewer about toggling input visibility, but not anything that was merged. That was partially because of the jitter issue partially because it would only act globally which wouldn't fit the use case of hiding some cells and not others. parente can speak more to that than I can re: nbviewer on this issue. 
+
+I do not believe the plan was for nbconvert to look at the CODESCODES or CODESCODES cell metadata to determine if something will be hidden filtered on output. If people do want that feature it might be nice to have a way to manually persist the states with a custom tag stem assigned to the relevant cells tag+ input ; tag+ output. Then if we want that tag could be stored in the notebook level metadata & nbconvert can watch for that. Then nbconvert would add that value to the appropriate traitlet value for filtering input output cells a traitlet which does not exist yet.Mobile phone fingers. Sorry for the accidental close!Doing a good job on the UI UX hiding is a lot of work. I think there are
+two possible routes with the classic notebook:
+ Not implementing it in the UI UX but making sure the metadata is
+preserved it it is there. Implementing it in the exactly same was as JupyterLab.
+
+ I am deliberately ruling out a third option, which is to re design the
+UI UX it from scratch in a completely different way from JupyterLab.
+
+I am fine with 2 if there is someone willing to do the work and follow the
+ongoing JupyterLab UI UX for it which is still evolving. However, as a
+whole, I think our time is better spent not implementing significant new
+UI UX features on the classic notebook at this point.
+
+However, there may be another reason to hold off on doing this in the
+classic notebook. When we implemented it in JupyterLab, we had to create
+additional levels of nesting and a more complicated DOM structure to manage
+the collapser the thing you click and the placeholder the thing that
+shows when input output is hidden. The same things would have to be done
+in the classic notebook implementation.
+
+Because of this change in the DOM structure, the performance with large
+notebooks became a huge roadblock for us. The reason is that Firefox has a
+bug that causes the rendering of nested flex box's to scale as O N 2. That
+was causing even medium sized notebooks to take 45 seconds to render.
+However, even performance in Chrome was painful. It was enough of a problem
+that we have delayed the JupyterLab beta release and have been working hard
+to address the performance issues. We know how to fix it move away from
+nested flex boxes! but that is requiring a significant refactor of the
+views of the JupyterLab notebook.
+
+Because the current DOM structure of the notebook pre refactor is very
+similar to that of the classic notebook, I think the classic notebook
+implementation will run into the same exact performance problems and
+require a complete restructuring of the DOM, CSS etc. While we have never
+really thought of the COM CSS of the classic notebook as being a public
+API, in reality, many extensions rely on those things and would break.
+
+cc sccolbert who is tackling the performance issues on the JLab side.
+
+
+
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Brian Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+ ellisonbg on Twitter and GitHub
+ and 
+ ellisonbg Thanks for that explanation. I have a couple questions:
+
+ Once the performance issues are resolved, could we potentially re use the JupyterLab widgets in classic notebook with little effort?
+ I don't understand the subtleties of this UX yet, but I imagine that it works like: user wants to hide and input cell user selects input cell user hides the cell by either selecting the action from the command palette or using the menu the cell is rendered as a. indicating that it is hidden when the user clicks on the. the cell is rendered as a cell again. 
+ It seems pretty straight forward when thinking about it like: if the cell's CODESCODES then render as. else render as usual.
+On the first question. We could implement the classic notebook using the
+JupyterLab codebase. I don't think it would be too much work, but it
+would break all of the classic notebook APIs JS, DOM structure, CSS.
+Because we have made a commitment to try and not break those APIs during
+the transition to JupyterLab, I don't see how we could do it in practice.
+
+On the second: what you describe is definitely the basic idea. But there
+are a number of edge cases we found that hand to be handled:
+
+ When a cells input and output is hidden, only show one set of. 
+ basically the logic depends jointly on the input and output hidden state
+in a non trivial way.
+ There are also other actions that modify that state. Some examples:
+running a cell sets hide output to false. Clearing output sets hide output
+to false, editing a cell, shows input, etc. Each isn't complicated, just a
+bunch of edge cases we are still chasing them.
+ We also have logic that adds and removes CSS classes to a cell based on
+the whether there is output in the cell or not. We needed this to do
+conditional styling of the collapser and. when there isn't output at
+all.
+
+
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Brian Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+ ellisonbg on Twitter and GitHub
+ and 
+Given the current issue count and the lack of manpower dedicated to the notebook nowadays, I say we go with option 1: 
+
+
+preserved it it is there.
+
+ ellisonbg Is the notebook currently stripping the metadata? If so, this must be happening in the JS since JupyterLab is not stripping it?I don't now the current state of how lab and the notebook are handling this metadata, we would have to do some tests.I've been trying to get PDF export to hide input cells and have done this successfully with tplx templates etc.
+
+My problem now is that hide input seems to hide the cells even if I disable all extensions? Is hide input actually being used by vanilla notebook? or do I have an extension mysteriously running somewhere?
+
+I don't think the notebook web interface uses any metadata for hiding input yet, though maybe it's gone in without me noticing.
+
+Stuff to check: browser Javascript console, logging from the server, run CODESCODES  thumbs up 0, would be perfect if we can edit the meta data in Jupyter Lab to:
+ hide input of cell and only show output
+ hide cell numbers, looks tacky.
+
+See Ref. LINKLINK.It is my understanding that what takluyver says is correct not using the metadata in notebook yet. We do have work in progress to add that handling to lab though.I realize this has been open for a while and there were some difficulties here, but I have been getting a lot of questions regarding why classic jupyter doesn't respect the CODESCODES metadata CODESCODES. JupyterLab, nbconvert, nbformat, and nteract all respect the field if I recall correctly.
+
+I see there's a lot of discussion on the DOM structure and how JupyterLab reimplemented that, but it seems like CODESCODES and CODESCODES wouldn't need drastic changes to enforce even if classic couldn't edit the attribute easily. My front end dev skills are a bit rusty but would adding a metadata check to LINKLINK to set CODESCODES be 80 of the work for CODESCODES? Seems like it'd only need to capture initial render and metadata edit events to adjust the display attribute.
+
+Thoughts comments?

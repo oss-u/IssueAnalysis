@@ -1,0 +1,235 @@
+We recently added a LINKLINK to our documentation, which describes common parameters among other things. We should now replace descriptions of CODESCODES parameters to make them more concise and informative see 10415. For example, instead of
+
+ CODELCODEL 
+
+
+in both KMeans and MiniBatchKMeans, we might have:
+ CODELCODEL 
+
+ Therefore, the description should focus on what is the impact of CODESCODES on the algorithm. 
+
+Contributors interested in contributing this change should take on one module at a time, initially.
+
+The list of estimators to be modified is the following:
+
+List of files to modify using LINKLINK LINKLINK 
+
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK open LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+
+
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK 
+ LINKLINK LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK, LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK, LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK, LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK Open LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK Open 15728 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK Open 15300 
+ LINKLINK LINKLINK Open 15300 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK, LINKLINK Open 15575 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK, LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK 
+ LINKLINK LINKLINK, LINKLINK, LINKLINK, LINKLINK 
+ LINKLINK LINKLINK Hi jnothman, Can I take this issue? ThanksClaim a module subpackage and have a go. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+ jnothman I am sorry for being naive but can you elaborate about the module submodule? I mean are you referring to a sub package like Kmeans for instance?I think what jnothman means is just start with one file, for example sklearn cluster k means. py, update the CODESCODES docstring as in the top post and open a PR.a subpackage is something like sklearn. cluster
+Thanks. Will do that and open a PR.Hi! jnothman 
+
+Would you also like to replace the following comments as seen in grid search. py? They have an extra line as compared to the one shared by you.
+ CODELCODEL 
+I can take grid search. py and k means. py KMeans.leave grid search. py alone. it is deprecated. The idea is to minimise the
+content that is repeated, and available in the glossary, so that we can
+give the users to most informative description about random state's role in
+the particular estimator.
+Thanks jnothman. WIll I need to understand these algorithms before I can replace this random state information?You will need to understand the algorithms broadly, but not every detail of
+their implementation. You will need to be able to find where random state
+is used, if the randomisation in the algorithm is not completely obvious.
+In some cases, it may be appropriate to not even give much more detail than
+just linking to the glossary; we'll have to see how it goes.
+Okay, thank you. I will start going through the algorithms slowly. 
+
+Regards,
+Shivam RastogiI have opened a pull request 10614 Since aby0 has not claimed the sklearn. cluster module yet. I would like to claim the whole module. Please let me know if I can work on it or I should work on something else.
+
+Any update guys? It is a long holiday for us so let me know if I can pick this.I'll take the CODESCODES module since I'm already poking around in the docstrings there for 10731.I'm claiming the CODESCODES module. will raise a PR soon. 11900 raised.
+
+Claiming CODESCODES module next.Checklist of modules where this needs to be done:
+ 
+ developers
+ covariance
+ decomposition
+ dummy. py
+ ensemble
+ feature extraction
+ feature selection
+ gaussian process
+ kernel approximation. py
+ linear model via 11900 
+ manifold
+ metrics
+ mixture
+ model selection
+ multiclass. py
+ multioutput. py
+ neighbors
+ neural network
+ preprocessing
+ random projection. py
+ svm
+ tree
+ utilsWe had some trouble reaching consensus on how to strike the right balance
+here, iirc
+So do pay attention to the prior PRs merged above jnothman thanks! will update the PRs for to mention the reproducibility when passing an int.willing to take up all the other modules in another PR, once these have been reviewed. I'm claiming covariance. BlackTeaAndCoffee please be aware, the doc string format is not yet finalised, discussions have been happening on the other PRs listed here. So you might wanna have a look too.I am claiming feature extraction jnothman, NicolasHug, just discovered 15222 and a number of PR related to it that I haven't taken into account in summarizing this one. some of them are never been reviewed. thumbs down 
+In order to make things clear for sprints, I'm wondering if we can close one of those two issues: if yes, which one? As I can avoid duplicated information. Thanks for your collaboration.I wasn't aware of this issue should have checked better, I'm happy to close LINKLINK in favor of this oneFollowing jnothman LINKLINK maybe this issue could deserve a 'Moderate' label?We want to work on ensemble hist gradient boosting binning.
+ mojc and me.
+ wimlds  anaisabeldhero and me want to work on manifold 
+ wimlds SciKitLearnSprint  daphn3k and I will work on sklearn gaussian process 
+ wimlds SciKitLearnSprintWe want to work on sklearn preprocessing data. py 2178, 2607
+ rachelcjordan and fabi cast
+ wimlds SciKitLearnSprintMe and Malesche want to take the sklearn inspection permutation importance. py 
+ WiMLDSclaiming sklearn metrics cluster unsupervised. py file! wimlds daphn3k and I take also the covariance and neighbors wimldsclaim:
+sklearn dummy. py 59
+sklearn multioutput. py 578, 738
+sklearn kernel approximation. py 41, 143, 470
+sklearn multiclass. py 687
+sklearn random projection. py 178, 245, 464, 586PSA: please use the original sentence
+
+
+
+instead of what I'm seeing in PRs at the moment:
+
+
+
+which isn't correct, since the RNG is always deterministic regardless of what is passed
+
+CC adrinjalali since I think you're at the sprintworking on the neural network and mixture
+
+
+
+
+
+
+
+
+
+
+
+Hi NicolasHug this was meant to comment a PR I suppose. which one? thumbs up going to work on scikit learn sklearn model selection validation. py cmarmo That was a general comment for all PRs. I saw one and commented there, then saw a second one and figured out it was a pattern that would be better addressed at the source
+
+Sorry NicolasHug, my bad, I haven't found the comment easy to trace. NicolasHug Original sentence has been corrected in the commits from anaisabeldhero and meMe and Olks claim sklearn utils extmath. py 185, 297Claim sklearn ensemble iforest. py 109Claim sklearn neural network multilayer perceptron. py 782, 1174 Claim sklearn ensemble weight boosting. py 188, 324, 479, 900, 1022Claim sklearn multioutput. py 578, 738Claim: 
+sklearn mixture bayesian mixture. py 166
+sklearn mixture base. py 139
+sklearn mixture gaussian mixture. py 504Claim sklearn ensemble gb. py 887, 1360Claim sklearn ensemble hist gradient boosting gradient boosting. py 736, 918Claim sklearn neural network rbm. py 59Claim: 
+
+sklearn svm classes. py 90, 312, 546, 752
+sklearn svm base. py 853Claim: 
+
+sklearn feature selection mutual info. py 226, 335, 414
+sklearn metrics cluster unsupervised. py 80
+sklearn utils testing. py 521
+sklearn utils init. py 478, 623Claim:
+
+sklearn dummy. py 59
+sklearn random projection. py 178, 245, 464, 586 DatenBiene GregoireMialon Thanks for all your contributions during last sprint. There are only 3 modules left unchecked!
+
+Would you be interested have time have motivation to tackle those no pressure!Hi Jérémie! I'll try to have a look at it soon
+
+Le mer. 12 févr. 2020 à 15:53, Jérémie du Boisberranger 
+ a écrit:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hi jeremiedbb! I will try to finish the 3 remaining modules today 😃 
+
+Claim:
+
+sklearn kernel approximation. py 41, 143, 470
+sklearn multiclass. py 687
+sklearn ensemble base. py 52
+Hi jnothman and jeremiedbb, looks like all the files where modified. I would be happy to help if you find any remaining issues. Thanks a lot DatenBiene and all the contributors that worked to close this issue!
+I think we can close this huge one!
+Feel free to open new specific issues if something is still missing about CODESCODES description.

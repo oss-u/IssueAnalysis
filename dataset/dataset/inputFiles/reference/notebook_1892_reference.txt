@@ -1,0 +1,9 @@
+Can you try uninstalling all of:
+ ipykernel
+ ipython
+ jupyter client
+ jupyter core
+ traitlets
+ ipython genutils
+
+And then install again. If you're doing this inside a conda env, it might be easiest to create a new environment and start from scratch. Also, if you're going to install with conda, run CODESCODES to clean up conda caches before you start.

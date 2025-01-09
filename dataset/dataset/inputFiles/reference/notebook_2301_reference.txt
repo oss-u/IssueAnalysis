@@ -1,0 +1,2 @@
+i found the soultion, the problem was, i made an environments then i deleted them, there were refrences for those envs,
+soultion: used this in cmd: python m ipykernel install user 

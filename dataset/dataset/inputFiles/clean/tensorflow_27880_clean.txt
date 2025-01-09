@@ -1,0 +1,1115 @@
+ System information 
+ TensorFlow version you are using: 1.13.1 but willing to use 2.0 alpha0 if there is a good reason 
+ Are you willing to contribute it Yes No: Yes given some pointers on how to best go about it 
+
+ Describe the feature and the current behavior state. 
+Currently there is no obvious way to apply CODESCODES to a keras model. The keras API only allows access to the graph after it has already created a session. Attempting to modify the graph at this point does not work:
+ LINKLINK 
+ LINKLINK 
+
+I have also tried to create a new session after rewriting the graph, without success:
+ CODELCODEL 
+
+Results in this error when I try to fit the model:
+ CODELCODEL 
+
+ Will this change the current api? How? 
+Probably, but in a backwards compatible way. I imagine some kind of graph rewriting hook would probably be necessary in the tf. keras API.
+
+ Who will benefit with this feature? Users of TF Lite Edge TPU wishing to easily train quantized models using the keras API which is being pushed as the new one true API for tensorflow.
+
+ Any Other info. 
+Related issue on the main keras project LINKLINK This is my code for quantization aware training in keras.
+ LINKLINK 
+
+You can use CODESCODES to get the session, 
+then you can rewrite the graph created by keras.
+Note that you should call CODESCODES after rewrite the graph.
+
+However, there is still another issue in this code.
+If you save keras model and load again, fakequant layer disappear. QQ
+Because keras does not know this layer.
+You need to call CODESCODES again to get the training graph.
+However, you cannot initialized the variable. because the min max in fakequant may disappear.
+I still do not know how to solve this problem. How about support in Tensorflow 2. suharshs for quantization + KerasHi, we are actively working on a Keras replacement for contrib quantize. We hare hoping to have it ready by the end of Q2. Thanks! rocking5566 very interesting implementation! Did you also freeze the graph and convert it to a. tflite model? rocking5566 so how can i use this quantization with fine tuning and transfer learning? do you have any code for that?Following rocking5566 code, you can recover a model with something like:
+ 
+
+
+
+ with tf. Session graph g as session:
+
+ model clean. 
+ tf. contrib. quantize. create eval graph input graph g 
+ optimizer not used, loss. 
+
+ initialize automatically quantized variables
+
+ compile the model
+ model clean. compile optimizer optimizer not used,
+ loss loss,
+ metrics 
+ recover the model
+
+ saver. restore session, model path 
+
+ suharshs In LINKLINK there is no specification of how the issue will be addressed. Is there any place where discussions can be followed?
+
+Thanks
+
+Did anyone find a way to convert the quantized model to a tflite file? 
+
+I tried to adapt the instructions from the github readme but with no success
+ LINKLINK  suharshs Is there any update for the Keras replacement for contrib quantize or the timeline for implementation? I appreciate your assistance.I build simple keras model and convert it to tflite file for Edge TPU. It seems works well.
+
+ LINKLINK  ohtaman Thank you very much for your help.
+Unfortunately, I run into problems when using less trivial models.
+I added a batchnorm layer in 
+ CODELCODEL 
+
+and now I get the following error complaining about the min value in the batchnorm being unitialized
+ CODELCODEL 
+
+sorry to bother with that but I don't understand the origin of the error, it looks like there is a fake layer missing but I don't get why nor how we could specify to add it
+
+
+
+
+
+
+
+
+
+
+
+
+
+You may be able to do the following:
+
+ CODELCODEL 
+Thanks!
+
+Using it without batchnorm works but when I add batchnorm I get:
+ CODELCODEL 
+
+ NatGr Hi! I updated my sample notebook. This may help you.
+
+ It is the cause of the FailedPreconditionError and I found that it is not necessary. Add keras. backend. set learning phase 0 
+ Then we can avoid the ValueError
+
+ LINKLINK  ohtaman, great! thank you very much again!
+I still have a problem though, I tried to used a convolutionnal model, and when adding convolutions to the picture
+ CODELCODEL 
+
+ you also need to change the inputs and command for the scipt to run:
+ CODELCODEL 
+and
+ CODELCODEL 
+
+Here is a copy of the modified notebook LINKLINK 
+
+I get an error related to the batchnorm layers
+ CODELCODEL 
+This issue is also faced here but they were not answered:
+ LINKLINK 
+
+Do you have any idea on how to solve it?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I'm having the exact same issue. Here's what my model looks like:
+
+ CODELCODEL 
+
+ERROR:
+ 2019 06 08 15:09:20.754790: F tensorflow lite toco tooling util. cc:1702 Array batch normalization v1 FusedBatchNorm mul 0, which is an input to the Add operator producing the output array batch normalization v1 FusedBatchNorm, is lacking min max data, which is necessary for quantization. If accuracy matters, either target a non quantized output format, or run quantized training with your model from a floating point checkpoint to change the input graph to contain min max information. If you don't care about accuracy, you can pass default ranges min and default ranges max for easy experimentation.
+ 
+
+
+ LINKLINK 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+adding parameter fused False did the trick for me. I hope it's not messing much with performance. Accuracy seems to be unaffected. 
+
+ keras. layers. BatchNormalization fused False,
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Amazing, thank you!
+It seems it finally works for me as well 1n1n1t3 did you test the runtime of your generated tf lite files?
+training seems to go correctly, the input and output details of my. tflite file seem consistent
+ CODELCODEL 
+
+The accuracy of the floating point model is of 94.68, while the quantized model one is 94.18 CIFAR thumbs down 0.
+
+However, when running the model using tf lite binaries tf 1.13.1 as well. The quantized model is 3 times slower than the floating point one 0.5s vs 0.15s on a Raspberry PI 3B.
+Using the tf lite interpreter within python on a desktop computer results in the unquantized version being 16 faster.
+This should not be the case.
+
+
+
+
+
+
+
+
+
+
+Are you using the Coral USB Accelerator? I tried it on the Coral Dev Board and the model I posted above is very fast. It goes something like 1500 fps. I'm used the MNIST Fashion dataset input: 28,28,1 though. Not sure if that is fast, normal or slow for that, tbh, but the MobilenetSSD models run at about 300 fps. 
+
+For sure you are not supposed to get slower performance on quantized models though. Maybe the problem is something specific to the Raspberry PI and the environment. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Nope, I'm running on native Raspberry PI it's for my master thesis, I just use the Raspberry PI as a benchmarck which is why I don't use USB accelerators. I did not precise it but I'm using a MobileNetv1 adapted to CIFAR thumbs down 0's input size.
+
+Yeah that extremely weird, at least it's not specific to the Raspberry Pi since it happens on my desktop computer as well. It might be worthwile to test the floating point 32 model in your use case as well I'm not asking for anything, I'm already extremely grateful for your help with the BatchNorm. ohtaman, perhaps you have guidance on resolving the problem I'm having. I've been using LINKLINK and run into missing quantization aware training values when restoring the checkpoint after training.
+
+ NotFoundError: Restoring from checkpoint failed. This is most likely due to a Variable name or other graph key that is missing from the checkpoint. Please ensure that you have not altered the graph expected based on the checkpoint. Original error:
+
+ Key conv1 act quant max not found in checkpoint
+	 
+	 
+
+Here's a modified Colab that demonstrates the problem:
+ LINKLINK 
+
+
+
+
+
+
+
+
+I had the same use case and I ran into a lot of issues. I think the simplest is to modify the architecture a bit and code it yourself. Resizing to 224 224 is much more resource consuming than having a 28 28 base input. Personally I only managed to make it work when using Sequential models, you should set fused False in you Batchnormalization layers and I also integrated the activations to the convolutions layers, I don't remember what problem I had when I did that and it might be useless when taking the other adaptations into account.
+
+That being said, I still have the huge performance gap I mention earlier that nullifies the interest of quantizing the model.
+
+Here is the code I used for my build keras model function, the depth is measured in number of blocks and not number of layers, it is not written anywhere but it build a MobileNetv1 LINKLINK 
+ NatGr, thanks for the alternative suggestion! 
+
+The reason I'm using the Keras Applications MobileNet is to retain the pre trained weights. As far as performance, my input images are full scale images from a 12 MP CMOS camera, in which areas of interest are resized to 224x224 for inference.
+
+I am unaware on how to modify the network so that I can load pre trained weights into the custom network with modified BNs, which I believe would also address my problem. oursland NatGr 
+
+the cause of the error is that the result of the create training graph and the create eval graph wereinconsistent. I found that just we have to do is adding keras. backend. learning phase 1 before the create training graph function. 
+See
+
+ LINKLINK 
+
+The code above works in this case but not for some other cases. The Quantization Aware Trainingprocess is complicated and I don't understand everything.
+
+In TensorFlow2. we can use Post Training Integer Quantization to get EdgeTPU model. I haven't tried it yet, but I think this is a simpler way and will fit most of you.
+
+ LINKLINK Based on feedback that the contrib quantize quantization aware training tool is a bit brittle and hard to use on some model architectures, we have released a LINKLINK, that requires a small calibration dataset. Please take a look at the LINKLINK and give it a try, it should work much better! And let us know if you run into any issues.
+
+We are rethinking and working on an api to replace contrib quantize quantization aware training although post training quantization above should be sufficient for the majority of use cases, but do try Post Training Integer Quantization as a much simpler approach thumbs up 
+
+Thanks!
+ Suharsh
+ ohtaman suharshs 
+
+Sorry, I got a bit confused right now. Can we use Post training integer quantization tool for creating models that run on the EdgeTPU on Google Coral devices Dev board USB accelerator?  1n1n1t3 Yes, it says it makes the weights and activations int8 which is what Coral needs. As far as I can find, at the moment Coral and EdgeTPU essentially mean the same thing as Google hasn't released any other products to the public using this chip. suharshs I tried the new post training integer quantization tool on my keras model and got following error:
+ CODELCODEL 
+But when checking the input info I do see it is a float32 tensor:
+ CODELCODEL 
+Anything I missed?Can you share your code that constructs the representative dataset and calls the TFLiteConverter?
+
+It looks like the representative dataset is yielding an array that is not of type float. suharshs That's it. I yield a numpy array in the representative dataset generator with default numpy dtype, which is float64:
+ CODELCODEL 
+Now it has been fixed with image np. array, dtype np. float32 and the convertion works. Thanks a lot for your help! suharshs when verifying the converted model, following error happens:
+ CODELCODEL 
+I checked the tflite model file in visualize tool Netron. The error node 64 is a Dequantize node with following properties:
+ LINKLINK 
+I have a hunch on the issue int32 intermediate tensors will send a fix ASAP.
+
+edit: I have found and verified a fix, should be submitted soon. thx suharshs
+I'm trying to get efficientnet b3 to Google Coral Dev Board. 
+I get this error when using the target ops parameter:
+RuntimeError: Quantization not yet supported for op: REDUCE MAX
+
+Can I do something about it without modifying the model?
+
+
+UPDATE: Nevermind me. The problem was actually from my added top layers. the network converts successfully yay. Too bad it doesn't want to go through the EdgeTPU compiler and it doesn't even tell why. thumbs down It's just Internal compiler error. Aborting! message.Hello
+I have tried to convert my keras model using post training integer quantization following the tutorial from this Medium LINKLINK 
+
+I keep getting this error:
+ValueError: This converter can only convert a single ConcreteFunction. Converting multiple functions is under development.
+
+I have tried putting it putting the model into a tf. function to get a concrete function following LINKLINK, but then at compilation I still get the error that the model is not quantized.
+
+
+ suharshs 
+
+UPDATED: Sorry, at first I wrote 'quantization aware training' in mistake. I want to know about Post Training Integer Quantization.
+
+ 
+
+Hi, I tried post training integer quantization but it looks like the generated tflite model doesn't support EdgeTPU. Is that correct? post training 
+integer quantization does not support EdgeTPU yet, right? 
+
+In fact, I got CODESCODES at initialization of BasicEngine.
+If this behavior is not supposed, I will send a issue separately.Hi the expectation is that is should work, but currently EdgeTPU requires the inputs and outputs to be uint8. 
+
+This can be achieve by setting:
+converter. inference input type and converter. inference output type to tf. uint8.
+
+Additionally, by default Optimizations. DEFAULT with representative data set will leave ops that dont have quantized implementations in floating point. This does not work with EdgeTPU. To guarantee that all ops are quantized and give you an error saying which ops aren't you can set: 
+
+converter. target ops 
+
+Hope that helps! suharshs 
+Thanks, great! I could build custom EdgeTPU model using post training integer quantization.
+I can share the example notebook I implimented an small autoencoder:
+ LINKLINK 
+
+In this notebook, I have to use CODESCODES instead of CODESCODES.
+It seems that CODESCODES does not use inference input output type property in quantization process. 
+ LINKLINK Hi suharshs, now I've been able to do the post training integer quantization on my pretrained keras model and run it in TF lite runtime. But I found the inference accuracy seems got some loss after the convertion. Since it is an object detection model for CV tasks, so what I saw is the inferenced object location and confidence score result got obvious deviation with the ground truth.
+I tried to feed the representative dataset generator with more calibration samples, but doesn't help. When I rollback the converter to post training quantize mode, the accuracy performance being fine, but the latency goes bad since it's a float32 model now.
+Is there any way for me to get a better accuracy on the integer quantized model? Should I retrain the model under the new tf nightly build env?Hi ohtaman, suharshs.
+I have been able to compile the model to a tf lite file using ohtaman method thanks for that by the way and thus using tf. compat. v1. lite. TFLiteConverter. from keras model file tmp keras file.
+Post training quantization reduces model file size without affecting inference time too much, however, when trying to use tensorflow benchmark tool version 1.13.1 a tf binary using the tf ilte binaries ; I get the following error:
+ CODELCODEL 
+
+Should it not be tf lite 1.13.1 compatible since I use tf. compat. v1. lite. TFLiteConverter?
+
+I also tried with a binary for tf lite 2 EDIT: tf nightly and get the same error but I might have a problem with that binary I'm working on it.
+
+EDIT: managed to compile the binary of tf. nightly, it works now!Hi guys. Thanks for the useful thread!
+I'm trying to quantize trained model using CODESCODES and CODESCODES but both produce same error: CODESCODES. 
+Do you know what could be the case? suharshs 
+ 
+Code for CODESCODES 
+ CODELCODEL 
+
+Error details:
+ CODELCODEL Hello suharshs 
+
+Have you fixed submitted the correction already? 
+
+Thanks!you might want to check into this
+
+ LINKLINK Hello,
+
+actually, I did everything that is explaining there. I get to the point of converting the tflite model. However, when I try to use the edgetpu compiler I receive an error in compilation time. As good as it is, the error does not give any information appart from a path and a number google does not say anything about it.
+
+Have you encountered a similar problem?
+
+
+
+
+
+Hi, 
+
+I have encountered the same problem trying to convert an EfficientNet model and deploy it t Coral Dev Board. I wrote email to Coral team and I was simply replied that We don't support converting EfficientNet to EdgeTPU yet. Check the site regularly for updates. I guess this is the cost of being an early adopter. I think they are having some problems with the compiler compiling more complex and newer models and are working on it, but no word on what and when.Hi,
+
+the model I use is actually a stack of Dense Keras layers and I am getting that error. The problem is that we do not know, from the compiler, what is the trouble coming from. Is it the model? Is it the tflite compilation? Is it another thing? 1n1n1t3 to be honest, I ended up using the Intel Neural Compute Stick 2 just because I needed to get something working soon and the software stack is more mature. I still like the Coral and Google has been very upfront that it is still in beta, so no complaints there.
+
+The NCS 2 is a very different product as it does everything in FP16 and the architecture at a high level sounds closer to a desktop GPU, which probably means it can't do as many matrix multiplications as the EdgeTPU, but also means there is much less hassle getting models to run as you can just round off the weights from FP32 to FP16 and the performance is generally OK.
+
+I think once the software stack matures and we can easily combine the high level Keras API with the raw power of the coral devices this will be an awesome product!
+
+
+
+I think you are doing something wrong then, because I managed to get other models to compile and run on the EdgeTPU. Did you convert the input outputs in uint8 setting converter. inference input type and converter. inference output type to tf. uint8? 
+
+ ed alertedh Yes, but if we compare NCS 2 with EdgeTPU we get a game changing performance gain which is essential for ML devices on the edge. The loss of conferting to 8bit integers seems negligible in big models. Let's hope they polish things and get out of beta soon. 
+
+Hello 1n1n1t3,
+
+I am using this piece of code to convert my model to tflite, I indeed use inference types as tf. uint8. 
+
+ CODELCODEL 
+
+Actually, in the code I found they were using different pieces of code for the first two lines, but this did not work for me. Those original lines were:
+
+ CODELCODEL 
+
+I save my keras models with a simple: CODESCODES and my model looks like:
+
+ CODELCODEL 
+
+Do you use some different code?
+
+CheersI was able to compile keras mobilenet model for Edge TPU using following steps: Train model using a quantization aware training technique Convert model using post training quantization 
+Important: tf nightly and tf. compat. v1. lite. TFLiteConverter were used
+Thanks, ohtaman for the tip LINKLINK 
+
+All of this quantization for Edge TPU looks like black magic right now, to be honest. 
+
+
+
+
+
+
+
+
+
+
+
+
+Hi ohtaman, I encountered the following error using your code:
+
+ Instructions for updating:
+Use CODESCODES 
+W0708 19:10:21.210556 140681547597568 deprecation. py:323 From home leoli. local lib python3.5 site packages tensorflow python framework graph util impl. py:270: extract sub graph from tensorflow. python. framework. graph util impl is deprecated and will be removed in a future version.
+Instructions for updating:
+Use CODESCODES 
+Traceback most recent call last:
+ File common experimental leoli pspnet train pspnet train. py, line 192, in 
+ 
+ File home leoli. local lib python3.5 site packages tensorflow python util deprecation. py, line 324, in new func
+ return func args, kwargs 
+ File home leoli. local lib python3.5 site packages tensorflow python framework graph util impl. py, line 297, in convert variables to constants
+ source op name get input name node 
+ File home leoli. local lib python3.5 site packages tensorflow python framework graph util impl. py, line 254, in get input name
+ raise ValueError Tensor name ' 0 ' is invalid. format node. input 
+ValueError: Tensor name 'conv1 1 3x3 s2 bn cond ReadVariableOp Switch:1' is invalid.
+ 
+
+It happened when I was trying to freeze the model. 
+
+
+
+
+
+
+
+
+ ohtaman Nice Work. It is working well.  ohtaman I have been compiling my own network. I also got an issue with UpSampling2D and I also used a custom one made out of basic units in TF. 
+
+When I save the model after training and load the keras model, the prediction works fine. 
+
+
+
+
+
+ ohtaman Thanks for sharing your code, but I run into errors. The error differs depending on which docker image I use. Could you share your setup, please?
+
+With the nightly gpu image Python 3.8, tf 1.15.0 dev20190715, I get an error when trying to convert the model:
+
+ CODELCODEL 
+
+On the other hand, with the latest gpu py3 image Python 3.8, tf 1.14. I get an error when trying to test the tflite model with the interpreter of the Python API. It happens when it tries to allocate memory with the CODESCODES call.
+
+ CODELCODEL 
+
+Have you run into such issues and if you did, how did you resolve them? DocDriven 
+I think one of your image arrays maybe like not. The string types are not supported I guess. Could you check that?  vibhatha 
+I double checked it, but all entries are numpy arrays of type np. uint8. Also, the stable versions seems to have no problem with these inputs, so I assume something went wrong with the nightly build. DocDriven 
+I used Python 3.9 with the latest pip and tested this with
+ CODELCODEL 
+
+What is your setting? It feels like the 1.14 is the stable release for now. I assume you're using it. 
+And also did you try using 
+
+ CODESCODES 
+
+I think you have used toco converter. What I did was saved the keras model and then load it to convert using the above tflite converter. 
+I followed most of the steps in ohtaman code and guide in the google coral page as well. 
+
+Could you try this one? 
+
+
+
+
+
+I changed the image sizes from 1024x1024 to smaller image size, then it worked pretty well. 
+
+ suharshs Is there a constraint on the data size in the inference level?
+
+For instance flat 28x28 which is lesser size compared to 1024 x 1024. The last layer is not softmax, I can remember there is a 16K limit on softmax. Any idea on this? 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ vibhatha 
+You are right, I am using the latest stable version of tf 1.14. however with Python 3.8. I also copy pasted the code in combination with the official docker image latest gpu py3.
+
+I have also tried using the Python API of the converter, but it worked equally well as the CLI, for example it produces a file, but fails when allocating memory.
+
+I think the difference lies in the input format, as you are using a h5 file, not a protocol buffer. I guess this might be the reason why it is working out for you. Were you able to convert your tflite file with the edgetpu compiler? My issue was that if I tried to do it this way, the compiler would not recognize that I have a quantized model. ohtaman 
+Good Custom Upsampling model 
+
+ LINKLINK  DocDriven 
+Yes, I was able to compile it. 
+I first took a look at what ohtaman has done. Then read all the docs that I can find on quantization with TF. 
+
+Then I created 3 or 4 models custom builts using previous examples and my own examples. 
+I was able to get done 100 TPU conversion at the edgetpu compiler and the inference also worked well. 
+
+My main issue is I am having troubles when handling larger image sizes. That's where I am currently stuck. 
+
+Do you need a custom code? I can provide a simple one?
+Make sure at every time when you load the data astype np. float32 or any data type okay for quantization is put there. 
+
+And also the 
+
+ CODESCODES 
+
+this sample data must have the same data type as the input data type. Just pay attention to those parts. 
+
+Then put all the right quantization params for the tflite converter. Then before testing on edge, for the sake of the argument, just load the tflite converted file and test on CPU machine using interpreter API. 
+If it works well and fast, it may be okay. But there are certain issues shown in compiling due to Non quantized model. What I used to get was a model is not quantized then I got an error when the model is too big meaning the data size in the last layer is very big saying compiling error. 
+
+I guess this could help.  vibhatha 
+Thank you for this walkthrough, I will investigate this the next few days. If you could provide a simple example, I would be very grateful. Maybe my bug is hiding in plain sight: 
+Here is what I did using an existing code by another user. The license part is from him. 
+
+I added a comment on what I did change. 
+ LINKLINK 
+
+Hope this would help. 
+ ohtaman Example is a very neat code which would help you.  DocDriven 
+The above link has a quantized code. Please check and tell me if there is an issue. Hello all, first of all, thanks for this helpful discussion I learned alot from the last two weeks. I wish that I was good enough to contribute to the community like you guys did. Honestly, I don't really understand the stuff behind the conversion. I am stuck at the last step: convert frozen graph to tflite model with the error:
+ CODELCODEL 
+So it complains about Sqrt opt, which has not implemented.
+
+Below is the process I used:
+
+ Train with 
+
+ CODELCODEL 
+
+ Save checkpoint after the training: 
+
+ CODELCODEL 
+
+ Evaluate phase or whatever to get a frozen graph I don't understand what it does:
+ CODELCODEL 
+
+Everything seems fine until this point, CODESCODES gives me the mentioned error:
+ CODELCODEL 
+I know the problem because I am using lambda layer at the output, which is not in the compatibility table:
+ CODELCODEL 
+If I replace the CODESCODES function by something simpler like CODESCODES and add another layer: CODESCODES to produce a same shape, my conversion process works just fine. 
+Ok I know most of the api here are currently in experiment phase. But I really want to convert my customized model to tflite model. It looks like tensorflow doesn't support the operations I want to use. I don't know if there is any other way or not. Please let me know if there is, I appreciate that.
+ Another interesting approach is to split the model, here is the part output from my model summary:
+ CODELCODEL 
+which shows it has zero parametter. If you look at my lambda layer, it is just basic math. I also tried to split my model at Keras level into 2 models. Lets say model. layers and model. layers for lambda. When I use it, I can feed the output of the first one to the input a second one. It works just fine. So I can somehow get rid of the complexity of the last layer lambda. However, when I train the whole model, they have to come with each other. I don't know if it is possible to save the checkpoint that contains just the information of model. layers. And convert to tflite from that. At the end, I expect to have only model. layers quantized and converted to tflite. I belive this is possible in theory but still I don't know how to make it. Manual modify the checkpoint or frozengraph may work? but it really scary to look at those files. Again, if you know a way, please let me know. 
+Sorry for not sharing the code, it is not my properties. I sometimes feel bad when I am asking from the community but I can't contribute. But if you want to know anything, feel free to ask, I really want the solution for this problem jimmyvo2410 
+I am also no expert on the topic. But I what I can see is the operator shown in the error message is not yet supported for quantization. 
+If you take a look at ohtaman solution, the upsampling2D is not yet supported for quantization. So he has written a custom one using already quantization supported ops. This is something similar you might have to do. What I can see is this solution. But I am sure an expert may be able to give you a better answer. 
+I also needed some of these ops quantized and I had to write custom ones from already existing components, for instance, I also needed Upsampling2D. Then I did a validation with a single layer of Upsamling2D and a custom model written by ohtaman and seems like it is a very good match for the original op. 
+So you may want to double check how good is your custom model with respect to the original one, just do it with a single layer of whatever the component you want to write. I am sure someone else might have the same problem and there can be a solution already in an existing thread. 
+
+Hope this helps. 
+
+
+
+
+
+
+
+
+ vibhatha 
+Thank you for your help. I have tested your code over the last few days, with mixed results.
+
+ When using the docker image with the TF 2.0 beta1, your code runs just fine. But as soon as I switch back to TF 1.14. I run into an error:
+
+ CODELCODEL 
+
+Is there an equivalent of this attribute in v1? Also, you do not seem to prepare the graph for usage with quantized params as one had to do before. This seems to be new and happens under the hood somehow. The magic has to happen within these few lines of code:
+
+ CODELCODEL 
+
+It would be nice if you could tell me where you found the documentation for these options. Thanks again! vibhatha thanks for the hint, I saw that code but never thougth it was about the same issue
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ DocDriven 
+
+In 1.14 there is no field called 
+
+ CODESCODES 
+
+Instead please use 
+
+ CODESCODES 
+
+What I do is, I keep a generic converter which is written with a factory design pattern to support compiling for multiple TF versions. 
+Always take the support of the IntelliSense in the IDE, it will show you that that API extension is not in 1.14. 
+
+This should resolve the issue. 
+ vibhatha 
+Thanks to your efforts, I was able to create a custom model in tf 2.0 and load it locally with an interpreter via the Python API. The effects of quantization is recognizable, but insignificant.
+
+I just wanted you to ask if you have any experience with deploying tflite models on the Coral Edge TPU stick. I tried to do this with my successfully generated model, but are getting Segmentation faults all the time. If you can contribute, take a look at my corresponding GitHub issue: 30714 even though this is for tf 1.14, I get the same error with tf 2.0 
+
+Thanks again! DocDriven 
+Can you provide me the log file created after edgetpu compiler was used?
+In that one, please check how much of your operators were successfully converted with TPU support. 
+It is a detailed report. 
+
+Possible issues, first check the expected input from that loaded edgetpu compiled model? 
+Make sure you provide input with a similar shape?
+When the model is partially compiled for TPU support? I also got a segmentation fault? But I am no expert to tell why is that?
+
+Debug Steps
+ 
+ After generating tflite model from your python tflite conerter api reload the model tflite model and do inference using the python API with the interpreter? Examples are in plenty for this. 
+
+If this works, it could mean that your h5 tflite conversion is good. 
+ Then convert the tflite with edgetpu compiler and look at the logs. 
+
+If everything is converted with TPU support, I think you're good. 
+ Then doing inference in TPU device, make sure the provided input array is correct?
+
+If any of your ops seems to be not quantizable, edgetpu compiler will exit with an unknown error they are continously working on this so there will be detailed info in future. 
+
+Can you try these steps? I will also look at the code. 
+Hi ohtaman
+
+Thanks for the great notebook.
+
+I followed your notebook but I am getting following error with the edgetpu compiler. Everything else works fine. Any idea?
+
+Edge TPU Compiler version 2.258810407
+Invalid model: converted model simple 1 2.0 beta1. tflite
+Model could not be parsed
+
+ERROR: quantized dimension must be in range 0, 1. Was 
+
+ ankitmaurya001 
+Only converting from frozen graph works for me with tf1.14. Try this:
+ CODELCODEL I am trying to train a neural network that is done with convolutional 1d layers. I can train it without problems but when it comes to tflite convert I have the following issue:
+
+ CODESCODES 
+
+Note that if I use the same identical code without the convolutional1d only dense layers I have no problem and I can convert to tflite and compile for TPU. What is the problem? In my model I absolutely need the convolutional1dYes, the issue clearly mentions what you need to do. It is better to add a representative dataset from your dataset. If you can follow ohtaman notebook provided in this thread.
+
+
+ for i in range 1000:
+ yield 
+
+converter. representative dataset representative dataset gen
+
+add this to your converter object which is an instance of 
+
+ CODESCODES 
+
+Hope this would resolve your issue. 
+
+Or you can check the default ranges min max param in the converter API and set them. 
+But if you add this representative dataset, it might go away. Actually I am not using the api converter but the command line program. Here you can inspect my code: LINKLINK 
+I forgot to mention that I am using quantization aware training, not post training quantization. So how should I use representetive dataset gen? Isn't this for post training quantization?
+Thanks
+ CODESCODES 
+
+check the necessary param. 
+
+In your case, I think 
+
+ default ranges min DEFAULT RANGES MIN
+ Default value for min bound of min max range values
+ used for all arrays without a specified range,
+ Intended for experimenting with quantization via
+ dummy quantization. default None 
+ default ranges max DEFAULT RANGES MAX
+ Default value for max bound of min max range values
+ used for all arrays without a specified range,
+ Intended for experimenting with quantization via
+ dummy quantization. default None 
+
+Try to set these values.  jimmyvo2410 
+Using quantization aware training worked for me for edgeTPU. Thanks to 1n1n1t3 
+
+I am facing issues in using post training integer quantization.
+
+Hi vibhatha,
+I tried your notebook. Was able to compile the model for EdgeTPU. 
+But when I added a CONV2d layer at the top. I am facing an issue with the edge TPU complier.
+
+ CODELCODEL 
+
+Here is the modified link.
+ LINKLINK 
+
+Any idea?
+
+Where did you add the layer?
+I can’t see the modification?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Vibhatha Abeykoon
+ vibhatha just at the bottom.
+
+
+ CODELCODEL  ankitmaurya001 
+make sure the representative data also provides the expected input layer's shape. Because I think 28,28 is the previous input shape. I will check this as well. 
+
+Btw, which edge device are you using to test the tflite model after compiling it to edgetpu compileable model?  vibhatha 
+I think representative data takes the correct input shape as train images. shape is changed to 28,28, 
+
+I am using google coral dev board.
+
+Thanks for the help!
+
+ ankitmaurya001 
+Can you compile the code you shared? I cannot compile it. 
+Are you sure you used 2.0 beta? vibhatha 
+No, with 28,28,1 shape and conv2d it does not even complie with edge TPU compiler.
+
+I am facing the same error with ohtaman notebook.
+ LINKLINK 
+
+It throws the same error. Only difference I can think of is the change in compiler version.
+
+ 710469
+While my version is 2.258810407. 
+
+I am not sure where to get the old complier. Might be interesting to check.
+
+Any thoughts?No I mean the training part doesn't happen. Can you unit test your code after adding this new layer? 
+
+Step 1, check model. train and then model. predict
+
+If these two checks out, we can unit test the other components. I had an issue in running the training model.  ankitmaurya001 
+I tested ohtaman notebook previously and it did work fine. 
+Let me check it again. I developed models in both 1.14 and 2.0 beta and they work fine. 
+Also, I recently updated my dev board with the July update with 2.11 runtime. 
+But I tested with the default runtime which was there I guess it was a setup a while ago and it worked just fine. I have both post quantized and qt aware models up and running in tf 1.14 but they are also working with tf 2.0 beta as well. I doubt runtime is the issue or tf vesion. Could you do the unit testing?  vibhatha 
+
+I cleaned up the code a little. Please check you should be able to run now. Yes I am using 2.0 beta.
+
+I am thinking it has to do with the edge TPU compiler version not the tf version.
+
+ CODELCODEL 
+
+Which compiler version you used?Ah yes, when I got the latest updates on the dev board, it was updated with the latest. Now the runtime is v.12 and my compiler version is Edge TPU Compiler version 2.258810407 
+
+Are you able to compile with the latest version with CONV2D + 3D input shape?I cannot compile yours, but I definitely have a set of conv2d layers in the design, but I didn't get such issue. I also use 3D inputs. I will look into this. Till now I couldn't figure out why.
+There is a stack overflow question raising a similar concern. Did you check this with existing issues in TF Github issues? Did you compile your design with the latest compiler without any issues?
+
+Yeah, I saw the stack overflow concern, but still no answers thumbs down.
+Checking the TF Github issues now!
+
+Yes, I was able to get it compiled no issues. Yes, the main reason is the error message is not clear. If it points out to a specific cause. I think an API expert will definitely understand why this is happening. I am not sure why it is happening. It has to be something with the PQ related conversion params. Nothing to do with the model. Some param is missing or some param is inserted incorrectly. I am sorry, I cannot give a 100 correct answer.  vibhatha 
+No issues, thanks for the help anyways. Will explore further!I am using post training quantization with a function similar to the ohtaman one, mine is:
+
+ for i in range num calibration steps:
+ yield 
+but I always get the following error: 
+ CODESCODES 
+The variable CODESCODES is a numpy array containing the dataset each row is one example of the dataset. What's wrong? CODESCODES 
+
+What is this value?Its 20475, since the dimension of the CODESCODES is 20575 it's much bigger than the CODESCODES I used 100 Can u iterate through the yielding values can make sure all values are of type FLOAT32?
+Yes, this is a generic output of what is yielding: array 0.04949207, 0.75925859, 0.30664617, 0.38399959,
+ 2.03520339, 0.77253633 so all of the values are dtype FLOAT32. 
+Do you have a code snippet? It is hard to tell otherwise. Sure, the neural network is the following very simple:
+
+
+
+
+ model. add Dense 500, input shape time periods, activation relu 
+ model. add Dropout 0.4 
+ model. add Dense 500, activation relu 
+ model. add Dropout 0.4 
+ model. add Dense 500, activation relu 
+ model. add Dropout 0.4 
+ model. add Dense 500, activation relu 
+ model. add Dropout 0.4 
+ model. add Dense 1, activation sigmoid 
+ return model
+
+
+Then it's just compiled with CODESCODES. 
+At the end It's saved with CODESCODES. 
+
+The code of the generator is:
+ CODESCODES num calibration steps 100
+
+ for i in range num calibration steps:
+ yield CODESCODES 
+where CODESCODES has been used during training, and has shape 20575, 4492.
+The code for quantization and conversion is:
+ CODESCODES converter tf. lite. TFLiteConverter. from keras model file DenseModel. h5 
+converter. optimizations 
+converter. representative dataset representative dataset gen
+why haven't you set the input and output type?
+
+ converter. representative dataset representative dataset gen
+ converter. target spec. supported ops 
+ converter. inference input type tf. uint8
+ converter. inference output type tf. uint8
+ converter. optimizations 
+
+
+Try something like this, but make sure you correctly add the input and output types based on your model. I get always the same error, nothing changesIf you have a google collab link, please share if it is okay with you. It is hard to tell without looking at the code. Sure I can, here's the link: LINKLINK 
+Let me know if you need the dataset too.
+Thank you very much!No need, just mention the shape and types of X and YX has shape 20575, 4492 ; Y has shape 20575 1D vector, is a classification problem with two classes, so elements of Y are or 1 or 0. ulorentz 
+I see that you are using 
+ CODESCODES 
+
+Can you try this instead?
+
+tf version: 2.0 beta1
+ CODELCODEL 
+
+
+
+
+
+
+
+
+
+Good suggestion. If you look at the runtime warnings, it definitely shows that the depreciated APIs and suggest using this API. 
+
+ vibhatha 
+If it is not much of a problem, can you share a simple notebook with 3D input and CONV2D layers 
+which you are able to compile with the latest edge TPU compiler using post training quantization?
+
+Will be of great help! ankitmaurya001 
+I will try to compile one snippet. Finally I am able to convert to tflite with post integer quantization, but now I am facing the same problem of ankitmaurya001, that is CODESCODES 
+
+You can inspect my code at LINKLINK Actually I got the same error even with the ohtaman code I little modified it in order to work with tflite 2. LINKLINK Hello,
+I am seeing the same problem using the code in:
+ LINKLINK 
+
+as an example to get the tflite quantized models. When using the compiler I get:
+. coral compiler edgetpu compiler mnist model quant. tflite
+Edge TPU Compiler version 2.258810407
+
+ERROR: quantized dimension must be in range 0, 1. Was 
+Invalid model: mnist model quant. tflite
+Model could not be parsed
+
+I am wondering if anybody has found a way forward? Thanks,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I have the same problem here! Does anyone have a clue?I got a reply from Google saying that there was a problem with the edgetpu compiler and keras based models such as the mnist conv model used in the: 
+ LINKLINK 
+
+tutorial.
+
+They were looking into it but did not know about timing. 
+
+Anybody has a post training quantization notebook example that is compatible with the edge tpu compiler and is willing to share? Please. I just need something simple to get started. 
+
+The same here: 
+
+ CODELCODEL 
+
+TF2 Beta1 Keras model with post training quantization:
+ CODELCODEL 
+
+TFLite model inference in notebook works without issues. Problem with CODESCODES being cryptic. 
+
+A side note: I have my simple image classification model. Nothing weird.Same here. 
+ ERROR: quantized dimension must be in range 0, 1. Was 3. 
+
+Noticeably, the batch normalization layers are conveniently missing from the EdgeTPU sample model here: LINKLINK 
+
+and other examples that use EdgeTPU quantization like:
+ LINKLINK 
+also use their own form of batch normalization layers, apparently to get around this problem.
+Not sure if it's just a problem when fuse True or if it's a more general problem with batch normalization layers.Apparently as stated in their website they just added it using TensorFlow 1.15 nightly works. I can confirm that trying to compile a Resnet50 works with that build with plain tensorflow I had the quantized dimension range error. ulorentz Grazzi mille! Despite trying a lot of workarounds such as using EfficientNet or changing batchnormalization layer's CODESCODES parameter to CODESCODES, I spent a couple weeks without getting a single model to compile on the EdgeTPU. I can confirm that only by using the unreleased TF nightly 1.15, that I was finally able to get models to consistently compile on the EdgeTPU device. Any models that include Keras BatchNormalization layers such as transfer learned models built off of MobileNetV2 or ResNet50 seem to fail automatically when compiled with any other version of TensorFlow.Hello, ulorentz, Alekxos 
+I have the same problem with TF2.0rc1 use MobileNet v2. As a result of visualizing the model with LINKLINK, Input Output is Float, not Full intger quantization model. I think this is the reason why EdgeTPUCompiler fails.
+
+I have found that using from keras model file instead of from keras model works well for model conversion.
+ When from keras model file is used, Input Output becomes UINT8 and becomes Full intger quantization model. 
+ CODELCODEL I am able to do post training full integer quantization, with mobilenet V1. Compiled with edge TPU, worked fine.
+
+The conversion from floating point to INT needs to be done only with tensorflow nightly 1.15, other wise this ERROR: quantized dimension must be in range 0, 1. Was 3. error occurs. Regards ohtaman I just want to know how do you decide the output layer name as: dense 1 Softmax?
+What is the rule of the naming? How can I check the name of last layer?
+Also, can I name it with my customized name for it? thanks. jk78346, you can open your model with netron, to check the name of the last layer.
+
+
+
+Can you share a dummy data so that we can run and reproduce the issue? Thanks!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Is this problem solved now?
+
+
+
+
+I am experiencing the same problem. My code is here: LINKLINK. This is my error: LINKLINK. Here is all the data you should need to reproduce and debug locally: LINKLINK. You should also know that I run the notebook in the zip I attached in a Docker container here: LINKLINK just run it and it will start the notebook server. tensorflowbutler Yes, I guess it still isThis is still an issue, no way to do quantization aware training, even in TF2.
+
+Was expected Q2 2019, now it's Q1 2020.Hi there gilescoope. I'm one of the individuals developing the Keras quantization aware training API.
+
+Stay tuned on LINKLINK and its roadmap. We're currently in the midst of creating user facing documentation and tutorials, together with addressing some outstanding usability issues for example removing the need for quantized input stats, as previously needed and doing some final testing. With our successful training experiments, we are also in a good shape. There is a decent chance that initial usage will have to depend on tf nightly, after which we'll move onto a stable TF release we'll see what happens there.
+
+I'll update this issue once it has been launched. I apologize for prior miscommunication on timelines. Following the Keras quantization API launch, we'll be making the progress or non progress on major features a bit more transparent.An update since my last comment:
+
+We did a launch review and one of the suggestions to the benefit of most users is to get people to dogfood the tool. This is currently in the process and we have a number of teams actively testing it. As developers, we will also be training on additional models ourselves while expanding model coverage to improve upon things. 
+
+Given this and the work I previously mentioned, things will take longer but be more polished at launch. Expect it take around a month end of March and hopefully not longer for the initial release with docs, a blog post, and the pip package. For expectations on what would be available at launch, see what we have for LINKLINK on the LINKLINK as a reference point. Notably in contrast to pruning, we would only be supporting TF 2. X to start at launch and tf. distribute integration may not quite be there yet. For fundamental reasons on the way quantization works, subclassed models will have even less support.
+
+Post launch, we'd work on tf. distribute and increased model coverage, prioritizing essentially based on what users request. If we don't get enough user feedback, we'd prioritize based on our intuition and past experience.Also new quantization infra will come in MLIR LINKLINK It has been 14 days with no activity and the CODESCODES label was assigned. Is this still an issue?
+
+yes we are awaiting updates slated for end March. Thanks to everyone working on this!Update from my last comment:
+
+ Tutorials and examples are in review but almost complete with the general structure approved.
+ Initial LGTM to move through launch process based on good experiments results and feedback.
+ Making some final minor tweaks to improve usability for example error messages, pydocs, etc. and clarifying what's available at launch
+
+End of March is reasonable and if not a week later given some processes. 
+
+I found this page indicating how to use tfmot. quantization to do quantization aware training: LINKLINK 
+But it seems this api is not released yet?Update given that it's past the end of March. We've just gotten all approvals and are just finishing up the final steps. 
+
+A few documents need to be submitted and a couple more PRs. Then we'll do the release at some scheduled date. 
+
+ kazenokizi: the examples in that document don't fully work and the API is not released yet. We were incrementally working on the documents. Hi everyone. The Keras quantization aware training API has now launched!
+
+Edit: please reference the below. I will no longer respond to comments on this thread. 
+
+Documentation on what versions of TensorFlow and models are supported, as well as general API 
+compatibility and support matrices: LINKLINK. This page also links to other end to end tutorials.
+
+File feature requests and bugs: after reading the above, you can go to LINKLINK for filing anything. In general,
+if it's an error you run into from using import tensorflow model optimization, file it there.
+If it's an error you run into from using import tensorflow as tf after the correct versions of TensorFlow, file it in the main LINKLINK.
+
+Blog post: LINKLINK 
+
+Twitter: LINKLINK 
+
+Edit: added content from below up here for ease 
+Thanks for the update alanchiao! Which version of TF are the changes in the video in? I didn't see the changes mentioned in these release notes: LINKLINK For general documentation, refer to the TFMOT documentation and Github since the tool is installed via the TFMOT pip package, not the TensorFlow pip package.
+
+See the LINKLINK for what versions of TF can be used. This information is also mentioned in the LINKLINK.
+
+Generally, it's best to reference the documentation and code examples on LINKLINK, since that will stay updated, as opposed to the blog post and videos.
+
+
+
+In general for documentation, if you think certain aspects could be more visible easier to find, we welcome feedback. You'll see from the documentation that there are different types of users, and we tried to make the documentation accommodate all of them.Hi alanchiao,
+i built an NN with BatchNormalization layer and i have tried to quantize the whole model for EdgeTPU application. But it doesn't work. I'm using tfmot 0.0 and tensorflow 2.
+
+This is the error
+
+ CODELCODEL 
+and the code
+
+ CODELCODEL 
+
+
+
+
+
+
+ lravano and others.
+
+Please reference the LINKLINK to see what is supported currently.
+
+Then if something is supported but you're facing an issue, file a bug request. If it's not supported, file a feature request, ideally with the motivation for example what model you are trying to apply quantization to, which may be relevant to others in the community also. You can do that at LINKLINK.
+
+For the case of BatchNormalization, you can see in the overview page that currently BatchNormalization is currently just supported only when it's after a convolutional or Dense layer. You should then file a feature request. Hello! 
+For example, I made this command:
+
+
+quant aware model tfmot. quantization. keras. quantize model model 
+
+
+But how will I able to convert this model with uint8 format?
+This look as float format:
+converter tf. lite. TFLiteConverter. from keras model quant aware model 
+converter. optimizations 
+
+
+These commands do not work:
+converter. optimizations 
+converter. target spec. supported ops 
+converter. inference input type tf. uint8
+converter. inference output type tf. uint8
+converter. representative dataset tf. lite. RepresentativeDataset representative data gen  alex283h
+ CODELCODEL 
+When I tried this example code with CODESCODES, it returns all weights with float32. 
+However, when I tried this with CODESCODES, all the weights are converted to int8 except input and output layers.
+
+I still wonder whether there is an option to convert the input output layers to CODESCODES.
+Also for me, the below code doesn't work.
+
+ CODELCODEL 
+
+Please now look at LINKLINK. I'll now stop commenting on this thread and only comment on other support channels.
+
+ alex283h, hyungui: Thanks Hyungui for helping Alex. Officially, TF 2.1 is not supported, only tf nightly. See our docs LINKLINK. When it works on a stable TF release, we'll update this page.
+
+ hyungui: regarding your question, see LINKLINK, which points to a Github issue. It's a known issue that what you're trying doesn't work.  hyungui, thank you for explain! I get the same results:
+
+
+
+In fact it would be greate to have some way to get uint8 for the next converting in edge tpu model.
+
+ as. quantize mode I will ve much appresiate.is tf. quantization. fake quant with min max vars still useful now that quantization aware training is out?
+
+Is quantization aware training solely for getting TFLite models? and we would still have to fake quant with min max vars to get the best INT8 TensorRT models? Or is there something I am missing out?
+
+
+
+
+
+
+
+
+
+Did you find a solution to this problem?
+I am also stuck at exactly the same place. There a large number of image segmentation models that use batch normalization and running them on the edge TPU would be awesome.

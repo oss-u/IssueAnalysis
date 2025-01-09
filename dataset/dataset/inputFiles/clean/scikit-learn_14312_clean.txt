@@ -1,0 +1,464 @@
+as discussed in 13385 we need to ensure all attributes are documented.
+
+if you want to work on this, you should pick a specific submodule and fix all the attribute documentation mismatches in that submodule.
+
+Here's a script to find remaining ones there might be some false positives:
+
+ CODELCODEL I have already found at least one mismatch in attribute documentation in NMF class description. I think I can take some of this work. I am almost ready to propose some changes within CODESCODES and CODESCODES submodules. Missing attribute docstrings for each estimator
+
+ Reference this issue in your PR
+
+ ARDRegression, 
+ AdaBoostClassifier, 
+ AdaBoostRegressor, 
+ AdditiveChi2Sampler, 
+ AgglomerativeClustering, deprecated 
+ BaggingClassifier, 
+ BaggingRegressor, 
+ BayesianGaussianMixture, 
+ BayesianRidge, 
+ BernoulliNB, 
+ BernoulliRBM, 
+ Birch, 
+ CCA, 
+ CheckingClassifier, 
+ ComplementNB, 
+ CountVectorizer, 
+ DecisionTreeRegressor, 
+ DictVectorizer, 
+ DummyClassifier, 
+ DummyRegressor, 
+ ElasticNet, 
+ ElasticNetCV, 
+ EllipticEnvelope, 
+ ExtraTreeClassifier, 
+ ExtraTreeRegressor, 
+ ExtraTreesClassifier, 
+ ExtraTreesRegressor, 
+ FactorAnalysis, 
+ FeatureAgglomeration, 
+ GaussianProcessClassifier, 
+ GaussianRandomProjection, 
+ GradientBoostingClassifier, 
+ GradientBoostingRegressor, 
+ HistGradientBoostingClassifier, 
+ HistGradientBoostingRegressor, 
+ IncrementalPCA, 
+ IsolationForest, 
+ IsotonicRegression, 
+ IterativeImputer, 
+ KNeighborsClassifier, 
+ KNeighborsRegressor, 
+ KernelCenterer, 
+ KernelDensity, 
+ KernelPCA, 
+ LabelBinarizer, 
+ LabelEncoder, 
+ LarsCV, 
+ Lasso, 
+ LassoLarsCV, 
+ LassoLarsIC, 
+ LatentDirichletAllocation, 
+ LinearDiscriminantAnalysis, 
+ LinearRegression, 
+ LinearSVC, 
+ LocalOutlierFactor, 
+ MDS, 
+ MLPClassifier, 
+ MLPRegressor, 
+ MinMaxScaler, 
+ MiniBatchDictionaryLearning, 
+ MiniBatchKMeans, 
+ MultiLabelBinarizer, 
+ MultiTaskElasticNet, 
+ MultiTaskElasticNetCV, 
+ MultiTaskLasso, 
+ MultiTaskLassoCV, 
+ NearestCentroid, 
+ NearestNeighbors, 
+ NeighborhoodComponentsAnalysis, 
+ NuSVC, 
+ NuSVR, 
+ OAS, 
+ 
+ OneVsOneClassifier, 
+ OneVsRestClassifier, 
+ OrthogonalMatchingPursuit, 
+ PLSCanonical, 
+ PLSRegression, 
+ PLSSVD, 
+ PassiveAggressiveClassifier, 
+ PassiveAggressiveRegressor, 
+ Perceptron, 
+ QuadraticDiscriminantAnalysis, 
+ RBFSampler, 
+ RFE, 
+ RFECV, 
+ RadiusNeighborsClassifier, 
+ RadiusNeighborsRegressor, 
+ RandomForestClassifier, 
+ RandomForestRegressor, 
+ RandomTreesEmbedding, 
+ RidgeCV, 
+ RidgeClassifier, 
+ RidgeClassifierCV, 
+ SGDClassifier, 
+ SGDRegressor, 
+ SVC, 
+ SVR, 
+ SelectKBest, 
+ ShrunkCovariance, 
+ SkewedChi2Sampler, 
+ SparseRandomProjection, 
+ SpectralEmbedding, 
+ TfidfVectorizer, I can take up the CODESCODES submodule attribute documentation mismatches, which includes:
+ DecisionTreeRegressor, 
+ ExtraTreeClassifier, 
+ ExtraTreeRegressor, I'm working on LinearRegression,I'm working on LinearSVC, and LinearSVR, I'll take up CODESCODES for example 
++ GradientBoostingClassifier 
+ + GradientBoostingRegressor nevermind, misread where attributes are missing and where notIt's looking like there is also CODESCODES attribute undocumented for classifiers of CODESCODES submodule. I have started to fix it.I will work on TfidfVectorizer, I will work on:
+ RandomForestClassifier, 
+ RandomForestRegressor, 
+ ExtraTreesClassifier, 
+ ExtraTreesRegressor, I'm working on:
+ SGDClassifier, 
+ SGDRegressor, 
+
+EDIT: opened an issue to change these attributes from public to private reference: 14364 I am working on:
+KernelCenterer, 
+MinMaxScaler, I will work on:
+ RandomTreesEmbedding, I also have discovered the CODESCODES, CODESCODES and possibly other classes of CODESCODES module have no attribute documentation at all. Currently working on CODESCODES that has 2 attributes:
+
+ CODESCODES 
+ CODESCODES 
+
+The CODESCODES class has four attributes:
+
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES  alexitkes good catch. Thanks!Working on QuadraticDiscriminantAnalysis,  Working on KNeighborsClassifier, 
+RadiusNeighborsClassifier, Working on:
+LinearSVC, 
+NuSVC, 
+SVC, Working on:
+
+ BaggingClassifier, 
+ BaggingRegressor, 
+ AdaBoostClassifier, 
+ AdaBoostRegressor, 
+Working on:
+
+ CountVectorizer, 
+ DictVectorizer, Hii! I'd like to help out with this one. Can anyone plz tell me where should I start?We are working on the functions in CODESCODES spbail Working on LinearDiscriminantAnalysis with olgadk7Working on Attribute mismatch in RidgeClassifierCV npatta01Working on DecisionTreeRegressor with ingrid88 + npatta01
+
+False positive for the attribute script above. This has been documented.Working on AdditiveChi2Sampler with olgadk7Working on LabelEncoder with eugeniaftwill try to work on randomtreeclassifier! working on 
+
+Perceptron
+working on BernoulliRBMWorking on ExtraTreeClassifer
+
+
+LabelEncoder looks like it has no mismatch, we're working on OneClassSVMI think the tree regressors should deprecate their classes instead.working on SVRWorking on:
+ OneVsOneClassifier, 
+ OneVsRestClassifier, working on LinearRegression, working on LatentDirichletAllocation, working on 
+BaggingClassifier, 
+ BaggingRegressor, BaggingClassifier, 
+ BaggingRegressor, 
+oob attributes are address in PR 14779, n features & base estimator are false positives.working on 
+AdaBoostClassifier, 
+
+Update: was already fixed in LINKLINK I think we should not recommend this issue for the next sprints, or use a much more curated version.
+
+Based on my experience on the previous sprint, there are still a lot of false positives, and we end up asking contributors to actually deprecate public attributes to make them private, which is arguably much harder and can be frustrating since contributors feel they worked for nothing. 
+
+Ping amueller thomasjpfan 	WDYT?
+
+Maybe if we had a general validation tool for docstring such as proposed in LINKLINK things would be a bit easier for contributors. Although I agree that it doesn't fully address the fact that some attributes are public while they shouldn't be.  CODESCODES are updated. As long as the actual classes are public, they qualify. The public classes are listed in CODESCODES. The PLS classes are there so feel free to document themDoes it make sense to alphabetize all of the attributes as well? I think it would provide structure to the section and make the section easier to read. pwalchessen I agree, sounds like a good idea. As mentioned in person, I would also add that to the test.These seem still open and kinda obvious:
+ CODELCODEL 
+and a bunch more. Updated list of outstanding attributes that need to be added. 
+
+ BayesianGaussianMixture
+ mean precision prior
+ mean precision prior 
+ BayesianRidge 
+ X offset 
+ X scale 
+ BernoulliNB
+ coef array
+ intercept 
+ Birch
+ fit 
+ partial fit 
+ CCA 
+ coef array, shape 1, n features or n classes, n features ; Coefficient of the features in the decision function.
+ x mean:  array, shape n features, The mean over features.
+ x std 
+ y mean 
+ y std 
+ CategoricalNB
+ classes classes : array, shape n classes, 
+A list of class labels known to the classifier.
+ ComplementNB
+ coef: array, shape 1, n features or n classes, n features ; Coefficient of the features in the decision function.
+ intercept 
+ CountVectorizer
+ stop words 
+ vocabulary 
+ DecisionTreeClassifier
+ feature importances 
+ DecisionTreeRegressor 
+ classes: array like, shape n classes, ; Unique class labels
+ n classes: int; Number of unique class labels
+ feature importances 
+ DictVectorizer
+ feature names 
+ vocabulary 
+ DummyClassifier
+ output 2d 
+ DummyRegressor
+ output 2d 
+ ElasticNet
+ dual gap 
+ sparse coef 
+ ElasticNetCV
+ dual gap 
+ EllipticEnvelope
+ dist 
+ raw covariance 
+ raw location 
+ raw support 
+ ExtraTreeClassifier
+ feature importances 
+ ExtraTreeRegressor
+ classes: array like, shape n classes, ; Unique class labels
+ feature importances 
+ n classes: int; Number of unique class labels
+ FeatureAgglomeration
+ n components 
+ distances 
+ GaussianProcessClassifier
+ base estimator 
+ kernel 
+ GaussianRandomProjection
+ components 
+ GradientBoostingClassifier
+ max features 
+ n classes: int; Number of unique classes.
+ n features: int; Number of features used.
+ oob improvement 
+ feature importances 
+ GradientBoostingRegressor
+ max features 
+ n classes: int; Number of unique classes.
+ n estimators 
+ n features: int; Number of features used.
+ oob improvement 
+ feature importances 
+ HistGradientBoostingClassifier
+ bin mapper 
+ classes 
+ do early stopping 
+ loss 
+ n features: int; The number of selected features.
+ n iter 
+ scorer 
+ HistGradientBoostingRegressor
+ bin mapper 
+ do early stopping 
+ loss 
+ n features: int; The number of selected features.
+ 
+ scorer 
+ IncrementalPCA
+ batch size 
+ IsolationForest
+ base estimator 
+ estimators features 
+ estimators samples 
+ n features: int; The number of selected features.
+ KernelCenterer
+ K fit all 
+ K fit rows 
+ KernelDensity
+ tree 
+ LarsCV
+ active 
+ Lasso
+ dual gap 
+ sparse coef 
+ LassoLarsCV
+ active 
+ LassoLarsIC
+ alphas 
+ LatentDirichletAllocation
+ bound 
+ doc topic prior 
+ exp dirichlet component 
+ random state 
+ LocalOutlierFactor
+ effective metric 
+ effective metric params 
+ n samples fit: int; Number of samples in the fitted data.
+ MDS
+ dissimilarity matrix 
+ n iter: int; Number of iterations. 
+ MLPClassifier
+ best loss 
+ loss curve 
+ t 
+ MLPRegressor
+ best loss 
+ loss curve 
+ t 
+ MiniBatchKMeans
+ counts 
+ init size 
+ n iter: int; Number of iterations. 
+ MultiTaskElasticNet
+ dual gap 
+ eps 
+ sparse coef 
+ MultiTaskElasticNetCV
+ dual gap 
+ MultiTaskLasso
+ dual gap 
+ eps 
+ sparse coef 
+ MultiTaskLassoCV
+ dual gap 
+ OAS
+ location 
+ OneVsRestClassifier
+ coef: array, shape 1, n features or n classes, n features ; Coefficient of the features in the decision function.
+ intercept 
+ n classes: int; Number of unique classes.
+ OrthogonalMatchingPursuit
+ n nonzero coefs 
+ PLSCanonical
+ coef: array, shape 1, n features or n classes, n features ; Coefficient of the features in the decision function.
+ x mean: float?; Mean of 
+ x std 
+ y mean 
+ y std 
+ PLSRegression
+ x mean 
+ x std 
+ y mean 
+ y std 
+ PLSSVD
+ x mean 
+ x std 
+ y mean 
+ y std 
+ PassiveAggressiveClassifier
+ loss function 
+ RBFSampler
+ random offset 
+ random weights 
+ ShrunkCovariance
+ shrinkage
+ SkewedChi2Sampler
+ random offset 
+ random weights 
+ BaseRidgeCV
+ alpha 
+ coef 
+ intercept 
+ ConstantPredictor
+ y 
+ RidgeGCV
+ alpha 
+ coef 
+ dual coef 
+ intercept 
+I am going to add CODESCODES to the documentation for CODESCODES A group of data science majors and I will begin working on the BayesianRidge, attribute documentation. Hi, our group of contributors will be working on:
+
+ PLSSVD
+ CCA
+ Incremental PCA
+ MiniBatchKMeans
+ LassoPotential fixes in 16826The test was added in 16286.
+There are currently still a couple of classes that are skipped:
+ LINKLINK 
+
+Some of these already have PRs, so make sure to check that before starting to work on it.
+
+A good option would also be to try to look at open PRs that have not been merged and try to finish them.
+
+As a rule of thumb, if a PR hasn't got some activity for more than 2 3 weeks, it is fine to try to take it over and try to finish it.In case your are interested in such solution, there is a way to implement an extension for sphinx which checks that parameters are all documented or not mispelled you can see an example here: LINKLINK. Maybe it can be useful to add a custom one to scikit learn documentation. sdpython, that would be wonderful! If you are not working on something else, perhaps you could propose a draft PR? Thanks!Interesting!
+
+IIRC we have a common tests that check that all attributes are documented. It was added in LINKLINK. Also I seem to remember that mne python had something similar.
+
+I don't have an informed opinion on which approach is preferable but I would say that documenting the missing parameters is probably higher priority than deciding how we want to do the checking.The issue with doing that in sphinx that in our case building a documentation takes a long time due to generating all the examples so a unit test or standalone tool would be easier to use. Note that we have previously used LINKLINK in LINKLINK and some validation of the docstring with type annotations could be done with LINKLINK. So we probably should avoid a situation of using 5 different validation tools for docstrings as well thumbs up I like the ability to use pytest to check the results, for instance:
+
+ CODELCODEL 
+
+so maybe it's not necessary to change our sphinx build for this.I checked which attribute docstrings are still missing the list above is out of date. These are the ones I found: 
+
+BayesianGaussianMixture, 
+BayesianRidge, 
+BernoulliNB, 
+Birch, 
+CCA, 
+DecisionTreeRegressor, 
+DummyClassifier, 
+DummyRegressor, 
+ElasticNet, 
+ElasticNetCV, 
+ExtraTreeRegressor, 
+FeatureAgglomeration, 
+LarsCV, 
+Lasso, 
+LassoLarsCV, 
+LassoLarsIC, 
+MiniBatchKMeans, 
+MultiTaskElasticNet, 
+MultiTaskElasticNetCV, 
+MultiTaskLasso, 
+MultiTaskLassoCV, 
+NuSVR, 
+ 
+OneVsRestClassifier, 
+OrthogonalMatchingPursuit, 
+PLSCanonical, 
+PLSSVD, 
+SVR, Thanks marenwestermann!I'm working on MiniBatchKMeansI'm working on Lasso.I'm now working on adding the attribute CODESCODES to MultiTaskElasticNet and MultiTaskLasso. I'm working on LarsCV. thomasjpfan it is said in the classes CODESCODES and CODESCODES:
+ The probA attribute is deprecated in version 0.23 and will be removed in version 0.25. and
+ The probB attribute is deprecated in version 0.23 and will be removed in version 0.25. 
+
+Therefore, these attributes probably don't need documentation anymore, right? 
+Going from here, will these two attributes also be deprecated in the class CODESCODES? The attributes CODESCODES and CODESCODES for ExtraTreeRegressor are false positives.
+Going from here, will these two attributes also be deprecated in the class NuSVR?
+
+Since we are deprecating them I would say we would not need document them.
+
+
+
+Yup those should be deprecated then removed if they are not already.The CODELCODEL class says:
+ the n classes attribute is to be deprecated from version 0.22 and will be removed in 0.24. 
+ the classes attribute is to be deprecated from version 0.22 and will be removed in 0.24. 
+
+So these attributes also don't need documentation right?
+
+Right Abilityguy, thanks for pointing out that.I can see below mismatch in RidgeGCV:
+Docstring Error: Attribute mismatch in RidgeGCV
+alpha 
+best score 
+coef 
+dual coef 
+intercept 
+n features in 
+
+and in BaseRidgeCV:
+Docstring Error: Attribute mismatch in BaseRidgeCV
+alpha 
+best score 
+coef 
+intercept 
+n features in 
+
+Can I take it up? I am first timer and wants to contribute.
+ marenwestermann in the class FeatureAgglomeration, it is said that, in version 0.21, n connected components was added to replace n components, then n components would be false positive right. srivathsa729 from my understanding yes. However, it would be good if one of the core developers could double check.I will take up ElasticNet
+Documentation of the attributes X offset and X scale for BayesianRidge has been added with 18607.The attribute output 2d is deprecated in DummyClassifier and DummyRegressor see 14933.I ran the script provided by amueller at the top of this PR the code needs to be slightly modified because things have moved around. I couldn't find any more attributes that need to be documented with the exception of CODESCODES which I see has been introduced in 16112. This attribute is undocumented in I think all classes it was introduced to. Should it be documented?
+ping NicolasHug Hello. I wanted to take this on as a first issue, but it seems that all attributes have already been documented?Thanks marenwestermann for checking! This is very helpful.
+ CODESCODES documentation is now tracked in 19333. It turns out that all detections from the script in the descriptions are false positives, I'm closing this one. Thanks to all the contributors for their helpful work!

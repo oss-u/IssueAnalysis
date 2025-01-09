@@ -1,0 +1,17 @@
+I met the same issue. If you are all using compiled version on master branch, I believe that we are the same issue caused by the LINKLINK. As the commit message says:
+
+
+w:
+
+
+
+
+
+
+From my case, which is running the LINKLINK, the solution is just to add a parameter named with CODESCODES like this at line 112:
+
+
+ return tf. contrib. rnn. BasicLSTMCell 
+
+
+Then it works.

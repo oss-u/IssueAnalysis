@@ -1,0 +1,60 @@
+ System information:
+Have I written custom code: No
+OS Platform and Distribution: Windows 10 Pro updated
+Mobile device: None
+TensorFlow installed from: pip install
+TensorFlow version: 1.11.0
+Python Version: 3.6
+Bazel version: not installed
+CUDA cuDNN version: CUDA 9. cuDNN 8.0
+GPU model and memory: GF GTX970 STRIX
+Exact command to reproduce:
+pip install tensorflow
+pip install tensorflow gpu
+python
+import tensorflow as tf
+
+ Problem
+I have had this error consistently even after trying to downgrade to older versions of CUDA tool, cuDNN, python, tensorflow and tensorflow gpu. I have updated my enviornment variables. I have installed Visual C++ Redistributable Update.
+I have read and tried to follow the solutions from other similar issues such as 10033 and 17101, but have not succeeded in fixing the problem. 
+
+ Log
+
+Python 3.6 v3.6:4cf1f54eb7, Jun 27 2018, 03:37:03 on win32
+Type help, copyright, credits or license for more information.
+ import tensorflow as tf
+Traceback most recent call last:
+
+ from tensorflow. python. pywrap tensorflow internal import 
+
+
+
+ mod imp. load module ' pywrap tensorflow internal', fp, pathname, description 
+
+ return load dynamic name, filename, file 
+
+ return load spec 
+ImportError: DLL load failed: The specified module could not be found.
+
+
+
+Traceback most recent call last:
+ File, line 1, in 
+
+ from tensorflow. python import pywrap tensorflow pylint: disable unused import
+
+ from tensorflow. python import pywrap tensorflow
+
+ raise ImportError msg 
+ImportError: Traceback most recent call last:
+
+ from tensorflow. python. pywrap tensorflow internal import 
+
+
+
+ mod imp. load module ' pywrap tensorflow internal', fp, pathname, description 
+
+ return load dynamic name, filename, file 
+
+ return load spec 
+ImportError: DLL load failed: The specified module could not be found.

@@ -1,0 +1,1139 @@
+### System information
+- **Have I written custom code (as opposed to using a stock example script provided in TensorFlow)**: No
+- **OS Platform and Distribution (e.g., Linux Ubuntu 16.04)**: Windows Server 2012
+- **TensorFlow installed from (source or binary)**: binary
+- **TensorFlow version (use command below)**: 1.3.0-rc1
+- **Python version**: 3.5.2
+- **Bazel version (if compiling from source)**: N/A
+- **CUDA/cuDNN version**: CUDA V8.0.44, CuDNN 6.0
+- **GPU model and memory**: Nvidia GeForce GTX 1080 Ti, 11 GB
+- **Exact command to reproduce**: N/A
+
+### Describe the problem
+Please upgrade TensorFlow to support CUDA 9 and CuDNN 7. Nvidia claims this will provide a 2x performance boost on Pascal GPUs.@tfboyd do you have any comments on this?cuDNN 7 is still in preview mode and is being worked on.  We just moved to cuDNN 6.0 with 1.3, which should go final in a couple weeks.  You can download cuDNN 1.3.0rc2 if you are interested in that.  I have not compiled with cuDNN 7 or CUDA 9 yet.  I have heard CUDA 9 is not easy to install on all platforms and only select install packages are available.  When the libraries are final we will start the final evaluation.  NVIDIA has also just started sending patches to the major ML platforms to support aspects of these new libraries and I suspect there will be additional work.
+
+Edit: I meant to say CUDA 9 is not easy to install on all platforms and instead said cuDNN.  I also changed sure there will be work to I suspect there will be additional work.  The rest of my silly statement I left, e.g. I did not realize cuDNN 7 went live yesterday.    Not saying how you should read the website.  But the 2x faster on pascal looks to be part of the CUDA 8 release.  I suppose it depends on how you read the site.  NVIDIA has not mentioned to us that CUDA 9 is going to speed up Pascal by 2x (on everything) and while anything is possible, I would not expect that to happen.  
+
+https://developer.nvidia.com/cuda-toolkit/whatsnew
+
+The site is a little confusing but I think the section you are quoting is nested under the CUDA 8.  I only mention this so you do not have unrealistic expectations for their release.  For Volta there should be some great gains from what I understand and I think (I do not now for sure) people are just getting engineering samples of Volta to start high level work to get ready for the full release.  @tfboyd cuDNN 7 is no longer in preview mode as of yesterday. It has been officially released for both CUDA 8.0 and CUDA 9.0 RC.Ahh I missed that.  Thanks @sclarkson and sorry for the wrong info.I will certainly try it because finally gcc 6 is supported by CUDA 9 and Ubuntu 17.04 comes with it.If you have luck let the thread know.  I am personally just starting to
+fully test cuDNN 6 (Internally it has been tested a lot but I have not been
+using it personally).  I am often slow to upgrade to the latest stuff.  My
+guess is you may not see any real change with cuDNN 7 until everything gets
+patched to use the latest APIs.  I want to stress again that I am wrong all
+of the time.  What I have seen as an outsider is the new cuDNN versions add
+new methods/APIs.  Some are interesting and some are not immediately
+useful.  Then those APIs get exposed via the TensorFlow API or just used
+behind the scenes to make existing methods faster.  My very high level
+understanding is cuDNN 7 + CUDA 9 will enhance FP16 support with a focus on
+Volta.  I think one of the main focuses is how to get models (many not just
+a few) to converge with FP16 without having to endlessly guess the right
+config/hyperparameters to use.  I want to stress that this is how I
+understood the conversation and I may be incorrect or half correct.
+
+STRESS:  If there are methods you think need to be added (or leverage for
+performance) to TensorFlow from cuDNN we are always interested in a list.
+Internally, this happened with cuDNN 6 and we focused on implementing the
+features teams said they wanted that would help their projects.
+
+On Sat, Aug 5, 2017 at 8:46 AM, Courtial Florian <notifications@github.com>
+wrote:
+
+> I will certainly try it because finally gcc 6 is supported by CUDA 9 and
+> Ubuntu 17.04 comes with it.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/12052#issuecomment-320450756>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AWZessKqj_nPY1br9SD9L9SX-8Kf5Dbtks5sVI5TgaJpZM4OuRL7>
+> .
+>
+Speaking of methods to be added, group convolution from cudnn7 would be a important feature for vision community.Cool I will add it to the list I am starting.  I may forget but feel free
+to remind me to publish some kind of list where I can provide some guidance
+on what is likely being worked on.  It cannot be a promise but we want
+feedback so we can prioritize what people want and need.  Thank you Yuxin.
+
+On Sat, Aug 5, 2017 at 12:26 PM, Yuxin Wu <notifications@github.com> wrote:
+
+> Speaking of methods to be added, group convolution from cudnn7 would be a
+> important feature for vision community.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/12052#issuecomment-320465264>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AWZesv9udRRxy9WvsK2eUEZCj7LAGM8bks5sVMHVgaJpZM4OuRL7>
+> .
+>
+I just tried to compile with cuDNN 7 with CUDA 8 and it failed which I kind
+of expected.  There is a patch incoming from NVIDIA that should help line
+things up.  Just a heads up if anyone is trying.
+
+On Sat, Aug 5, 2017 at 1:47 PM, Toby Boyd <tobyboyd@google.com> wrote:
+
+> Cool I will add it to the list I am starting.  I may forget but feel free
+> to remind me to publish some kind of list where I can provide some guidance
+> on what is likely being worked on.  It cannot be a promise but we want
+> feedback so we can prioritize what people want and need.  Thank you Yuxin.
+>
+> On Sat, Aug 5, 2017 at 12:26 PM, Yuxin Wu <notifications@github.com>
+> wrote:
+>
+>> Speaking of methods to be added, group convolution from cudnn7 would be a
+>> important feature for vision community.
+>>
+>> —
+>> You are receiving this because you were mentioned.
+>> Reply to this email directly, view it on GitHub
+>> <https://github.com/tensorflow/tensorflow/issues/12052#issuecomment-320465264>,
+>> or mute the thread
+>> <https://github.com/notifications/unsubscribe-auth/AWZesv9udRRxy9WvsK2eUEZCj7LAGM8bks5sVMHVgaJpZM4OuRL7>
+>> .
+>>
+>
+>
+I am trying to get cuDNN 7 with CUDA 8/9 running. CUDA 8 is not supported by the GTX 1080 Ti - at least the installer says so ^^
+
+I am having a big time trouble getting it running together. I want to point out this great article that sums up what i already have tried: https://nitishmutha.github.io/tensorflow/2017/01/22/TensorFlow-with-gpu-for-windows.html
+
+The CUDA examples are working via Visual-Studio in both setup combinations.
+Here the output of the deviceQuery.exe which was compiled using Visual-Studio:
+```
+PS C:\ProgramData\NVIDIA Corporation\CUDA Samples\v9.0\bin\win64\Release> deviceQuery.exe
+C:\ProgramData\NVIDIA Corporation\CUDA Samples\v9.0\bin\win64\Release\deviceQuery.exe Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 1 CUDA Capable device(s)
+
+Device 0: "GeForce GTX 1080 Ti"
+  CUDA Driver Version / Runtime Version          9.0 / 9.0
+  CUDA Capability Major/Minor version number:    6.1
+  Total amount of global memory:                 11264 MBytes (11811160064 bytes)
+  (28) Multiprocessors, (128) CUDA Cores/MP:     3584 CUDA Cores
+  GPU Max Clock rate:                            1683 MHz (1.68 GHz)
+  Memory Clock rate:                             5505 Mhz
+  Memory Bus Width:                              352-bit
+  L2 Cache Size:                                 2883584 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(131072), 2D=(131072, 65536), 3D=(16384, 16384, 16384)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(32768), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(32768, 32768), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     Yes
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  CUDA Device Driver Mode (TCC or WDDM):         WDDM (Windows Display Driver Model)
+  Device supports Unified Addressing (UVA):      Yes
+  Supports Cooperative Kernel Launch:            No
+  Supports MultiDevice Co-op Kernel Launch:      No
+  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 9.0, CUDA Runtime Version = 9.0, NumDevs = 1, Device0 = GeForce GTX 1080 Ti
+Result = PASS
+```
+
+@tfboyd do you have any link confirming the cuDNN update from Nvidea?@4F2E4A2E 1080 Ti definitely supports CUDA 8.0. That's what I've been using with TensorFlow for the past several months.Hi all, so i have gtx 1080 ti with cuda 8.0. I am trying to install tensorflow-gpu, do i go for cuDNN 5.1, 6.0 or 7.0?I suggest sticking with 5.1 for the moment.  I am running some deeper perf
+tests on 6 and getting mixed results that need more testing to figure out.
+
+On Aug 6, 2017 9:30 PM, "colmantse" <notifications@github.com> wrote:
+
+> Hi all, so i have gtx 1080 ti with cuda 8.0. I am trying to install
+> tensorflow-gpu, do i go for cuDNN 5.1, 6.0 or 7.0?
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/12052#issuecomment-320566071>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AWZeshvEFsdeWz-1uyzl_L6HE15E0BzSks5sVpLlgaJpZM4OuRL7>
+> .
+>
+thanks, i tried with cudnn 6.0 but doesn't work, i guess because of my dummy tf-gpu installation. cudnn 5.1 works for me with python 3.6 @tpankaj Thank you! I've got it running with CUDA 8 and cuDNN 5.1Here are the full set of features in cuDNN 7:
+>Key Features and Enhancements
+This cuDNN release includes the following key features and enhancements.
+Tensor Cores
+Version 7.0.1 of cuDNN is the first to support the Tensor Core operations in its
+implementation. Tensor Cores provide highly optimized matrix multiplication
+building blocks that do not have an equivalent numerical behavior in the traditional
+instructions, therefore, its numerical behavior is slightly different.
+cudnnSetConvolutionMathType, cudnnSetRNNMatrixMathType, and
+cudnnMathType_t
+The cudnnSetConvolutionMathType and cudnnSetRNNMatrixMathType
+functions enable you to choose whether or not to use Tensor Core operations in
+the convolution and RNN layers respectively by setting the math mode to either
+CUDNN_TENSOR_OP_MATH or CUDNN_DEFAULT_MATH.
+Tensor Core operations perform parallel floating point accumulation of multiple
+floating point products.
+Setting the math mode to CUDNN_TENSOR_OP_MATH indicates that the library will use
+Tensor Core operations.
+The default is CUDNN_DEFAULT_MATH. This default indicates that the Tensor Core
+operations will be avoided by the library. The default mode is a serialized operation
+whereas, the Tensor Core is a parallelized operation, therefore, the two might result
+in slightly different numerical results due to the different sequencing of operations.
+The library falls back to the default math mode when Tensor Core operations are
+not supported or not permitted.
+cudnnSetConvolutionGroupCount
+A new interface that allows applications to perform convolution groups in the
+convolution layers in a single API call.
+cudnnCTCLoss
+cudnnCTCLoss provides a GPU implementation of the Connectionist Temporal
+Classification (CTC) loss function for RNNs. The CTC loss function is used for
+phoneme recognition in speech and handwriting recognition.
+CUDNN_BATCHNORM_SPATIAL_PERSISTENT
+The CUDNN_BATCHNORM_SPATIAL_PERSISTENT function is a new batch
+normalization mode for cudnnBatchNormalizationForwardTraining
+and cudnnBatchNormalizationBackward. This mode is similar to
+CUDNN_BATCHNORM_SPATIAL, however, it can be faster for some tasks.
+cudnnQueryRuntimeError
+The cudnnQueryRuntimeError function reports error codes written by GPU
+kernels when executing cudnnBatchNormalizationForwardTraining
+and cudnnBatchNormalizationBackward with the
+CUDNN_BATCHNORM_SPATIAL_PERSISTENT mode.
+cudnnGetConvolutionForwardAlgorithm_v7
+This new API returns all algorithms sorted by expected performance
+(using internal heuristics). These algorithms are output similarly to
+cudnnFindConvolutionForwardAlgorithm.
+cudnnGetConvolutionBackwardDataAlgorithm_v7
+This new API returns all algorithms sorted by expected performance
+(using internal heuristics). These algorithms are output similarly to
+cudnnFindConvolutionBackwardAlgorithm.
+cudnnGetConvolutionBackwardFilterAlgorithm_v7
+This new API returns all algorithms sorted by expected performance
+(using internal heuristics). These algorithms are output similarly to
+cudnnFindConvolutionBackwardFilterAlgorithm.
+CUDNN_REDUCE_TENSOR_MUL_NO_ZEROS
+The MUL_NO_ZEROS function is a multiplication reduction that ignores zeros in the
+data.
+CUDNN_OP_TENSOR_NOT
+The OP_TENSOR_NOT function is a unary operation that takes the negative of
+(alpha*A).
+cudnnGetDropoutDescriptor
+The cudnnGetDropoutDescriptor function allows applications to get dropout
+values.Alright I am thinking about starting a new issue that is more of a "blog" of CUDA 9 RC + cuDNN 7.0.  I have a TF build "in my hand" that is patched together but is CUDA 9RC and cuDNN 7.0 and I want to see if anyone is interesting in trying it.  I also need to make sure there is not some weird reason why I cannot share it.  There are changes that need to be made to some upstream libraries that TensorFlow uses but you will start to see PRs coming in from NVIDIA in the near future.  I and the team were able to test CUDA 8 + cuDNN 6 on Volta and then CUDA 9RC + cuDNN 7 on Volta (V100) with FP32 code.  I only do Linux builds and Python 2.7 but if all/any of you are interested I would like to try and involve the community more than we did with cuDNN 6.0.  It might not be super fun but I want to offer as well as try to make this feel more like we are in this together vs. I am feeing information.  I also still want to build out lists of what features we are working on but not promising for cuDNN 7 (and 6.0).  @cancan101  thank you for the full list.  @tfboyd: I would be grateful for descriptions on doing CUDA 9.0RC+cuDNN 7.0. I am using a weird system myself (ubuntu 17.10 beta with TF1.3, CUDA 8.0 and cuDNN 6.0 gcc-4.8), and upgrading to cuda 9 and cudnn 7 would actually be nice compilerwise. I will see what I can do on getting what you need to build yourself and a
+binary.  The performance team lead indicated I can try and make this happen
+so we can be more transparent and I hope have more fun as a community.
+Getting you the patch and how to build it not super hard but is a little
+harder.  It will also be very informal as I do not have time to manage a
+branch and the patch could bit rot (not apply cleanly) very quickly.  The
+patch was used to make sure everyone involved was ok with the changes in
+general and I expect individual PRs will start coming in.
+
+On Fri, Aug 11, 2017 at 5:22 AM, Erlend Aune <notifications@github.com>
+wrote:
+
+> @tfboyd <https://github.com/tfboyd>: I would be grateful for descriptions
+> on doing CUDA 9.0RC+cuDNN 7.0. I am using a weird system myself (ubuntu
+> 17.10 beta with TF1.3, CUDA 8.0 and cuDNN 6.0 gcc-4.8), and upgrading to
+> cuda 9 and cudnn 7 would actually be nice compilerwise.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/12052#issuecomment-321798364>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AWZesj4WRkFKNX-Nt2oKtvp0oyQVBtM5ks5sXEdqgaJpZM4OuRL7>
+> .
+>
+@tfboyd: I am interested, how will you share it? A branch?@tfboyd I'd definitely be very interested as well. Thanks!Trying to figure it out this week.  Logistics are often harder than I
+think.
+
+On Aug 12, 2017 10:18 AM, "Tanmay Bakshi" <notifications@github.com> wrote:
+
+> @tfboyd <https://github.com/tfboyd> I'd definitely be very interested as
+> well. Thanks!
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/12052#issuecomment-321994065>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AWZesjO42Rl1WCyW0KR22KgbydKh1O4Zks5sXd6AgaJpZM4OuRL7>
+> .
+>
+Instructions and a binary to play with if you like Python 2.7.  I am going to close this as I will update the issue I create to track the effort.  @tanmayb123 @Froskekongen 
+
+https://github.com/tensorflow/tensorflow/issues/12474I just tried installing pre-compiled tensorflow-gpu-1.3.0 for Python 3.6 on Windows x64 and provided cuDNN library version 7.0 with Cuda 8.0 and at least for me, everything seems to work. I'm not seeing any exception or issues.
+Is this to be expected? Is cuDNN 7.0 backwards-compatible to cuDNN 6.0? May this lead to any issues?@apacha I am a little surprised it worked.  I have seen the error before in my testing where the TensorFlow binary cannot find cuDNN because it looks for it by name and the *.so files include 6.0/7.0 in the names.  Remotely possible you have cuDNN 6 still in your path.  I do not like making guesses about your setup but if I was making a bet I would saying it is still using cuDNN 6.  
+
+In regards to backwards compatible minus TensorFlow being compiled to look for a specific version.  I do not know.
+
+Finally, it is not a big deal. cuDNN 7 PRs are almost approved/merged and the pre compiled binary will likely move to cuDNN 7 as of 1.5.
+
+UPDATE on progress to CUDA 9RC and cuDNN 7
+- PRs from NVIDIA are nearly approved
+- EIGEN change has been approved and merged
+- FP16 testing has started in earnest on V100 (Volta)@tfboyd just for the sake of completeness: I was using cuDNN 5 previously and since I had to update for tensorflow 1.3, I was just hopping to cuDNN version 7 to give it a shot. I've explicitly deleted `cudnn64_5.dll` and there is no `cudnn64_6.dll` in my CUDA installation path. Maybe it's Windows magic. :-P
+
+Though notice one thing: I am still using CUDA 8.0, not 9.0.@apacha It might be windows magic.  I did not want to sound judgmental as I had no idea.  I think windows magic is possible as the cuDNN calls should not have changed and thus backwards compatible seems likely.  For the linux builds TensorFlow is looking for specific files (or that is what it looks like when I get errors) and is very unhappy if it does not find cudnnblahblah.6.so.  Thanks for the update and specifics.   Is there a branch / tag whatever we can checkout and try it out?
+Started a brand new installation, Ubuntu 17... then new gcc impose CUDA 9, I see that CuDNN who fit with is 7... you see where I'm heading.
+I can for sure hack  my setup in many places (and start it from scratch again with Ubuntu 16) just I'm so close, the fix is said to be close... why make a big jump in the past if I can make a small jump in the future!The PRs are almost approved.  They are in review.  I suspect a couple more
+weeks at most, but these reviews can take time.  I think these are all of
+them.  There could be a straggler or a change to get the EIGEN change for
+CUDA 9.  I have not ready them personally. They get closer each day.
+
+https://github.com/tensorflow/tensorflow/pull/12504
+https://github.com/tensorflow/tensorflow/pull/12503
+https://github.com/tensorflow/tensorflow/pull/12502
+
+On Tue, Sep 12, 2017 at 7:49 PM, Remi Morin <notifications@github.com>
+wrote:
+
+> Is there a branch / tag whatever we can checkout and try it out?
+> Started a brand new installation, Ubuntu 17... then new gcc impose CUDA 9,
+> I see that CuDNN who fit with is 7... you see where I'm heading.
+> I can for sure hack my setup in many places (and start it from scratch
+> again with Ubuntu 16) just I'm so close, the fix is said to be close... why
+> make a big jump in the past if I can make a small jump in the future!
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/12052#issuecomment-329041739>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AWZesrpX6TSN6fVESEsql3QNtjgo-LM9ks5sh0KqgaJpZM4OuRL7>
+> .
+>
+@tfboyd Is this still an issue? I realized that cuda 9.0 has been released just today.cuda 9.0 has been released,I can't found cuda 8.0 install file....
+pls upgrade tensorflow...> cuda 9.0 has been released,I can't found cuda 8.0 install file....
+
+@zjjott https://developer.nvidia.com/cuda-toolkit-archive@thomasjo thanks！So following @tfboyd approving the PRs he mentioned, will tensorflow 1.3 now be compatible with CUDA 9 and cuDNN 7? Has anyone anywhere actually successfully installed this?@voxmenthe I just tried to install tf1.3 with CUDA 9.0 and cuDNN7. I got the error related in this issue #12489
+
+EDIT: Basically, I don't know how. But moving to the master branch (which in the beginning wasn't installing for me) without any further change, I was able to install it. Although, now when I try to import tensorflow it says it's missing platform module.Any indication of how close the associated PRs are to going in? I installed cuDNN 7 then realised it was causing issues - I can downgrade to v6 but figured I might wait if it's close to being resolved...The PRs seem to be approved.  I have not run the build myself in a few days.  Keep in mind 1.3 would not have these changes as that was a while ago.  1.4 would have the changes.  Hopefully this week I can download the latest versions and do a fresh build.  I suspect someone will do it well before I have time.  Any chance any of you smart people might be making a tutorial for tf 1.3 or 1.4 with CUDA v9.0, cudnn 7.0 for Win 10 x64? I've tried installing (Anaconda) but keep getting '_pywrap_tensorflow_internal' error and I have already checked msvcp140.dll is added to my path..@devilsnare007: I guess the best chances are by following https://github.com/philferriere/dlwin. Simply replace the listed versions with the current versions. Note, that TF 1.4 has not even been released. But TF 1.3 should work fine with the instructions provided. Once everything has been upgraded and TF 1.4 has been released, we will update that tutorial.Will cuDNN 7.0 be supported when TF 1.4 is released?@soloice 
+At head (as of a couple days ago) I was able to compile CUDA 9 (release version) with cuDNN 7.0 with no special changes and ran a few tf_cnn_benchmarks.py tests on a GTX 1080.  Everything looks fine.  TF 1.4 which should RC this week will have CUDA 8 and cuDNN 6 binaries but will also compile just fine with CUDA 9 and cuDNN 7.  The goal is for TF 1.5 have CUDA 9 and cuDNN 7 in the binary.  This gives people time to upgrade their systems libraries and more time for testing.   If you are running Voltas feel free to start another thread and I will update it will progress on FP16 in real time. @tfboyd Great to hear that TF 1.4 compiles with cuDNN 7! If at some point you feel up to creating an install guide it would be a great public service for the DL community.No problem, that should be easy enough and I am happy to try and fill that
+gap.
+
+On Mon, Oct 9, 2017 at 9:42 AM, Jeff <notifications@github.com> wrote:
+
+> @tfboyd <https://github.com/tfboyd> Great to hear that TF 1.4 compiles
+> with cuDNN 7! If at some point you feel up to creating an install guide it
+> would be a great public service for the DL community.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/12052#issuecomment-335212652>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AWZesp7d2aT8gsGOWb6YjHH_CnpKXUIPks5sqkztgaJpZM4OuRL7>
+> .
+>
+Is there a possibility to have a whl that works with CUDA 9 and cuDNN 7.0?
+
+Thanks!I will publish mine (which will likely not not be 1.4 but some near match
+and I include the hash in the name) when I build it for testing but it will
+be ubuntu 16.04 (I forget what gcc version), linux, python 2.7 just FYI.
+And I am not really suppose to share those builds because it can be
+confusing for people and I will stress for all you know I included some
+crazy back door.  Although adding some secret code feels like too much work
+to me.
+
+I think nightly-gpu builds are almost live in pip (I am pretty sure they
+have always happened you just had to find them) which means after 1.4 the
+nightly builds will move to CUDA 9 + cuDNN 7 very quickly.
+
+On Mon, Oct 9, 2017 at 11:41 AM, alexirae <notifications@github.com> wrote:
+
+> Is there a possibility to have a whl that works with CUDA 9 and cuDNN 7.0?
+>
+> Thanks!
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/12052#issuecomment-335249979>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AWZeskJ5LXJwFcRpm-sKZ9QORoltrHOEks5sqmj1gaJpZM4OuRL7>
+> .
+>
+@tfboyd Thanks for your reply. Finally I managed to build the latest TF from sources with CUDA 8 + cuDNN 7 support on Ubuntu 16.04 and everything works fine on GTX 1080 Ti.@tfboyd Does 14.rc TF support CuDNN 7 and CUDA 9?It is included if you build from source.  I want to change the default
+binaries which requires me to run some regression tests on K80s on AWS to
+make sure everything looks good as well as get builds created.  We
+immediately had a problem as the NVIDIA driver needed decreased performance
+on Kokoro running in Google Cloud by 30%.  Nothing is every straight
+forward, but CUDA 9 and cuDNN 7 are in 1.4 source and have as expected in
+very limited tests on Pascal for me.
+
+On Thu, Oct 12, 2017 at 2:40 AM, Konstantin <notifications@github.com>
+wrote:
+
+> @tfboyd <https://github.com/tfboyd> Does 14.rc TF support CuDNN 7 and
+> CUDA 9?
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/12052#issuecomment-336075883>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AWZesq03dvnXWd0GLXODBTNCWExlZGPnks5srd6pgaJpZM4OuRL7>
+> .
+>
+Is there a possibility to have a whl that works with CUDA 9, cuDNN 7.0 and python 3.5?
+After TF 1.4 is finalized the nightly builds will move to the CUDA 9 +
+cuDNN 7 assuming there are no issues.  Builds I made and share for fun are
+always python 2.7 because that is the default on my test systsems.
+
+On Mon, Oct 16, 2017 at 6:59 AM, Diego Stalder <notifications@github.com>
+wrote:
+
+> Is there a possibility to have a whl that works with CUDA 9, cuDNN 7.0 and
+> python 3.5?
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/12052#issuecomment-336894073>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AWZesqgclWqET4OufQHV3FAD4XxgnZiKks5ss2E6gaJpZM4OuRL7>
+> .
+>
+Any expected release date?All those chomping at the bit, just build #master from source. It's not too hard (just time consuming), you get the latest CUDA/cuDNN, _and_ additional optimizations over a pip/whl install (eg, see the CPU optimizations in [this tut](https://gist.github.com/Brainiarc7/6d6c3f23ea057775b72c52817759b25c)). Plus next time CUDA/cuDNN upgrade, you can build again w/o having to wait.
+building from the sources, TF1.4 is working with cuda 9.0, cuDNN v7.0.3 and python3.5
+Can I build from source on win10 platform? 
+Would like TF to work on cuda 9.0, cuDNN v7, python3.**6**, and win10@tonyyuandao https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/cmake/README.mdBuilding from the sources, TF1.4 is working with cuda 9.0, cuDNN v7.0.3 and python2.7 as well. @affromero Did you have any issues with jsoncpp by chance?I did a test of tf_cnn_benchmarks on AWS building from TF 1.4RC0 branch with CUDA 9 / cuDNN 7 and the results were equal or slightly faster than CUDA 8 + cuDNN 6.  
+
+Edit: remove mention I was not addressing elipeters comment.  :-)@elipeters 
+
+When we say building we mean building from source not installing a wheel file.  A wheel is already compiled and 1.4 binaries support CUDA 8 + cuDNN 6.  To get CUDA 9 you will need to build from source.  I have never done the windows build.  Once 1.4 ships the team will switch the nightly builds over to CUDA 9.There is the 2nd release candidate (rc1) for 1.4 out as precompiled wheel ( https://pypi.python.org/pypi/tensorflow ). Has anyone tested that with CUDA 9 yet ?Tried, but not with working cuda 9.0.I will try again.
+
+1.4 is CUDA 8 + cuDNN 6  this will not work with CUDA 9 you will have to compile from source
+once 1.4 is released we will work to switch the nightly builds to CUDA 9 and then 1.5 will most likely be CUDA 9.  
+
+I know CUDA 9 works fine when building 1.4 from source (ubuntu 16.04/python 2) because I was doing benchmarks on AWS last weekend.  I have a recent recipe on building from source [here](https://github.com/yaroslavvb/tensorflow-community-wheels) (please post a link to your CUDA 9.0 wheel there as well once you build it)You are the best Yaroslav.
+
+On Wed, Oct 25, 2017 at 8:11 AM, Yaroslav Bulatov <notifications@github.com>
+wrote:
+
+> I have a recent recipe on building from source here
+> <https://github.com/yaroslavvb/tensorflow-community-wheels> (please post
+> a link to your CUDA 9.0 wheel there as well once you build it)
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/12052#issuecomment-339361959>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AWZesmRwb0UmLWxzANWCq5RrT6teYtr5ks5sv0-IgaJpZM4OuRL7>
+> .
+>
+hello，i try to build tensorflow gpu by win10 env，then i also met like this issue， can anyone help me，thanks first.
+my environment：
+win10 + gtx 1080ti + cuda 9.0 + cuDNN 7 + visual studio profession 2015 + cmake 3.6.3 + python 3.5.4
+
+when i switch to tensorflow r1.4，and build by cmake at win10 environment，issue accur that：
+
+`CUSTOMBUILD : Internal error : assertion failed at: "C:/dvs/p4/build/sw/rel/gpu_drv/r384/r384_00/drivers/compiler/edg/EDG_4.12/src/lookup.c", line 2652 [C:\TF\tensorflow\tensorflow\contrib\cmake\build\tf_core_gpu_kernels.vcxproj]
+
+  1 catastrophic error detected in the compilation of "C:/Users/ADMINI~1/AppData/Local/Temp/tmpxft_00000c94_00000000-8_adjust_contrast_op_gpu.cu.cpp4.ii".
+
+  Compilation aborted.
+
+  adjust_contrast_op_gpu.cu.cc
+
+CUSTOMBUILD : nvcc error : 'cudafe++' died with status 0xC0000409 [C:\TF\tensorflow\tensorflow\contrib\cmake\build\tf_core_gpu_kernels.vcxproj]
+
+  CMake Error at tf_core_gpu_kernels_generated_adjust_contrast_op_gpu.cu.cc.obj.Release.cmake:267 (message):
+    Error generating file
+    C:/TF/tensorflow/tensorflow/contrib/cmake/build/CMakeFiles/tf_core_gpu_kernels.dir/__/__/core/kernels/Release/tf_core_gpu_kernels_generated_adjust_contrast_op_gpu.cu.cc.obj`
+![image](https://user-images.githubusercontent.com/32933617/32207793-3c4342f8-be39-11e7-8881-9779f84807f5.png)
+
+above issue look like cuda compolie itself problem，but when i switch tensorflow version to r1.3，another issue accur：
+
+`c:\tf\test\tensorflow\tensorflow\contrib\cmake\build\external\eigen_archive\eigen\src/Core/util/Macros.h(416): fatal error C1017:
+ 无效的整数常量表达式 [C:\TF\test\tensorflow\tensorflow\contrib\cmake\build\tf_core_gpu_kernels.vcxproj]
+
+  CMake Error at tf_core_gpu_kernels_generated_adjust_contrast_op_gpu.cu.cc.obj.Release.cmake:267 (message):
+    Error generating file
+    C:/TF/test/tensorflow/tensorflow/contrib/cmake/build/CMakeFiles/tf_core_gpu_kernels.dir/__/__/core/kernels/Release/tf_core_gpu_kernels_generated_adjust_contrast_op_gpu.cu.cc.obj`
+![image](https://user-images.githubusercontent.com/32933617/32207864-c4f0cb98-be39-11e7-8968-12eaea9bdbb7.png)
+
+it look like the file adjust_contrast_op_gpu.cu.cc have some problem，but i can't find any error from it. 
+
+such above issues trouble me few days，wish to someone help me going this try and success，and strong expect google upgrade tensorflow support cuda 9.0 and cudnn 7 at win10 environment. 
+Has anyone released a whl for TensorFlow with CUDA 9 and cuDNN 7.0?@vellamike  I know your question is general, but the TF team will have CUDA 9 in the binaries with 1.5 that should land in Q4.  For now, you have to build from source.I am trying to build 1.4 with CUDA 9 and cuDNN 7 in mac 10.13 high sierra. I keep getting this error 
+
+```
+ERROR: /Users/smitshilu/tensorflow/tensorflow/core/kernels/BUILD:2948:1: output 'tensorflow/core/kernels/_objs/depthwise_conv_op_gpu/tensorflow/core/kernels/depthwise_conv_op_gpu.cu.pic.o' was not created.
+ERROR: /Users/smitshilu/tensorflow/tensorflow/core/kernels/BUILD:2948:1: not all outputs were created or valid.
+Target //tensorflow/tools/pip_package:build_pip_package failed to build
+```
+
+Any solution for this?@smitshilu possibly related https://github.com/tensorflow/tensorflow/issues/2143Why 1.4 still doesn't have CUDA 9 in binaries? This version was released quit a long ago and for using with V100 building from source is required which is not so smooth and fast following to a number of issues reported.@ViktorM  What issues did you have compiling from source? It was a bit tricky but not that hard.26-SEP-2017 was the GA for CUDA 9.  If we release CUDA 9 + cuDNN 7 binaries in Q4 I think this will be the fastest we have upgraded cuDNN.  I was not here for 8.5 to 9 so I have no idea.   I would like us to go a little faster but this also means anyone with a CUDA 8 setup has to upgrade not just to CUDA 9 but they also need to upgrade their device driver to 384.x, which I can say is not something production people take lightly.  
+
+Ideally we would have infinite (or just a few more but the matrix explodes fast) builds, but that is another problem that would take a long time to explain and I doubt many people care. 
+    BTW, I [observed](https://medium.com/@yaroslavvb/peak-performance-of-amazon-p3-instances-f2bc48f9ef71) 85 T ops/second with CUDA 9 on float16 matmul/V100 using Nvidia's [NGC](https://ngc.nvidia.com/signin/email
+) TensorFlow container (as opposed to 8.8 T ops/s on my GTX 1080 at home). Really looking forward to having these improvements in the officially supported version!@yaroslavvb  Being very honest we are working through some FP16 issues.  There is a path in the tf_cnn_benchmarks for FP16 and the focus is on ResNet50 first and we are working on auto scaling for FP16 as well.  You can give it a try if you are interested but we are actively working through some problems.  People are on it and it is just taking time.  We finally have DGX-1s in house so we can also play with the same containers and try to keep track of performance on that exact platform moving forward.  Ok, So I am going to install Ubuntu 17.10 and I just wanted to try all the latest stuffs for fun. 
+Before I do I just wanted to know did any one try the below stacks building from source and got any luck?
+
+-> Ubuntu 17.10, CUDA 9.0, cuDNN 7.0, TF master
+-> Ubuntu 17.10, CUDA 8.0, cnDNN 6.1, TF 1.4I am encountering the same issue as @xsr-ai, specifically using Python 3.6.3, VS 2017, CUDA 9, cuDNN 7.@aluo-x You mean you tried on Windows 10? Assuming because you said VS 2017.Yes, that is correct. Here is the specific error:
+
+```
+CustomBuild:
+  Building NVCC (Device) object CMakeFiles/tf_core_gpu_kernels.dir/__/__/core/kernels/Release/tf_core_gpu_kernels_generated_adjust_contrast_op_gpu.cu.cc.obj
+  CMake Error at tf_core_gpu_kernels_generated_adjust_contrast_op_gpu.cu.cc.obj.Release.cmake:222 (message):
+    Error generating
+    C:/optimae/tensorflow-1.4.0/tensorflow/contrib/cmake/build/CMakeFiles/tf_core_gpu_kernels.dir/__/__/core/kernels/Release/tf_core_gpu_kernels_generated_adjust_contrast_op_gpu.cu.cc.obj
+
+
+C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\Common7\IDE\VC\VCTargets\Microsoft.CppCommon.targets(171,5): error MSB6006: "cmd.exe" exited with code 1. [C:\optimae\tensorflow-1.4.0\
+tensorflow\contrib\cmake\build\tf_core_gpu_kernels.vcxproj]
+```@aluo-x  Did you use the latest c-make? i.e Release candidate or the stable release?Using cmake 3.9.5, swig 3.0.12, CUDA 9.0.176, cuDNN 7.0.3. VS 2017 19.11.25547. @aluo-x  Even I didnt have much luck with c-make. But can you try building with Bazel?@smitshilu If I am not mistaken, you are getting an error regarding alignment, right? Similar to the one described here for pytorch: https://github.com/pytorch/pytorch/issues/2692
+
+I tried applying the same solution, that is removing all ___align__(sizeof(T))_ from the problematic files: 
+_tensorflow/core/kernels/concat_lib_gpu_impl.cu.cc_
+_tensorflow/core/kernels/depthwise_conv_op_gpu.cu.cc_
+_tensorflow/core/kernels/split_lib_gpu.cu.cc_
+
+I am not sure if this causes any issues, but it seems to be working fine so far. And from what I understand, the runtime will always use a fixed alignment of 16 for the shared memory.For folks interested we have CUDA 9 wheels uploaded. No need to build yourself! https://github.com/mind/wheels/releases/tag/tf1.4-gpu-cuda9Ubuntu 17.10, CUDA 9, CuDNN 7, Python 3.6, bazel 0.7.0 + TF from source (master).
+
+Follow instructions as in this answer to get CUDA up and running:
+https://askubuntu.com/questions/967332/how-can-i-install-cuda-9-on-ubuntu-17-10
+
+Note, you might want to use these commands instead for 64 bit version: 
+```
+sudo ln -s /usr/bin/gcc-6 /usr/local/cuda-9.0/bin/gcc 
+sudo ln -s /usr/bin/g++-6 /usr/local/cuda-9.0/bin/g++ 
+sudo ./cuda_9.0.176_384.81_linux-run --override
+```
+
+To install Tensorflow you will need
+1. Before compiling TF: correctly configure path variables (the paths from NVIDIA page did not work for me):
+```
+export PATH=/usr/local/cuda-9.0/bin:${PATH}
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda-9.0/lib64
+```
+2. Before compiling: Configure bazel to use same gcc version as during CUDA installation:
+```
+sudo update-alternatives --remove-all g++
+sudo update-alternatives --remove-all gcc
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 10
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 10
+```
+3. While following TF instructions once you get to  bazel build step note, that youll need an additional flag to compile with gcc version higher than 4.*:
+`bazel build --config=opt --config=cuda --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" //tensorflow/tools/pip_package:build_pip_package`
+@alexbrad I ran into the same issue building for Mac GPU with CUDA 9, cuDNN 7. This solution also worked for me and I haven't run into any issues using TF so far.
+Source changes and wheel: https://github.com/nathanielatom/tensorflow/releases/tag/v1.4.0-mac
+Ubuntu 16.04, TensorFlow 1.4 with CUDA 9.0 and cuDNN 7.0.3 already installed and tested:
+
+Install Tensorflow 1.4 from Source
+```
+cd ~/Downloads
+git clone https://github.com/tensorflow/tensorflow
+cd tensorflow
+git checkout r1.4
+```
+
+- Configure for CUDA version: 9.0
+- Configure for cuDNN version: 7.0.3
+- Get your compute capability from https://developer.nvidia.com/cuda-gpus
+- I set this to 6.1 as I have a GeForce GTX 1070
+- Configure other options as appropriate
+
+`./configure`
+
+Installing Bazel
+```
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update && sudo apt-get install oracle-java8-installer
+echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
+curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
+sudo apt-get update && sudo apt-get install bazel
+sudo /sbin/ldconfig -v
+```
+
+Building TensorFlow
+```
+bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0
+bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+pip install /tmp/tensorflow_pkg/tensorflow-1.4.0-cp36-cp36m-linux_x86_64.whl
+```
+
+The name of the tensorflow wheel file above may be different
+Just `ls /tmp/tensorflow_pkg` to check
+Installation steps for Mac 10.13, CUDA 9 and tensorflow 1.4 https://gist.github.com/smitshilu/53cf9ff0fd6cdb64cca69a7e2827ed0fCan someone tell me, how can i build tensorflow whl package from sources for windows in linux (Ubuntu 16.04) with bazel? It was possible for version 1.2 if i right. Thanks.@ValeryPiashchynski you can follow these steps https://www.tensorflow.org/install/install_sources@smitshilu Thanks for you answer. I can build wheel package in Ubuntu following this steps and all works good in Ubuntu. But i can't install that whl package in Windows OS (there is an error: isn't supportet wheel). So my question is how can i build package in Ubuntu which i can then install in Windows?~@ValeryPiashchynski I don't think that's possible.~
+
+(taking it out as comments below suggest otherwise)Cross-building on Ubuntu for Windows should be possible one day through clang. It will probably require lots of fixes, since Windows binaries are currently built with MSVC. I asked basically the same question when talking in person to @gunan last Monday. Should this be forked into a GH issue of its own, since it has little to do directly with CUDA?Cross compile is possible with bazel but not sure how to do it on tensorflow. For reference 
+[https://github.com/bazelbuild/bazel/wiki/Building-with-a-custom-toolchain](https://github.com/bazelbuild/bazel/wiki/Building-with-a-custom-toolchain)
+[https://github.com/bazelbuild/bazel/issues/1353](https://github.com/bazelbuild/bazel/issues/1353)Does anyone know if the tensorflow 1.5 nightly builds posted here(win10 builds) have CUDA9+CuDNN7 support?
+https://pypi.python.org/pypi/tf-nightly-gpu/1.5.0.dev20171115
+
+On a side note, it is totally irresponsible to close this ticket as well as #14126 just because you say "It is going to be released with TF 1.5".  MXNET 0.12 already has CUDA9 FP16 in production.  Tensorflow and CNTK need to hurry up.  It is not just beneficial for Volta.
+
+Not yet, we are working on upgrading our build infra for CUDA 9.
+We are aiming to have pip packages with CUDA 9 before the end of this week.i have two computer, and yesterday i install 1080ti and install everything(cuda8 and cudnn6) new graphic driver, visual studio 2015
+i compare the time of epoch 1080ti vs 980ti 
+and i see 1080ti run each epoch in 22 min but 980ti run in 13 min !!!(batch=60 for 1080 vs batch=20for 980ti) 
+**why 1080ti is work slower than 980ti !!!!** and how i can check what is wrong ?!
+What is the run time if you use 20 batch for 1080Ti? @gunan, just wondering if there's a new ETA for this? https://github.com/tensorflow/tensorflow/pull/14773@smitshilu 
+in 1080ti with 20 batch =26 min
+and with 60batch = 19min
+in 980gtx with batch 20 = 14 min !!!!
+i use windows, install last version of driver with cuda 8 and cudnn 6
+how i can find out why it's run slower than 980 ?@nasergh Are you having GTX 1080ti and 980ti in SLI?@vickylance 
+No
+two different computer !
+both are cori7 and 1TB hard disk and i load data image from 1TB sata HDD
+but in 980 i have windows on SSD hard disk
+i try different version of driver last thing i check 388.13 downloaded from asus website with CUDA 8 and cudnn 6
+i don't know which one of this are the reason 
+1- windows! maybe it's work better on linux
+2- HDD speed
+3- fake 1080TI
+4- CUDA and cudnn not compatible with 1080ti 
+5- CPU (CPU on 1080TI computer is more powerful than 980)
+what do you suggest ?
+@nasergh 
+1) Is the RAM same? if so. I am not sure if it will affect so much but check if the MHz of the RAM are also same in both the systems.
+2) Check the GPU utilization % when running on 980ti and 1080ti. Use this tool if you want to check the GPU utilization. https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer There are better ones out there, but this is what came on top of my head.
+3) If you want to eek out the best performance I would suggest installing Ubuntu16.04 as a dual boot on your 1080ti system and using CUDA 9.0 and cuDNN 7.0
+4) Also windows takes up a lot of system resources in itself, so running it on a SSD definitely gives it an edge, but not of that magnitude as seen in your test scenario.Maybe it is the selected board architecture.
+TF is configured by default for 3.0, 3.5 and 5.2; while 1080TI is 6.1 (Pascal) while 980 is 5.2 (Maxwell) according to https://en.wikipedia.org/wiki/CUDA#GPUs_supported.
+Maybe the downgrade to 3.0 or 5.2 is not efficient on the 1080TI, while it is native for the 980?
+Try computing with both capabilities 5.2 and 6.1 (see CMakeLists.txt l.232 and l.246)
+ 
+De : nasergh [mailto:notifications@github.com] 
+Envoyé : mercredi 22 novembre 2017 17:17
+À : tensorflow/tensorflow
+Cc : sylvain-bougnoux; Manual
+Objet : Re: [tensorflow/tensorflow] Upgrade to CuDNN 7 and CUDA 9 (#12052)
+ 
+@vickylance
+No
+two different computer !
+both are cori7 and 1TB hard disk and i load data image from 1TB sata HDD
+but in 980 i have windows on SSD hard disk
+i try different version of driver last thing i check 388.13 downloaded from asus website with CUDA 8 and cudnn 6
+i don't know which one of this are the reason
+1- windows! maybe it's work better on linux
+2- HDD speed
+3- fake 1080TI
+4- CUDA and cudnn not compatible with 1080ti
+what do you suggest ?
+—
+You are receiving this because you are subscribed to this thread.
+Reply to this email directly, view it on GitHub, or mute the thread.environment: cuda9.0+cudnn7.0+tf1.4，and I meet an error when I run the "ptb" example , TypeError: __init__() got an unexpected keyword argument 'input_size',   'input_size' is the parameter of the CudnnLSTMafter watching this thread for months I am going to give it a try on Gentoo linuxi have asus strix 1080TI 
+1- in ubunto i can use driver in nvidia website or i must download from asus(because i don't see driver for linux in asus website)
+2- last version is ok or i must intall 378.13 because i see in most comment they say use 378.13?
+thanks
+For those on Windows, I have just uploaded TF 1.4.0 built against CUDA 8.0.61.2, cuDNN 7.0.4, Python 3.6.3, with AVX support [onto my repo](https://github.com/aluo-x/tensorflow_windows). Hopefully this is enough until CUDA 9 gets sorted out on Windows.i am trying to install CUDA9 and cudnn 7 on ubuntu 16.04 and python 3.6
+but i am fail :(
+i try everything, search everywhere but still give same error "importError: libcublas.so.8.0 can not open shared object file: no such file or directory 
+i think tensor want to run CUDA8 
+how i can tell him to use cuda9 ?!!!! if answer is run from source how exactly? i did not see very clear website about build from source
+thanks
+You should install tf from source@nasergh@withme6696 
+how i can install it from source ?
+
+i know i can download one of this
+https://github.com/mind/wheels/releases
+but i don't know download which one and how install it !?
+@nasergh check out our [README](https://github.com/mind/wheels) for how to install. If you don't mind installing MKL, you can do
+
+```
+pip --no-cache-dir install https://github.com/mind/wheels/releases/download/tf1.4-gpu-cuda9-37/tensorflow-1.4.0-cp36-cp36m-linux_x86_64.whl
+```
+
+If you don't want to install MKL, you can do 
+
+```
+pip --no-cache-dir install https://github.com/mind/wheels/releases/download/tf1.4-gpu-cuda9-nomkl/tensorflow-1.4.0-cp36-cp36m-linux_x86_64.whl
+```I will use this issue as the tracking issue for CUDA 9 support.
+Currently, there are two blockers:
+1 - https://github.com/tensorflow/tensorflow/pull/14770
+2 - On windows, it looks like we have a bug with NVCC. Building TF with CUDA9 seems to be failing with a compiler crash. NVIDIA is helping investigate this, and once we have an update we will proceed.@danqing 
+Thanks
+1- MKL how much improve the speed ?
+2- in version without MKL i need to install MKL ?!for 1, see [this](https://software.intel.com/en-us/articles/tensorflow-optimizations-on-modern-intel-architecture) - note that computations done on GPU won't have the speed up obviously.
+
+for 2, you don't. make sure you install the right version.
+
+btw, this is a thread with many subscribers. if you have future issues with our wheels, please open an issue in our repo instead of commenting below, so we don't spam a ton of folks.@Tweakmind : I cannot pass this part:
+
+**Building TensorFlow**
+
+bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0
+bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+pip install /tmp/tensorflow_pkg/tensorflow-1.4.0-cp36-cp36m-linux_x86_64.whl
+
+The first line seems to be incomplete (missing double quotes)? Are these three lines or two lines?
+
+**@goodmangu** the correct code, I think, is:
+
+`bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0"`
+
+Double quotation marks are missing from the command.I'm getting past this part using script [here](https://github.com/yaroslavvb/tf_build), but getting blocked by some cuda compiler errors in https://github.com/tensorflow/tensorflow/issues/15108Thanks guys. Appreciated this. I got it working the same day by using the nightly build Linux binary instead. See: https://github.com/tensorflow/tensorflow
+Now running 3 GTX 1080 Tis with Keras. Cool! Spent last two days trying to build Tensorflow from source (r1.4) for my MacBook Pro with an eGPU. Driver working, with Cuda 8.0, cuDNN 6.0, Mac OSX Sierra 10.12. Very close to end, but blocked by some build errors after 20 minutes. Anybody has had luck so far? Any successfully built package that you can share? Thanks in advance. @goodmangu Could you please specify which "the nightly build Linux binary" do you use?Sure, this one: tf_nightly_gpu-1.head-cp27-none-linux_x86_64.whlStill no Windows 10 support for Cuda 9.0 + cuDNN 7.0? Just verifying.
+Tensorflow GPU 1.4.0@goodmangu I tried with 1.4 but OSX 10.13 and CUDA 9 cuDNN 7. You can find steps [here](https://gist.github.com/smitshilu/53cf9ff0fd6cdb64cca69a7e2827ed0f)@eeilon79 there is an nvcc bug on windows that prevent us frombuilding binaries. We are getting help from nvidia to fix those issues.Is there any update for CUDA 9 in the Tensorflow Nightly Version (1.5-dev) under the `tf-nightly-gpu` pip package? Need to use this 1.5 for the CuDNNLSTM in KerasOK, the PR is just merged.
+In about 10-12 hours our new nightlies should be built with cuda9, except for windows.
+On windows, we are still  blocked by an NVCC bug.I finished general CUDA 9 and CUDANN 7 package for Gentoo system and tried dummy test and looks like working by dummy import tensorflow as tf in python, but I need to do additional tests:
+
+I am using commit: c9568f1ee51a265db4c5f017baf722b9ea5ecfbb> On windows, we are still blocked by an NVCC bug.
+
+Would you mind posting the link in here to that issue? Thanks in advance!
+@smitshilu Your article helped me.
+And I wrote an article with some elements added.
+https://github.com/masasys/MacTF1.4GPU@arbynacosta
+i run
+bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0"
+but i get this error
+Error : the build command is only supported from within a workspace.
+
+i also try tensor nightly but it give error
+attributeerror : module 'tensorflow' has no attribute ....
+output of dir(tf)
+['__doc__', '__loarder__', '__name__', __package__' '__path__ __spec__]Sorry @goodmangu, I was away. Did you get it working? I did miss the closing double quotes as @arbynacosta pointed out. I have this running under Ubuntu 17.10 now with CUDA 9.0 and cuDNN 7.0.4. I can work on a MacOS build if needed. I bailed on both Win10 and MacOS but can work on them this weekend if folks need it.
+
+@nasergh, are you running that command from inside the cloned tensorflow directory. Make sure WORKSPACE exists in the directory.
+
+For example:
+```
+~/Downloads/tensorflow$ ls
+ACKNOWLEDGMENTS     bazel-bin         bazel-testlogs      configure          LICENSE       tensorflow   WORKSPACE
+ADOPTERS.md         bazel-genfiles    BUILD               configure.py       models.BUILD  third_party
+arm_compiler.BUILD  bazel-out         CODE_OF_CONDUCT.md  CONTRIBUTING.md    README.md     tools
+AUTHORS             bazel-tensorflow  CODEOWNERS          ISSUE_TEMPLATE.md  RELEASE.md    util
+```
+@Tweakmind 
+i run command 
+sudo su
+and then goto tensorflow folder(there was workspace file in there)
+but i get this errors
+```
+root@pc:/home/pc2/tensorflow# bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0"
+..........
+WARNING: Config values are not defined in any .rc file: opt
+ERROR: /root/.cache/bazel/_bazel_root/cccfa03cbaf937d443248403ec70306e/external/local_config_cuda/crosstool/BUILD:4:1: Traceback (most recent call last):
+	File "/root/.cache/bazel/_bazel_root/cccfa03cbaf937d443248403ec70306e/external/local_config_cuda/crosstool/BUILD", line 4
+		error_gpu_disabled()
+	File "/root/.cache/bazel/_bazel_root/cccfa03cbaf937d443248403ec70306e/external/local_config_cuda/crosstool/error_gpu_disabled.bzl", line 3, in error_gpu_disabled
+		fail("ERROR: Building with --config=c...")
+ERROR: Building with --config=cuda but TensorFlow is not configured to build with GPU support. Please re-run ./configure and enter 'Y' at the prompt to build with GPU support.
+ERROR: no such target '@local_config_cuda//crosstool:toolchain': target 'toolchain' not declared in package 'crosstool' defined by /root/.cache/bazel/_bazel_root/cccfa03cbaf937d443248403ec70306e/external/local_config_cuda/crosstool/BUILD
+INFO: Elapsed time: 6.830s
+FAILED: Build did NOT complete successfully (2 packages loaded)
+    currently loading: @bazel_tools//tools/jdk
+
+```@nasergh Please make sure you follow all of the instructions here:
+https://www.tensorflow.org/install/install_sourcesIf you are building with GPU support, make sure you are configuring appropriately. 
+
+#### Install Tensorflow 1.4 from Source.
+* As of this writing, this is the only way it will work with CUDA 9.0 and cuDNN 7.0
+* Instructions: https://www.tensorflow.org/install/install_sources
+* Some of the instructions may not make sense, here is how I did it:
+```
+cd $HOME/Downloads
+git clone https://github.com/tensorflow/tensorflow
+cd tensorflow
+git checkout r1.4
+./configure
+```
+The sample output and options will differ from that in the instructions
+* Make sure you configure for CUDA version: 9.0
+* Make sure you configure for cuDNN version: 7.0.4
+* Make sure you know your compute capability from https://developer.nvidia.com/cuda-gpus
+* I set this to 6.1 as I have a GeForce GTX 1070
+
+Installing Bazel
+```
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update && sudo apt-get install oracle-java8-installer
+echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
+curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
+sudo apt-get update && sudo apt-get install bazel
+sudo /sbin/ldconfig -v
+```
+Building TensorFlow
+```
+bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0"
+bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+pip install /tmp/tensorflow_pkg/tensorflow-1.4.0-cp36-cp36m-linux_x86_64.whl
+```
+
+
+
+@Tweakmind : thanks for getting back to me on this. Yes, I got it working for Ubuntu, and still have no luck with Mac OSX (10.12.6) with an eGPU (1080 Ti). For all the sources I followed,  build failed after some 10-15 minutes. It would be great if we have a reproducible success. Thanks in advance.@Tweakmind 
+i do following and also configure the file but it say 
+```
+pc2@pc:~/Downloads/tensorflow$ bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0"
+ERROR: Skipping '//tensorflow/tools/pip_package:build_pip_package': error loading package 'tensorflow/tools/pip_package': Encountered error while reading extension file 'cuda/build_defs.bzl': no such package '@local_config_cuda//cuda': Traceback (most recent call last):
+	File "/home/pc2/Downloads/tensorflow/third_party/gpus/cuda_configure.bzl", line 1042
+		_create_local_cuda_repository(repository_ctx)
+	File "/home/pc2/Downloads/tensorflow/third_party/gpus/cuda_configure.bzl", line 905, in _create_local_cuda_repository
+		_get_cuda_config(repository_ctx)
+	File "/home/pc2/Downloads/tensorflow/third_party/gpus/cuda_configure.bzl", line 662, in _get_cuda_config
+		_cudnn_version(repository_ctx, cudnn_install_base..., ...)
+	File "/home/pc2/Downloads/tensorflow/third_party/gpus/cuda_configure.bzl", line 360, in _cudnn_version
+		_find_cudnn_header_dir(repository_ctx, cudnn_install_base...)
+	File "/home/pc2/Downloads/tensorflow/third_party/gpus/cuda_configure.bzl", line 612, in _find_cudnn_header_dir
+		auto_configure_fail(("Cannot find cudnn.h under %s" ...))
+	File "/home/pc2/Downloads/tensorflow/third_party/gpus/cuda_configure.bzl", line 129, in auto_configure_fail
+		fail(("\n%sCuda Configuration Error:%...)))
+
+Cuda Configuration Error: Cannot find cudnn.h under /usr/lib/x86_64-linux-gnu
+WARNING: Target pattern parsing failed.
+ERROR: error loading package 'tensorflow/tools/pip_package': Encountered error while reading extension file 'cuda/build_defs.bzl': no such package '@local_config_cuda//cuda': Traceback (most recent call last):
+	File "/home/pc2/Downloads/tensorflow/third_party/gpus/cuda_configure.bzl", line 1042
+		_create_local_cuda_repository(repository_ctx)
+	File "/home/pc2/Downloads/tensorflow/third_party/gpus/cuda_configure.bzl", line 905, in _create_local_cuda_repository
+		_get_cuda_config(repository_ctx)
+	File "/home/pc2/Downloads/tensorflow/third_party/gpus/cuda_configure.bzl", line 662, in _get_cuda_config
+		_cudnn_version(repository_ctx, cudnn_install_base..., ...)
+	File "/home/pc2/Downloads/tensorflow/third_party/gpus/cuda_configure.bzl", line 360, in _cudnn_version
+		_find_cudnn_header_dir(repository_ctx, cudnn_install_base...)
+	File "/home/pc2/Downloads/tensorflow/third_party/gpus/cuda_configure.bzl", line 612, in _find_cudnn_header_dir
+		auto_configure_fail(("Cannot find cudnn.h under %s" ...))
+	File "/home/pc2/Downloads/tensorflow/third_party/gpus/cuda_configure.bzl", line 129, in auto_configure_fail
+		fail(("\n%sCuda Configuration Error:%...)))
+
+Cuda Configuration Error: Cannot find cudnn.h under /usr/lib/x86_64-linux-gnu
+INFO: Elapsed time: 0.082s
+FAILED: Build did NOT complete successfully (0 packages loaded)
+    currently loading: tensorflow/tools/pip_package
+
+```
+i think i install cuda and cudnn correctly
+ ```
+find /usr | grep libcudnn
+/usr/share/doc/libcudnn7
+/usr/share/doc/libcudnn7/copyright
+/usr/share/doc/libcudnn7/NVIDIA_SLA_cuDNN_Support.txt
+/usr/share/doc/libcudnn7/changelog.Debian.gz
+/usr/share/lintian/overrides/libcudnn7
+/usr/lib/x86_64-linux-gnu/libcudnn.so.7.0.4
+/usr/lib/x86_64-linux-gnu/libcudnn.so.7
+
+```@goodmangu, I will work on the MacOS build over the weekend.
+
+@nasergh, Did you install cuDNN?
+
+Here is my guide for cuDNN including source and docs to test the install:
+#### Download cuDNN 7.0.4 files
+You must log into your Nvidia developer account in your browser
+* https://developer.nvidia.com/compute/machine-learning/cudnn/secure/v7.0.4/prod/9.0_20171031/cudnn-9.0-linux-x64-v7
+* https://developer.nvidia.com/compute/machine-learning/cudnn/secure/v7.0.4/prod/9.0_20171031/Ubuntu16_04-x64/libcudnn7_7.0.4.31-1+cuda9.0_amd64
+* https://developer.nvidia.com/compute/machine-learning/cudnn/secure/v7.0.4/prod/9.0_20171031/Ubuntu16_04-x64/libcudnn7-dev_7.0.4.31-1+cuda9.0_amd64
+* https://developer.nvidia.com/compute/machine-learning/cudnn/secure/v7.0.4/prod/9.0_20171031/Ubuntu16_04-x64/libcudnn7-doc_7.0.4.31-1+cuda9.0_amd64
+
+Check Each Hash
+```
+cd $HOME/Downloads
+md5sum cudnn-9.0-linux-x64-v7.tgz && \
+md5sum libcudnn7_7.0.4.31-1+cuda9.0_amd64.deb && \
+md5sum libcudnn7-dev_7.0.4.31-1+cuda9.0_amd64.deb && \
+md5sum libcudnn7-doc_7.0.4.31-1+cuda9.0_amd64.deb
+```
+Output should be:
+
+> fc8a03ac9380d582e949444c7a18fb8d  cudnn-9.0-linux-x64-v7.tgz
+> e986f9a85fd199ab8934b8e4835496e2  libcudnn7_7.0.4.31-1+cuda9.0_amd64.deb
+> 4bd528115e3dc578ce8fca0d32ab82b8  libcudnn7-dev_7.0.4.31-1+cuda9.0_amd64.deb
+> 04ad839c937362a551eb2170afb88320  libcudnn7-doc_7.0.4.31-1+cuda9.0_amd64.deb
+
+#### Install cuDNN 7.0.4 and libraries
+```
+tar -xzvf cudnn-9.0-linux-x64-v7.tgz
+sudo cp cuda/include/cudnn.h /usr/local/cuda/include
+sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64
+sudo chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
+sudo dpkg -i libcudnn7_7.0.4.31-1+cuda9.0_amd64.deb
+sudo dpkg -i libcudnn7-dev_7.0.4.31-1+cuda9.0_amd64.deb
+sudo dpkg -i libcudnn7-doc_7.0.4.31-1+cuda9.0_amd64.deb
+```
+#### Verifying cuDNN
+Ubuntu 17.10 includes version 7+ of the GNU compilers
+CUDA is not compatible with higher than version 6
+The error returned is:
+
+> #error -- unsupported GNU version! gcc versions later than 6 are not supported!
+
+Fix - Install Version 6 and create symbolic links in CUDA bin directory:
+```
+sudo apt-get install gcc-6 g++-6
+sudo ln -sf /usr/bin/gcc-6 /usr/local/cuda/bin/gcc
+sudo ln -sf /usr/bin/g++-6 /usr/local/cuda/bin/g++
+```
+Now build mnistCUDNN to test cuDNN
+```
+cp -r /usr/src/cudnn_samples_v7/ $HOME
+cd $HOME/cudnn_samples_v7/mnistCUDNN
+make clean && make
+./mnistCUDNN
+```
+If cuDNN is properly installed, you will see:
+
+> Test passed!
+
+Dear @Tweakmind 
+your way works thanks for your help(i was trying to install tensor for more than 3 weeks!!!)
+problem is i install it on python3.6 and now i have a problem with PIL package
+
+```
+Traceback (most recent call last):
+  File "/home/pc2/venv/lib/python3.6/site-packages/keras/utils/data_utils.py", line 551, in get
+    inputs = self.queue.get(block=True).get()
+  File "/home/pc2/anaconda3/lib/python3.6/multiprocessing/pool.py", line 644, in get
+    raise self._value
+  File "/home/pc2/anaconda3/lib/python3.6/multiprocessing/pool.py", line 119, in worker
+    result = (True, func(*args, **kwds))
+  File "/home/pc2/venv/lib/python3.6/site-packages/keras/utils/data_utils.py", line 391, in get_index
+    return _SHARED_SEQUENCES[uid][i]
+  File "/home/pc2/venv/lib/python3.6/site-packages/keras/preprocessing/image.py", line 761, in __getitem__
+    return self._get_batches_of_transformed_samples(index_array)
+  File "/home/pc2/venv/lib/python3.6/site-packages/keras/preprocessing/image.py", line 1106, in _get_batches_of_transformed_samples
+    interpolation=self.interpolation)
+  File "/home/pc2/venv/lib/python3.6/site-packages/keras/preprocessing/image.py", line 345, in load_img
+    raise ImportError('Could not import PIL.Image. '
+ImportError: Could not import PIL.Image. The use of `array_to_img` requires PIL.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<stdin>", line 7, in <module>
+  File "/home/pc2/venv/lib/python3.6/site-packages/keras/legacy/interfaces.py", line 87, in wrapper
+    return func(*args, **kwargs)
+  File "/home/pc2/venv/lib/python3.6/site-packages/keras/models.py", line 1227, in fit_generator
+    initial_epoch=initial_epoch)
+  File "/home/pc2/venv/lib/python3.6/site-packages/keras/legacy/interfaces.py", line 87, in wrapper
+    return func(*args, **kwargs)
+  File "/home/pc2/venv/lib/python3.6/site-packages/keras/engine/training.py", line 2115, in fit_generator
+    generator_output = next(output_generator)
+  File "/home/pc2/venv/lib/python3.6/site-packages/keras/utils/data_utils.py", line 557, in get
+    six.raise_from(StopIteration(e), e)
+  File "<string>", line 3, in raise_from
+StopIteration: Could not import PIL.Image. The use of `array_to_img` requires PIL.
+```
+
+i try to install pillow but it's not help
+i also try to install PIL but 
+```
+UnsatisfiableError: The following specifications were found to be in conflict:
+  - pil -> python 2.6*
+  - python 3.6*
+
+```@nasergh What do you get with:
+```
+pip install pillow
+```
+Mine looks like:
+```
+~$ pip install pillow
+Requirement already satisfied: pillow in ./anaconda3/lib/python3.6/site-packages
+```@nasergh, I need to crash but I'll check in when I get up.@goodmangu, I won't be able to do the Mac build over the weekend as I don't have access to my 2012 Mac Pro. Hopefully, you're good with Ubuntu for now. I know it works well for me. I should have it back next weekend.@Tweakmind - Thanks! , have you seen any performance boost with CUDA 9 and cuDNN 7?
+
+Also I think some steps mentioned by @Tweakmind  below are redundant, you either need:
+
+```
+tar -xzvf cudnn-9.0-linux-x64-v7.tgz
+sudo cp cuda/include/cudnn.h /usr/local/cuda/include
+sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64
+sudo chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
+```  
+
+or 
+
+```
+sudo dpkg -i libcudnn7_7.0.4.31-1+cuda9.0_amd64.deb
+sudo dpkg -i libcudnn7-dev_7.0.4.31-1+cuda9.0_amd64.deb
+sudo dpkg -i libcudnn7-doc_7.0.4.31-1+cuda9.0_amd64.deb
+
+```
+@gunan 
+CUDA 9.1.85 was just released moments ago with CuDNN 7.0.5, with nvcc compiler bug fixes.  I wonder if it lets win10 users compile Tensorflow 1.4.1?  It is about time.From our correspondences with NVIDIA, I dont think 9.1 fixed this issue.
+However, we have workarounds. First, we need this PR to be merged into eigen:
+https://bitbucket.org/eigen/eigen/pull-requests/351/win-nvcc/diff
+
+Then we will update our eigen dependency, which should fix all our builds for CUDA9The pr is declined but it seams to be merged manually. Do we have to wait for a eigen release or is it getting built by the sources?Cool, then it will be on Nightly pip?@Tweakmind 
+i try to rebuild tensor with using python 2.7
+but in bazel build i get this  error
+i also install numpy but no change.
+
+```
+bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0"
+ERROR: /home/gh2/Downloads/tensorflow/util/python/BUILD:5:1: no such package '@local_config_python//': Traceback (most recent call last):
+	File "/home/gh2/Downloads/tensorflow/third_party/py/python_configure.bzl", line 310
+		_create_local_python_repository(repository_ctx)
+	File "/home/gh2/Downloads/tensorflow/third_party/py/python_configure.bzl", line 274, in _create_local_python_repository
+		_get_numpy_include(repository_ctx, python_bin)
+	File "/home/gh2/Downloads/tensorflow/third_party/py/python_configure.bzl", line 257, in _get_numpy_include
+		_execute(repository_ctx, [python_bin, "-c",..."], <2 more arguments>)
+	File "/home/gh2/Downloads/tensorflow/third_party/py/python_configure.bzl", line 76, in _execute
+		_python_configure_fail("\n".join([error_msg.strip() if ... ""]))
+	File "/home/gh2/Downloads/tensorflow/third_party/py/python_configure.bzl", line 37, in _python_configure_fail
+		fail(("%sPython Configuration Error:%...)))
+Python Configuration Error: Problem getting numpy include path.
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+**ImportError: No module named numpy**
+Is numpy installed?
+ and referenced by '//util/python:python_headers'
+ERROR: Analysis of target '//tensorflow/tools/pip_package:build_pip_package' failed; build aborted: Loading failed
+INFO: Elapsed time: 10.826s
+FAILED: Build did NOT complete successfully (26 packages loaded)
+    currently loading: tensorflow/core ... (3 packages)
+    Fetching http://mirror.bazel.build/.../~ooura/fft.tgz; 20,338b 5s
+    Fetching http://mirror.bazel.build/zlib.net/zlib-1.2.8.tar.gz; 19,924b 5s
+    Fetching http://mirror.bazel.build/.../giflib-5.1.4.tar.gz; 18,883b 5s
+```It seems that OSX is excluded in version 7.0.5 of cuDNN. Does anyone know a detailed thing?I still can't get tensorflow-gpu to work in Windows 10 (with CUDA 9.0.176 and cudnn 7.0).
+I've uninstalled both tensorflow and tensorflow-gpu and reinstalled them (with the --no-cache-dir to ensure downloading of most recent version with the eigen workaround). When I install both, my GPU is not recognized:
+
+> InvalidArgumentError (see above for traceback): Cannot assign a device for operation 'random_uniform_1/sub': Operation was explicitly assigned to /device:GPU:0 but available devices are [ /job:localhost/replica:0/task:0/device:CPU:0 ]. Make sure the device specification refers to a valid device.
+
+When I install just tensorflow-gpu it complains about a missing dll:
+
+> ImportError: Could not find 'cudart64_80.dll'. TensorFlow requires that this DLL be installed in a directory that is named in your %PATH% environment variable. Download and install CUDA 8.0 from this URL: https://developer.nvidia.com/cuda-toolkit
+
+Which is weird because my CUDA version is 9.0, not 8.0, and is recognized (deviceQuery test passed).
+My python version is 3.6.3. I'm trying to run [this](https://medium.com/@erikhallstrm/hello-world-tensorflow-649b15aed18c) code in Spyder (3.2.4) in order to test tensorflow-gpu.
+What did I miss?I'm trying to build from source by bazel on win 7, get error
+
+> No toolcahin for cpu 'x64_windows'
+
+Can anyone build whl?@hadaev8, I need a lot more information to help. I can work on a whl but it will have heavy dependencies and not Win7, once I solve MacOS, I will solve Win10. In any case, post your details.
+
+@eeilon79, I need to recreate this under Win10. I'm currently focused on MacOS now that Ubuntu is solved. I will come back to Win 10. @nasergh, is there a requirement for python 2.7?With CUDA 8.0 and cuDNN 6.0, this is how I installed TensorFlow from source for Cuda GPU and AVX2 support in Win10::
+
+Requirements:
+
+	* Windows 10 64-Bit
+	* Visual Studio 15 C++ Tools
+	* NVIDIA CUDA® Toolkit 8.0
+	* NVIDIA cuDNN 6.0 for CUDA 8.0
+	* Cmake
+	* Swig
+
+Install Visual Studio Community Edition Update 3 w/Windows Kit 10.0.10240.0
+Follow instructions at: https://github.com/philferriere/dlwin  (Thank you Phil)
+
+Create a Virtual Drive N: for clarity
+I suggest creating a directory off C: or your drive of choice and creating N: based on these instructions (2GB min):
+https://technet.microsoft.com/en-us/library/gg318052(v=ws.10).aspx
+
+Install Cuda 8.0 64-bit
+https://developer.nvidia.com/cuda-downloads  (Scroll down to Legacy)
+
+Install cuDNN 6.0 for Cuda 8.0
+https://developer.nvidia.com/rdp/cudnn-download
+Put cuda folder from zip on N:\and rename cuDNN-6
+
+Install CMake
+https://cmake.org/files/v3.10/cmake-3.10.0-rc5-win64-x64.msi
+
+Install Swig (swigwin-3.0.12)
+https://sourceforge.net/projects/swig/files/swigwin/swigwin-3.0.12/swigwin-3.0.12.zip
+
+#### cntk-py36
+```conda create --name cntk-py36 python=3.6 numpy scipy h5py jupyter
+activate cntk-py36
+pip install https://cntk.ai/PythonWheel/GPU/cntk-2.2-cp36-cp36m-win_amd64.whl
+python -c "import cntk; print(cntk.__version__)"
+conda install pygpu
+pip install keras
+```
+#### Remove old tensorflow in Tools if it exists
+```cd C:\Users\%USERNAME%\Tools\
+move tensorflow tensorflow.not
+git clone --recursive https://github.com/tensorflow/tensorflow.git
+cd C:\Users\%USERNAME%\Tools\tensorflow\tensorflow\contrib\cmake
+Edit CMakeLists.txt
+```
+Comment out these:
+```
+# if (tensorflow_OPTIMIZE_FOR_NATIVE_ARCH)
+#   include(CheckCXXCompilerFlag)
+#   CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
+#   if (COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
+#     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+#   endif()
+# endif()
+```
+Add these:
+```
+if (tensorflow_OPTIMIZE_FOR_NATIVE_ARCH)
+  include(CheckCXXCompilerFlag)
+  CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
+  if (COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+  else()
+    CHECK_CXX_COMPILER_FLAG("/arch:AVX2" COMPILER_OPT_ARCH_AVX_SUPPORTED)
+    if(COMPILER_OPT_ARCH_AVX_SUPPORTED)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2")
+    endif()
+  endif()
+endif()
+```
+mkdir build & cd build
+```
+"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat"
+
+cmake .. -A x64 -DCMAKE_BUILD_TYPE=Release ^
+-DSWIG_EXECUTABLE=N:/swigwin-3.0.12/swig.exe ^
+-DPYTHON_EXECUTABLE=N:/Anaconda3/python.exe ^
+-DPYTHON_LIBRARIES=N:/Anaconda3/libs/python36.lib ^
+-Dtensorflow_ENABLE_GPU=ON ^
+-DCUDNN_HOME="n:\cuDNN-6" ^
+-Dtensorflow_WIN_CPU_SIMD_OPTIONS=/arch:AVX2
+```
+-- Building for: Visual Studio 14 2015
+-- Selecting Windows SDK version 10.0.14393.0 to target Windows 10.0.16299.
+-- The C compiler identification is MSVC 19.0.24225.1
+-- The CXX compiler identification is MSVC 19.0.24225.1
+-- Check for working C compiler: C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/x86_amd64/cl.exe
+-- Check for working C compiler: C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/x86_amd64/cl.exe -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/x86_amd64/cl.exe
+-- Check for working CXX compiler: C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/x86_amd64/cl.exe -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test COMPILER_OPT_ARCH_NATIVE_SUPPORTED
+-- Performing Test COMPILER_OPT_ARCH_NATIVE_SUPPORTED - Failed
+-- Performing Test COMPILER_OPT_ARCH_AVX_SUPPORTED
+-- Performing Test COMPILER_OPT_ARCH_AVX_SUPPORTED - Success
+-- Performing Test COMPILER_OPT_WIN_CPU_SIMD_SUPPORTED
+-- Performing Test COMPILER_OPT_WIN_CPU_SIMD_SUPPORTED - Success
+-- Found CUDA: C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v8.0 (found suitable version "8.0", minimum required is "8.0")
+-- Found PythonInterp: C:/Users/%USERNAME%/Anaconda3/python.exe (found version "3.6.3")
+-- Found PythonLibs: C:/Users/%USERNAME%/Anaconda3/libs/python36.lib (found version "3.6.3")
+-- Found SWIG: C:/Users/%USERNAME%/Tools/swigwin-3.0.12/swig.exe (found version "3.0.12")
+-- Configuring done
+-- Generating done
+-- Build files have been written to: C:/Users/%USERNAME%/Tools/tensorflow/tensorflow/contrib/cmake/build
+```
+MSBuild /p:Configuration=Release tf_python_build_pip_package.vcxproj
+```@Tweakmind
+python 3.6, tensorflow last from master, cuda 9.0, cudnn 7.0.5 for cuda 9.0, basel and swig loaded today.@Tweakmind do you build with master or ?@Tweakmind 
+May you build on windows with cuda 9 cudnn 7 and share .whl?@Tweakmind
+
+Don't you try to build on win 10 with cuda 9 cudnn 7 ? 
+
+Thanks for your expertise !
+@hadaev8 @alc5978 
+pip install -U tf-nightly-gpu now gives a win10 build dated 20171221, which is based on TF 1.5 beta with CUDA 9.0 and CuDNN 7.0.5.  I ran it last night, it is ok.  Now we should move onto CUDA 9.1 for the 12x CUDA kernel launch speed.  Tensorflow windows support is pretty slow and anemic.  Stable official builds should be offered ASAP.  I am actually for Tensorflow 1.5 stable to be released with CUDA 9.1, by the end of January please?Go to http://www.python36.com/install-tensorflow141-gpu/ for step by step installation of tensorflow with cuda 9.1 and cudnn7.05 on ubuntu. And go to http://www.python36.com/install-tensorflow-gpu-windows for step by step installation of tensorflow with cuda 9.1 and cudnn 7.0.5 on Windows.It's 2018, almost end of January and installation of TF with CUDA9.1 and CuDNN7 on Windows 10 is still not done?[1.5 is RC](https://pypi.python.org/pypi/tensorflow) with CUDA 9 + cuDNN 7 and should go GA in the next few days.   (CUDA 9.1 was GA in December and requires another device driver upgrade that is disruptive to many users.  The current plan is to keep the default build on CUDA 9.0.x and keep upgrading to newer cuDNN versions).  
+
+I opened an [issue](https://github.com/tensorflow/tensorflow/issues/15140) to discuss CUDA 9.1.
+
+The 12x kernel launch speed improvement is more nuanced than the 12x number.  The top end of 12x is for `ops` with a lot of arguments and the disruption to users is high due to the device driver upgrade.  I hope to have a "channel" testing 9.1 in the near future and figure out how to deal with this paradigm.  I hope it will be finally CUDA 9.1, not 9.0.I hope it will be finally CUDA 9.1, not 9.0 too.I 'm sur it will be finally CUDA 9.1, not 9.0 too, isn't it ? :)@ViktorM @Magicfeng007 @alc5978 
+The 9.1 [thread  is here](https://github.com/tensorflow/tensorflow/issues/15140) if you want to follow along although it is basically closed.  If you could list why you want 9.1 that would be useful, and what is your setup/configuration.  A benchmark that you ran showing the perf boost would also be useful in understanding the immediate need.  In meetings with NVIDIA, we both agreed there was not an immediate need to make 9.1 the default. which would then force people to upgrade their drivers again.  If anybody are still facing problems like Keras with TensorFlow backend not using GPU.... just follow the instructions in this page. It is updated and works 100% correctly.
+https://research.wmz.ninja/articles/2017/01/configuring-gpu-accelerated-keras-in-windows-10.htmlHi All
+I today install tensorflow-gpu 1.6.0rc1 on win10  with CUDA 9.0 and cuDNN 7.0.5 library with http://www.python36.com/install-tensorflow-using-official-pip-pacakage/
+
+Everything seems ok 
+I created one script for NVIDIA GPU prerequisites (CUDA-9.0 and cuDNN-7.0) for the latest TensorFlow (v1.5+), [here is the link](https://gist.github.com/ashokpant/5c4e9481615f54af4025ab2085f85869).

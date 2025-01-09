@@ -1,0 +1,313 @@
+Because JavaScript is Awesome
+ thumbs up!
+ thumbs up 
+ thumbs up 
+ thumbs up 
+Just what I was searching for. thumbs up 
+
+As quoted from the offical website LINKLINK 
+
+
+
+I am new to this whole SWIG thing but searched around and found this. LINKLINK 
+
+Not really sure how this works. Do we need to write swig interface file specifically for Javascript or is it auto generated when running some commands or is somebody already working on this this would be awesome?
+ thumbs up thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up!
+
+Just starting out on one, but new to writing a nodejs addon. Checking out the swig interface files to see if they're going to be helpful, or if I should just use the c++ API.
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+This is something the core TensorFlow team is unlikely to tackle in the near future, so if you want to contribute it, please go ahead! I would recommend circulating a proposed implementation on the discuss mailing list early on, so that a consensus about where such API might live in repo off repo in 'contrib' directory can be reached ahead of time.
+Anyone up to write a NodeJS library? thumbs up 
+I think it would be better with a official NodeJS API however a community one will be as if not more interesting in my opinion. I know there are multiple ways of approaching this however I strongly recommend node gyp for performance. I will gladly contribute in any way I can, however, this is something I will not be able to do alone. Would be best if a few other people is interested as well, specially someone with C++ knowledge.
+ thumbs up 
+ Foorack I am willing to contribute it if some people are interested as well. Is it possible to move the discussion to a slack channel? see 31 
+ tngan The slack channel is private, however I was able to join with the herokuapp link. thumbs up 
+We hope more developers to discuss and contribute. Now we have a slack channel named as nodejs see 31, and a Github repository LINKLINK is reserved. Thanks Foorack!
+I am willing to contribute. Thanks for the initiative guys! 
+ miguelalche Glad to see you're interested! Please join the slack channel and someone will add you to the repository. 
+I look forward for contributing specially along with 132!
+ thumbs up 
+Hooray for node! Let's do this. 
+ thumbs up 
+ thumbs up 
+Here's a writeup on how to load and execute TensorFlow graphs using the C API: LINKLINK source code included 
+The proposal will be released in the next week. Keep tracking on LINKLINK.
+ thumbs up 
+I have published my starting point LINKLINK that will be published to npm later.
+
+ jimfleming like your approach we're both using ffi. I did it to get started quickly. Are you going to take on building higher level framework style APIs to replicate the python experience? Thats my next step.
+ nikhilk Thanks. Something like CODESCODES instead of CODESCODES might be a nice addition but I'm not planning on expanding it at the moment. I'm only interested in loading graphs created in python and I think I like the minimalism.
+ thumbs up 
+The proposal is released here with current progress.
+ LINKLINK 
+
+There is an open issue for the discussion.
+ LINKLINK 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+
+It'd be great to be able to easily run tensorflow networks in node. js based servers.
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+I am very willing to contribute. Foorack please add me to what ever you can! I have a real life use case for this so it will be great to develop and test it at the same time!
+ pushtheworldllc I'm glad you are interested. thumbs up 
+The repository and the proposal can be found here: LINKLINK 
+You can use this link to join our slack channel: LINKLINK 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up thumbs up 
+ thumbs up thumbs up 
+I have a working prototype using SWIG here: LINKLINK 
+
+The next steps would be to define the areas that the bindings would initially cover must be within the C++ API and start implementing the SWIG interface files for these.
+
+If anyone has experience with SWIG, I'd love to collaborate, as it seems like a huge amount of the python SWIG interfaces are custom overrides etc. and I'm keen not to reproduce their work. Additionally, would be great to get some clarity from the tensorflow team on what API's would be good to initially cover as I'm sure their roadmap has many changes on the way, and I wouldn't want to conflict. cc martinwicke? 
+ thumbs up 
+ thumbs up thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+please try use reactions button LINKLINK no more thumbs up comments xD
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ peterbraden sorry for the prolonged silence. We are building out the C++ API, and it will grow over time. I expect the most useful bits to be the parts that are needed to run an existing graph. The C++ graph building API is being redone right now, so it's not particularly useful to spend much time on it.
+
+I'd love it if you prepared a PR to put these bindings into contrib nodejs.
+ martinwicke thanks for the encouragement. I made an initial stab at it here: LINKLINK this is just a proof of concept that gets the version string into nodejs. I'll start work on adding the swig interfaces for the graph running stuff.
+ thumbs up 0000
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+This would be interesting for pure front end graph exportation for direct usage on web clients. Even if the desired inputs outputs asked from the graph would be hard coded in the exported JS sess. run equivalent function. 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+Found this while looking into wether or not bindings existed already. Going to learn some tensor flow via the current python API before researching more, but I have built nodejs bindings for C++ libs before and can tell you from experience that swig is the wrong way.
+
+If you simply use the swig bindings then you will have synchronous blocking code in an async environment. The swig bindings do not run things on IO threads, they execute on the main event loop from what I understand experienced.
+
+Once I have some basic tensor flow experience under my belt I'll likely be interested in building out proper bindings. So if anyone is serious about that and or wants more details on working with v8 modules, let me know.
+Is there any link related to node gyp binding for tensor flow API?
+ dmcmorris I am seriously interested in lending a hand! What resources do you recommend for working with v8 modules? We can assemble a team here and start diving into materials asap as this project is way overdue thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up 
+ thumbs up s
+Is there any update?
+
+On 31 Oct 2016 12:06 pm, willshion wrote:
+
+
+
+
+
+
+
+
+
+
+Happy Anniversary TensorFlow! 
+
+ LINKLINK 
+
+I notice TensorFlow is now accessible from Go, Rust and Haskell. Why ignore JavaScript? 
+
+Really waiting for a machine library in JavaScript. 
+ thumbs up 
+ thumbs up 💯 thumbs up  thumbs up  thumbs up.0000000000000000000000001 thumbs up  thumbs up  thumbs up  thumbs up I am looking forward to see a official Node. js API. But I think there are some problems. JavaScript have only 1 thread, trainning can block the whole process unless using callbacks or other tricks. lack of other science labs, like numpy JavaScript only support 53bit precision.
+
+anyway, JavaScript is awesome!Is anybody working on this?Looks very difficult. thumbs up very need it! stackOverMind. Did a little search on those bullet points. I've not tried any of these and they might not be efficient to use run but it looks like there are things that exist to potentially solve those issues.
+
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+ thumbs up  thumbs up  thumbs up pweeettyyy pwease! thumbs up  thumbs up Looking forward to it. thumbs up  thumbs up Looking forward to it. thumbs up  thumbs up  thumbs up  thumbs up. I have some experience in Node, and will take a look at this. thumbs up  thumbs up Can't wait, Python is great, Node and JS is great too thumbs up  thumbs up just for the sake of it  thumbs up! thumbs up  LINKLINK 
+ thumbs up thumbs up  thumbs up  thumbs up would be cool af thumbs up 3 thumbs up  thumbs up  thumbs up 00 thumbs up  thumbs up  thumbs up +2 thumbs up thumbs up mark thumbs up  thumbs up  thumbs up  thumbs up  thumbs up 
+ thumbs up  thumbs up  thumbs up  thumbs up  thumbs up 
+ thumbs up  thumbs up  thumbs up  thumbs up  thumbs up 
+Please! thumbs up 
+ thumbs up The OP's date was from 2015, its now 2017 and it's not really been picked up by anyone on the project. I think I might just be getting the hint that nothing will be happening regarding this issue. 
+
+Does anyone know if there has been any healthy discussion regarding tensorflow and node anywhere else as these thumbs up 's don't seem to be doing much thumbs down 
+
+ thumbs up  thumbs up  thumbs up  thumbs up  thumbs up  thumbs up it's been 2 years and still no luck? Good. Fuck Javascript. thumbs up.0 0.0 Use synaptic LINKLINK Inspired from LINKLINK, I am now trying another way in order to access the model with Node. js, through tensorflow serving. This is still in progress.
+
+ LINKLINK this could be useful LINKLINK  sarkistlt Unfortunately no, we are NOT talking of doing a javascript implementation of Tensorflow, which CODESCODES does, but we are talking having a nodejs wrapper around the C++ api of Tensorflow, so it requires understanding how to LINKLINK.
+Other useful LINKLINK.
+Unfortunately my day job is not coding and it requires proficiency in C++, which I personally don't have.
+
+By the way CODESCODES does only inference, no training, so no backpropagation.
+Google developers implemented a small portion of Tensorflow in Javascript in their LINKLINK, the neural network implementation is LINKLINK and does include LINKLINK.
+
+There is I started work on native nodejs Tensorflow implementation, would be great if anybody joins 
+ LINKLINK  thumbs up  thumbs up  thumbs up  thumbs up I'm so happy to hear you're giving this a shot JIoJIaJIu. The potential for impact in solving this issue is huge. It's our most upvoted issue.
+
+At cursory glance, so far you seem to be doing the right thing. You created this in a separate project and are using the TensorFlow C API, as martinwicke recommended earlier.
+
+A good way to attract contributors to your project would be by sharing a design doc with the LINKLINK, as Vincent LINKLINK a few years back. That way we can build consensus around your vision and help it be the best vision possible.
+
+The TensorFlow team wants the NodeJS community to benefit from TensorFlow. So we're absolutely interested in helping the individual devoted to making that happen be successful.If someone out there is listening, this seems to be the most requested feature for Tensorflow:
+
+ LINKLINK  thumbs up Hi all, I created the Node. js bridging library for Tensorflow at: LINKLINK without SWIG, it has supported predefined graph running and very simple graph construction, I'm also planing to support more client features in the future thumbs up 
+
+At the same time, I would very happy to make this be merged by Tensorflow official group, that would be a zero cost PR to me thumbs up  yorkie It looks interesting, I will try it out! However we cannot merge GPL code into TensorFlow. yorkie it looks awesome, would you like to join LINKLINK and join forces? ry sure I can change the license surely thumbs up 
+ JIoJIaJIu I dunno what's the best place to move this repo for now, if this repo is not suitable for moving tensorflow org, I think nodejs tensorflow is the good place thumbs up 
+
+ ry Updated the license to MIT and JIoJIaJIu joined the group, thanks for the invitation thumbs up  thumbs up  thumbs up  thumbs up  thumbs up  thumbs up JavaScript APIs for TensorFlow were LINKLINK earlier this month. See details on the LINKLINK homepage.
+I'll close this broad bug now. Feel free to open other more specific FRs. CODESCODES is for browser with webgl, not a sdk for node. jsFair enough. I see now that the bug title references Node. js directly. vincentvanhoucke it's not even about node. js in the title. Talking about deeplearn. js and Tensorflow API for Javascript is like talking about apples & pears. 
+
+First of all deeplearn. js is a library that only mirrors to some extent the style of TensorFlow API and operates purely in the browser and the other would be a direct API to whole Tensorflow goodness. Also, its not even remotely close to being called an alternative to Tensorflow. maybe for hobbyists but not for commercial use, where one would need clusters of machines to aim the computing process. I think of it as a demo what you can achieve with JavaScript and neural networks. a taste of things to come. ;  thumbs up +999Jesus christ, stop sending people useless notifications, there's a reason GitHub introduced thumbs up and 👎 reactions.
+
+ thumbs up and +999 just annoys people and adds no value whatsoever.  thumbs up 000 thumbs up  thumbs up  thumbs up  ATTENTION
+😄 Guys please before commenting thumbs up or +whatever Please take a look at k1sul1 's comment
+
+ shahen94 we all saw that but still. we are js dev. thumbs up  BruceHem not really sure how being a js dev correlates with blindly pushing unnecessary spam to the feed. 😄
+
+You all are aware that thumbs up just makes this topic unreadable? I understand that we all have the desire to support this case but can only deduct that on github's closest thing to vote functionality is implemented with reactions not with a count of comments in the thread. or am I missing something? ; P Lol: P this thread died years ago.
+ thumbs up Googolplex! thumbs up Agreed with thefill absolutely thumbs up just makes this topic unreadable, and actually we had community implementations then if anyone wants to use TensorFlow with Node. js or JavaScript, just have a try with the above one or two, I think this might be a good start than comment votes here.
+
+As for me, I was working on LINKLINK to make it enough functional like Python possible, and it still have such long time to go, but it basically has full implementation for official LINKLINK API. That means you could still use Python to build graph, but load models and run it within a Node. js runtime. Other languages except for Python also can do this currently.
+
+I was also asking for the help from ry to make my personal repository to be supported officially, there are few things we have to do like building some example models especially RNN cases, but unfortunately I'm got to work on other fields and have no time for these few months, if someone is interested in making this be happened, email to me, I'd love to guide you how to start. Let's the do something useful for community in best wishes thumbs up In regards to the current projects that have been started, and specifically the challenges of working with the C API, I have a suggestion on implementation that has worked well for me.
+
+Since python is still the most robust, developer friendly, and full featured wrapper around the Tensorflow API, rather than trying to re create the python API for js, why not create bindings directly TO the python API? This would still require first creating a node C++ add on, but rather than binding to the C API directly, you can employ embedded python to run python methods directly from C++.
+
+This is unlike other JS Python solutions out there that suggest simply spawning a python script. a solution not viable for any reasonable size learning problems because of the extensive data transfer cost time between the processes. With embedded python however, memory accessed by your python script numpy arrays directly point to your js Float32Array buffers.
+
+This solution is working very well for me though admittedly getting the initial js C++ python flow working was kind of a pain. Since I have specific needs, I have not gone through the task of binding to each individual python TensorFlow method, and instead just pass my data and hyper parameters to a few methods that build most of the graph. The full individual binding wouldnt be too bad from my current starting point.
+
+I welcome any thoughts or suggestions on the approach outlined above. Thanks. djimoh5 Awesome thoughts on JavaScript to Python full featured APIs! The other hand, we also could put an implementation of a RPC server for TensorFlow Python APIs with introspection feature, so that JavaScript and other language clients could access the real time Python. I will do this when I'm available, aha 
+
+But here is something about why re creating some Python features for JavaScript, because they are written in JavaScript, they are more friend to JavaScript developers, and it's easy for that developers to modify the source code to check if something different is possible, not just the get feeds from upstream thumbs up  thumbs up I'm also interested in nodejs tensorflow API to be able to use it in a node red flows that would chain tensorflows graphs and may be other kinds of data analysis nodes. I still don't know much about tensorflow. It may not be the right place to ask but I'd like to know why others developers look for a nodejs api add on for tensorflow? What would be your use cases? khelkun answer is rather simple: providing mature JavaScript package that allows easy interaction with Tensorflow opens myriad new possibilities. JavaScript operates on every mobile platform, all major desktop Operating systems & in all the browsers so possibilities are endless.
+
+Biggest benefits would come for sure from server side applications that operate on node. js that could directly interact with Tensorflow, but also node webkit desktop applications could potentially spawn dozens of interesting projects.Are the community organizers admin of this thread not able to simply delete the posts of the those people that intensionally trolling with all the thumbs up 's” maybe even ban them? LolHas anyone working on this integration considered using WebAssembly wasm? It is potentially the most elegant solution to this problem, side stepping all of the JS talking to Python talking to C++, you know. I really don't know much about the internals of TensorFlow, but I believe the C++ parts of TensorFlow could be compiled to wasm check the MVP features supported, but Unreal Engine 4 was compiled to wasm's predecessor and ran successfully in FireFox. Once the C C++ API is compiled to wasm, you just need to ensure the necessary API is exposed. wasm will run in Node. js, all major browsers, and even outside of any of those, since it is meant to be an extremely portable bytecode. This seems like the best path forward to me.
+
+Related resources discussion:
+ LINKLINK 
+ LINKLINK  thumbs up. we no longer live in the medieval portion of the information age. Please support node. js.Why would anyone need another Javascript library? Why would anybody use a JS library to train NNs? Javascropt is a bad desigbed language. AyalaSaenzJorge lol since you're trolling why dont I have at it. How about we LOVE badly designed languages? Javascript happens to be to most prevalent language currently in existance. more code on earth is written in javascript than ANY other high level language. And that's a FACT and it's never going away sorry lol 
+
+For those of you more serious than this troll Checkout the LINKLINK. It is influenced by tensorflow and backed by Google. Maybe rather than starting from scratch we may consider porting that to Node. js instead somombo yes, it looks really interesting. RE: tensorflow + deeplearnjs, see esp:
+
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+etc AyalaSaenzJorge this is a place for informative comments, not an opinionated firestarters.
+ somombo please see my comment from 26 Aug where I explain why deeplearnjs is irrelevant to this debate.
+Ok sorry for the comment.
+
+
+escribió:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ thumbs up  cpple Remember not to add thumbs up s, they cause noise and have been replaced by reactions. Try giving the first comment a thumbs upJust want to share an update revamped LINKLINK with plan to have that support using TensorFlow graphs and later, saved models for prediction inference in node. js. Thought I'd share since a number of folks have expressed interest on this issue.I've created a fork of headless gl that works with deeplearnjs which in turn works with tensorflow this allows models to be run natively on the GPU from node. js note that it's only been tested on OSX so far.
+
+You can find the install directions and a basic sample at LINKLINK 
+And, of course LINKLINK for more details.
+
+General directions to install on OSX:
+ CODELCODEL 
+And a quick sample to show how it's used together with deeplearnjs:
+ CODELCODEL  dfoody thank you for sharing this with the community but the statement which in turn works with tensorflow is incorrect. Deeplearn. js just provide quote from their website execution model mirroring the TensorFlow API that's all it has common with TF project, I'm afraid; 
+
+Also please see my comment from 26 Aug where I explain why deeplearnjs is irrelevant to this debate. 
+
+ nikhilk amazing, keep on going! I will keep an eye on your project for sure ; D
+ thumbs up  LINKLINK Looks interesting. I've not used it but its GPU enabled and runs in both the browser and on node 7ammer propelml. org looks rather promising. Thanks for sharing this with us ; Because NodeJS it's fast! ;DIf an ambitious member of the community wants the glory of solving this problem, and having it merged into the TensorFlow contrib codebase, here are some tips on how I would do it. Please note I'm not going to do this.
+
+You can add Node to LINKLINK just like TensorBoard did in LINKLINK. 
+Please note TensorFlow can not depend on LINKLINK.
+
+ CODELCODEL 
+
+Now let's say you want you have a Node program, for example LINKLINK, which you want to turn into something you can CODESCODES. One quick way you could do this in Bazel is by defining a macro in CODESCODES:
+
+ CODELCODEL 
+
+Now for the fun part. I would write a single. js file even if it had to be 30,000 lines long like LINKLINK with zero dependencies other than the Node standard library. The inputs for this program would be LINKLINK and all the other pbtxt files in LINKLINK. The output to this program would be exactly one gigantic C++ file that talks to LINKLINK and LINKLINK based on LINKLINK.
+
+ CODELCODEL 
+
+Then you CODESCODES and bam you've got your NodeJS project all bundled and ready for distribution to places like NPM.
+
+If I wrote this which I won't it would be a barebones direct mapping of the TensorFlow API definitions. Then I would encourage our friends in the community to veneer the library. There's a diversity of visions out there on friendly modern high level idiomatic JS and ML APIs, each catering to different use cases. However they could all share this binding in common.
+
+Please note there are examples of where we already generate language bindings. See LINKLINK and LINKLINK for inspiration.Looks like the TensorFlow team is making this a top priority now: LINKLINK We might want to move this discussion to here: LINKLINK 
+
+Progress on Node. js bindings to the C API will be tracked at that issue.As update to this issue we have open sourced the Node. js binding for TFJS: LINKLINK 
+
+We are working hard at getting a proper NPM build and will release it soon!I will close this issue. Please track tensorflow tfjs and tensorflow tfjs node for further updates.Related and possibly of interest: I managed to get TF running in the browser via Webassembly. See LINKLINK for a demo; I will be providing more details in the future. nuchi, so did you compile the necessary TensorFlow code from the C API to WebAssembly? Or are you using TensorFlow. js? lastmjs I explain in more detail in the link I provided. Short version: I added Webassembly as an XLA compilation target. I did not use Tensorflow. js in any way. nuchi Great work! and I know another WebAssemble research on TensorFlow at here:
+ LINKLINK Glad to see that there's official progress on this. I'd love to have fast, parallel GPU compute power at my fingertips with the ease and composability of JS.
+
+I started working on a LINKLINK a while ago, but a haven't had much free time to devote to it lately.
+
+The concept is similar to jart's suggested approach.
+
+I had three goals in mind for the project:
+
+ Don't require building or installing tensorflow
+
+Instead, it should LINKLINK the pre built, multi platform python binaries and download any needed source files on the fly.
+
+ Don't require a complete C++ or JS reproduction or abstraction of the API
+
+Instead, it should provide a complete 1 to thumbs down interface with the C API, LINKLINK as much as possible.
+
+ Don't maintain the C API LINKLINK LINKLINK LINKLINK 
+
+Instead, it should LINKLINK to map the core data structures between Tensorflow stdc++ V8 node and the rest will follow.
+
+ 
+
+I got pretty far along with this, but last I remember a was having issues with TF Session related segfaults.
+
+Right now it's just collecting dust, so if someone wants to jump in and help with this I'd gladly accept PRs.Closing as this is resolved

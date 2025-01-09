@@ -1,0 +1,524 @@
+ Feature request, requesting an android application for Deeplab tag: feature template 
+
+
+ System information 
+ TensorFlow version you are using: Tensorflow 1.12 
+ Model Information: Deeplab V3 MobilenetV2
+ Are you willing to contribute it Yes No: No
+ Android API Version: API 24 Android Nougat 
+
+
+
+ Feature Current Behavior 
+There is no mobile application to test out the working of Deeplab tflite model in Android or IOS. This seems as a direct need for developers and it will be helpful for knowing the parsing mechanism for tflite where we get semantic predictions as an output, as there is an unclear way of parsing the specific data type in android and ios prediction? as it involves pixel data.
+
+ Current API: Need of change 
+We are in need of new API model to help in with parsing the model input. Could be released as a subsequent fix. 
+
+ Beneficiaries 
+People who are developing camera applications can directly benefit from this as it involves playing with segmentation on android devices.
+
+ Other information. 
+We are trying building the application tweaking with available applications. We are currently facing up some issues. Hereby with, we are attaching the issue links.
+
+ LINKLINK 
+
+ LINKLINK + jdduke 
+
+ SanthoshRajendiran: We have demo apps: 
+One example:
+ LINKLINK 
+The 2 issues that you reference seem to be due to model conversion.
+Can you attach your TF lite model with this issueI believe suharshs has looked into Deeplab support with TensorFlow Lite.Thanks for the prompt response shashishekhar jdduke. I have gone through the app link you have provided. That is specific for Image Classification, I think it cannot be directly used for image segmentation. 
+
+With response to your query, I am attaching here both the frozen graph From the official repo both 8MB and 3MB and the tflite we created from the 8MB model. We have not been able to convert the 3MB Model. Will be helpful if you could support us with the conversion command for 3MB model.
+
+The command for conversion to tflite, is given in the stackoverflow link provided above
+
+ LINKLINK 
+Hello guys. Waiting for your reply. Any improvements as of now. Do you need any help from our side?I have the same issue with you on model convert. for the real time segmentation you can ref to LINKLINK, seems that project has successfully converted the model to tflite. but the accuracy is not that good.Hi kismeter. Ya. I happened to see the code in Jejunet, but could not find it useful with relevance to the provided deeplab model. It seems that the model is tweaked in various stages to make it run on the device. Anyway, in Jejunet, only tflite is available, no references to Deeplab or pb file. I am in need of converting pb file to tflite and deploying it on the device.I am also facing the same issue. Specifically I'm trying to convert
+
+ LINKLINK 
+
+into a tflite file. Optimally also quantization but before that I already ran onto this problem
+
+using this:
+ CODELCODEL 
+
+I get 
+
+ CODESCODES 
+
+any help would be highly appreciated.
+
+Hi normandra 
+We are going through the same process. Actually, we have been able to overcome the same issue you are facing, by providing the parameters: inference input type and inference type. For the conversion command, do check out the stack overflow link mentioned above. Actually, we are facing some other issue in tflite conversion as discussed above and are currently waiting for suharshs to reply back. 
+
+In your case, if you have not explicitly mentioned the inference type parameter. by default it will take the input type as inference input type. By default, FLOAT becomes the inference type You can set it to QUANTIZED UINT8 also. Actually, updates in tflite conversion. forces on usage of Quantized UINT8 and Float data types. tensorflowbutler suharshs Any updates on the feature request?watching this. Thanks for the info SanthoshRajendiran. I already tried specifying the input inference type and I seem to be getting either the same error or the Nonetype error. 
+
+EDIT: Okay now I'm facing the exact same problem you are ByteBuffer is not a valid flatbuffer model.
+I guess we can only wait now.Hi sorry for the delay, thanksgiving holidays and such. We will take a look into reproducing your issue. Thanks! sandeepngupta normandra 
+Hi I found it is easy to solve the problem. In my case tf. image. ResizeMethod. NEAREST NEIGHBOR and the slice operator are not supported, therefore when exporting the model with export model. py, I do not include the two operators. Below is how I modify the code to export proper '. pb'.
+ CODELCODEL 
+
+The operators not supported can be implemented in your Java or Python code.Thanks for sharing melody rain,
+
+do you mind on elaborating how to implement the unsupported ops in java python? I'm hit with a segenv in my android wrapper so I'm not sure what to do there. Testing in python for some weird reason regardless of what my input tensor is set to i get the same output.
+
+ LINKLINK 
+
+
+EDIT: I guess not exactly the same everytime but very similiar normandra 
+slice op is used to crop the image, so you can use python's slice. 
+resize can also be replace with opencv's resize. Okay but at what point would I implement those? My output from the model currently is a 513x513 tensor pictured above.Seems like there are number of subproblems in this issue. I'm trying to convert the 3MB mobilenetv2 dm05 coco voc trainval model and see what may be missingFor the 3MB model, I found the cause of the TOCO error. I'm working with internal engineers to figure out what the proper fix is.I am also running into issues with converting the frozen graphs, although they're a bit different depending on which graph i try to convert to tensorflow lite. When converting the graph found from LINKLINK via TOCO with the command:
+ CODELCODEL 
+I get no issues in the conversion. But when i try and implement it in my app on Android I get the CODESCODES error.
+
+However when i try to retrain the model on my local machine with CODESCODES using the CODESCODES script in the tensorflow models repo for Deeplab i get the following error when trying to convert the exported graph with the same CODESCODES command: 
+ CODELCODEL 
+
+This is the same error i get when i try to run the CODESCODES command on the frozen graph from LINKLINK. 
+
+Also just a side note: I tried running the CODESCODES command on the frozen graph from LINKLINK just to see what would happen, and the conversion seemed to work. But i got to the same error point when actually running inference in the app with the model with nearly the same error message CODESCODES Just a difference of CODESCODES vs CODESCODES in the mobilenetsv2 model.
+
+I'm relatively new to TensorFlow ML so forgive me for any extraneous info or misuse of terminology. I'm just trying to start out with trying to implement the Deeplabv3+ model on Android with a pretrained model for now. Not sure if there is a workaround? I looked at LINKLINK implementation of the Deeplab model on Android, but it appears to use the soon to be deprecated version Tensorflow Mobile API as opposed to Tensorflow Lite. I also am unsure as to whether a model that is trained with the current version of Tensorflow would work with this demo app I'll soon try since this codebase is from May not sure which version was used to generate the graph that was used in the demo.So I did follow melody rain's advice and added their code into CODESCODES and ran the CODESCODES command on the frozen graph. Had to make some other adjustments to my java code and got the model to successfully run in my android app without crashing raising errors. The resulting graph for the tflite conversion appears to produce something. i'm just not sure what.
+
+here is an inference result from the frozen graph without the lite conversion, which i ran via python on my Macbook Pro:
+ LINKLINK 
+
+and here is the same inference result from the graph with the conversion, which i ran through my android app on a Samsung Galaxy Tab A:
+ LINKLINK 
+
+Its an improvement from not working at all, however i'm not sure what exactly the results from the lite conversion means. The results from the non converted model are pretty decent. Not sure if my conversion from the output results in the java code is working incorrectly or if it is just an issue with the conversion.  SirNeuman: Just to confirm, have you tried without enabling quantization during conversion for example, using the float path?Sorry. I was actually messing up my input image when i resized it for running through the inference on mobile. It actually works quite well now. This is a different input image running for inference, but you can see that the results actually make a bit more sense and is close to what i'm trying to achieve:
+ LINKLINK 
+
+
+I still need to implement the java code for scaling the output image. 
+
+ jdduke: I assume you mean changing CODESCODES to CODESCODES in my conversion command? I just went ahead and tried it to see what the results would be like. I had to change the CODESCODES when exporting the model from type CODESCODES to CODESCODES to get the conversion to run. I then also had to update my convertBitmapToByteBuffer method when running the image through the model in the app. I ended up getting it to run without errors and ended up with pretty similar results not sure if it's more accurate but it definitely runs inference faster? Just to note this produces an 8.5mb lite graph as opposed to a 2.2mb lite graph that my original conversion produced:
+ LINKLINK 
+
+Here's with the unconverted non lite model for reference:
+ LINKLINK 
+
+Also the time for inference with the original uint8 type was 10335 ms, while the time for inference with the float type was 4455ms on my Galaxy Samsung Tab Which does seem strange to me that the quantized version performs worse, but once again I'm relatively new to this so perhaps i'm either doing something wrong or i'm misunderstanding the changes i'm making.
+
+
+Hello alanchiao, we are keen to know the response from your internal engineers team for the TOCO error. How long do you think you need to provide a solution to successfully convert 3MB pb model into tflite? Thanks for your continued support.
+
+
+
+
+
+
+
+
+
+
+
+
+ SirNeuman Did you include any custom implementations for Slice and Resize operators which were excluded in export model. py file?
+Can we please know the Samsung Tab A device specifications, as we are equally surprised to know the long inference times? Srinivas Introtuce: since the day I provided the last response, I've been trying to verify the below analysis and fix with a SWE from another team and unfortunately they haven't gotten back. Provided it is correct, it would expect it to take at most two days after, including a day to a day and a half for code review. 
+
+If you're not familiar with or interested in TOCO internals, please ignore the following:
+
+
+
+propagate fixed sizes is a graph transformation that takes the shapes of the model input tensors and propagates them throughout the graph to compute the shapes of each op's input and output tensors. 
+
+
+
+Typically, for argmax, the output shape would be, but I'm guessing that the 1 was appended to the end of the output shape since TOCO's in memory representation works with 4D tensors. The fix would to be to modify the Slice operator's in memory representation to match the Argmax behavior.
+
+Hi alanchiao Thank you very much for the response. Yes myself and my team got fair understanding of the error based on your detailed description. We are looking forward to receive the respective fix and waiting to successfully convert 3mb pb file into tflite. Again, thank you for the continued support. Srinivas Introtuce yeah. i just cropped and resized the image before after running the image through the graph in our android application code. 
+
+My GalaxyTab A specs are:
+Model Sm T580
+1.6GHz Octa Core Processor
+2GB RAM
+Android 8.1
+Finally after fiddling around I was able to make my implementation work as well.
+
+Interestingly enough my result is also similar to SirNeuman 's where the float model performed faster than the quantized one.
+
+On a HTC U11 Snapdragon 835 
+ LINKLINK 
+
+with the input size set to 300x300 I was able to reach:
+ 470ms on the float model 8.5 mb 
+ 830ms on the Quantized model 2.2 mb If you don't mind sharing your converted. tflite model either here or sending to me directly, we'd be happy to dive into performance issues.
+
+Otherwise, it might be helpful if you could profile the model per LINKLINK under the Profiling model operators section. Thanks! normandra, Srinivas Introtuce: to make sure, when you say quantized model, you are referring to models generated using the post training quantize flag right? 
+
+For performance, are you measuring with single threaded performance? It makes a difference between with post training quantize, we currently don't support multithreading whereas we do for the float model. This is because in practice on a user's phone with various other applications running, multithreading is often slower than single threaded performance due to the contention.Yes, I will upload my converted tflite tomorrow
+
+
+
+ normandra, Srinivas Introtuce: to make sure, when you say quantized model, you are referring to models generated using the post training quantize flag right?
+
+ 
+You are receiving this because you were mentioned.
+Reply to this email directly, view it on GitHub, or mute the thread.
+
+So here are the two models:
+
+ LINKLINK 
+
+So I used the tip from melody rain to remove the unsupported ops and to convert the models.
+
+To convert the model I used:
+
+ tflite convert output file 300 quantized. tflite graph def file 300. pb input arrays ImageTensor output arrays SemanticPredictions input shapes 1,300,300,3 inference input type QUANTIZED UINT8 inference type FLOAT mean values 128 std dev values 128 post training quantize
+ 
+
+and for the other without the post training quantize flagHi normandra,
+
+
+
+ So far the best performance that we found in terms of speed, is around 150 ms using LINKLINK with input size of 256 256 and and INT64 output  anilsathyan7 I used 4 Threads. NNAPI doesn't seem to make any difference whatsoever on this device. To test the runtime I have made an app similiar to the one used in Jejunet which again is similiar to the one from the tflite tfmobile demo provided by the tensorflow team.
+
+Something to note about Jejunet is that its a modified version of deeplab. Some layers are missing there Batchnormalization for example presumably to boost the speed. It also seem that the model was trained from scratch.  alanchiao I did test the quantized model on a single threaded run, and the quantized model did not perform better there.Hello alanchiao. Any updates on the feature request? And thanks normandra for the information. melody rain 
+I followed your code and modified the export model. py file accordingly
+
+but got an error
+ CODELCODEL  SirNeuman 
+Can you please post the tflite convert command which you used to convert the model? melody rain 
+if i use python 3.8 i get the following error
+ CODELCODEL 
+
+ SirNeuman 
+can you please post the export model. py file?
+
+ Update 
+It was my fault, figured it out. Jayanth L 
+
+Change
+ CODELCODEL 
+to:
+ CODELCODEL  SanthoshRajendiran: starting to code the fix now. Apologize for the delayHi guys, you guys might need to see this post.
+ LINKLINK 
+
+One guy release tf lite model of segmentationI took a look at it. Aside from the final Reshape layer that model is pretty much identical with the one from JeJunet. So I guess to speed up the model we probably have to remove the BatchToSpaceNd + Mul + Add blocks in the feature extraction part. Some advice to do so would be great. Srinivas Introtuce SanthoshRajendiran: after LINKLINK, you'll be able to convert the 3MB Deeplab TF graphdef to a TFLite model. I unfortunately don't have the cycles right now to hook everything up into the demo app.We tried the official tensorflow experimental gpu backend for inference on andorid by following the following links:  LINKLINK  LINKLINK 
+
+The speed up for mobilenet v1 and mobilenet v2 was around '2x' when compared to float model
+on OnePlus3 Snapdrahon 820, Adreno 530. Here are the benchmarks for mobilenet v2: 
+
+Quantized CPU: 80 ms
+Float CPU: 80ms
+Float GPU:40ms
+
+However when we tried the given deeplab segmentation model, the time taken for a frame was around
+500ms in CPU float and 400ms in GPU on this device. This is still less than jejunet quantized inference 150ms.
+
+We hope these are some other techniques for improving the performance
+1. Training using a single class. application specific 
+2. Converting output from 1 256 256 21 to 1 65536 jejunet style 
+3. Removing some layers or operators as per previous comments 
+
+Our target is 30 FPS on android. Are there any other ways the improve the performance?
+
+ anilsathyan7 Did you implement android code with deeplabv3 257 mv gpu. tflite? I did try but time taken 900ms.
+
+I had a problem to inference. Can you see my code and give me comment? 
+
+Please reference below.
+
+ LINKLINK 
+
+thanks.Added iOS example, waiting for LINKLINK. 
+
+ LINKLINK 
+
+ LINKLINK 
+
+
+
+
+
+
+How did you resolve this issue SirNeuman? I am having the same problem trying to inference Deeplab v3+ ResNet 101 variant in tflite format. Conversion is succesful with no errors and the model works fine before conversion. I tried to adjust the export model file according to melody rain's tips, but it did not fix the problem.Could someone provide the command to convert deeplab pb file into a fully quantized tflite, along with some insights on the mean, std dev values and min max ranges.for quantized runtime I believe you also need to do quantization aware training, see LINKLINK 
+
+
+ SanthoshRajendiran. Can you attach here a link wget https: to small frozen inference graph. pb file whose size is 3mb I am having hard time locating it on tensorflows official websitecould tflite use gpu of phone?
+
+
+
+
+
+ LINKLINK 
+
+These models are available in LINKLINK 
+
+Yes. It can use the Phone GPU, using TFLite GPU Delegate. Make sure that the operators in your TFLite model are supported by TFLite GPU delegate. SanthoshRajendiran can the checkpoints derived from this 3mb model directory be used to custom train your own data set?
+
+
+
+I used similar approach and used checkpoints from the 8mb model directory to train my own dataset without any trouble
+
+The command I use in both the cases is this:
+
+ CODELCODEL 
+
+However for 3mb model I get an error:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Any suggestion on how do I resolve thisYou need to include one more parameter, in command you use for training 3MB model. Depth multiplier is used in this case. And so, you have to include an additional parameter. 
+
+ depth multiplier 0.5
+
+thank you that worked
+ SanthoshRajendiran did you have any luck running tflite model on android. I converted the frozen inference graph to tflite graph using 
+
+
+
+
+
+
+
+
+
+
+
+
+When I ran it on android I get:
+
+ CODESCODES 
+
+Any idea whats happening here, and how to resolve it? ajinkya933 would you mind sharing the. tflite model you've converted? And or the saved model you used for conversion? jdduke saved model used for conversion is available LINKLINK. tflite model that I have converted is available LINKLINK. Please let me know if you cannot access the links. Training set Images width 600, height 450
+Thanks for the repro steps, we're investigating internally. jdduke thanks, this may add a more clear picture. Please take a look at image below:
+
+ LINKLINK 
+
+The graph on left is my LINKLINK. and the graph on right is googles LINKLINK.
+
+How is googles tflight graph created from. pb file? how can I replicate this process so that my graph on left looks like googles graph on the right? My assumption is that if I create graph same as google it may give me semantic predictions on my custom trained objects properly. This assumption my be incorrect.
+Google's tflite graph does not have post processing as well as pre processing. In case if you want to replicate the same, strip your frozen graph from sub 7 to ResizeBilinear 2, and then do the tflite conversion. SanthoshRajendiran I researched, there isn't a clean way to remove nodes from a graph, so removing a subgraph isn't practicalHope you would have gone through graph transformations, there you can do all the required stuff to meet your needs.  VolodymyrPavliukevych 
+sir, if you don't mind I want to ask you about your app, using tflite deeplab model on ios application, is there any blog should I follow?Hi, I meet the same problems like this when I'm trying to convert frozen graph to tfLite:
+
+ Traceback most recent call last:
+ File tfdm. py, line 12, in 
+
+ File home zhoukeyang anaconda3 envs tf2 lib python2.7 site packages tensorflow contrib lite python lite. py, line 453, in convert
+ converter kwargs 
+ File home zhoukeyang anaconda3 envs tf2 lib python2.7 site packages tensorflow contrib lite python convert. py, line 342, in toco convert impl
+
+ File home zhoukeyang anaconda3 envs tf2 lib python2.7 site packages tensorflow contrib lite python convert. py, line 135, in toco convert protos
+ stdout, stderr 
+RuntimeError: TOCO failed see console for info.
+2019 06 24 19:49:16.463291: I tensorflow contrib lite toco graph transformations graph transformations. cc:39 Before Removing unused ops: 852 operators, 1282 arrays 0 quantized 
+2019 06 24 19:49:16.486382: I tensorflow contrib lite toco graph transformations graph transformations. cc:39 After Removing unused ops pass 1: 842 operators, 1263 arrays 0 quantized 
+2019 06 24 19:49:16.513770: I tensorflow contrib lite toco graph transformations graph transformations. cc:39 Before general graph transformations: 842 operators, 1263 arrays 0 quantized 
+2019 06 24 19:49:16.537679: I tensorflow contrib lite toco graph transformations graph transformations. cc:39 After general graph transformations pass 1: 102 operators, 256 arrays 0 quantized 
+2019 06 24 19:49:16.539015: I tensorflow contrib lite toco graph transformations graph transformations. cc:39 After general graph transformations pass 2: 102 operators, 256 arrays 0 quantized 
+
+Aborted core dumped 
+
+Could you please give me some advice about fixing it? Thanks a lot. SirNeuman 
+
+
+
+
+
+
+
+
+
+
+ std dev values 128
+
+
+
+I want to make sure if is it work for you on android with 513 as a crop size?
+because when i export and convert to tflite with 257 it works fine for me but when I changed to 513 or higher value it doesn't predict anything 
+knowing that i need to use 3041 as crop size
+did you now what i suppose to do?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ essalahsouad Does your model works fine? Could you please share your model and provide your way of converting to tflite? alexkartsev 
+no, unfortunately my model does not predict correctly 
+i used the model for an ios application TensorFlow Lite GPU delegate
+and i still have a bad segmentation mobile
+ my tflite conversion is:
+ CODESCODES 
+ ajinkya933 
+
+
+
+
+i have the same problem as you, i even don t know if this is a problem my model contains sub 2 instead f sub 7 and ResizeBilinear 2 instead of ResizeBilinear 
+i tried to use the converted tflite model on ios with tflite gpu delegate but i got a slow resualt compared to the original deeplab model 
+ CODESCODES 
+did you have any idea?
+ SanthoshRajendiran 
+
+
+i don't get it what do you mean by that?
+my trained model contains sub 2 instead of sub 7 and resizeBilinear 2 instead of resizeBilinear 3
+and i converted to tflite for integrated it on mobile but the result was slow comparing to the original TensorFlow model
+i don't know if the problem was because of my model architecture? melody rain 
+Could you please share how to properly run export model. py. I'm trying to avoid the issue with tf. image. ResizeMethod. NEAREST NEIGHBOR.
+Also I'm trying to export it with checkpoint trained on ade20k dataset.
+Here the command I use to get. pb file
+ CODELCODEL 
+Here the command I use to convert it to. tflite
+ CODELCODEL 
+I'm getting the following error when I run on ios device:
+ CODELCODEL 
+What I'm doing wrong here?Finally, I converted the model using the following command:
+ CODELCODEL 
+ExpandDims 1 as output arrays also works quite good
+
+ SanthoshRajendiran 
+Hi SanthoshRajendiran. Thans so much! 
+Following your suggestion above, I have solved this problem: tensorflow lite kernels depthwise conv. cc:99 params depth multiplier SizeOfDimension input, 3! SizeOfDimension filter, 3 0! 32 Node number 30 DEPTHWISE CONV 2D failed to prepare.
+hope to help more people!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I've found a great example for iOS application with using semantic segmentation, you can try it
+ LINKLINK  fly butterfly thanks for the reply
+I've already resolved my issue, but this app looks promising. did you get a pretty result from makeml app?
+
+
+yes, I've used it and got the tflite model.
+there are not a lot of custom settings, but you can create the model without code at all. btw you can markup images there  fly butterfly 
+sorry for my question but I want to know if is it for free?
+
+
+labeling images yes
+training one month ago was subscription about 10 for unlimited trainings on their GPUs, but I had promo code for 5, can try to find it if you want
+
+ SanthoshRajendiran Thank you! It worked perfectly for me.
+Just in case anyone else is interested, I had code that worked with the model from the ios samples: CODESCODES and I wanted to have a model to run on a higher resolution image.
+I downloaded the model CODESCODES from Deeplab model zoo, and converted it to tflite using:
+ CODELCODEL 
+Then the same code that worked for CODESCODES worked on the converted model, just with input image of 513x513 instead 257x257
+
+
+
+
+
+
+
+
+
+
+
+Thanks so much. Simply stripping unsupported nodes away when doing TF Lite conversion really helps. Your solution is so simple that it makes me angry at myself, really. I wasted days trying to modify export model. py, load graph def up, exporting to TF Lite, tweak things here and there only to end up running into a new problem after fixing another one.Buenas he intentado entrenar mi propio modelo y lo he convertido a TFLITE pero todas mis pruebas Dan error, alguien podría ayudarme con mi aplicación quiero poder entrenar y compilar mi modelo Deeplab en TFLITE con éxito If anyone is trying to convert a frozen. pb model into tflite, LINKLINK repo have some frozen model model along with converted tflite models LINKLINK Is this helpful? SanthoshRajendiran the increasing the resolution to 513x513 work for me. Any idea how to make it work for 1025x1025?
+when I have change the command 513 to 1025 it's giving below error
+ CODESCODES 
+
+
+
+
+
+
+
+
+
+ ValYouW Dr Champ would you mind sharing you converted tflite model with 513x513 input?
+Thank you! josefgrunig I uploaded one to LINKLINK repo which also includes a working sample in c++. 
+
+Thank you ValYouW, 
+when using your tflite model on the mobile example I see it is missing the 4th dimension in the output:
+
+ CODESCODES 
+
+Can I ask from which frozen graph you created this model from? 
+
+Meanwhile, I managed to get tflite convert working too and successfully converted this graph LINKLINK into a 513x513 tflite model with metadata I use TensorFlow Lite Task Library 
+
+I am trying to obtain the same quality of the deprecated TensorFlow Mobile not Lite model: some how the lite version lost accuracy for a faster computation time, GPU compatibility which is not my priority here. Here is the comparison of the two models: LINKLINK 
+
+Thank you
+ josefgrunig It depends what you choose as your last layer OutputArrays when converting, if you choose CODESCODES then the output layer will be 4 dimensions, where the 4th dimension is 21 values which is the score per class, and you will have to select the class with the highest probability yourself. If you choose CODESCODES as the output layer, then the output is 3 dimensions where the 3rd dimension is the class with highest probability which is what I used in the my project mentioned above.
+
+As for quality, I did a quick test using cpu and was able to get similar results to TF MOBILE I dilate and blur the mask a bit:
+ LINKLINK 
+
+NOTE: The model you are using is CODESCODES depth multiplier 0.5 which is less accurate but smaller and probably faster, the model I have in my repo is with depth multiplier 1 Seems promising ValYouW, will go through the full conversion process again starting from a frozen graph with dm 1. 
+Unfortunately cannot find the. pb file you started from in your repo. Can you point me at the right path?
+Is there a better dataset than another for recognising portrait figures from the background?
+Thank you for your support, I still have a lot to learn. josefgrunig I believe I took it here from LINKLINK, it is the CODESCODES model.
+I once wrote a LINKLINK on the conversion process which uses TF 1. x.
+
+If you find something better for portraits would appreciate if you can share.
+
+
+
+
+Thank you ValYouW for pointing me in the right direction!
+Starting from mobilenetv2 coco voc trainval dataset and converting into a tflite model I am getting good results. Also the resulting segmentation masks is no more binary, but somehow smoothed on the edges. Is is due to the depth multiplier?
+Thank you again, its the best result I have seen so far on mobile. josefgrunig As far as I understand the model output is not a mask per se, but just a matrix with the detected classId per pixel i. e whether it belongs to a dog horse person etc. It is up to you to create an image mask from it. ValYouW I understood the reason for the blurred mask image: its the small output size of the mask image. Converting the mobilenetv2 coco voc trainval model I get an output mask of 65 65 pixels only, while my target is to reach 513x513. The mobilenetv2 dm05 coco voc trainval model has an output shape of 513x513 but a lower depth multiplier. Are you sure your model comes from the mobilenetv2 coco voc trainval frozen graph? Looking at your blog post seems you used mobilenetv2 dm05 coco voc trainval. Thank youIt was long time ago but I'm quite positive. you can find the converted model in LINKLINK repo file: deeplabv3 mnv2 pascal. tflite 
+
+When you inspect your converted model in Netron, what do you see as output size?
+This is what I get in Netron:
+ LINKLINK 
+I confirm that your model is 513x513, but as last node it uses ArgMax while I need a 4 dimensional output ResizeBilinear 2.
+For this reason I started from the frozen graph and converted the model to tflite, but I get a 65x65 output
+ 
+
+Your model seems also to be working on 65x65 and being scaled before output to 513x513:
+ 
+
+Its it possible to change the output size while converting the frozen graph? if both graph work on 65x65 would it give an effective quality improvement? 
+
+Thank you for your time ValYouW 
+I'm really not familiar with the model architecture. You can use ResizeBilinear 3 as output which has 4 dimensions 1x513x513x21 but I really don't know if it will improve quality, but it still has nothing todo with the blur. The model doesn't output an image, but just numbers, it's up to you to build the mask image. So using ResizeBilinear 3 as your output layer you'll be able to build a binary mask no blur of size 513X513
+ BTW, not sure this discussion is related to this thread, please feel free to contact me via email.

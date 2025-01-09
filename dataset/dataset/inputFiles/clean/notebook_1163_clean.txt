@@ -1,0 +1,138 @@
+As far as I see it is not possible to copy paste cells between different notebooks.
+
+This can be a very time saving feature for someone who needs to edit multiple notebooks at the same time for example creating new notebooks from existing ones. 
+
+As an example, I am using Jupyter as a lecturer. When I restructure course materials notebooks, I have to recreate cells for the new notebook s even if those cells are already in my existing notebooks.
+I've a couple of hacks for generating or updating bits of one notebook using another:
+ LINKLINK 
+ LINKLINK.
+
+They're both a bit crude, particularly the canned feedback includer. But they're something to talk around.
+In master, it is now possible to copy and paste cells between notebooks in Chrome and Firefox.
+ takluyver is this feature in the latest release?
+I don't think so, unfortunately. I've marked this issue for 4.3 in the hope that someone will have a look at it, but I don't know what the plans are for releasing the next versions.
+This works for me on master chrome os x, so I'm going to close this. 
+
+We have someone working on pushing notebook 4.3 out, so I hope to have the release in a month ish. 
+
+Closing as this will be in 4.
+Can someone tell how to copy cell from one notebook to another?
+I couldn't do that. 
+
+Ah, nevermind. I have 4.0 version installed, and you say this will be in 4.3
+does not seem to work for the development version from github!
+Have you definitely got the development version installed, including rebuilding the js which requires npm? Have you cleared your browser cache? What browser are you using? Do you see anything on the page or in the JS console when you try to copy and paste?
+
+Note that both the to and from notebooks need to be running with the development version for copying and pasting between them to work.
+Does not work for me in 4.3 on firefox. Nothing on Ctrl+C in JS console.Doesn't seem to be working in 4.3 on Chrome on MacOS.I don't think the clipboard code is in 4. We're hoping to do 5.0 before
+too long. 
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+It's not working on master either.It works on master here, although I noticed an issue where it doesn't work if the first cell you copy is empty.
+
+You may be getting cached Javascript. There are various ways round this; one I like is to run the notebook server on a different port from normal for example CODESCODES.Hmm, tried that but still no good apparently.Anything in the JS console when it fails? What browser are you using?Chrome 55.2883.95 on MacOS 10.12
+
+No JS error when it fails; the only JS error in the console is the following not sure if related:
+ CODELCODEL Probably not related, but maybe some extension is interfering somehow. It's working for me on Firefox and Chromium.Not working on Firefox either unfortunately and with no error messages in the JS as far as I can tell. I'm not sure how to debug this.Is it possible you're trying the wrong thing to test it? You need to be in command mode and then use Ctrl C Ctrl V to copy and paste or Cmd on a Mac, I guess.Thanks for checking, but that is what I'm trying, yes.Ah, no, I was indeed checking the wrong thing. I was doing CODESCODES, as I would in a single notebook. ApologiesIt's really neat with CODESCODES!: Thanks!
+
+It has to be the native copy paste shortcuts for this, because that's the only way the browser gives us access to the system clipboard.I see. I assumed there was some notebook internal state or whatever. I don't see that this is documented in the keyboard shortcuts though?I think the shortcuts help thing is generated from our own shortcuts registry. We don't register these shortcuts, because we have to let the browser catch them and turn them into clipboard events. Maybe there's some way we can put them in the shortcuts dialog without actually registering them.
+
+ Carreau, that seems like something you'd know about?Not working for me with notebook 4.1. This would be a really useful and basic feature for collaborative work I'm surprised it is not there yet.
+
+That's some things I have thought about. We should first auto register display all of codemirror shortcuts, but I haven't had the time to work on it. 
+
+I would also really like the menu layout to be declarative to send some of that to native menu, but again, no time to work on it, and anyway we'll have to re discuss that with the people building JupyterLab.
+
+
+
+
+There only so much we can do with all the project we maintain and the number of dev we have.
+There are also limitation of browsers that don't always give you the choice. 
+
+Help is always appreciated.
+
+
+
+This feature is currently marked for 5.0 see the milestone on the right, so we don't expect it to work in any 4. x release.Hello, 
+I also cannot copy paste cells from different notebooks. Here is my pip list grep jupyter:
+ CODELCODEL 
+I'm working on Chrome and the machine OS is a CentOS 
+The copy paste is not working either with CTRL+C CTRL V or with the copy paste cells from the edit menu.
+
+Any help is kindly appreciated. Thanks!
+
+
+
+The relevant package is just called CODESCODES.Thanks for the heads up. The notebook package is version 4.1 and it's the latest.
+Is it supposed to work?No, sorry, the feature is currently slated for 5. We'll try to get that out before too long.So takluyver, as you wrote before, is it still for firefox chrome?
+
+Is it normal that it doesn't work in safari? I got this error in the console:
+
+ CODELCODEL 
+
+
+ I am on CODESCODES It still appears to be working for me on Firefox. I've no idea about Safari; I don't use a Mac, so I can't test that.
+
+The preact thing is a bit concerning, but I don't think it's related to this. Can you file a separate issue about it?ok I does work fine indeed on Firefox, also for me Hmmm, copy and paste multiple cells isn't working for me with notebook 5.0.
+What am I likely to be doing wrong?
+
+ CODELCODEL In which way is it not working? Is it only copying one cell? Is it not copying between different notebooks? Are you using the toolbar buttons or keyboard shortcuts? And if shortcuts, the single key ones we define or the default Ctrl Cmd+c v ones?
+
+Copying between different tabs or browsers using the system clipboard only works with Ctrl Cmd+c v, because of security restrictions in the browser.Ah, right, the one thing I didn't try was the keyboard shortcuts. Will try this evening, but that's quite an odd restriction. Chatting to a front end person here, the suggestion was to go through the server to make this work properly. Having it only work with keyboard shortcuts is pretty poor UX. We know it's poor UX, but we have to live with what's possible from a browser. The only way around it is to rely on Flash, which is not a road we want to go down but someone could make an extension if they want.
+
+I think doing it through the server would be even more confusing, given that the server might be on a different machine.I think doing it through the server would be the least confusing thing for me as an end user.
+
+However, the front end dev in question, romgain, also pointed me to this, which suggests it's all possible on the client side:
+
+ LINKLINK We want it to be possible to copy and paste between different servers for which doing it server side wouldn't work and between different browsers for which localstorage wouldn't work; it probably also doesn't work to & from private windows.Also, I now recall that localstorage also wouldn't work between different servers, because it's separated by domain.I'm afraid the choice to cater for c'n'p between servers has compromised the UX to the point where I wonder if this was worth the hassle to implement? Should I open a new issue for better UX in the case of c'n'p between notebooks from the same server? which is all I've ever wanted. This copy and paste isn't really working. It only copy the code but not the cell structure.
+I don't understand why Jupyter notebook have to invent their own copy past for the cells at the beginning? Why not just use the system clipboard to copy and paste cells? It is also really unnecessary to distinguish between command mode and edit mode. You don't have this kind of issue when using any other software like Word, Mathematica,
+
+
+Thanks for the question and the comments. 
+
+You have to understand that one of the limitation of Jupyter notebook is that it runs within a browser, thus there are limitation:
+ Not complete API to do copy past. 
+ Some shortcuts that can't be take for example we can't intercept Ctrl W to close tab. etc.
+We thus have to make compromises. Hopefully the web api and browser implementation eveolve so we can push thing further with time. 
+
+You will be happy to learn that since this issue was opened, new copy past API have been developed and that – if you are on a system that have these APIs – you should be able use regular copy past, and there are even newer API that should make things works better – you are welcome to send PRs to use them.
+Now for other users, we do have to provide solutions.
+
+For the edit command mode, let's put aside the fact that a lot of people like it and are efficient with it we have a coule of data points and historical references:
+ initial versions of Jupyter when it was till IPython used to not have a non modal system, it was way clunkier than what we have now.
+ We are cornered by the limitation of the web API to get keyboard shortcuts. My guess is that it's not the modality that bother you, but that you actually need to be in command mode for most.
+ Many interfaces are modal, you just don't realize it, like while writing this, if I press Ctrl F and type thing it's suddenly not writing in this text area.
+
+
+Now, most of what I've said above has already been said earlier in the thread, and there are LINKLINK with different restrictions, and this is an open source software, provided for free. You are welcome to contribute to it. If you can do better, than that would improve your workflow as well as other peoples! That would be a win win situation!
+I understand better the issue after Carreau's post, and it makes sense what he says. 
+
+But I want to confirm that COPY PASTE WORKS between notebooks in Mac OS X Sierra 10.13.3 which I think has one of the new copy paste APIs.
+
+But only Copy command C & paste command V works above not possible below the current cell. Does not overwrite previously selected cells for the new notebook you are pasting into, for that you will have to manually delete old cells works for me I'd rather it be less destructive.
+
+Does not work: Cut a cell command x for this instead you will have to delete manually. 
+
+I'm super happy I can use my 2017b Matlab kernel in a Jupyter notebook on my Mac for Ubuntu 14.04LTS not so much. Will keep on testing, but so far so good. 
+Thanks to all for the very helpful comments above, and lucky me for searching the issue tracker to find out that c'n'p between notebooks is really possible.
+May I ask you, with some urgency, to include this feature and in particular the way its use differs from the regular command mode keystrokes prominently in the relevant documentation? It is very important to those of us who regularly need to copy large chunks of cells containing both Markdown and code between notebooks. Yes I know that it is possible to use CODESCODES magic to include pieces of Python code, but sometimes we need to copy chunks of text, formulas, etc. as well. Thanks in advance!So in summary, I believe the supported flow is:
+select cells, copy, then paste in the target notebook not using the notebook's edit menu but the keyboard Matanster's comment is correct. It just needs to work as expected for selected groups of cells for the most common Windows, Mac and Linux keyboard shortcuts for example, Copy Control C, Paste Control V on Windows. 
+
+The rest of the discussion is nice to know narrative. We need to get it working as expected!
+
+All the other odd ball keyboard shortcuts across Win, Mac, Linux OSes don't matter as much. Let the wiz bang geeks create their own private keyboard shortcuts, but make the standard installation defaults work as expected for copy and paste. This feature has been introduced in LINKLINK. 
+Use pip install notebook upgrade to upgrade to the latest release.
+
+Note that the old shortcuts C, V and X work only for copying and pasting inside one notebook. In order to do it across tabs, you should use Ctrl C and Ctrl V Cmd C and Cmd V on Mac.

@@ -1,0 +1,4 @@
+I had the same issue with TensorFlow 1.12 on an almost identical system as yours. Solution is to downgrade TensorFlow to 1.0 using:
+ CODESCODES 
+
+ LINKLINK 

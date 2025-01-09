@@ -1,0 +1,344 @@
+ System information
+ Have I written custom code as opposed to using a stock example script provided in TensorFlow: No
+ OS Platform and Distribution for example, Linux Ubuntu 16.04: Linux Ubuntu 14.04
+ TensorFlow installed from source or binary: Source
+ TensorFlow version use command below: 
+ Python version: Python3.6
+ Bazel version if compiling from source:
+ GCC Compiler version if compiling from source: NA 
+ CUDA cuDNN version: NA 
+ GPU model and memory: NA 
+ Exact command to reproduce: import tensorflow as tf
+
+ Environment capture text: 
+
+ LINKLINK 
+ LINKLINK 
+
+You can obtain the TensorFlow version with
+python c import tensorflow as tf; print tf. GIT VERSION, tf. VERSION 
+This command also results in the same error.
+ home raju anaconda3 lib python3.6 importlib bootstrap. py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow. python. framework. fast tensor util' does not match runtime version 3.6
+ return f args, kwds 
+
+ Describe the problem
+When importing tensorflow, I get this error. I found some information on Feature request: nightly build for python 3.6 12935 Yes, we unfortunately copy the 3.5 binary for 3.6 I'll look into creating a specific 3.6 binary for Linux. 
+
+ Source code logs
+ import tensorflow as tf
+ result is 
+ home raju anaconda3 lib python3.6 importlib bootstrap. py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow. python. framework. fast tensor util' does not match runtime version 3.6
+ return f args, kwds 
+
+same issue on MacOS 10.12.6same problem on Linux Ubuntu 16.04 gunan: Do we have any updates on the resources we have to support Python 3.6 releases? av8ramit looks like there were divergences which prevent us from using the same pip packages on python 3.5 and 3.6
+Can we modify our builds to also build 3.6 version from scratch?Same issue on Linux CentOS 7Same issue after upgrade Tensorflow from 1.3 to 1.4 on Mac High Sierra 10.13.1 using Python 3.2.
+Tensorflow still works but give the above warning which is RuntimeWarning: compiletime version 3.5 of module 'tensorflow. python. framework. fast tensor util' does not match runtime version 3.6 FWIW, python3.5 still worksANything that can be changed here?Same problem using virtualenv after upgrading from Ubuntu 17.04 to 17.10. 
+ home wiebe virtual tensorflow lib python3.6 importlib bootstrap. py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow. python. framework. fast tensor util' does not match runtime version 3.6
+ return f args, kwds Same on Ubuntu 14.04Same issue on Fedora 26 with Python 3.2.Same issue on OSX 10.12.5 with Python 3.3Same issue on OSX with Python 3.2Only posting because I didn't see my environment mentioned:
+Clean 17.10 Ubuntu Server install on Python 3.3 native CODESCODES 
+Outputs:
+ CODELCODEL I have tried both 3.5 and 3.6 macOS High Sierra. 
+3.5 works perfect while 3.6 gives warns.
+While 3.6 still works.
+
+Hope this helps.same problem on Linux Ubuntu 17.10
+
+Clean 17.10 Ubuntu Server install on Python 3.3 native pip install tensorflow Same issue on OSX 10.12.6 with Python 3.3 virtualenv installation 
+
+
+ Users zhanghao virtualenv tensorflow lib python3.6 importlib bootstrap. py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow. python. framework. fast tensor util' does not match runtime version 3.6
+ return f args, kwds Same issue using this Docker file CODESCODES 
+
+error:
+ CODELCODEL Hi,
+Can you let me know if this has to be treated as a warning and ignored?
+ Furthermore the error is 
+from PyQt5 import QtCore, QtGui, QtWidgets
+ImportError: dlopen: cannot load any more object with static TLS
+
+ See the Traceback below 
+Traceback most recent call last:
+ File train. py, line 51, in 
+ from object detection. builders import model builder
+ File home raju anaconda3 envs tensorflow models research object detection builders model builder. py, line 29, in 
+ from object detection. meta architectures import ssd meta arch
+ File home raju anaconda3 envs tensorflow models research object detection meta architectures ssd meta arch. py, line 31, in 
+ from object detection. utils import visualization utils
+ File home raju anaconda3 envs tensorflow models research object detection utils visualization utils. py, line 24, in 
+ import matplotlib. pyplot as plt
+ File home raju anaconda3 lib python3.6 site packages matplotlib pyplot. py, line 113, in 
+
+ File home raju anaconda3 lib python3.6 site packages matplotlib backends init. py, line 60, in pylab setup
+, 0 
+ File home raju anaconda3 lib python3.6 site packages matplotlib backends backend qt5agg. py, line 16, in 
+ from. backend qt5 import 
+ File home raju anaconda3 lib python3.6 site packages matplotlib backends backend qt5. py, line 18, in 
+ import matplotlib. backends. qt editor. figureoptions as figureoptions
+ File home raju anaconda3 lib python3.6 site packages matplotlib backends qt editor figureoptions. py, line 20, in 
+ import matplotlib. backends. qt editor. formlayout as formlayout
+ File home raju anaconda3 lib python3.6 site packages matplotlib backends qt editor formlayout. py, line 56, in 
+ from matplotlib. backends. qt compat import QtGui, QtWidgets, QtCore
+ File home raju anaconda3 lib python3.6 site packages matplotlib backends qt compat. py, line 137, in 
+ from PyQt5 import QtCore, QtGui, QtWidgets
+ImportError: dlopen: cannot load any more object with static TLS 
+
+Pls let me know ways to resolve this error. Or will it be resolved only when the warning is resolved!Same issues on Ubuntu 16.04 64bit virtualenv python3Does it break stuff or can I ignore the warning?Quite strange since the prior version worked fine with 3.6 and it's packages, so it would seem that this should be a pretty simple fix?same issue with the just released 1.4 version. Just to add to what dsitnik said, simple hello world to reproduce on Fedora 26 venv 
+
+ CODELCODEL 
+
+ CODELCODEL 
+
+ CODELCODEL 
+
+ CODELCODEL 
+Same issue on OSX 10.11. in an Anaconda virtual environment with Python 3.3 and attempting upgrade from TensorFlow 1.3 to 1. 
+Temporarily routed around this issue by creating a new Anaconda environment with Python 3.4 and Tensorflow 1. which is working fine.same issue on MacOS high sierra！how resolved it！give me command ，not link！Same issue on OSX 10.12.6 sierra,
+ LINKLINK 
+
+the version:
+ LINKLINK 
+
+Hope this helps.
+I am working on resolving both the Python3.6 binary as well as the git version tag. I took reference from 
+ LINKLINK 
+
+ CODELCODEL Same issue on OSX 10.13.1 with Python 3.3same issue on osx 10.12.6 with Python 3.3
+ CODELCODEL 
+
+I someone has a solution I take it! thumbs up setup a virtualenv with Python 3.0 aktivkohle We need binary for python 3.6 anywayssame issue on macOS 10.13.1 with Python 3.3
+ CODELCODEL got same issue on macOS 10.12. However, seem we can ignore this warning. Waiting for a fix!Same issue using Anaconda with python 3.6 on Ubuntu 16.04 when upgrading from tensorflow gpu 1.3same issue on Ubuntu 17.10, python 3.
+Can we really ignore this warning?Same issue on Anaconda, Ubuntu 16.04, Python 3. Tensorflow GPUSame issue on Anaconda, Ubuntu 16.04, Python 3. Tensorflow CPUSame issue. Going to try to come back to setup a virtualenv with Python 3.5I wish GitHub had a Me Too button. Anyways, me too.
+
+Arch Linux, Pip env, and native GPU installation. Python 3.I see the same warning with Python 3.6 from conda. On Mac it's just a warning, and things seem to work OK. But on Linux I see that CODESCODES breaks CODESCODES in a weird way.
+ CODELCODEL 
+
+I think my scipy is OK, at least this import works if I don't import tensorflow:
+ CODELCODEL 
+
+Scipy 1.0 was installed via Anaconda, tensorflow 1.4 via pip:
+ CODELCODEL Same issue on macOS 10.13 with Python 3.3
+
+ Users mcukingdom007 tensorflow lib python3.6 importlib bootstrap. py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow. python. framework. fast tensor util' does not match runtime version 3.6
+ return f args, kwds Any workaround or timeline to solve this problem? Thanks a lot! I am also facing the same issue on macOS 10.12.6 with Python 3.6
+ Library Frameworks Python. framework Versions 3.6 lib python3.6 importlib bootstrap. py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow. python. framework. fast tensor util' does not match runtime version 3.6
+ return f args, kwds Maybe Tensorflow thumbs down.4 does not support linux & macOS with Python 3. so there seems to be an error.
+if you downgrade from v1.4 to v1. then it does not cause an error.Same issue on macOS 10.13 with python 3.1I'm also having the same problem not anaconda install. just with pyenv and jupyter. on a macOS Sierra version 10.12.6 with python 3.6
+
+Using TensorFlow backend.
+
+ Users Create. pyenv versions 3.3 lib python3.6 importlib bootstrap. py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow. python. framework. fast tensor util' does not match runtime version 3.6
+ return f args, kwds Same issue on Ubuntu16.04.3 with python 3.3Switching to Python 3.5 has removed the warning. To do this, I basically had to remove python 3.6 from my machine completely since jupyter was still pointing towards 3.6 even when only installed in 3.5 packages.
+
+I followed LINKLINK to remove python 3.6 from my machine just replace all occurrences of 2.7 with 3.6 in that answer.
+
+I then made sure to set PYTHONPATH to 3.5 using
+ CODESCODES 
+Then removing 3.6 from PATH by
+ CODESCODES then copy that entire path
+ CODESCODES 
+
+Hopefully this helps in the mean time! Just remember that you'll have to reinstall all your packages for python 3. FIxed issue by forcing the installation of the 1.0 version of tensorflow
+ CODELCODEL Great!TensorFlow v1.4 doesn't work with Python3.
+So, we should use TensorFlow v1.
+Thank you for your great information.This is the main guidance to installing which py version and tf version
+ LINKLINK 
+I use Mac OS High Sierra.
+I tried to use TF v1.4 with Python3.3, but, RuntimeWarning is shown when I import TF.
+So, if you use High Sierra, be careful.I am finding the GPU version using Nvidia 1.4 works fine on Ubuntu Linux py3.6 once past the warnings. Have not run into other issues than the warnings.Here are working 3.6 wheels LINKLINK I have the same problem with clang 900.38, python 3.3, tf 1.0. no idea how to fix it. Here is a temporal fix 
+
+For anyone looking for a workaround we have several options:
+
+ Wait for an official binary to be released for Python 3.6
+ Ignore the warning, it seems to work.
+ Don't use tensorflow 1.0 instead use 1.0 CODESCODES.
+ Install an unofficial tensorflow binary compatible with Python 3.6 from LINKLINK or from LINKLINK.
+
+Example in Mac OS High Sierra I do:
+
+ CODELCODEL 
+
+Note: Be careful to choose the correct wheel for your platform and if it's with CPU or GPU support.Same issue on Ubuntu 16.04, Python 3.1, CPU version.
+Force install TensorFlow 1.3 can fix like VictorGaiva said.When can we expect the official build of TF 1.0 for Python 3. The official docs reference CODESCODES as the Python 3.6 version, but I am still getting the original warning.As a workaround in virtualenv, we can use python 3.5 as below.
+
+ virtualenv system site packages p usr bin python3.5 tensorflow 
+
+ CODELCODEL 
+
+
+In mac os, this help me: python3 m pip install upgrade LINKLINK tf nightly and tf nightly gpu now has a python3.6 binary built from scratch for Linux. 
+1.0 dev20171206 and up
+
+This should fix the warningSame issue on MacOS 10.11.6 with Python 3.1I installed tf nightly gpu thumbs down.0. dev20171213 cp36 cp36m manylinux1 x86 64. whl successfully.
+Ubuntu17.10 x64.
+Tensorflow is looking for cuda 9.0 but I have cuda 8.0 installed. does tf 1.0 works with cuda 8.
+I have cuda 8.0 installed. I can see it in the library path. Any help to resolve this issue will be much appreciated.
+
+ LINKLINK 
+
+ LINKLINK 
+
+ LINKLINK 
+
+
+Following is Traceback for error 
+
+ImportError Traceback most recent call last 
+
+ 57 
+ 58 from tensorflow. python. pywrap tensorflow internal import 
+ 59 from tensorflow. python. pywrap tensorflow internal import version 
+
+
+ 27 return mod
+
+ 29 del swig import helper
+
+
+ 23 try:
+ 24 mod imp. load module ' pywrap tensorflow internal', fp, pathname, description 
+ 25 finally:
+
+ usr lib python3.6 imp. py in load module name, file, filename, details 
+ 242 else:
+ 243 return load dynamic name, filename, file 
+ 244 elif type PKG DIRECTORY:
+
+ usr lib python3.6 imp. py in load dynamic name, path, file 
+ 342 name name, loader loader, origin path 
+ 343 return load spec 
+ 344 
+
+ImportError: libcublas. so.0: cannot open shared object file: No such file or directory
+
+
+
+ImportError Traceback most recent call last 
+
+ 1 import tensorflow as tf
+
+
+ 22 
+ 23 pylint: disable wildcard import
+ 24 from tensorflow. python import 
+ 25 pylint: enable wildcard import
+ 26 
+
+
+ 47 import numpy as np
+ 48 
+ 49 from tensorflow. python import pywrap tensorflow
+ 50 
+ 51 Protocol buffers
+
+
+
+
+ 73 raise ImportError msg 
+ 74 
+ 75 pylint: enable wildcard import, g import not at top, unused import, line too long
+
+ImportError: Traceback most recent call last:
+ File usr local lib python3.6 dist packages tensorflow python pywrap tensorflow. py, line 58, in 
+ from tensorflow. python. pywrap tensorflow internal import 
+ File usr local lib python3.6 dist packages tensorflow python pywrap tensorflow internal. py, line 28, in 
+
+ File usr local lib python3.6 dist packages tensorflow python pywrap tensorflow internal. py, line 24, in swig import helper
+ mod imp. load module ' pywrap tensorflow internal', fp, pathname, description 
+ File usr lib python3.6 imp. py, line 243, in load module
+ return load dynamic name, filename, file 
+ File usr lib python3.6 imp. py, line 343, in load dynamic
+ return load spec 
+ImportError: libcublas. so.0: cannot open shared object file: No such file or directory
+
+
+Failed to load the native TensorFlow runtime.
+
+See LINKLINK 
+
+
+
+
+​
+Just installed python 3.6 on ubuntu 16.04. Then:
+
+ python3.6 m pip install user tensorflow
+Collecting tensorflow
+ Downloading tensorflow thumbs down.1 cp36 cp36m manylinux1 x86 64. whl 41.2MB 
+ 100 ████████████████████████████████ 41.2MB 52kB s 
+
+and so on. 
+
+Then:
+
+ ipython
+Python 3.3 default, Oct 4 2017, 02:55:45 
+Type 'copyright', 'credits' or 'license' for more information
+IPython 6.1 An enhanced Interactive Python. Type '?' for help.
+
+In: import tensorflow as tf
+ usr lib python3.6 importlib bootstrap. py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow. python. framework. fast tensor util' does not match runtime version 3.6
+ return f args, kwds 
+
+In: hello tf. constant 'Hello TensorFlow!' 
+
+
+2017 thumbs down 2 thumbs down 5 15:53:35.523688: I tensorflow core platform cpu feature guard. cc:137 Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+
+In: print session. run hello 
+b'Hello TensorFlow!'
+
+
+So I'm going to assume that this works just fine and this warning will go away with 1.5 or perhaps a 1.2 version.
+
+
+By the way, did not notice this warning in Windows7 using tensorflow gpu version 1.0 with python 3.2Same issue on Ubuntu 16.04 LTS.Same issue.Same issue on Ubuntu 16.04 LTS.We are not offering a native python3.6 binary for mac anytime soon.
+
+As for the cuda9 issue, tf nightly is built from HEAD at master every night, and I believe the latest binaries require cuda9. Try using an older version of tf nightly. Maybe 1208 or something 
+
+Windows has a native python3.6 binary so you will not see this issue.
+
+Thanks av8ramit 
+
+For those who have the arbitrary preference of only wanting to use official releases, the following is correct?
+ you'll need to wait for 1. x for this warning message to go away when using Python 3.6 on linux
+ in the meantime, you can use 1.1 with no problems, you'll just see the warning messageThe same issue appears while I use Anaconda 3 5.1 Linux x86 64. sh Python3.6 and TensorFlow 1.For what it's worth, the issue was discussed in a Hacker News thread about the 1.4 release LINKLINK. User allenlavoie responded:
+
+Dear Tensorflow QA team. Please add some unit tests! Happy NYYou can create whl from source using following link steps. LINKLINK. Let me informed if it worked.Nagging Assignee: It has been 14 days with no activity and this issue has an assignee. Please update the label and or status accordingly.Official releases now 1.5+ have a native python3.6 image build on Ubuntu 16.04. We do not build a python3.6 specific binary for mac. Windows has native 3.6 as well.  av8ramit, I have 1.1 and you said that official releases now have. yet,
+
+When I do:
+ CODESCODES 
+
+It says that:
+ CODESCODES You guys could get python3.6 specific binary for mac linux windows from here:
+ LINKLINK  av8ramit I manually downloaded 1.0rc1 cp36 manylinux wheel and installed successfully. The warning message has disappeared when import tensorflow in python 3.6
+
+However, I think there is issue with pip. See below please. Do you need me to start a new issue, or am I just doing something wrong?
+
+When I do:
+ CODESCODES 
+
+It does find the 1.0rc1 cp36 manylinux wheel, as well as rc0 and older version wheels both rc and non rc: 
+ CODELCODEL 
+
+but at the end this does not register somehow with pip to be the latest version:
+ CODELCODEL 
+
+I may be completely wrong, but it seems pip is not catching the versions with rc in the version number. I don't know if this is pip's error or tensorflow's error, but it seems to be an issue. Or am I wrong? tylerlekang pip fetch the latest stable release by default see LINKLINK 
+and the pypi package of tensorflow is still a release candidate 1.0rc1 
+
+try using: 
+ CODESCODES  attiasr Oh! Well. that's embarrassing!
+
+How long does it take the rc to turn into stable, and are there usually any changes once released as rc? Well I guess I can answer my own question by fact that there has already been rc0 and rc1 of 1.0.
+
+Thanks! tylerlekang np
+python3.6 m pip install LINKLINK 
+Thanks Karthick333031 it works for me MacOS 10.12.6 Running: CODESCODES solved the issue
+
+Python 3.5 
+TensorFlow 1.10.0 Was previously 1.10.1 
+MacOS 10.14 Thanks,
+
+ umang6891! It solved the problem for me. With the warning, my example hanged forever without failing, but now it runs. It looks like the problem is the version in pip.
+
+ thumbs up  umang6891 's solution works good for me, and I am using a python3.6 virtualenv. 

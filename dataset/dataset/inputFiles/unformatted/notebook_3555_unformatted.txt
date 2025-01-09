@@ -1,0 +1,204 @@
+This morning I am getting the same error in all Jupyter notebooks currently saved in my Github account:
+
+> Sorry, something went wrong. Reload?
+
+I have logged in Github and opened them from different web browsers, I have cleared my browsing history and logged in back again, and have tried accessing them while logged out. Same error. 
+
+From my personal computer and Jupyter-based servers the notebooks are fine, is just Github that will not display them. All was fine as of yesterday.
+
+Please direct me to the adequate resource if this is not the right forum. 
+
+Thank you.Does [this notebook](https://github.com/jupyter/notebook/blob/master/docs/source/examples/Notebook/Distributing%20Jupyter%20Extensions%20as%20Python%20Packages.ipynb) render for you? (That's just a random example I found). There might have been some issue on Github's side - they have their own server to render notebooks.Thank you for your response @takluyver . 
+
+It does. I tried again and they seem to be working now.
+
+This issue may be closed.Closed. LGF April 21 2018Turns out this is a recurring problem. Right now some of my notebooks won't render (they do in nbviewer). After searching, I found others having the same issue, and it eventually resolves, meaning you try again at a later time and the notebooks render.
+
+If this happens again to you, search for "jupyter notebook not rendering on github." You will find other issues like this, and many will give links to repos they believe should render. For me, right now, NONE of these render. Therefore, I conclude that github sproadically has trouble rendering notebooks, and all you can do is wait.I have been having this problem for the last few days, on ALL my notebooks on github. > 
+> 
+> I have been having this problem for the last few days, on ALL my notebooks on github.
+
+I am having this problem as well with my notebooks on GithubI am having this same issue with all of mine, and it appears worse as of late, and has nothing to do with the size or complexity of the notebook in question...Same thing happened today to me.Happened to me just now.This here still does not load for me btw.: https://github.com/jupyter/notebook/blob/master/docs/source/examples/Notebook/Distributing%20Jupyter%20Extensions%20as%20Python%20Packages.ipynbHappening for me as well for the past two days. Very annoying github bug which stops you from sharing your notebook with others. 😏 If this is an obstacle for you, remember that you can copy and paste the URL from Github to http://nbviewer.jupyter.org/ @takluyver That doesn't work for private repos I believe?No, it doesn't.
+
+You probably want to file a support request to Github itself, especially if you're paying for private repositories. The rendering of Jupyter notebooks is a service they run - it uses Jupyter code, but the Jupyter project can't see any logs or fix anything if it's going wrong.I did! They said they are aware of the issue and are working on a fix, but did not provide an ETA.A month later and it's still happening!I'm having same problem too. I can't open my [notebooks].(https://github.com/enesdemirag/python_lectures)
+
+It says, `Sorry, something went wrong. Reload?`It's kind of random I believe. My (same) notebook started loading fine a few days later.Having this issue as well. Can't open my notebooks or notebooks from other users.Happening to me nowNot able to load any of my notebooks right now!!Happening with my notebook now, as well.  Go figure issue closed....but still existsYes, this issue is still around. It happens infrequently. After some time it loads againHaving smae issue with meHaving this issue currently. nbviewer workaround is not working.same hereSuddenly it works.
+
+This doesn't fill me with optimism for using Jupiter Notebooks through GitHub...Same here. Sometimes the jupyter notebook won't load. One day later the same notebook will load again. No modifications were done to this notebook.Happening to me now. 
+I'm having this issue as well with ipynb notebooks. "Sorry, something went wrong. Reload?""Sorry, something went wrong. Reload?" for the notebooks. Please have a look. 
+
+Having the same issue here :( This is also happening to me.I had this issue a couple of days ago. The next day they loaded. Now they aren't loading again. It just seems to be random when they load and don't load for me. This just started happening to me as well in the past 3 to 4 days with my notebooks.  Can't tell if there is anything different about them.The same is happening to me , none of my notebooks are opening!! Why wont they just fix this issue.
+Is there anyway to work around this issue , I have to submit my resume tomorrow and none of the github notebooks I have linked will open. I might lose the opportunity.@MistryWoman - you should link to them via [nbviewer](https://nbviewer.jupyter.org/) it renders much better there in any case!> 
+> 
+> @MistryWoman - you should link to them via [nbviewer](https://nbviewer.jupyter.org/) it renders much better there in any case!
+
+Thank you @dhirschfeld  it worked splendidly !! I found it happening after I have been logged in for many days. Log out and log back in fixes the issue for me.Relogging to Github solved the problem for me too!For me at least this has been occurring more frequently over the past month or so. Logging out, restarting browser, clearing cache, and even switching browsers has no impact on the problem.same for me, and definitely seeing it more often in the last month. I don't think it is Jupyter issue, as the same notebook is bing rendered fine in gitlabThe issue is still going 
+
+https://github.com/mak705/Python_ELK/blob/master/ELK_Python.ipynb   not loading
+
+when i open https://nbviewer.jupyter.org/github/mak705/Python_ELK/blob/master/ELK.ipynb , then
+
+its working fine. You can acknowledge that there is issueAs pointed out above and in the similar issue https://github.com/jupyter/notebook/issues/3035#issuecomment-510920285, this is an issue with GitHub. We have no control over how GitHub renders notebooks. Project Jupyter controls the nbviewer platform, and apparently that is working fine.
+
+If you'd like to raise an issue about GitHub rendering, please file a support request with GitHub: https://github.com/contactPerhaps this issue could be locked to prevent necro-posting by people who don't even bother reading the existing posts.
+
+To restate the conclusions for future readers:
+
+#  This is an issue with GitHub not with jupyter notebooks.Submitted a ticket via https://github.com/contact
+
+Hopefully they look into it :)  will post here as soon as I hear back from The GitHub Developer Support Team.
+
+Cheers!I don't think it's of much use. I had raised a support ticket with Github support in December 2018 and this is what they had said then. 
+<img width="785" alt="Screenshot 2019-08-04 at 22 53 48" src="https://user-images.githubusercontent.com/65611/62429155-3a2c0f00-b70b-11e9-8a1a-340296045dd4.png">
+
+The problem still persists (though mine went away when I duplicated the file as a separate jupyter notebook which rendered fine after a few attempts) and looks like it's at the bottom of their priority list.This is still happening to me. Github seems committed to ignore this issue. Does anyone know of an alternative to GitHub that doesn't make you download Jupyter files to view them?FWIW, sadly, little change after so long. Here is another reply from today. It does at least mention a "rendering queue" as part of the problem.
+
+>Thanks for reaching out to GitHub Support, and sorry for the trouble.                                                         
+>
+>Sorry for the trouble here, we've flagged this with our engineering team who are currently investigating rendering of these notebooks. Although unfortunately we don't currently have an ETA on resolution for this I'm afraid.                           
+
+> However we do often see that this is a transient issue that does resolve itself over time. Occasionally the rendering queue   can get backed up, causing this to timeout as you are seeing, as the queue clears these become subsequently available again.  
+> As mentioned our engineering team are continuing to investigate the root cause.> Submitted a ticket via https://github.com/contact
+> 
+> Hopefully they look into it :) will post here as soon as I hear back from The GitHub Developer Support Team.
+> 
+> Cheers!
+
+Dozens if not hundreds  of tickets have been made about this issue. They have all been systematically ignored. Something is not right in GitHub about this issue. I've been dealing with it for a year. I just have to download the files start up a jupyter server and view them that way. I don't get why they won't even explain what is happening.> This is still happening to me. Github seems committed to ignore this issue. Does anyone know of an alternative to GitHub that doesn't make you download Jupyter files to view them?
+
+@baregawi  You can copy and paste the URL from Github where your notebooks are to http://nbviewer.jupyter.org/
+
+No need to download notebooks to preview them. > > This is still happening to me. Github seems committed to ignore this issue. Does anyone know of an alternative to GitHub that doesn't make you download Jupyter files to view them?
+> 
+> @baregawi You can copy and paste the URL from Github where your notebooks are to http://nbviewer.jupyter.org/
+> 
+> No need to download notebooks to preview them.
+
+Unfortunately I cannot do that for private notbooks.
+
+EDIT: we pay for GitHub and have not been able to get them to solve or explain this issue.> FWIW, sadly, little change after so long. Here is another reply from today. It does at least mention a "rendering queue" as part of the problem.
+> 
+> > Thanks for reaching out to GitHub Support, and sorry for the trouble.
+> > Sorry for the trouble here, we've flagged this with our engineering team who are currently investigating rendering of these notebooks. Although unfortunately we don't currently have an ETA on resolution for this I'm afraid.
+> 
+> > However we do often see that this is a transient issue that does resolve itself over time. Occasionally the rendering queue   can get backed up, causing this to timeout as you are seeing, as the queue clears these become subsequently available again.
+> > As mentioned our engineering team are continuing to investigate the root cause.
+
+That's the exact same answer I received.... > > FWIW, sadly, little change after so long. Here is another reply from today. It does at least mention a "rendering queue" as part of the problem.
+> > > Thanks for reaching out to GitHub Support, and sorry for the trouble.
+> > > Sorry for the trouble here, we've flagged this with our engineering team who are currently investigating rendering of these notebooks. Although unfortunately we don't currently have an ETA on resolution for this I'm afraid.
+> > 
+> > 
+> > > However we do often see that this is a transient issue that does resolve itself over time. Occasionally the rendering queue   can get backed up, causing this to timeout as you are seeing, as the queue clears these become subsequently available again.
+> > > As mentioned our engineering team are continuing to investigate the root cause.
+> 
+> That's the exact same answer I received....
+
+Oh wow, that is interesting. So it kind of looks like an issue that exacerbates itself. If the rendering queue starts to times-out, a large portion of the clients in queue will hit "render" again, nearly doubling the amount of jobs in the queue. But unless they have a way to cancel render jobs created by the same client, the next wave of render jobs would just time-out as well. And keep the problem going until people start to give up and the queue gets short enough to prevent timeouts.
+
+Are parts of the GitHub code open source? I'm happy to try to spend a bit of time to help here. I just want Jupyter notebooks to render lol.Same issue here... I really can't understand that, at this point, with the popularity of Notebooks, that Github isn't more Notebooks friendly... I mean, not only I am expecting to be able to render it, but why not run it... but no... :( Github still have rendering problems.  Suggestions by @lfunderburk is a good bypass - use the nbviewerwhy is this issue closed?@julietsitron because this is not a Jupyter notebook issue, but rather a GitHub issue. For solution kindly go through this link https://medium.com/@pg170898/problem-facing-at-github-ipynb-is-not-loading-f986a04649f3A little experimentation (with small sample size) leads me to believe that this may be more prevalent in "private" repos. At the moment, a notebook in a public repo of mine will render, while the same file in a private repo will not. Two cents, there.Having the same problem (in private repo), did some investigation and found out multiple HTTP GET request to s3 failed (returns 404), e.g.
+
+```
+https://github-render.s3.amazonaws.com/prod/<hash id>.html?AWSAccessKeyId=<id>&Signature=<Signature value>&Expires=1568924413
+```I have the same problem when uploading jupyter notebook files, so this problem hasn't been fixed?Got same problem. When I used debugger tool for HTTP calls, I got following errors consistently for the problem, not sure if it helps. It looks like tries to generate the HTML from notebook and then display it, but the html is missing on the request many times.
+
+<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>prod/104099d47c8781cbde0716b293030f93-render.html</Key><RequestId>80DFE69DFB29C758</RequestId><HostId>kJms9M6WaWnJT1vCzgu2pfMyGfUqdnFeuxsNg/ko0sDPQirMqgyZ2z8zDHIkcd6q+mV5VozDc=</HostId></Error>
+
+Thanks,
+Prasanna
+same here. My notebook is not rendering
+https://github.com/vinhngx/DeepLearningExamples/blob/vinhn_unet_industrial_demo/TensorFlow/Segmentation/UNet_Industrial/notebooks/TensorFlow_UNet_Industrial_Colab_train_and_inference.ipynbIs github management intentionally ignoring this problem. I first experienced this 7 months ago and it still persist even today. I used nbviewer now. render fast but this is just effort duplication. Here You will find the solution ....just go through this link
+https://medium.com/@pg170898/problem-facing-at-github-ipynb-is-not-loading-f986a04649f3
+
+On Sun, 6 Oct 2019 at 22:48, barywhyte <notifications@github.com> wrote:
+
+> Is github management intentionally ignoring this problem. I first
+> experienced this 7 months ago and it still persist even today. I used
+> nbviewer now. render fast but this is just effort duplication.
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/3555?email_source=notifications&email_token=AI77RAV3YKYKISB5VWKNQS3QNIMV3A5CNFSM4E334WC2YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOEAOPEEY#issuecomment-538767891>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AI77RAT5BUFNBOQEIVZZOC3QNIMV3ANCNFSM4E334WCQ>
+> .
+>
+
+
+-- 
+*Priyansh*
+Dirty workaround for private repos: if you have your repo synced on Dropbox, you can copy the Dropbox sharing link and use it in nbviewer.
+
+This issue is just ridiculous anyway. I might as well switch to GitLab for the class I'm teaching.May be someone should create an online petition for github and collect signatures to highlight this even more 😉 
+
+If that doesn't work we can organize a protest march to get this fixed. I am certain that this will work as no organization wants bad PR! 😜 same problem reoccurring, whenever we don't need it, thanks to Murphy 's law
+https://github.com/theofil/CompPhysics/tree/master/examplesThis is still occurring, can we open up this issue again until it can be resolved? I was working through analyzing the code of a Python project and the Jupyter notebook won't load on any web browser.@tdelozie read through the comments. This isn't a problem with Jupyter notebook but an issue with Github.I am getting this error when i am trying to open a ipynb notebook.
+"Sorry, something went wrong. Reload?"
+please pass on suitable solutionStill facing the same issue. Does anyone know how to pass this issue to official Github?I don't feel like it happens to everyone at once. I have it running on Manjaro with Chromium right now.> Does anyone know how to pass this issue to official Github?
+
+https://support.github.com/contactI contacted the support a few hours ago and got the following answer:
+
+> Hi Thomas,
+> 
+> Thanks for writing in to GitHub Support!
+> 
+> Sorry for the trouble here; we've flagged this with our engineering team who are currently investigating the rendering of these notebooks. Although, unfortunately, we don't currently have an ETA on resolution for this I'm afraid.
+> 
+> However, we do often see that this is a transient issue that does resolve itself over time. Occasionally the rendering queue can get backed up, causing this to timeout as you are seeing. As the queue clears these become subsequently available again. Rest assured, our engineering team are continuing to investigate the root cause.
+> 
+> In the meantime, please do let us know if you need anything else!
+> 
+> Cheers,
+> Simon
+> GitHub SupportI am having this issue just now. Pls help GitHub team I am having this issue. Is this still a common occurrence?I am having this issue. Same guys!same thing and it hinders the usage of google colab with the notebookSame right when I needed itSame here. Does not work since 2+ hours. Tested 10+ times.
+https://github.com/kubeflow/pipelines/blob/master/samples/core/lightweight_component/lightweight_component.ipynb
+![image](https://user-images.githubusercontent.com/17781570/87422267-9d3f4a80-c5d8-11ea-9ac9-bec0c57e15f3.png)
+This is a very common occurrence. This is a general GitHub issue. I have been saving my code to .py files unless I absolutely need a notebook for an analytics process.Same problem [here](https://github.com/xgrau/ace1-anopheles-report/blob/master/s01a_Ace1_mutfreq.ipynb) (and any other notebook I've tried, for that matter). The usual message warning about problems and prompting to reload is not there, though.
+
+![imatge](https://user-images.githubusercontent.com/11460546/91441619-d70a9e80-e870-11ea-85e6-5f11c39cb0b1.png)
+
+CheersHaving same problem to all my jupyter notebook files '.ipynb', 2 months back I was able to load all of them but not now. I have very crucial files over there which I uploaded while thinking that my files would be save, secure and accessible, now I feel very afraid to upload files over there, please someone help me to get all of them back.  > Same problem here (and any other notebook I've tried, for that matter). The usual message warning about problems and prompting to reload is not there, though.
+> 
+> Cheers
+
+I have seen this as well. I haven't seen any resolution to the issue. I believe I did initially search online to see if there was a solution, but it was an issue at Github's end.Having the same issue today - all of my notebooks do not render.It’s the end of 2020 and nothing changed. I look from time to time on my repo, and it never loads. It did only the first week of existence I am having the same issue happen as well...... Although in my instance as well, my 
+
+https://github.com/billp-data-science/R_datacamp_DS/blob/master/Intro_to_R.ipynb
+
+does not show in nbviewer
+
+In the last 10 days, I am having the same problem. I hope that it can be fixed soon. 
+This happen to me with most of the Notebooks.
+I need to reload 5,6 times then only it renders.
+Can't it be solved?I'm not sure why an organization with a huge user base is taking so long to fix this bug. It's frustrating sometimes. Hope the GitHub team would look into this issue and get it resolved ASAP.
+
+Same issueMy notebook does not render properly :(Same IssueSame here at 10th decSame here, 18th December 2020 and this issue was opened in April 2018. I wrote to the github support and got an answer within a couple of hours:
+
+> `Thanks for writing in to GitHub Support!
+> 
+> Sorry for the trouble here; we've flagged this with our engineering team who are currently investigating the rendering of these notebooks. I know that this has been an issue for users for some time, but unfortunately we don't currently have an ETA on a resolution for this I'm afraid.
+> 
+> However, we do often see that this is a transient issue that does resolve itself over time. Occasionally the rendering queue can get backed up, causing this to timeout as you are seeing. As the queue clears these become subsequently available again. Rest assured, our engineering team are continuing to investigate the root cause.
+> 
+> I'm really sorry that I can't give you more of an answer at this stage.
+> 
+> In the meantime, please do let us know if you need anything else!
+> 
+> Thanks,`
+
+So, in the meantime I use [JN_viewer](https://nbviewer.jupyter.org/)Still a sporadic problem for me.Same for me - but if I hard refresh, it works...... odd little issue :)This problem still presists and even refresing multiple times don't work. It really is very annoyingIt's 2021 still the problem is there. Is it due to images in the notebook that is difficult to render? Or have to save all charts and put them on README.md .
+  This has been a helpful response - thank you @imkeines: https://github.com/jupyter/notebook/issues/3555#issuecomment-748173157
+
+This is not anything we can resolve.  At this point, I'm inclined to lock this conversation - although I'm afraid that will just trigger the creation of additional issues.I wanted to say it's 2020 and the issue is still here... And then I realize it's already Feb. 2021. Does Microsoft just ignore the issue?same problem, over and over ...ongoing problem, happens all the time on larger notebooks. please increase resources or timeouts as appropriate. I guess we'll just rinse and repeat: https://github.com/jupyter/notebook/issues/3555#issuecomment-768452784Apologies, I missed the critical bit of that comment on my first read ...
+
+> So, in the meantime I use [JN_viewer](https://nbviewer.jupyter.org/)Same - 10/03/2021.
+This annoying bug disturbing the peace of all the ML community...it's 10th March 2021, and am struggling to view .ipynb files.
+Any quick fix?I think this is the best we've got for now: https://github.com/jupyter/notebook/issues/3555#issuecomment-748173157@kevin-bates  Thanks for pointing me to the temp fix.
+are there plans to get this fixed permanently?Per the contents of this issue, this issue resides in GitHub's hands - sounds like in their "rendering queue" based on previous responses.Sorry, but I'm locking this issue.  There isn't anything Jupyter can do for this, it's a GitHub issue.
+
+Here are some helpful links from above:
+
+- [Jason's explanation with a link to GH support](https://github.com/jupyter/notebook/issues/3555#issuecomment-517292470)
+- [i.klatt's response from GH support and a suggested workaround](https://github.com/jupyter/notebook/issues/3555#issuecomment-748173157)
+- [Laura's nbviewer suggestion](https://github.com/jupyter/notebook/issues/3555#issuecomment-519342296)

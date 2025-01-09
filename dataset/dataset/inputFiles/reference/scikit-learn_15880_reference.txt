@@ -1,0 +1,23 @@
+The signature of CODESCODES is currently:
+
+ CODESCODES 
+
+The function takes an estimator and raw data and can not be used with already predicted labels. This has some downsides:
+
+ If a confusion matrix should be plotted but the predictions should also be used elsewhere for example calculating accuracy score the estimation has to be performed several times. That takes longer and can result in different values if the estimator is randomized.
+ If no estimator is available for example predictions loaded from a file the plot can not be used at all.
+
+Suggestion: allow passing predicted labels CODESCODES to CODESCODES that will be used instead of CODESCODES and CODESCODES. In my opinion the cleanest solution would be to remove the prediction step from the function and use a signature similar to that of CODESCODES, for example CODESCODES. However in order to maintain backwards compatibility, CODESCODES can be added as an optional keyword argument.
+
+TODO:
+
+ Introduce the class methods for the currently existing plots:
+	 CODESCODES LINKLINK 
+	 CODESCODES LINKLINK 
+	 CODESCODES LINKLINK 
+	 CODESCODES LINKLINK 
+	 CODESCODES. For this one, we don't want to introduce the CODESCODES classmethod because it would not make sense, we only want CODESCODES.
+
+ For all Display listed above, deprecate their corresponding CODESCODES function. We don't need to deprecate CODESCODES because it hasn't been released yet, we can just remove it.
+
+ for new PRs like 17443 and 18020 we can implement the class methods right away instead of introducing a CODESCODES function.

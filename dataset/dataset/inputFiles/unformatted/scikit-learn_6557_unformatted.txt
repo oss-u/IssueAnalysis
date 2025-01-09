@@ -1,0 +1,199 @@
+I frequently get asked about post-pruning. Often using single trees is important for interpretability, and post-pruning can help both interpretability and generalization performance.
+[I'm surprised there is no open issue on this, but I couldn't find one]
+I can give this a shot :)
+The title of this issue is related https://github.com/scikit-learn/scikit-learn/issues/4630 .
+This issue [#941](https://github.com/scikit-learn/scikit-learn/pull/941) also seems to be proposing prune method to the tree but the code has considerably changed in the meantime I suppose.
+On the topic of interpretability, there has also been published work on creating single decision trees from random forests. As counter-intuitive as this sounds, due to the non-optimality of standard decision tree algorithms, this can apparently give single decisions tree that are both interpretable and also better classifiers/regressors than you would get otherwise.  
+@amueller Could you please explain this issue a little bit? I want to work on this.
+actually maybe the first thing to do would be to add a stopping criterion based on mutual information...
+@lesshaste can you give a citation? (I had been thinking about that recently, damn, obviously it has been done ^^)
+@amueller  It has been a long time since I looked at this but:
+
+Section 2.2 of 
+"Rule Extraction from Random Forest: the RF+HC Methods" by Morteza Mashayekhi  and  Robin Gras has all the relevant citations I know. Please let me know if you don't have access to this paper.
+
+On an only slightly related note, I remember looking at http://blog.datadive.net/interpreting-random-forests/ with some interest.
+> actually maybe the first thing to do would be to add a stopping criterion based on mutual information...
+
+An easy addition would be to stop the construction when `p(t) i(t, s*) < beta`, i.e. when the weighted impurity `p(t) i(t, s*)` for the best split `s*` becomes less than some user-defined threshold `beta`.
+> I frequently get asked about post-pruning. Often using single trees is important for interpretability, and post-pruning can help both interpretability and generalization performance.
+
+I think this can also be beneficial for some ensemble algorithms like (gradient) boosting although it's typically not increasing the predictive accuracy for bagging-style ensembles (e.g. random forests).
+
+Pruning might also be useful to save some memory and decrease prediction times a bit.
+@amueller / others: @jmschrei and i met to discuss the issue of post-pruning a few weeks ago, and we were unsure of how it would fit in the current scikit-learn API. Generally, post-pruning needs a validation set, but this doesn't seem to fit nicely with how the library is currently organized (namely, issues like creation / origin of the validation set and whether this would be an argument to fit or a separate method come to  mind). How were you thinking of this being implemented from an API point of view? 
+For now, I'm working on looking through the `splitter.pyx` code and adding the early stopping criteria based on weighted impurity for GSoC while thinking about MAE.
+Seems like there was some discussion about API issues in https://github.com/scikit-learn/scikit-learn/pull/941, but the tree module has changed quite a bit and perhaps we should have the discussion again. For one, we have parameters like `max_leaf_nodes` and `max_depth` to control growth of the tree a bit.
+I would be inclined to set up pruning as a separate method. In fact, a separate function that takes a tree and returns the pruned version would be ok to begin with. This is the approach which is used in https://github.com/ajtulloch/sklearn-compiledtrees to generate optimized code for trees.
+
+@nelson-liu With regard to the regularization options, they sometimes lead to subtrees with all nodes belonging to the same class. While it is not pruning in the sense of regularization, it would be nice to have a function to get rid of these extra nodes that only add computational cost during prediction.
+When would you ever get a subtree with all nodes predicting the same class? You wouldn't make a split if there wasn't a gain in your criterion. 
+In essence, what I'd like is a 'warm start' like method for building a tree, like we have a warm start for building a random forest. You should have a method to add a single node to a tree, but still get a valid estimator before and after adding the node. This would allow users to evaluate the trees performance on the evaluation set as they build it, just like you can add trees to a random forest, evaluating its performance on the validation set each time. This shouldn't be terribly difficult functionally to add, the biggest issue is just the API for this. @ogrisel @glouppe  do you have any thoughts?
+@jmschrei
+I meant that a split of 90:10 into 80:0 & 10:10 won't change the performance if the tree stops there.
+@pixelou another important thing to consider is whether we want this to be useable with `GridSearchCV`...a separate method would break that i think.
+@nelson-liu Sorry I wasn't clear: I meant that most of the hard work is to write the pruning procedures themselve. Integration shouldn't be too hard (but I'm not the one doing it obviously :-) )
+
+One the top of my head, I see several options for integration:
+- options given to the tree constructor are then taken into account by `.fit`
+- options are given to `.fit` directly
+- a separate `.prune` or `.post_prune` method has to be called explicitely
+- a separate `prune_tree` or `post_prune_tree` function takes the tree and returns another pruned tree
+
+It's up to you to decide on this, but I think one can write a separate private (class?)method for pruning and make it available to the API as one of the above solutions.
+
+Note that I have just given the points above without further thinking ;-). 2 and 4 are clearly not the sklearn way of doing things, and you just mentioned how 3 can be a problem.
+The first option of those seems the most consistent with sklearn. 
+@ameuller @glouppe @GaelVaroquaux any opinion on the api for post pruning? I see these three options, the first of which seems the best to me. Just wanted to get some clarification before I start to think about working on this:
+- options given to the tree constructor are then taken into account by .fit
+- a separate `.prune` or `.post_prune` method has to be called after fitting
+- a separate `prune_tree` or `post_prune_tree` function takes the tree and returns another pruned tree
+Yes, the first option is certainly the one that fits best with our API. 
+Isn't it pre pruning if you do it at fit? Aren't we supposed to check the complexity of the tree and use post pruning to reduce it?
+Start with the third option, then decide whether the others are appropriate...
++1 for that
+(by which I mean, the example code might help decide)
+It's not pre-pruning if you do it at fit, if you build the full tree and then go backwards and remove nodes. I agree with @glouppe that the first one is the best option, but I also agree with @jnothman that since the code will rely on a prune_tree method ~anyway~ it may be better to create a standalone thing during the development stages.
+> It's not pre-pruning if you do it at fit, if you build the full tree and then go backwards and remove nodes.
+
+I assumed that the user would want to select whether to post pruning or not based on the built tree...
+For instance this is how [`rpart` does it](http://www.statmethods.net/advstats/cart.html) - by a separate `prune` method which goes backward and trims the tree...
+Presumably you'd want validation set performance to guide if/how to prune the tree. 
+My concern was - if users want a peek at the tree between the `fit` and post-prune operations, they will have to fit again without post-pruning enabled...
+
+But as you say maybe that is not necessary if the need for post-pruning is based on the validation set performance and not on user's decision...
+@nelson-liu Can I work on this if you are not?sure go ahead, it could be a good way to get familiar with the tree code. It's definitely not an easy task though, so feel free to ask if you need assistance...Thank you @nelson-liu. So is this been implemented or still remaining?@datavinci it is still remaining.If nobody is working on this feature, I would like to do this on myself or with @dalmia. OK?It seems that this is stalled, so go ahead.
+
+On Wed, Jul 19, 2017 at 2:32 PM, avidale <notifications@github.com> wrote:
+
+> If nobody is working on this feature, I would like to do this on myself or
+> with @dalmia <https://github.com/dalmia>. OK?
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/scikit-learn/scikit-learn/issues/6557#issuecomment-316524038>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/ADvEEOVYL_gQbMzWFixoHO1D0YfvuItCks5sPnXlgaJpZM4HybHH>
+> .
+>
+I don't think @dalmia has availability these days.
+
+On 20 July 2017 at 08:01, Jacob Schreiber <notifications@github.com> wrote:
+
+> It seems that this is stalled, so go ahead.
+>
+> On Wed, Jul 19, 2017 at 2:32 PM, avidale <notifications@github.com> wrote:
+>
+> > If nobody is working on this feature, I would like to do this on myself
+> or
+> > with @dalmia <https://github.com/dalmia>. OK?
+> >
+> > —
+> > You are receiving this because you were mentioned.
+> > Reply to this email directly, view it on GitHub
+> > <https://github.com/scikit-learn/scikit-learn/issues/
+> 6557#issuecomment-316524038>,
+> > or mute the thread
+> > <https://github.com/notifications/unsubscribe-auth/ADvEEOVYL_
+> gQbMzWFixoHO1D0YfvuItCks5sPnXlgaJpZM4HybHH>
+> > .
+>
+> >
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/scikit-learn/scikit-learn/issues/6557#issuecomment-316531460>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AAEz64HQd8rQr3u2hD0QFR-RxktyYZoaks5sPnzTgaJpZM4HybHH>
+> .
+>
+I'm also seeing large subtrees predicting the same class.  Even naive pruning would improve interpretability in cases like these (and it would have no effect on the predictions).@cjmay it would change the predicted probabilities. But yes, adding any sort of pruning would be nice ;)It would be nice to see benchmarks of post-pruning vs pre-pruning. I think "min_impurity_decrease" is a relatively reasonable stopping criterion. Or you could grid-search ``n_leafs``... do people usually grid-search the pruning parameter? (I would imagine so). It would be interesting to see how often that gives different outcomes.@amueller oh, I see.Look forward to it!
+For some of the ensemble methods this could be worked in naturally. If there is bagging then the OOB sample could be used for validation and pruning. This would be like how oob_improvement_ is calculated in [GradientBoostingClassifier](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)Is anyone working on this right now?Not to my knowledgeis there anybody done it ???is anyone have done it that could share your code......cost complexity pruning based on sklearn.decisiontreeclassifier    ????Can someone do cost complexity pruning based on sklearn.decisiontreeclassifier()？ If not, I'll ask again  .I'm seriously.......Found this:
+https://github.com/shenwanxiang/sklearn-post-prune-tree
+
+Not sure if it is exactly cost complexity pruning?@zanderbraam it's not CCPHi,all ,
+I have implemented:
+CCP(Cost Complexity Pruning) Algorithm on 
+sklearn-CART-Classification-model in Python, 
+
+ECP(Error Complexity Pruning) Algorithm on 
+sklearn-CART-Regression-model in Python, 
+
+here's the link:
+https://github.com/appleyuchi/Decision_Tree_Prune
+you may like it.
+@appleyuchi thanks!
+I find it a bit hard to follow the structure of the code, in particular given that file names and comments are in Chinese. There also seems to be a lot of duplicate code.I don't work with DT anymore, but has anyone had a look at https://github.com/beedotkiran/randomforestpruning-ismm-2017 ? It seems relevant to this issue.A tree is just a very small forest. Can't this implementation scale down to trees?@appleyuchi I'm not sure if I follow what you're saying but we will not adopt an implementation based on going to JSON. Any implementation in scikit-learn would have to work directly with the scikit-learn data structures.@appleyuchi thanks for your efforts. Regarding how tricky it may be to implement this feature, we do recognize that touching the tree code base is not necessarily a trivial task. There have been efforts to change that and have a more readable implementation. Besides, this issue isn't labeled as "Easy" for that exact reason.
+
+I hope you find other issues that you may be interested in and you keep the good work on them :)I am working on this issue with a cost complexity pruning (CPP) algorithm. I see several tests that can be used to check tree pruning:
+
+1. Increasing alpha (in CPP) should result in smaller or equal number of nodes.
+2. Make sure the pruned tree is actually a subtree of the original tree.
+
+What other tests would be appropriate for tree pruning?@appleyuchi  Thanks for sharing! My concern is that, even as a Chinese, it's still pretty hard for me to follow the code. I guess it is better to have the code more modularized so that others can apply your implementation on any data sets.@zhenyu-zhou 
+Because almost all of you did NOT ever read the book《classification and regression trees》carefully.
+
+The first  author of this book has already passed away so you can not contact him for questions.
+
+The defect of this book is discussed in
+http://www.dcc.fc.up.pt/~ltorgo/PhD/th4.pdf 
+or
+http://www.doc88.com/p-6445227043649.html
+
+which point out that CCP/ECP algorithm-cross validation  will fail for unbalanced and small datasets,
+you should understand the above academic materials before you implement it.
+
+I analyzed and summarized the defect in:
+
+https://blog.csdn.net/appleyuchi/article/details/84957220
+
+
+
+The Github link I provide for CCP/ECP  is just "application style",NOT from sklearn's "bottom variable style",(the latter will be much more efficient and faster)
+so they reject.
+
+> even as a Chinese, it's still pretty hard for me to follow the code. I guess it is better to have the code more modularized so that others can apply your implementation on any data sets.
+
+It can be applied on many datasets I have tested,I guess you even  have NOT clicked in and read the instruction  in the Github  link
+
+@appleyuchi 
+
+> But it can be applied on any datasets you want,I'm sure you even have NOT clicked in and read the instruction in the link
+
+You are ABSOLUTELY WRONG. To make it short, I just have one question for you: do you provide a clean API, like sklearn did? 
+
+You shouldn't expect everyone to read every detail of your code before using it, and blame others for that, if you treat your code as a library as sklearn. That's one of the reasons they reject the code. Consider it when you are using other libraries, take sklearn as an example, if it only has a bunch of self-contained code for experiments, which requires a certain input format, without a general framework. You need to carefully examine the library code to determine how to split the main logic out and apply to your dataset. Will you use it? I acknowledge that the experiment is interesting, but it is not a library. I just want to kindly post sth in my mind to improve the code but it is too hard.@zhenyu-zhou 
+> You shouldn't expect everyone to read every detail of your code before using it,and blame others for that,
+
+you misunderstand it ,what I said is material,not code.
+Note that it refers to a book,NOT the code I have written.
+
+I mean《classification and regression trees》is a famous book,not the code I wrote ,
+so that's not blame.and "you" refers to new contributors,NOT the existing member of sklearn.
+
+> I just want to kindly post sth in my mind to improve the code but it is too hard.
+
+again,you should read the book carefully before you implement it.
+
+@zhenyu-zhou 
+> , if it only has a bunch of self-contained code for experiments, which requires a certain input format, without a general framework. You need to carefully examine the library code to determine how to split the main logic out and apply to your dataset. 
+
+The API style has been dicussed several months ago when you have  NOT been  here,
+again,
+what I have implemented is"application style",NOT from"sklearn bottom data structure"
+
+Good Luck.
+![问题](https://user-images.githubusercontent.com/27613483/61927925-45639a00-afa9-11e9-806e-a9a71d7426ee.png)
+
+**ps:
+Notification from this issue has been cancelled,because I'm busy.
+@me will NOT take effect any longer.
+If you have any question ,contact me via Email please.**> @ameuller @glouppe @GaelVaroquaux any opinion on the api for post pruning? I see these three options, the first of which seems the best to me. Just wanted to get some clarification before I start to think about working on this:
+> 
+> * options given to the tree constructor are then taken into account by .fit
+> * a separate `.prune` or `.post_prune` method has to be called after fitting
+> * a separate `prune_tree` or `post_prune_tree` function takes the tree and returns another pruned tree
+do you have any code for this?
+Thanks

@@ -1,0 +1,470 @@
+Hi,
+
+I am new to Python and Anaconda. I installed anaconda and install Scipy. When I try import scipy in the  Python in command prompt on the Anaconda prompt, it works fine as below 
+
+```
+[Anaconda3] C:\Users\me>python
+Python 3.5.1 |Anaconda 4.0.0 (64-bit)| (default, Feb 16 2016, 09:49:46) [MSC v.1900 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import scipy
+>>>
+```
+
+But when I use the same in the Jupyter notebook, I am getting -
+
+```
+ImportError                               Traceback (most recent call last)
+<ipython-input-3-4dc45f4c0083> in <module>()
+----> 1 import scipy
+
+ImportError: No module named 'scipy'
+```
+
+Please let me know how to solve this issue.
+Usually that indicates that the notebook is running with a different Python or in a different environment from Python in the command prompt. Check `sys.executable` to see which Python it's running in, and `sys.path` to see where it's looking for imports.
+Thanks takluyver,
+
+I see the difference. The path from the command prompt shows
+
+> > > sys.executable
+> > > 'C:\Users\user\AppData\Local\Continuum\Anaconda3\python.exe'
+
+Where as the notebook shows
+'C:\Users\user\AppData\Local\Continuum\Anaconda3\envs\py35\python.exe'
+
+I had installed py27 and py35 on my system. Can you please let me know how to change to path which is used in command prompt.
+try a `conda install ipykernel --name Python3`,  `python -m ipykernel install`. That will likely fix the notebook can see your Python 3 kernel. Then create a `new` >`Python3 notebook` from the dashboard. 
+~~Hi, I'm encountering the same problem here. I've installed successfully tensorflow and anaconda on my Mac OS. Everything goes fine in spyder, while when programming in Jupyter notebook, some modules seem to be not exist and cannot be imported. "Error: no module name matplotlib, scipy....."~~
+
+~~Then I checked the system and found:
+In spyder, sys.executable is "/Users/abc/anaconda/bin/python";
+In Jupyter, sys.executable is "/Users/abc/anaconda/envs/tensorflow/bin/python" (no matter whether I activate tensorflow in  terminal)~~
+
+~~Both python version are 2.7.11. Now I want to change the python path in Jupyter to which spyder uses. Can anyone please tell me how to do this? Thanks a lot.~~
+
+See separate issue: #1580
+```
+$ /Users/abc/anaconda/bin/python -m pip install ipykernel
+$ /Users/abc/anaconda/bin/python -m  ipykernel install
+```
+It works! Thank you so much for your help, really saved my life!
+> It works! Thank you so much for your help, really saved my life!
+
+Happy coding !
+I tried doing what Carreau suggested and although I was able to then import scipy it made it so I could now no longer import matplotlib which I could previously....
+You have one Python environment with scipy installed but not matplotlib, and one with matplotlib installed but not Scipy. Whichever one you pick, you'll have to work out how to install the missing package into it, using conda or pip.
+
+![anaconda python script](https://user-images.githubusercontent.com/26456083/27940586-14e1f2c2-62fe-11e7-9955-c8576c7ed2ee.png)
+![2017-07-07 10 22 50](https://user-images.githubusercontent.com/26456083/27940616-458569d6-62fe-11e7-8ea4-53f3cfa3db8f.png)
+
+![jupyter](https://user-images.githubusercontent.com/26456083/27940602-26830e58-62fe-11e7-9c4c-56d904e5d69b.png)
+![spyder](https://user-images.githubusercontent.com/26456083/27940605-2b8ef3d0-62fe-11e7-9562-3b3d769d7df9.png)
+
+
+
+I have a similar problem. My problem is that when I launch my anaconda environment and access to Python script. the next line works well:
+                          from imgaug import augmenters as iaa
+but when I execute the same line in jupyter notebook or spyder(both in anaconda), the error occur.
+
+In Python script, the sys.executable:'/home/lqq/anaconda2/envs/tfgpu/bin/python'
+
+My jupyter notebook and spyder have same sys.executable:'/home/lqq/anaconda2/bin/python'
+
+I use the command that @Carreau provide，but only the first one runs well. In second, the error message is:
+               [Errno 13] Permission denied: '/usr/local/share/jupyter'
+
+
+Use `--help`  and look at the informations:
+
+```
+$ /path/to/python -m  ipykernel install --help
+usage: ipython-kernel-install [-h] [--user] [--name NAME]
+                              [--display-name DISPLAY_NAME]
+                              [--profile PROFILE] [--prefix PREFIX]
+                              [--sys-prefix]
+
+Install the IPython kernel spec.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --user                Install for the current user instead of system-wide
+  --name NAME           Specify a name for the kernelspec. This is needed to
+                        have multiple IPython kernels at the same time.
+  --display-name DISPLAY_NAME
+                        Specify the display name for the kernelspec. This is
+                        helpful when you have multiple IPython kernels.
+  --profile PROFILE     Specify an IPython profile to load. This can be used
+                        to create custom versions of the kernel.
+  --prefix PREFIX       Specify an install prefix for the kernelspec. This is
+                        needed to install into a non-default location, such as
+                        a conda/virtual-env.
+  --sys-prefix          Install to Python's sys.prefix. Shorthand for
+                        --prefix='/Users/bussonniermatthias/anaconda'. For use
+                        in conda/virtual-envs.
+```
+
+A `--user` flag is available. Or, if you know what your doing, use `sudo` to install with administrator permission.Thank you @Carreau ! I had solved this problem!
+Eh,,,I just reinstall the imgaug under the anaconda environment,then,it worked OK,,,sounds like a joke,hahaha,,,
+Thank you for your sincerity!Carreau,
+ I have similar problem. I high light our old HDP version 2.4.2.0-258 on the screen below, but we have the new HDP version 2.6, Looks like jupyter pick up the sys.path automatically, where I can find this Jupyter sys.path and what this sys.path name so that I can change this sys.path and get the correct python package
+
+Thannk you for your quick response
+
+<img width="816" alt="jupyter_python_hdp" src="https://user-images.githubusercontent.com/25250352/31548777-b000f132-aff1-11e7-8fb4-f8d1a80bb9ca.png">
+
+ 
+You can manipulate `sys.path` inside Python, e.g.
+
+```python
+sys.path.remove('/path/you/dont/want')
+sys.path.append('/path/you/do/want')
+```
+
+It can also be affected by the `$PYTHONPATH` environment variable when Jupyter is started.Great, answers above. I just create symlinks between respective system path and anaconda installation of python, for e.g. 
+```
+1. get system path !which python2; if the returned path is `/usr/bin/python2`
+2. sudo ln -s /home/anaconda2/bin/python2 /usr/bin/python2
+```
+this helps me moving from different versions of the python and making the notebooks work consistently.Hi, same issue here.
+Another approach is to install jupyter lab (or jupyter notebook) with "conda install -c conda-forge jupyterlab" after the environment's activation; I mean, inside the environment, so that the jupyter lab runs on this environment and not on root.
+May be it's not so much elegant, but is another way and works.i ran the following commands up above because it had up votes and it broke my ability to launch a jupyter notebook and killed that environment costing me hours of time to rebuild all the installs. Its unlikely someone will see this before they try it but in case they do
+
+`try a conda install ipykernel --name Python3, python -m ipykernel install. That will likely fix the notebook can see your Python 3 kernel. Then create a new >Python3 notebook from the dashboard.`
+i have this error please help
+
+ModuleNotFoundError                       Traceback (most recent call last)
+<ipython-input-19-9e4ac0e8b379> in <module>()
+      8 import tensorflow as tf
+      9 from tensorflow.python.framework import ops
+---> 10 from cnn_utils import *
+     11 
+     12 get_ipython().run_line_magic('matplotlib', 'inline')
+
+ModuleNotFoundError: No module named 'cnn_utils'
+
+
+The script jupyter-nbconvert.exe is installed in 'c:\users\moosa computers\appdata\local\programs\python\python36\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+how do i resolve this?Following is outcome of my terminal window:
+(ComputerVision) MacBook:~ Mac$ python
+Python 2.7.3 |Continuum Analytics, Inc.| (default, Dec 20 2012, 09:57:39) 
+[GCC 4.0.1 (Apple Inc. build 5493)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import sys
+>>> sys.executable
+'/anaconda2/envs/ComputerVision/bin/python'
+>>> 
+
+Following is the output of jupyter notebook:
+
+import sys
+sys.executable
+
+'/anaconda2/bin/python'
+
+I think issue is with virtualenv ComputerVision ..How to fix this ?
+
+
+So what is the exact solution? I am working on a linux and can't find any documentation from the anaconda and jupyter community. 
+
+$ python --version
+Python 3.6.8 :: Anaconda, Inc.
+---
+$ python
+>>> import sys
+>>> sys.executable
+'/home/abb/anaconda3/envs/something/bin/python'
+
+What are the next steps?
+
+I was having the same problem.  I also have the Anaconda navigator installed. I solved the issue from there.
+
+1. Open Anaconda Navigator
+2. find "Environments" tab in the top left corner, click on it.
+3. You will see a long list of packages.  Click  the "Update index..." button at the top of the list.  
+
+This solved my issueTo install package in jupyter notebook use following instructions:
+https://www.datadivein.com/2019/01/how-to-install-python-package-in.html> sys.executable
+
+
+sys.
+sys.executable
+'/Library/Frameworks/anaconda3/bin/python'
+
+path
+sys.path
+['/Users/macbookpro/PycharmProjects/PYTHONCODE',
+ '/Library/Frameworks/anaconda3/lib/python37.zip',
+ '/Library/Frameworks/anaconda3/lib/python3.7',
+ '/Library/Frameworks/anaconda3/lib/python3.7/lib-dynload',
+ '',
+ '/Library/Frameworks/anaconda3/lib/python3.7/site-packages',
+ '/Library/Frameworks/anaconda3/lib/python3.7/site-packages/aeosa',
+ '/Library/Frameworks/anaconda3/lib/python3.7/site-packages/IPython/extensions',
+ '/Users/macbookpro/.ipython']
+
+
+i can't import it in jupyter..i need some helphttps://github.com/udacity/P1_Facial_Keypoints/issues/13#issuecomment-462085023solved it, in my case
+```sh
+conda install ipykernel --name {envname}
+python -m ipykernel install --prefix=/anaconda3/envs/{envname} --name {envname}
+```
+
+https://ipython.readthedocs.io/en/stable/install/kernel_install.html
+>Using virtualenv or conda envs, you can make your IPython kernel in one env available to Jupyter in a different env. To do so, run ipykernel install from the kernel’s env, with –prefix pointing to the Jupyter env:
+Solved it. 
+
+Run `jupyter kernelspec list` in the terminal, or run `import sys; sys.executable` in an opened jupyter-notebook to see which interpreter it is using, and then we can manually delete these interpreters. Jupyter will then automatically find the other default interpreters (the ones with the right packages correctly installed)> try a `conda install ipykernel --name Python3`, `python -m ipykernel install`. That will likely fix the notebook can see your Python 3 kernel. Then create a `new` >`Python3 notebook` from the dashboard.
+ 
+works perfectly @Carreau 
+
+> try a conda install ipykernel --name Python3, python -m ipykernel install. That will likely fix the notebook can see your Python 3 kernel. Then create a new >Python3 notebook from the dashboard.
+
+
+apart from the fact that I had to specify the specific python version.
+
+i.e. 'python -m ipykernel install' changes to:
+
+python3.7 -m ipykernel install. 
+
+As I have python3.7 installed on my machine.
+
+Typing python alone reverts back to python2.7.
+
+Thumbs up from me!! 
+just upgrade your jupyter notebook : 
+
+pip install --upgrade pip
+pip install jupyterI have the same problem by importing ROOT CERN on centos with anaconda and **jupyterhub** perfectly woking on command prompt but not working in the notebook
+
+> ImportErrorTraceback (most recent call last)
+> <ipython-input-1-ee8dc4376aa8> in <module>()
+> ----> 1 import ROOT
+> 
+> ImportError: No module named ROOT
+
+following the idea of this post I have temporary solved the problem for python3 (default in my coda installation) by the following path added directly before calling the module
+
+```
+import sys
+sys.path.insert(0, "/usr/local/root/build")
+sys.path.insert(0, "/usr/local/root/build/lib")
+sys.path.insert(0, "/usr/local/root/build/etc/notebook")
+import ROOT
+```
+
+it' not clear to me how to make it permanent, any help? I got @Carreau 's suggestion to work by doing:
+`python -m ipykernel install`> Usually that indicates that the notebook is running with a different Python or in a different environment from Python in the command prompt. Check `sys.executable` to see which Python it's running in, and `sys.path` to see where it's looking for imports.
+
+When I switch to Python 3 kernel, it still shows /usr/bin/python, which is python2.
+
+So I had to run the following to make everything work
+
+> python2 -m pip install ipykernel
+> python2 -m ipykernel install --user
+> 
+> python3 -m pip install ipykernel
+> python3 -m ipykernel install --user> > Usually that indicates that the notebook is running with a different Python or in a different environment from Python in the command prompt. Check `sys.executable` to see which Python it's running in, and `sys.path` to see where it's looking for imports.
+> 
+> When I switch to Python 3 kernel, it still shows /usr/bin/python, which is python2.
+> 
+> So I had to run the following to make everything work
+> 
+> > python2 -m pip install ipykernel
+> > python2 -m ipykernel install --user
+> > python3 -m pip install ipykernel
+> > python3 -m ipykernel install --user
+
+@pswpswpsw I do that... but do not looks to be my case (by the way the problem is with **jupyterhub**, not with jupyter, where is working)
+
+_sys.executable: /opt/anaconda3/bin/python
+sys.path: ['', '/opt/anaconda3/lib/python36.zip', '/opt/anaconda3/lib/python3.6', '/opt/anaconda3/lib/python3.6/lib-dynload', '/opt/anaconda3/lib/python3.6/site-packages', '/opt/anaconda3/lib/python3.6/site-packages/Mako-1.0.7-py3.6.egg', '/opt/anaconda3/lib/python3.6/site-packages/IPython/extensions', '/home/mazzitel/.ipython']_first use 
+conda install nb_conda_kernels to set jupter notebook's envirnment
+second
+change kernel to choose the environment 
+importError                               Traceback (most recent call last)
+<ipython-input-1-986a457431da> in <module>()
+----> 1 import graphlab
+
+ImportError: No module named 'graphlab'
+
+how can I resolve this ?---------------------------------------------------------------------------
+ModuleNotFoundError                       Traceback (most recent call last)
+<ipython-input-1-88d96843a926> in <module>
+----> 1 import keras
+
+ModuleNotFoundError: No module named 'keras' 
+error how to solve it **<ipython-input-1-88d96843a926> in <module>**error how to solve it
+Here is a short snippet that should generally work:
+`import sys
+!{sys.executable} -m pip install scipy`> ```
+> $ /Users/abc/anaconda/bin/python -m pip install ipykernel
+> $ /Users/abc/anaconda/bin/python -m  ipykernel install
+> ```
+
+I have a similar issue here... 
+<img width="656" alt="Screen Shot 2019-09-15 at 11 23 06 pm" src="https://user-images.githubusercontent.com/36319949/64922845-e258eb80-d812-11e9-8d9d-d4eb78426002.png">
+
+<img width="573" alt="Screen Shot 2019-09-15 at 11 22 57 pm" src="https://user-images.githubusercontent.com/36319949/64922849-f1d83480-d812-11e9-84a0-201ae151f670.png">
+
+The paths are different, but one is in python3 and another is in python...
+I've tried:
+```
+/Users/shinyuwu/anaconda3/bin/python -m pip install ipykernel
+/Users/shinyuwu/anaconda3/bin/python -m  ipykernel install
+```
+But still not work for me :( 
+Can anyone help meI am also facing similar problem.
+
+sys.executable at command prompt gives: "C:\\Users\\Public.DESKTOP-6RBQT7L\\AppData\\Local\\Programs\\Python\\Python37-32\\python.exe" and Jupyter Notebook gives "C:\\ProgramData\\Anaconda3\\python.exe".
+
+Not sure what am I supposed to do now. Which command should I use in Jupyter Notebook to install quandl in the folder of Jupyter Notebook? > python -m ipykernel install
+
+Doesn't work for me. Says : "EnvironmentLocationNotFound: Not a conda environment: C:\Users\Public.DESKTOP-6RBQT7L\.conda\envs\Python3". Don't know what to do now.> > ```
+> > $ /Users/abc/anaconda/bin/python -m pip install ipykernel
+> > $ /Users/abc/anaconda/bin/python -m  ipykernel install
+> > ```
+> 
+> I have a similar issue here...
+> <img alt="Screen Shot 2019-09-15 at 11 23 06 pm" width="656" src="https://user-images.githubusercontent.com/36319949/64922845-e258eb80-d812-11e9-8d9d-d4eb78426002.png">
+> 
+> <img alt="Screen Shot 2019-09-15 at 11 22 57 pm" width="573" src="https://user-images.githubusercontent.com/36319949/64922849-f1d83480-d812-11e9-84a0-201ae151f670.png">
+> 
+> The paths are different, but one is in python3 and another is in python...
+> I've tried:
+> 
+> ```
+> /Users/shinyuwu/anaconda3/bin/python -m pip install ipykernel
+> /Users/shinyuwu/anaconda3/bin/python -m  ipykernel install
+> ```
+> 
+> But still not work for me :(
+> Can anyone help me
+
+Did it work for you? I am facing a similar issue.@nikhilrsharma I create a virtual environment in anaconda, then I solve this problem.
+https://uoa-eresearch.github.io/eresearch-cookbook/recipe/2014/11/20/conda/
+
+After installing the virtual environment,
+every time when you open the terminal: you should command: 
+
+`$ source activate _yourEnvName_`
+
+then run the jupyter notebook on your virtual environment. command:  `$ jupyter notebook`
+
+If you want to pip install any package, you should install 2 times:
+the first one is in the terminal: `$ pip install something`
+the second time is to enter the virtual environment: `$ source activate _yourEnvName_`
+and  `$ pip install something`Thank You so much "takluyver"
+> ```
+> $ /Users/abc/anaconda/bin/python -m pip install ipykernel
+> $ /Users/abc/anaconda/bin/python -m  ipykernel install
+> ```
+
+Thank you so much!!!!!!!!!!!You are executing your notebook inside an Anaconda environment. Try the following:
+
+`conda install -n curr_env scipy`  where curr_env is your Anaconda environment name.Hi @thirumalaipm I had the same issue, this is what worked for me.
+1. Check python version on your terminal/cmd/powershell.
+2. Check version on your Jupyter notebook.
+
+**They both need to be the same.**
+
+In order to check whether you are having module installed. Type ```help('modules')```, and find the module you are trying to work with.
+If it is listed there, it means it is installed.
+
+Then there might be some ambiguity in your Python path or version conflict(mentioned at top) as I was having.ModuleNotFoundError                       Traceback (most recent call last)
+<ipython-input-1-95f77258a456> in <module>
+     24 warnings.filterwarnings("ignore")
+     25 import syft as sy
+---> 26 from syft.frameworks.torch.fl import utils
+     27 from syft.grid.public_grid import PublicGridNetwork
+
+ModuleNotFoundError: No module named 'syft.frameworks.torch.fl'please I need assistanceAs noted multiple times above, given things work in python directly and not from a kernel launched from the notebook server, this is most likely a difference in envs between the two python executables.  Locate the `kernel.json` file (using `jupyter kernelspec list`) of the kernel you're launching and ensure the python used in the `argv` stanza is the same as the python used from the command line.
+
+Please check your version of `syft` in each environment.  If older than 0.2.1.a1 then the import should be `from syft.frameworks.torch.federated`.  If its a more recent version, then there might be an issue with the underlying torch installation - I don't know.
+
+Also note that `pip install syft` reverts both tornado (back to 4.5.3) and notebook (back to 5.7.8) installations - so beware! Hello Kelvin,Many thanks, I don really know how to play around, I wish I could get direct command line to execute to clear the error.
+I am a novice to python and Jupiter notebook as well.
+Many thanks,
+    On Monday, July 27, 2020, 03:56:32 PM GMT+1, Kevin Bates <notifications@github.com> wrote:  
+ 
+ 
+
+
+As noted multiple times above, given things work in python directly and not from a kernel launched from the notebook server, this is most likely a difference in envs between the two python executables. Locate the kernel.json file (using jupyter kernelspec list) of the kernel you're launching and ensure the python used in the argv stanza is the same as the python used from the command line.
+
+Please check your version of syft in each environment. If older than 0.2.1.a1 then the import should be from syft.frameworks.torch.federated. If its a more recent version, then there might be an issue with the underlying torch installation - I don't know.
+
+Also note that pip install syft reverts both tornado (back to 4.5.3) and notebook (back to 5.7.8) installations - so beware!
+
+—
+You are receiving this because you commented.
+Reply to this email directly, view it on GitHub, or unsubscribe.
+  Ping me via email (located on my GH profile) and perhaps we can try an online meeting to get you going - no promises though.ModuleNotFoundError                       Traceback (most recent call last)
+<ipython-input-20-2b7da42f5b00> in <module>
+      1 import tensorflow as tf
+      2 from tensorflow.keras.layers import Conv2D, Dense, GlobalAveragePooling2D
+----> 3 from notebooks.utils import (
+      4     show_images,
+      5     gaussian_filter,
+
+ModuleNotFoundError: No module named 'notebooks'
+> given things work in python directly and not from a kernel launched from the notebook server, this is most likely a difference in envs between the two python executables. Locate the kernel.json file (using jupyter kernelspec list) of the kernel you're launching and ensure the python used in the argv stanza is the same as the python used from the command line.
+
+Not sure what package provides the `notebooks` module, but this all implies that that package is not installed in the "environment" in which your kernel is running.---------------------------------------------------------------------------
+ImportError                               Traceback (most recent call last)
+<ipython-input-1-060130db9ff2> in <module>
+      5 from scipy.constants import mu_0
+      6 # simpeg and related packages
+----> 7 from pymatsolver import pardiso  as  solver
+      8 from SimPEG import (mesh,maps,utils,DataMisfit,Regularization,Optimization,Inversion,Invproblem,Directives)
+      9 from SimPEG.EM import TDEM
+
+ImportError: cannot import name 'pardiso' from 'pymatsolver' (C:\Users\IITR\anaconda3\lib\site-packages\pymatsolver\__init__.p
+
+
+please solve this error Please see [this comment from above](https://github.com/jupyter/notebook/issues/1524#issuecomment-225010572).  The code that is running this import statement is running from an environment that is likely different than the python in which notebook server is running (assuming that import works fine from the command line).  My guess is that pymatsolver should be updated in your base user env.**Problem :** Import on Jupyter notebook failed where command prompt works.
+**Reason :** This problem usually occurs when your cmd prompt is using different python and Anaconda/jupyter is using different.
+**Solution :**  Follow the following steps :-
+
+1. Run this code in cmd prompt and jupyter notebook and note the output paths. It will probably be different.
+`import sys `
+`sys.executable`
+
+2. Run this cmd in jupyter notebook.
+`!jupyter kernelspec list`
+ --> Go to that directory and open kernel.json file.
+ --> Change the 1st parameter of "argv" ,where 'python'(or python directory) is written with the exact output path of the 1st step, which was executed in cmd prompt. Save the changes.
+
+> Note : Problem might be resolved by now . Try importing same library in jupyter notebook again by restarting the kernel, if the kernel does not start then perform the 3rd step. 
+
+3. Run these cmds in cmd prompt.
+`python -m pip install ipykernel`
+`python -m ipykernel install`If you're looking for a fix for `VS Code` you may want to look **[here](https://stackoverflow.com/questions/50914761/jupyter-notebook-cant-find-modules-for-python-3-6/64730974#64730974)**.I can't install geopandas in my work device due to restrictions. It's one of the reasons I started using jupyter notebook which seemed to work fine, for a while even without installing geopandas, but now it throws the "ModuleImportError" for geopandas, all of a sudden. I haven't changed anything (like version etc). What could be the issue?
+
+Any help would be much appreciated.no moduel named Image
+It was working just fine then I tried to implement my code in a function and there is an error, I am done, I wasted 5 hours making a simple Program with Python and R
+Hi @Saad-py - could you please provide the context (e.g., the cell code being invoked) and traceback information in which you see _`no moduel named Image`_?  This sounds like either an env conflict (like those above) or a conflict between built-in and user-defined modules.> Hi,
+> 
+> I am new to Python and Anaconda. I installed anaconda and install Scipy. When I try import scipy in the Python in command prompt on the Anaconda prompt, it works fine as below
+> 
+> ```
+> [Anaconda3] C:\Users\me>python
+> Python 3.5.1 |Anaconda 4.0.0 (64-bit)| (default, Feb 16 2016, 09:49:46) [MSC v.1900 64 bit (AMD64)] on win32
+> Type "help", "copyright", "credits" or "license" for more information.
+> >>> import scipy
+> >>>
+> ```
+> 
+> But when I use the same in the Jupyter notebook, I am getting -
+> 
+> ```
+> ImportError                               Traceback (most recent call last)
+> <ipython-input-3-4dc45f4c0083> in <module>()
+> ----> 1 import scipy
+> 
+> ImportError: No module named 'scipy'
+> ```
+> 
+> Please let me know how to solve this issue.
+
+[This](https://ishikajohari.medium.com/import-errors-in-jupyter-notebooks-972b1011bee6) might work for you.

@@ -1,0 +1,448 @@
+ System information 
+ OSX
+ TF 2.0 dev20200602
+
+
+ Command used to run the converter or code if you’re using the Python API 
+If possible, please share a link to Colab Jupyter any notebook.
+
+Conversion code:
+ CODELCODEL 
+
+
+Inference code:
+ CODELCODEL 
+The model I'm trying to convert to tflite and run inference on is SSDLite MobileNetV2, obtained rom the Model Zoo:
+
+ LINKLINK 
+
+ Failure details 
+
+Conversion is successful, however I cannot run inference: Here is the error that I run into:
+ CODELCODEL 
+
+I've been playing around with converter settings with no luck
+ for example combinations of: 
+ CODELCODEL 
+
+With none of the settings above set, or the supported ops set, I can convert the model but cannot run inference, with a similar error as above.
+With optimizations set to default, it gives me an error in conversionUsing flex delegate in python is not yet supported LINKLINK 
+However, the feature will be landed really soon, might be sometimes next week, so please wait a little bit.Thanks for the information. I'll keep a watch Are you satisfied with the resolution of your issue?
+ Yes 
+ No 
+Is there an approximate ETA on Python support for flex delegate?The PR got all required approval. I think it won't take too long.The feature is delivered at the HEAD of master. aselva eb you can try it now. thaink Would you please post a sample code of how to use this in CODELCODEL? Thank you thaink for continuing to give me updates on this I appreciate it very much!
+
+I tried to update my Tensorflow using tf nightly to get latest HEAD of master and run inference on a model with both ops however I still run into the same error. Perhaps there's a flag in Interpreter that needs to be set to enable flex ops?
+
+Here's the code I'm using for inference:
+
+ CODELCODEL 
+
+Error happens on CODESCODES function:
+Here is the error:
+ CODELCODEL Hi aselva eb,
+There was a regression with the PR so it got rolled back and just re submitted yesterday.
+Can you give it a try again?
+There should be no additional step to use Flex delegate. thaink still no luck. Was it rolled back again by any chance? I'm on: CODESCODES aselva eb,
+The PR was not rolled back anymore. 
+Could you send me your converted model so I can do a check.This is absolutely fabulous! First tests on tf nightly 06 22 seem to work perfectly. I have not evaluated the results of the converted models, but FlexDelegate loads automatically for models that need it.Great to hear that. thaink I've attached the converted model:
+
+ LINKLINK 
+
+
+
+
+
+
+
+
+
+
+
+
+have you fixed it yet? I have the same issue thumbs down In my test today. It is working.
+
+ LINKLINK 
+
+
+
+
+Hi thaink 
+I tried your notebook with a fresh environment and wasn't able to get it to work. Still get the same issue:
+
+ CODELCODEL 
+
+Version of tf nightly: CODESCODES running with Python 3.7
+
+This very odd. 
+
+Can you re try with a fresh environment and let me know? Hi thaink just wanted to follow up with. Are you able to reproduce your results with a fresh environment?Hi aselva eb,
+I tried a fresh environment with venv today and it is still working fine.
+
+
+
+
+
+
+Oh really? No I'm using Conda. 
+I installed tf nightly with Venv and run the following script:
+import tensorflow as tf
+tf. version 
+
+interpreter tf. lite. Interpreter model path. model. tflite 
+
+print all ok 
+
+
+
+
+
+
+
+
+I tried the above with Venv and got the following:
+ CODELCODEL 
+
+What version of Python are you running? OS?
+I'm on Python 3.7 with Mac OS MojaveOh, Interesting.
+I just tried on a linux docker container, and here's what I get:
+
+ CODELCODEL 
+
+Must be something funny between the two platforms installation of tf nightly. OSX Mojave vs Linux 
+
+Are those errors at the top concerning? Looks like it's just trying to run on GPU when the drivers are not accessible.
+
+
+I tried running the invoke command, but here's the error I get now:
+
+ CODELCODEL 
+
+I wonder if the above invoke error is as result of an TF1 model that is incompatible with TF2.
+
+I don't think so. Let me ask another what is different between python package of Linux and MacOS. terryheo 
+Hi Terry, Is there any differences between pip package for Linux and MacOS?
+The flex delegate works on linux but seems to fail on MacOS.It's currently only works with Linux.
+MacOS and Windows support isn't ready yet. I have a plan to do it That explains it. Thanks for your help, all. thumbs up 
+ thaink, Although I can get a few steps farther with using a Linux Docker Image instead of MacOS, I still have issues when running invoke on the model I downloaded from the Tensorflow Object Detection Model Zoo. 
+Could it be a model compatibility issue? Or does this look like something specific to Flex delegate support? 
+ See log here: LINKLINK 
+
+
+
+I get the same error and I want to know that is this because TFLite has not supported it now? aselva eb is the python script the same? Or can you explain the steps to reproduce this?
+Flex delegate should only use CPU. Seems like it is trying to use Cuda here.Yes thaink, the python script is the same.
+
+I'll paste it again below:
+
+ CODELCODEL  thaink 
+
+I'm on tf nightly with the tensorflow docker image. Upon CODESCODES this is the stdout:
+
+ CODELCODEL 
+
+The rest of the stdout is related to the loading of the model invocation using the script above:
+
+ CODELCODEL 
+
+Because this error happens upon even importing tensorflow, I wonder if there is some default set in the image container for the GPU. 
+
+Alright. Let me check it on my machine.In my test, it fail on both MacOS and Linux. We haven't test flex delegate on docker container before, Let me try to get more log.Hi aselva eb,
+After doing some more tests, it turn out that the problem is with TensorArrayScatterV3 only.
+That op fails with flex delegate. is there a way to avoid that op in your model?Hi thaink,
+Potentially but in the mean time will there be dev work to support that op? Estimated ETA for a fix?I'll need to investigate more about the failure before estimating time for a fix, thanks.TF ops support Flex delegate is now enabled for MacOS.
+You can try nightly tf nightly 2.0. dev20200721 cp36 cp36m macosx 10 9 x86 64. whl or later 
+
+Let me know if you still have an issue here.Hello,
+I know this issue is open for MacOS but as already discussed this also happens on Linux and I am having a very similar problem if not the same with Linux. 
+
+I just tried tf nightly 2.0. dev20200721 cp37 cp37m manylinux2010 x86 64. whl getting similar results.
+
+Running on a GCP Notebook 
+
+ Python 3.6
+
+ tf nightly 2.0. dev20200721
+
+ Linux
+
+
+The stdout is slightly different but the same error, I am executing the same script 
+ CODELCODEL 
+
+Thanks
+
+
+
+
+Cool! Thanks Will try it out and let you know! SergioPN could you share your model? or some simple step to reproduce? Sure,
+
+I was trying to use this frozen inference graph in particular
+ LINKLINK 
+
+You also can check the saved model
+
+Thanks terryheo 
+
+ terryheo and SergioPN 
+The TensorArrayScatterV3 input is resource, which is not well supported now.
+It is the problem with the op alone, not the problem of flex mechanism on MacOS. terryheo 
+are you planning to add support for Flex delegate on windows also? I am using tf. signal. stft in my model and i am able to convert and run it on linux but not on windows.  Shubham3101 Flex delegate is supported on Windows. Did you use tf nightly? terryheo No i am using TF r2. which tf nightly should i use?
+The feature will be enabled with TF r2. For now, tf nightly only supports it.Thanks, it is working with tf nightlythank all of you，I read a lot of handbook, blog, material but not deal with it in python. So before it supports, just use java, tf nightly. terryheo Does this works with tflite runtime, I am facing same issues with tflite runtime
+
+ CODELCODEL  terryheo Same issue even with 2.0 dev20200803 on linux 
+ CODELCODEL same issue on 2.0 dev20200811
+
+ java. lang. IllegalArgumentException: Internal error: Failed to run on the given Interpreter: Container per step 0 does not exist. Could not find resource: per step 0 tensor arraysTensorArrayV3 0 
+ 	 while executing 'TensorArrayScatterV3' via Eager 
+ Node number 285 TfLiteFlexDelegate failed to invoke.I use tensorflow 2.0
+and 
+ CODELCODEL 
+and this problem is solved. 
+
+
+I run my code on google colab. I find out that SELECT TF OPS require LINKLINK 
+Tensorflow Lite has tutorial for delegating with android code. 
+
+My question is can I delegate to gpu on colab? I found nothing about delegating to colab gpu.
+Sorry for my bad English.We used the same library version on android, tensorflow 2.0 and founded the same issue as described in my previous comment, in our case this seems to be replicated on the 2.0 version of tensorflow android library.Did this break again as I am unable to run the inference on the lastest tf nightly 2.0dev20200626
+I am using the ssd mobilenet v2 coco 2018 03 29 to do some object detection with the OD api.
+The inference code is same as aselva eb gave here: LINKLINK 
+this is the error:
+RuntimeError: Container per step 0 does not exist. Could not find resource: per step 0 tensor arraysTensorArrayV3 0 
+	 while executing 'TensorArrayScatterV3' via Eager Node number 244 TfLiteFlexDelegate failed to invoke.
+ Raphaeal19 did you convert tflite with SELECT TF OPS?
+ LINKLINK Yes, this is the code for it terryheo 
+
+import tensorflow as tf
+print tf. version 
+converter tf. lite. TFLiteConverter. from saved model ' content workspace exported graph saved model', signature keys 
+converter. optimizations 
+converter. experimental new converter True
+converter. target spec. supported ops 
+
+
+
+with tf. io. gfile. GFile 'model 36k egohands. tflite', 'wb' as f:
+ f. write tflite model Oh I see. According to LINKLINK, TensorArrayV3 is not supported with SELECT TF OPS tiru1930 tflite runtime doesn't support TensorFlow ops since it doesn't contain TF kernel implementation.oh I see. Could you kindly direct me how to resolve this issue with regard to Object detection API terryheo? I am just starting out in this.
+Should i change my model completely?Also, i just checked LINKLINK.
+allowlisted flex ops has the op TensorArrayV3 as well as TensorArrayScatterV3 in it. terryheo  Raphaeal19 Since the ops is not working. I'll remove the op from the allowedlist.
+ thaink can you give me an eta on the removal of the ops? Raphaeal19 Removing is a simple cl. So it'll be removed soon.i tried adding the input shape arg during the exporting of inference graph to the command and it worked for me.
+
+
+
+
+
+ output directory content workspace exported graph 
+
+
+Flex ops only models can support this ops so it will not be removed. thaink terryheo 
+Hi 
+i convert my frozen graph to tflite. when inference it, the inference code is 
+
+
+interpreter tf. lite. Interpreter model path converted model. tflite 
+
+
+
+input shape input details 
+input data np. array np. random. random sample input shape, dtype np. float32 
+interpreter. set tensor input details, input data 
+
+output data interpreter. get tensor output details 
+print output data 
+
+
+i get the below error:
+
+ RuntimeError: Container per step 0 does not exist. Could not find resource: per step 0 tensor arraysbidirectional rnn bw bw dynamic rnn input 0 1 
+ while executing 'TensorArrayScatterV3' via Eager Node number 91 TfLiteFlexDelegate failed to invoke.
+
+can you help me?
+
+
+ saeedkhanehgir TensorArrayScatterV3 does not works with flex delegate in most case.
+For now, you'll need to remove it from the mode. thaink 
+thanks. For your answer
+Could you please explain further where I should delete it? saeedkhanehgir I think you have to replace it in the training code. Then train the model and convert it again. thaink 
+Do I have no other solution? thaink 
+can i build a custom TensorArrayScatterV3 op? thaink terryheo 
+I think this error was because of lstm layer. if lstm layer was created by keras, this error was solved. saeedkhanehgir Great info. Thanks for letting us know.Hi thaink,
+
+I train and save. pb model with TensorFlow 1.15.0 and try to convert. pb file to. tflite file with tf nightly
+
+Main codes:
+
+converter. target spec. supported ops 
+converter. experimental new converter True
+
+Error:
+RuntimeError: Regular TensorFlow ops are not supported by this interpreter. Make sure you apply link the Flex delegate before inference. Node number 3 FlexSign failed to prepare.
+
+Seems like it's the problem with tf. sign and I DO have tf. sign in my model and there is BiLSTM layer in my model. So does it mean I have to implement tf. sign op on my own or are there other solutions? 
+
+Thank you.
+ le8888e Sign is supported by flex delegate so the conversion must be fine.
+I think the problem here is a typo.
+could you use tf. lite. OpsSet. SELECT TF OPS instead of tf. lite. OpsSet. SELECT 
+Hi thaink,
+
+I am using tf. lite. OpsSet. SELECT TF OPS, sorry for my mistake. And I'm trying tf nightly 2.0 for flex delegate.
+
+
+Without this, there are errors like 
+‘converting unsupported op Enter and TensorArrayV3’
+
+Thank you le8888e I don't think define the model in a version and convert an a different version is a good practice.
+Could you try to define the model with nightly? You can just try to convert it, no need to train. thaink OK, I will give it a try. Is tf nightly 1. available and where can I get them? Since code between tf 1. and 2. is a little different, I want to try tf nightly 1. 
+Thank you
+ I don't think we have nightly for 1 
+You can try disable v2 behavior on nightly and see if it is what you expect.Hi saeedkhanehgir,
+
+I came up the same problem with you. In my case there are
+
+and
+
+in my model and there are other layers. Do I only need to implement these two layers by keras and keep other layers unchange？ The tf version I‘m using is tf 1.15.0
+
+Thank you.Hi thaink,
+
+After implementing BiLSTM layer by Keras, I successfully convert and inference. tflite model.
+I want to serve. tflite model by tf serving on PC with python api. Is this feasible and is there any guidance for this?
+
+THANK YOU le8888e You implemented the BiLSTM for Tensorflow?
+Is it in C++ or python? thaink Just replace TF layer declaration by Keras
+Original:
+outputs, tf. nn. bidirectional dynamic rnn lstm fw cell, lstm bw cell, embedded chars, dtype tf. float32 
+New:
+outputs tf. keras. layers. Birdirectional lstm cell, merge mode concat embedded chars 
+
+Then errors are gone. le8888e Are you able to run the tflite model?
+ thaink Yes, I can run. tflite model by
+interpreter tf. lite. Interpreter model path 
+. . 
+
+
+The outputs of. pb and. tflite are exactly the same.
+
+I'm wondering if I can serve. tflite model with TF Serving.
+
+Thank you There is an on going effort of supporting tflite on TF Serving.
+ LINKLINK 
+It's not ready yet but it'll be available soon.Are you satisfied with the resolution of your issue?
+ Yes 
+ No 
+Hi terryheo thaink,
+
+I was building tf nightly viac pip. Would XNNPACK built by default? And how can I check it?
+
+Thank you It's not enabled by default.
+You can enable it with use xnnpack true option.
+
+ LINKLINK 
+
+You can see Created TensorFlow Lite XNNPACK delegate for CPU. from log.Hi. I got the same error. I dont understand. Which version of tf nightly do you use to make it work.
+
+TensorArray need resources type support, which is currently in progress.In the TF nightly version or TF 2.5 version not tflite runtime 2.5 version, this problem has resolved already.Hello thaink & abattery 
+
+I am running in this error with NonMaxSuppression operation while running inference from TFlite model. 
+ tf. image. non max suppression is one of the final layers of my model 
+I tested using both TF v2.2 and v2.1
+
+ CODELCODEL 
+
+Is this operation supported under any recent Tensorflow releases?
+The discussion LINKLINK says I need to build TFLite using tensorflow lite delegates flex: delegate as dependency.
+
+I would be glad if you could elaborate how to do this. 
+
+Thanks. suraj maniyar You can find our guide here: LINKLINK 
+How to use it depends on what environment you are running with. thaink 
+I am using C++ API on CentOS 8 machine and I get the above error on model loading. suraj maniyar Are you using bazel? How did you install the dependency for TFLite? thaink Yes, I am using Bazel v3.1 
+I followed all the instructions for building TFLite C API from source from LINKLINK.I see. You can have two options:
+ add tensorflow lite delegates flex: delegate to the list of your dependency
+ build tensorflow lite delegates flex: tensorflowlite flex with config monolithic and add the. so file to your projectHello thaink 
+I tried your 2 approaches.
+
+For first approach: 
+I updated this file:
+ CODELCODEL 
+
+I changed the tflite cc shared object to add the flex delegete dependency like so LINKLINK:
+ CODELCODEL 
+
+And built tensorflowlite using this command:
+ CODELCODEL 
+
+This built successfully, but during runtime, I still get error in model loading that contains NonMaxSuppression layer.
+
+For the second approach I get this error: 
+ CODELCODEL 
+
+when I try to build tflite with flex delegate. 
+ CODELCODEL 
+
+Please let me know if there is anything that I am probably doing the wrong way here. I am new to using TensorFlowLite.
+Thanks. thaink 
+Any updates on this issue?For the first approach, you are building the wrong target: It should be tensorflow lite: tensorflowlite
+For the second one, You should sync to our master branch and the name is tensorflowlite flex not tensorflow flex thaink 
+Thank you very much for the correction. I tried building tensorflowlite using the first approach.
+It gave me the following error:
+ CODELCODEL 
+
+Is this also supposed to be built under master branch? I am building it under v2.2
+
+
+Can you add experimental ui max stdouterr bytes 1000048576 or a bigger number of necessary. And don't forget to add config monolithic Thanks a lot thaink. This built successfully!
+I have one additional question: I tried building TF Lite v2.1 with flex delegate dependency using cmake and again got the unsupported operator error.
+Is flex delegate not supported in v2.1 under CMake?
+If so, could you give an estimate when the support would be added? terryheo can you update about the cmake build?We don't have a plan to support Flex delegate with CMake. But I'm wondering why you can't use Bazel for the purpose. thaink I use tf. image. combined non max suppression in my model. I can transfer it to tflite. But when I use it in Android or use python tf. lite. interpreter, i got the issus.
+ LINKLINK 
+How can I resolve it 
+
+I use the code to convert my model. 
+ CODELCODEL 
+ mao381332619 Please upload a new issue. We would like to keep each issue focused.ok. thanks abattery It works for me now. with Tensorflow 2.0. Merci a lot.
+
+ 
+Garanti
+sans virus. LINKLINK 
+ 
+ 
+
+Le jeu. 13 mai 2021 à 10:01, mao381332619. a
+écrit:
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ Franck MIGONE 
+ Ingénieur Statisticien 
+ +225 77 55 34 45 +225 40 48 92 27 
+ Chef Services Ressources et Formation, ENSEA Junior Services 
+
+
+ thaink terryheo 
+Actually, I was able to use the Bazel build for my project. Thanks a lot for your help.
+ thaink terryheo 
+Not sure if this falls under a different topic, but I am interested in running inference using flex delegate on single thread.
+For that I configured my interpreter like this: 
+ CODELCODEL 
+
+Upon doing that I get an error in destructor for Flex delegate: 
+ CODELCODEL 
+
+Is there a way I can confine inference with flex delegate to run on single thread?
+I also built tensorflow with xnnpack support but it did not use single thread.
+ suraj maniyar It should be a different topic. Can you file a new issue for it? thaink I opened a new issue LINKLINK. Could you please take a look?
+Thanks.

@@ -1,0 +1,736 @@
+I first noticed this when running 'make test' hanged. I tried with stable and bleeding edge scipy I initially thought it was something arpack related.
+
+The test CODESCODES hangs the process.
+
+Running in IPython something like CODESCODES hangs as well.
+
+I thought maybe there was something wrong with my setup, but CODESCODES works OK with CODESCODES.
+Under linux or windows?
+Mac OS X Lion 10. can anybody reproduce?
+
+Not in the same session because the process needs to be killed, but it works in an identical IPython session in the same virtualenv. I don't really know how to debug this, I'll try some prints to see where it hangs.
+
+Vlad
+
+On Feb 16, 2012, at 12:15, Olivier Grisel wrote:
+
+
+
+
+
+
+
+After a heavy tracing session I strangely found the hanging line to be a call to CODESCODES! in safe sparse dot called from euclidean distances in CODESCODES.
+
+The exact same code runs when CODESCODES ie. avoiding the special branch that bypasses the call to CODESCODES when CODESCODES 
+
+The interesting part though I haven't checked this extensively is that this happens in all 3 of my virtualenvs: stable numpy&scipy, git head numpy&scipy and scipy superpack.
+
+Any ideas?
+
+On Feb 16, 2012, at 13:15, Olivier Grisel wrote:
+
+
+
+
+
+
+
+Can you try to attach a gdb to the running python processes and get a backtrace?
+
+ CODELCODEL 
+I'm trying to run scikit learn for the first time on my Mac and am getting a hang on CODESCODES also.
+
+Mac OS X Lion 10. Python 2. latest scikit learn master from Github, virtualenv, numpy 1.1, scipy 0.10.1
+
+I haven't tried gdb or anything yet. I'll be at the PyData Workshop tomorrow Saturday in case someone is there and wants to poke around on my computer.
+I did a Git bisect to narrow it down:
+
+ CODELCODEL 
+
+So far I have been unable to get GDB working with Python. This probably isn't useful, but here's what I get when I Ctrl C it after it hangs:
+
+ CODELCODEL 
+Ok so the git bisect tells us that this bug was introduced at the same time as we introduce the parallel kmeans feature itself. The python stacktrace might tell use that there is a race condition in multiprocessing:
+
+this might be related: to LINKLINK which has been fixed in python 3 but maybe not backported in python 2.
+
+By the way vene and njwilson, which versions of python are you using?
+
+ Edit: I mean exactly, such as CODESCODES 
+I'm using Python 2.2
+Same here. I could never reproduce this race condition. So this might not be linked to an already backported python bugfix.
+How many cores CPUs do you have on your machine? I am running a dual core machine.
+Same. Dual core.
+ njwilson can you try to checkout and build this branch and see if you can still reproduce the issue?
+
+ LINKLINK 
+
+cython profiling seems to be messing around with python threads and I have heard recently that python forking and the the python threads are not good friends: LINKLINK 
+I tried the no kmeans profile branch and the problem still exists.
+ cournape and I tracked the bug down to a segfault in Grand Central Dispatch on the BLAS DGEMM function only after a fork:
+
+ LINKLINK 
+
+I have just reported the issue to Apple. Hopefully it will be fixed at some point. In the mean time we will have to skip this test on OSX I think.
+Wow, great work!
+
+Let's hope they are responsive.
+
+On Mar 13, 2012, at 09:51, Olivier Grisel wrote:
+
+
+
+
+
+
+
+
+
+
+
+Now on Mountain Lion I don't get hanging but I get random segfaults in the CODESCODES.
+This is the output: LINKLINK 
+I assume this is the same bug ogrisel and cournape found, that Apple confirmed as expected behaviour you can't call accelerate in subprocesses 
+
+Can I compile my own parallel, optimized blas and lapack then? Did anybody do this on Lion or Mountain Lion because I can't find much about this endeavour.
+Accelerate can be called after a fork but you need to execv the subprocess with the python binary which multiprocessing does not do under posix. I think cournape is working on a numpy build that uses LINKLINK and that could server as a good alternative for Accelerate even though early benchmark should a slight decrease in performances.
+So is there any way we can avoid these problems on OS X? Can we check the blas before trying to do something in parallel?
+I think cournape would like to make it possible to switch the blas lapack implementation for numpy at runtime but that might be pretty tricky to implement and will obviously only be available in some undetermined future version of numpy if ever.
+
+I don't know if we can detect whether the Blas in used is linked to Accelerate and issue a warning in joblib prior to forking in that case.
+Hm. ok probably there is no chance really. should we just add this to the docs as a known issue in OS X?
+ thumbs up it never hurts to document stuff.
+does anybody know if EPD on osx produces the same bug?
+
+
+I use EPD with MKL on my mac and I've never had a problem so I would
+say no until I'm proved wrong. 
+I added a warning in bd3a6c2fcc3ea15ba17b1e2c9946c81f1f0b05a9.
+ ogrisel vene could you please check that it is accurate? Should we close this issue or leave it open?
+FYI there is a similar issue with OpenBLAS. I just reported here: xianyi OpenBLAS 294
+I'm having the same issue with Ubuntu here. It was working a few days ago.
+
+ uname a:
+Linux 3.0 29 generic 42 Ubuntu SMP Tue Aug 13 19:40:39 UTC 2013 x86 64 x86 64 x86 64 GNU Linux
+ 
+ python version
+Python 2.4 
+
+ CODELCODEL 
+
+Recent upgrades via apt get
+Commit Log for Sun Sep 1 13:30:29 2013
+Installed the following packages:
+libblas dev 1.20110419 5 
+liblapack dev 3.2 thumbs down exp3 
+liblapack doc 3.2 thumbs down exp3 
+liblapacke 3.2 thumbs down exp3 
+liblapacke dev 3.2 thumbs down exp3 
+
+KMeans with n jobs 2 hangs, cross validation with n jobs 2 runs.
+That's weird. I recently pushed efa74b491ed46427abe12a76ad4629dfae8a77d4 to master but that was to skip this test if openblas is used, so it should not be the problem. Still can you try to checkout a past version using git log and retry to check whether this commit is the source of the regression? You cannot CODESCODES easily because of the hanging behavior so manually check is probably required.
+
+Also what is the output of:
+
+ CODELCODEL 
+
+on your box?
+ CODELCODEL 
+
+That's odd, I thought I installed Atlas. I need to reinstall numpy right?
+Weird. Maybe numpy is confused. I just checked on a up to date Ubuntu 13.04 machine and if I install CODESCODES I get the following output:
+
+ CODELCODEL 
+Note that the headers seem to be required: if I uninstall the headers from CODESCODES while keeping the dynamic library from the package CODESCODES then I see the line:
+
+ CODELCODEL 
+
+Basically it switches back to the symlinks to the non optimized versions of BLAS and LAPACK. So the dev headers are effectively a runtime dependency for optimized numpy under Ubuntu.
+Just to confirm what I just said:
+
+ CODELCODEL 
+Thanks for that, it got me on the right track. I followed the instructions LINKLINK and it appears to work.
+Hanging on a clean install with Anaconda on a new i7 Mabook Pro Retina and Mavericks.
+
+
+
+Which version of scikit learn? We believe that we have fixed this in
+master.
+Hey GaelVaroquaux, I'm using scikit learn 0.14.1 np17py27 1 from Anaconda.
+ kevindavenport can you please give us the output of:
+
+ CODELCODEL 
+
+If you have gdb installed, can you also try?
+
+ CODELCODEL 
+ ogrisel Thanks for your help. The dedication you guys have to this project is incredible!
+
+ CODELCODEL 
+
+I found an article stating how I can install gdb with homebrew:
+
+ CODELCODEL 
+
+ but I also read gdb has been replaced by lldb, and is no longer supported. gcc and llvm gcc are also gone, replaced by clang. 
+Alright: anaconda is apparently linked against OSX vecLib instead of MKL or Atlas which causes the issue. Therefore this is the same issue as previously. We don't have any clean solution for this in the short term besides advising you to build Atlas from source to use that instead of vecLib.
+Peter Wang from continuum states that they build against Apple Accelerate Framework. Do any of you guys have experience with pointing my environment to Atlas instead?
+Maybe CODESCODES is lying then? Anyway the freeze looks real and AFAIK MKL is fork safe.
+Numpy developers started working on a binary package for numpy on OSX that builds against an embedded Atlas that does not suffer from this bug, this the comments in numpy numpy 4007. If this experiment is validated a such numpy whl packages get published on PyPI we can close this bug and re enable the skipped tests for future versions of numpy.
+A few months ago I decided to just conda install MKL LINKLINK which would make my python install use the Intel MKL optimizations over the built in accelerate framework. This let me use the parallel features of joblib in scikit, but recently the anaconda 2.0 and or numpy upgrade broke it again. Everything checks out here though:
+
+ CODELCODEL 
+
+ CODELCODEL 
+This is bad news. Can you confirm that the following breaks with numpy + mkl?
+
+ CODELCODEL 
+If you get a segfault with the OSX process crash report, please report the stack trace here.
+I close this issue as the original bug has now been fixed by the new numpy wheel package on PyPI.
+
+ kevindavenport could you please open a new issue for if you can reproduce the crash with numpy MKL and the code snippet provided in my earlier comment?
+I am still getting this bug with the latest versions of everything on a mac. numpy + mkl breaks.
+mkl, not accelerate? I didn't realize that was a problem, too.
+You are not using the anaconda version, are you?
+I'm getting this with Python 2.10, Anaconda 2. OS X 10.10. scikit learn 16.1
+
+Not sure if this will help:
+
+Process: python 
+Path: anaconda LINKLINK 
+Identifier: python
+Version:
+Code Type: X86 64 Native 
+Parent Process: python 
+Responsible: Terminal 
+
+Date Time: 2015 08 24 13:52:01.586 0500
+OS Version: Mac OS X 10.10.5 14F27 
+Report Version: 11
+
+Time Awake Since Boot: 1500 seconds
+
+Crashed Thread: 0 Dispatch queue: com. apple. main thread
+
+Exception Type: EXC BAD ACCESS SIGSEGV 
+Exception Codes: KERN INVALID ADDRESS at 0x0000000000000110
+
+VM Regions Near 0x110:
+ 
+ TEXT 0000000100000000 0000000100001000 r x rwx SM COW anaconda LINKLINK 
+
+Application Specific Information:
+
+crashed on child side of fork pre exec
+
+Thread 0 Crashed: Dispatch queue: com. apple. main thread
+0 libdispatch. dylib 0x00007fff94b23c13 dispatch group async + 533
+1 libBLAS. dylib 0x00007fff872bb1ff rowMajorNoTranspose + 689
+2 libBLAS. dylib 0x00007fff872b92c9 cblas dgemv + 783
+3 dotblas. so 0x00000001038c49ab gemv + 123
+4 dotblas. so 0x00000001038c38c8 dotblas matrixproduct + 4312
+5 libpython2. dylib 0x00000001000c39bd PyEval EvalFrameEx + 24989
+6 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+7 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+8 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+9 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+10 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+11 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+12 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+13 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+14 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+15 libpython2. dylib 0x000000010003e1d0 function call + 176
+16 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+17 libpython2. dylib 0x00000001000bea0a PyEval EvalFrameEx + 4586
+18 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+19 libpython2. dylib 0x000000010003e1d0 function call + 176
+20 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+21 libpython2. dylib 0x000000010001dccd instancemethod call + 333
+22 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+23 libpython2. dylib 0x000000010007966a slot tp call + 74
+24 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+25 libpython2. dylib 0x00000001000bea0a PyEval EvalFrameEx + 4586
+26 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+27 libpython2. dylib 0x000000010003e1d0 function call + 176
+28 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+29 libpython2. dylib 0x00000001000bea0a PyEval EvalFrameEx + 4586
+30 libpython2. dylib 0x00000001000c505b PyEval EvalFrameEx + 30779
+31 libpython2. dylib 0x00000001000c505b PyEval EvalFrameEx + 30779
+32 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+33 libpython2. dylib 0x000000010003e1d0 function call + 176
+34 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+35 libpython2. dylib 0x000000010001dccd instancemethod call + 333
+36 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+37 libpython2. dylib 0x0000000100079298 slot tp init + 88
+38 libpython2. dylib 0x0000000100076115 type call + 245
+39 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+40 libpython2. dylib 0x00000001000c071d PyEval EvalFrameEx + 12029
+41 libpython2. dylib 0x00000001000c505b PyEval EvalFrameEx + 30779
+42 libpython2. dylib 0x00000001000c505b PyEval EvalFrameEx + 30779
+43 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+44 libpython2. dylib 0x000000010003e1d0 function call + 176
+45 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+46 libpython2. dylib 0x00000001000bea0a PyEval EvalFrameEx + 4586
+47 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+48 libpython2. dylib 0x000000010003e1d0 function call + 176
+49 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+50 libpython2. dylib 0x00000001000bea0a PyEval EvalFrameEx + 4586
+51 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+52 libpython2. dylib 0x000000010003e1d0 function call + 176
+53 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+54 libpython2. dylib 0x000000010001dccd instancemethod call + 333
+55 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+56 libpython2. dylib 0x0000000100079298 slot tp init + 88
+57 libpython2. dylib 0x0000000100076115 type call + 245
+58 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+59 libpython2. dylib 0x00000001000bea0a PyEval EvalFrameEx + 4586
+60 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+61 libpython2. dylib 0x000000010003e1d0 function call + 176
+62 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+63 libpython2. dylib 0x000000010001dccd instancemethod call + 333
+64 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+65 libpython2. dylib 0x000000010007966a slot tp call + 74
+66 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+67 libpython2. dylib 0x00000001000c071d PyEval EvalFrameEx + 12029
+68 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+69 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+70 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+71 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+72 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+73 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+74 libpython2. dylib 0x00000001000c505b PyEval EvalFrameEx + 30779
+75 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+76 libpython2. dylib 0x00000001000c5275 PyEval EvalFrameEx + 31317
+77 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+78 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+79 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+80 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+81 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+82 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+83 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+84 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+85 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+86 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+87 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+88 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+89 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+90 libpython2. dylib 0x000000010003e1d0 function call + 176
+91 libpython2. dylib 0x000000010000c7b2 PyObject Call + 98
+92 libpython2. dylib 0x00000001000bea0a PyEval EvalFrameEx + 4586
+93 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+94 libpython2. dylib 0x00000001000c3d10 PyEval EvalFrameEx + 25840
+95 libpython2. dylib 0x00000001000c5ca3 PyEval EvalCodeEx + 2115
+96 libpython2. dylib 0x00000001000c5dc6 PyEval EvalCode + 54
+97 libpython2. dylib 0x00000001000eb17e PyRun FileExFlags + 174
+98 libpython2. dylib 0x00000001000eb41a PyRun SimpleFileExFlags + 458
+99 libpython2. dylib 0x000000010010248d Py Main + 3165
+100 com. continuum. python 0x0000000100000f54 start + 52
+
+Thread 0 crashed with X86 Thread State 64 bit:
+ rax: 0x0000000109a93000 rbx: 0x0000000000000000 rcx: 0x0000000000000000 rdx: 0x0000000000000100
+ rdi: 0x00007fff78b15d40 rsi: 0x0000000000000000 rbp: 0x00007fff5fbf8090 rsp: 0x00007fff5fbf8060
+ r8: 0x0000000109a93000 r9: 0x0000000000000000 r10: 0x0000000000000004 r11: 0xffff8001a07eaaa0
+ r12: 0x00000001003e2c00 r13: 0x00000001003cf200 r14: 0x00007fff94b1d317 r15: 0x0000000000002000
+ rip: 0x00007fff94b23c13 rfl: 0x0000000000010206 cr2: 0x0000000000000110
+
+Logical CPU: 6
+Error Code: 0x00000006
+Trap Number: 14
+
+Binary Images:
+ 0x100000000 0x100000ff7 +com. continuum. python? anaconda LINKLINK 
+ 0x100003000 0x100168ff3 +libpython2. dylib 2.7 anaconda libpython2. dylib
+ 0x1002ed000 0x1002efff7 + locale. so? anaconda locale. so
+ 0x1002f3000 0x1002f7fff + struct. so? anaconda struct. so
+ 0x1005f0000 0x1005f6fff + json. so? anaconda json. so
+ 0x1005fb000 0x1005fcff7 + heapq. so? anaconda heapq. so
+ 0x100740000 0x100742ff7 +time. so? anaconda time. so
+ 0x100747000 0x100748ff7 +cStringIO. so? anaconda cStringIO. so
+ 0x10078d000 0x100791ff7 + collections. so? anaconda collections. so
+ 0x100797000 0x10079bff7 +operator. so? anaconda operator. so
+ 0x1007a2000 0x1007a9ff7 +itertools. so? anaconda itertools. so
+ 0x1007f4000 0x1007f7fff +strop. so? anaconda strop. so
+ 0x1007fc000 0x1007fdfff + functools. so? anaconda functools. so
+ 0x102280000 0x102280ff7 +grp. so? anaconda grp. so
+ 0x102283000 0x102288ff7 +math. so? anaconda math. so
+ 0x10228f000 0x102291ff7 +binascii. so? anaconda binascii. so
+ 0x102295000 0x1022adffe +libz.2. dylib 1.8 anaconda libz.2. dylib
+ 0x1022b1000 0x1022b3ff7 + hashlib. so? anaconda hashlib. so
+ 0x1022b7000 0x10230cfef +libssl.0. dylib 1 anaconda libssl.0. dylib
+ 0x10232a000 0x10248cfff +libcrypto.0. dylib 1 anaconda libcrypto.0. dylib
+ 0x1024fd000 0x1024feff7 + random. so? anaconda random. so
+ 0x102501000 0x102516fff + io. so? anaconda io. so
+ 0x10252d000 0x10252eff7 +fcntl. so? anaconda fcntl. so
+ 0x102571000 0x102574fff +select. so? anaconda select. so
+ 0x10257a000 0x10257bfff +resource. so? anaconda resource. so
+ 0x10257e000 0x10257fff7 +termios. so? anaconda termios. so
+ 0x102744000 0x10274dff7 + socket. so? anaconda socket. so
+ 0x102759000 0x102765ff7 + ssl. so? anaconda ssl. so
+ 0x1027b1000 0x1027b1ff7 + scproxy. so? anaconda scproxy. so
+ 0x1027b4000 0x1027c2fff +datetime. so? anaconda datetime. so
+ 0x1027ce000 0x1027d9fff + sqlite3. so? anaconda sqlite3. so
+ 0x1027e5000 0x1027f5fff +cPickle. so? anaconda cPickle. so
+ 0x1027fd000 0x1027fdfff + check build. so? anaconda check build. so
+ 0x1030c0000 0x103195fef +libsqlite3. dylib 9.6 anaconda libsqlite3. dylib
+ 0x103272000 0x103274ff7 + lsprof. so? anaconda lsprof. so
+ 0x1032f8000 0x10330eff7 + ctypes. so? anaconda ctypes. so
+ 0x10339f000 0x1033a2fff +zlib. so? anaconda zlib. so
+ 0x1037ea000 0x103827fff +gnureadline. so? anaconda gnureadline. so
+ 0x1038c1000 0x1038c5ff7 + dotblas. so? anaconda dotblas. so
+ 0x1038c9000 0x1038eaff7 +scalarmath. so? anaconda scalarmath. so
+ 0x1038fc000 0x1038fdfff +lapack lite. so? anaconda lapack lite. so
+ 0x103a00000 0x103b1dfff +multiarray. so? anaconda multiarray. so
+ 0x103c1a000 0x103c70fff +umath. so? anaconda umath. so
+ 0x103d5c000 0x103d60ff7 + compiled base. so? anaconda compiled base. so
+ 0x103da4000 0x103db3fff + umath linalg. so? anaconda umath linalg. so
+ 0x105000000 0x105000fff +future builtins. so? anaconda future builtins. so
+ 0x105003000 0x10500bfff +fftpack lite. so? anaconda fftpack lite. so
+ 0x10504f000 0x10509dff7 +mtrand. so? anaconda mtrand. so
+ 0x1051ac000 0x1053ebfff + sparsetools. so? anaconda sparsetools. so
+ 0x105521000 0x105577ff7 + csparsetools. so? anaconda csparsetools. so
+ 0x105593000 0x1055befff + shortest path. so? anaconda shortest path. so
+ 0x1055d0000 0x1055e6ff7 + tools. so? anaconda tools. so
+ 0x1055f4000 0x105609fff + traversal. so? anaconda traversal. so
+ 0x105617000 0x105621ff7 + min spanning tree. so? anaconda min spanning tree. so
+ 0x10562a000 0x105658ff7 + reordering. so? anaconda reordering. so
+ 0x1056b1000 0x1056bcfff +murmurhash. so? anaconda murmurhash. so
+ 0x1056c5000 0x1057f9fff + ufuncs. so? anaconda ufuncs. so
+ 0x105873000 0x105883ff7 + ufuncs cxx. so? anaconda ufuncs cxx. so
+ 0x10588d000 0x10595afff +specfun. so? anaconda specfun. so
+ 0x1059b2000 0x1059ebff7 + fblas. so? anaconda fblas. so
+ 0x105a14000 0x105a8bfff + flapack. so? anaconda flapack. so
+ 0x105ae4000 0x105aedff7 + flinalg. so? anaconda flinalg. so
+ 0x105af5000 0x105b15ff7 + solve toeplitz. so? anaconda solve toeplitz. so
+ 0x105b69000 0x105b9dff7 + decomp update. so? anaconda decomp update. so
+ 0x105bb7000 0x105bddfff +cython blas. so? anaconda cython blas. so
+ 0x105bf8000 0x105c69ff7 +cython lapack. so? anaconda cython lapack. so
+ 0x105cfc000 0x105d07ff7 + ellip harm 2. so? anaconda ellip harm 2. so
+ 0x105d10000 0x105d4cff7 + odepack. so? anaconda odepack. so
+ 0x105d57000 0x105d8bfff + quadpack. so? anaconda quadpack. so
+ 0x105d96000 0x105dd9fe7 +vode. so? anaconda vode. so
+ 0x105de5000 0x105e12fff + dop. so? anaconda dop. so
+ 0x105e1d000 0x105e5bfe7 +lsoda. so? anaconda lsoda. so
+ 0x105e67000 0x105e93fff + iterative. so? anaconda iterative. so
+ 0x105eec000 0x105eefff7 + multiprocessing. so? anaconda multiprocessing. so
+ 0x105ef4000 0x105ef9fff +array. so? anaconda array. so
+ 0x106b00000 0x106b47ff7 + superlu. so? anaconda superlu. so
+ 0x106b5f000 0x106bfdfef + arpack. so? anaconda arpack. so
+ 0x106c62000 0x106c9efff + imaging. so? anaconda imaging. so
+ 0x106cc0000 0x106d0eff4 +libjpeg. dylib 13 anaconda libjpeg. dylib
+ 0x106d15000 0x106d8afff +libtiff. dylib 7 anaconda libtiff. dylib
+ 0x106e18000 0x106e1bff7 +mmap. so? anaconda mmap. so
+ 0x106e5f000 0x106e65ff7 + logistic sigmoid. so? anaconda logistic sigmoid. so
+ 0x106e6b000 0x106e7aff7 +sparsefuncs fast. so? anaconda sparsefuncs fast. so
+ 0x106e84000 0x106e88fff +futil. so? anaconda futil. so
+ 0x106ecc000 0x106eeefff +minpack2. so? anaconda minpack2. so
+ 0x106ef7000 0x106f2cfff + lbfgsb. so? anaconda lbfgsb. so
+ 0x106f36000 0x106f3cff7 +moduleTNC. so? anaconda moduleTNC. so
+ 0x106f3f000 0x106f70ff7 + cobyla. so? anaconda cobyla. so
+ 0x106f79000 0x106fa6fef + slsqp. so? anaconda slsqp. so
+ 0x106ff0000 0x106ff1ff7 + zeros. so? anaconda zeros. so
+ 0x106ff4000 0x106ffafff + distance wrap. so? anaconda distance wrap. so
+ 0x107800000 0x107818ff7 + minpack. so? anaconda minpack. so
+ 0x10781d000 0x10783ffe7 + nnls. so? anaconda nnls. so
+ 0x1078c8000 0x1078d3ff7 +vonmises cython. so? anaconda vonmises cython. so
+ 0x1079db000 0x1079ebfff + rank. so? anaconda rank. so
+ 0x1079f6000 0x1079f7ff7 +lgamma. so? anaconda lgamma. so
+ 0x1079fb000 0x1079fcff7 +typedefs. so? anaconda typedefs. so
+ 0x107b00000 0x107b07fff +statlib. so? anaconda statlib. so
+ 0x107b0d000 0x107b36fff +mvn. so? anaconda mvn. so
+ 0x107c77000 0x107ca6fff +ckdtree. so? anaconda ckdtree. so
+ 0x107cc0000 0x107d5dff7 +qhull. so? anaconda qhull. so
+ 0x107dd1000 0x107de0ff7 +expected mutual info fast. so? anaconda expected mutual info fast. so
+ 0x107de9000 0x107e0bff7 +pairwise fast. so? anaconda pairwise fast. so
+ 0x107e61000 0x107ea4fff +ball tree. so? anaconda ball tree. so
+ 0x107ec9000 0x107ed3ff7 + random. so? anaconda random. so
+ 0x107edc000 0x107ee8fff +graph shortest path. so? anaconda graph shortest path. so
+ 0x107ef0000 0x107ef3fff +arrayfuncs. so? anaconda arrayfuncs. so
+ 0x107ef9000 0x107ef9ff7 + bisect. so? anaconda bisect. so
+ 0x108000000 0x108026fff +dist metrics. so? anaconda dist metrics. so
+ 0x108047000 0x10808aff7 +kd tree. so? anaconda kd tree. so
+ 0x1080ee000 0x1080f5ff7 +weight vector. so? anaconda weight vector. so
+ 0x108200000 0x108213fff + traversal. so? anaconda traversal. so
+ 0x108220000 0x108232ff7 + graph tools. so? anaconda graph tools. so
+ 0x108280000 0x1082cafef + fitpack. so? anaconda fitpack. so
+ 0x1082d5000 0x108343ff7 +dfitpack. so? anaconda dfitpack. so
+ 0x108358000 0x108387ff7 + ppoly. so? anaconda ppoly. so
+ 0x1083a0000 0x1083d7ff7 +interpnd. so? anaconda interpnd. so
+ 0x108435000 0x108458ff7 +cd fast. so? anaconda cd fast. so
+ 0x1084ad000 0x1084c2fff +sgd fast. so? anaconda sgd fast. so
+ 0x1084d4000 0x1084ddff7 +seq dataset. so? anaconda seq dataset. so
+ 0x108526000 0x108557fff +libsvm. so? anaconda libsvm. so
+ 0x10856d000 0x108580ff7 +liblinear. so? anaconda liblinear. so
+ 0x10858c000 0x1085baff7 +libsvm sparse. so? anaconda libsvm sparse. so
+ 0x10860f000 0x108617fff + isotonic. so? anaconda isotonic. so
+ 0x10861f000 0x108626fff + utils. so? anaconda utils. so
+ 0x10862c000 0x10863eff7 + k means. so? anaconda k means. so
+ 0x10868a000 0x1086a2ff7 + hierarchical. so? anaconda hierarchical. so
+ 0x1086b8000 0x1086d1fff +fast dict. so? anaconda fast dict. so
+ 0x1086e6000 0x1086edfff + dbscan inner. so? anaconda dbscan inner. so
+ 0x108734000 0x10873cfff + elementtree. so? anaconda elementtree. so
+ 0x108782000 0x1087b6feb +pyexpat. so? anaconda pyexpat. so
+ 0x1087c8000 0x10885cfff +unicodedata. so? anaconda unicodedata. so
+ 0x1089f7000 0x1089fafff + csv. so? anaconda csv. so
+ 0x108b40000 0x108b49fff + tkinter. so? anaconda tkinter. so
+ 0x108b52000 0x108c2afe5 +libtcl8. dylib 8.18 8.18 anaconda libtcl8. dylib
+ 0x108c50000 0x108d56ffc +libtk8. dylib 8.18 8.18 anaconda libtk8. dylib
+ 0x109f80000 0x109f85fff + hashing. so? anaconda hashing. so
+ 0x109fcb000 0x109fcffff +mio utils. so? anaconda mio utils. so
+ 0x109fd4000 0x109fdffff +streams. so? anaconda streams. so
+ 0x109fea000 0x109ff0fff + svmlight format. so? anaconda svmlight format. so
+ 0x10a100000 0x10a11cfff +mio5 utils. so? anaconda mio5 utils. so
+ 0x10a22e000 0x10a284fff + regex. so? anaconda regex. so
+ 0x7fff6c67a000 0x7fff6c6b0887 dyld 353.3 usr lib dyld
+ 0x7fff86914000 0x7fff86915fff liblangid. dylib 117 usr lib liblangid. dylib
+ 0x7fff86916000 0x7fff86afbff7 libicucore. A. dylib 531.48 usr lib libicucore. A. dylib
+ 0x7fff86afc000 0x7fff86b80fff com. apple. PerformanceAnalysis 1.0 1 System Library PrivateFrameworks PerformanceAnalysis. framework Versions A PerformanceAnalysis
+ 0x7fff86ead000 0x7fff86eddff3 com. apple. GSS 4.0 2.0 System Library Frameworks GSS. framework Versions A GSS
+ 0x7fff86ede000 0x7fff86ee0fff libsystem sandbox. dylib 358.20.5 usr lib system libsystem sandbox. dylib
+ 0x7fff87079000 0x7fff870e0ffb com. apple. datadetectorscore 6.0 396.2 System Library PrivateFrameworks DataDetectorsCore. framework Versions A DataDetectorsCore
+ 0x7fff870fd000 0x7fff87101fff libcache. dylib 69 usr lib system libcache. dylib
+ 0x7fff8710d000 0x7fff8710fff7 com. apple. securityhi 9.0 55006 System Library Frameworks Carbon. framework Versions A Frameworks SecurityHI. framework Versions A SecurityHI
+ 0x7fff87110000 0x7fff87119ff7 libsystem notify. dylib 133.1 usr lib system libsystem notify. dylib
+ 0x7fff87273000 0x7fff87401fff libBLAS. dylib 1128 System Library Frameworks Accelerate. framework Versions A Frameworks vecLib. framework Versions A libBLAS. dylib
+ 0x7fff87402000 0x7fff8741dff7 libCRFSuite. dylib 34 usr lib libCRFSuite. dylib
+ 0x7fff87573000 0x7fff8757cfff libsystem pthread. dylib 105.40.1 usr lib system libsystem pthread. dylib
+ 0x7fff875d4000 0x7fff87683fe7 libvMisc. dylib 516 System Library Frameworks Accelerate. framework Versions A Frameworks vecLib. framework Versions A libvMisc. dylib
+ 0x7fff87684000 0x7fff876d8fff libc++. dylib 120 usr lib libc++. dylib
+ 0x7fff87a9b000 0x7fff87a9bfff com. apple. Carbon 154 157 System Library Frameworks Carbon. framework Versions A Carbon
+ 0x7fff87a9c000 0x7fff87addfff libGLU. dylib 11.2 System Library Frameworks OpenGL. framework Versions A Libraries libGLU. dylib
+ 0x7fff87d1d000 0x7fff87e0fff7 libiconv. dylib 42 usr lib libiconv. dylib
+ 0x7fff87e28000 0x7fff87e6eff7 libauto. dylib 186 usr lib libauto. dylib
+ 0x7fff87f0f000 0x7fff87f15ff7 libsystem networkextension. dylib 167.40.3 usr lib system libsystem networkextension. dylib
+ 0x7fff87f16000 0x7fff87f4efff libsystem network. dylib 412.20.3 usr lib system libsystem network. dylib
+ 0x7fff8800b000 0x7fff88017fff com. apple. speech. synthesis. framework 5.11 5.11 System Library Frameworks ApplicationServices. framework Versions A Frameworks SpeechSynthesis. framework Versions A SpeechSynthesis
+ 0x7fff88018000 0x7fff8821246f libobjc. A. dylib 647 usr lib libobjc. A. dylib
+ 0x7fff88298000 0x7fff88448ff3 com. apple. QuartzCore 1.10 361.19 System Library Frameworks QuartzCore. framework Versions A QuartzCore
+ 0x7fff88449000 0x7fff88479fff libsystem m. dylib 3086.1 usr lib system libsystem m. dylib
+ 0x7fff8847a000 0x7fff88812ff7 com. apple. CoreFoundation 6.9 1153.18 System Library Frameworks CoreFoundation. framework Versions A CoreFoundation
+ 0x7fff888ba000 0x7fff88b30ff7 com. apple. security 7.0 57031.40.6 System Library Frameworks Security. framework Versions A Security
+ 0x7fff88b53000 0x7fff88b5efff libcommonCrypto. dylib 60061.30.1 usr lib system libcommonCrypto. dylib
+ 0x7fff89b23000 0x7fff89c17fff libFontParser. dylib 134.7 System Library Frameworks ApplicationServices. framework Versions A Frameworks ATS. framework Versions A Resources libFontParser. dylib
+ 0x7fff8a142000 0x7fff8a145ff7 libdyld. dylib 353.3 usr lib system libdyld. dylib
+ 0x7fff8a146000 0x7fff8a148fff com. apple. loginsupport 1.0 1 System Library PrivateFrameworks login. framework Versions A Frameworks loginsupport. framework Versions A loginsupport
+ 0x7fff8a149000 0x7fff8a16afff com. apple. framework. Apple80211 10.3 1030.71.6 System Library PrivateFrameworks Apple80211. framework Versions A Apple80211
+ 0x7fff8a16b000 0x7fff8a186fff com. apple. AppleVPAFramework 1.5 1.5 System Library PrivateFrameworks AppleVPA. framework Versions A AppleVPA
+ 0x7fff8a24f000 0x7fff8a274fff libPng. dylib 1239 System Library Frameworks ImageIO. framework Versions A Resources libPng. dylib
+ 0x7fff8a275000 0x7fff8a55cffb com. apple. CoreServices. CarbonCore 1108.6 1108.6 System Library Frameworks CoreServices. framework Versions A Frameworks CarbonCore. framework Versions A CarbonCore
+ 0x7fff8a562000 0x7fff8a573ff3 libsystem coretls. dylib 35.40.1 usr lib system libsystem coretls. dylib
+ 0x7fff8a574000 0x7fff8a59cfff libxpc. dylib 559.40.1 usr lib system libxpc. dylib
+ 0x7fff8a5aa000 0x7fff8a5affff com. apple. DiskArbitration 2.6 2.6 System Library Frameworks DiskArbitration. framework Versions A DiskArbitration
+ 0x7fff8a5e4000 0x7fff8a5e5ff3 libSystem. B. dylib 1213 usr lib libSystem. B. dylib
+ 0x7fff8a5e6000 0x7fff8a5f3fff libxar. dylib 255 usr lib libxar. dylib
+ 0x7fff8a93c000 0x7fff8a988ff7 libcups. dylib 408.2 usr lib libcups. dylib
+ 0x7fff8b2da000 0x7fff8b2e7ff7 libbz2.0. dylib 36 usr lib libbz2.0. dylib
+ 0x7fff8b2e8000 0x7fff8b366fff com. apple. CoreServices. OSServices 640.4 640.4 System Library Frameworks CoreServices. framework Versions A Frameworks OSServices. framework Versions A OSServices
+ 0x7fff8b468000 0x7fff8b474ff7 com. apple. OpenDirectory 10.10 187 System Library Frameworks OpenDirectory. framework Versions A OpenDirectory
+ 0x7fff8b4f9000 0x7fff8b51dfef libJPEG. dylib 1239 System Library Frameworks ImageIO. framework Versions A Resources libJPEG. dylib
+ 0x7fff8b51e000 0x7fff8b52cff7 com. apple. opengl 11.2 11.2 System Library Frameworks OpenGL. framework Versions A OpenGL
+ 0x7fff8b536000 0x7fff8b869ff7 libmecabra. dylib 666.7 usr lib libmecabra. dylib
+ 0x7fff8b870000 0x7fff8b894ff7 com. apple. Sharing 328.17 328.17 System Library PrivateFrameworks Sharing. framework Versions A Sharing
+ 0x7fff8b9f4000 0x7fff8b9f7fff com. apple. xpc. ServiceManagement 1.0 1 System Library Frameworks ServiceManagement. framework Versions A ServiceManagement
+ 0x7fff8bbb5000 0x7fff8bbe5ff7 libncurses.4. dylib 44 usr lib libncurses.4. dylib
+ 0x7fff8bbe6000 0x7fff8bd4dffb com. apple. audio. toolbox. AudioToolbox 1.12 1.12 System Library Frameworks AudioToolbox. framework Versions A AudioToolbox
+ 0x7fff8be9c000 0x7fff8bedcff7 libGLImage. dylib 11.2 System Library Frameworks OpenGL. framework Versions A Libraries libGLImage. dylib
+ 0x7fff8bedd000 0x7fff8bf03fff com. apple. ChunkingLibrary 2.1 163.6 System Library PrivateFrameworks ChunkingLibrary. framework Versions A ChunkingLibrary
+ 0x7fff8bff6000 0x7fff8bff7ffb libremovefile. dylib 35 usr lib system libremovefile. dylib
+ 0x7fff8bff8000 0x7fff8c033fff com. apple. QD 301 301 System Library Frameworks ApplicationServices. framework Versions A Frameworks QD. framework Versions A QD
+ 0x7fff8c07b000 0x7fff8c07efff com. apple. help 1.3 46 System Library Frameworks Carbon. framework Versions A Frameworks Help. framework Versions A Help
+ 0x7fff8c07f000 0x7fff8c0aafff libc++abi. dylib 125 usr lib libc++abi. dylib
+ 0x7fff8c100000 0x7fff8c15ffff com. apple. AE 681.5 681.7 System Library Frameworks CoreServices. framework Versions A Frameworks AE. framework Versions A AE
+ 0x7fff8c160000 0x7fff8c198fff com. apple. RemoteViewServices 2.0 99 System Library PrivateFrameworks RemoteViewServices. framework Versions A RemoteViewServices
+ 0x7fff8c199000 0x7fff8c1b0ff7 libLinearAlgebra. dylib 1128 System Library Frameworks Accelerate. framework Versions A Frameworks vecLib. framework Versions A libLinearAlgebra. dylib
+ 0x7fff8c1b1000 0x7fff8c1c7ff7 libsystem asl. dylib 267 usr lib system libsystem asl. dylib
+ 0x7fff8c1ee000 0x7fff8c262ffb com. apple. securityfoundation 6.0 55126 System Library Frameworks SecurityFoundation. framework Versions A SecurityFoundation
+ 0x7fff8c2b5000 0x7fff8c2d1fff com. apple. GenerationalStorage 2.0 209.11 System Library PrivateFrameworks GenerationalStorage. framework Versions A GenerationalStorage
+ 0x7fff8c8b7000 0x7fff8c8b8ff7 libsystem blocks. dylib 65 usr lib system libsystem blocks. dylib
+ 0x7fff8c8c3000 0x7fff8c8c3ff7 libkeymgr. dylib 28 usr lib system libkeymgr. dylib
+ 0x7fff8c8c4000 0x7fff8c8cdff3 com. apple. CommonAuth 4.0 2.0 System Library PrivateFrameworks CommonAuth. framework Versions A CommonAuth
+ 0x7fff8c8ce000 0x7fff8c8cfff7 com. apple. print. framework. Print 10.0 265 System Library Frameworks Carbon. framework Versions A Frameworks Print. framework Versions A Print
+ 0x7fff8caf9000 0x7fff8cafeff7 libmacho. dylib 862 usr lib system libmacho. dylib
+ 0x7fff8d587000 0x7fff8d58eff7 libcompiler rt. dylib 35 usr lib system libcompiler rt. dylib
+ 0x7fff8d5c7000 0x7fff8d9d4ff7 libLAPACK. dylib 1128 System Library Frameworks Accelerate. framework Versions A Frameworks vecLib. framework Versions A libLAPACK. dylib
+ 0x7fff8da4d000 0x7fff8dabffff com. apple. framework. IOKit 2.2 1050.20.2 System Library Frameworks IOKit. framework Versions A IOKit
+ 0x7fff8dace000 0x7fff8dbfefff com. apple. UIFoundation 1.0 1 System Library PrivateFrameworks UIFoundation. framework Versions A UIFoundation
+ 0x7fff8e049000 0x7fff8e04bfff libCVMSPluginSupport. dylib 11.2 System Library Frameworks OpenGL. framework Versions A Libraries libCVMSPluginSupport. dylib
+ 0x7fff8e04e000 0x7fff8e0bafff com. apple. framework. CoreWLAN 5.0 500.35.2 System Library Frameworks CoreWLAN. framework Versions A CoreWLAN
+ 0x7fff8e0bb000 0x7fff8e0dbfff com. apple. IconServices 47.1 47.1 System Library PrivateFrameworks IconServices. framework Versions A IconServices
+ 0x7fff8e0dc000 0x7fff8e0ddfff libDiagnosticMessagesClient. dylib 100 usr lib libDiagnosticMessagesClient. dylib
+ 0x7fff8ea20000 0x7fff8ea98ff7 com. apple. SystemConfiguration 1.14.4 1.14 System Library Frameworks SystemConfiguration. framework Versions A SystemConfiguration
+ 0x7fff8ea99000 0x7fff8eaa1fff libsystem platform. dylib 63 usr lib system libsystem platform. dylib
+ 0x7fff8eaa2000 0x7fff8ebb4ff7 libvDSP. dylib 516 System Library Frameworks Accelerate. framework Versions A Frameworks vecLib. framework Versions A libvDSP. dylib
+ 0x7fff8ebb5000 0x7fff8efe5fff com. apple. vision. FaceCore 3.6 3.6 System Library PrivateFrameworks FaceCore. framework Versions A FaceCore
+ 0x7fff8efe6000 0x7fff8efeafff libpam. dylib 20 usr lib libpam. dylib
+ 0x7fff8f110000 0x7fff8f11bfff libGL. dylib 11.2 System Library Frameworks OpenGL. framework Versions A Libraries libGL. dylib
+ 0x7fff8f187000 0x7fff8f194ff7 com. apple. SpeechRecognitionCore 2.2 2.2 System Library PrivateFrameworks SpeechRecognitionCore. framework Versions A SpeechRecognitionCore
+ 0x7fff8f1c5000 0x7fff8f25aff7 com. apple. ColorSync 4.0 4.0 System Library Frameworks ApplicationServices. framework Versions A Frameworks ColorSync. framework Versions A ColorSync
+ 0x7fff8f25f000 0x7fff8f52eff3 com. apple. CoreImage 10.4 System Library Frameworks QuartzCore. framework Versions A Frameworks CoreImage. framework Versions A CoreImage
+ 0x7fff8f7c1000 0x7fff8f8d0ff3 com. apple. desktopservices 1.3 1.3 System Library PrivateFrameworks DesktopServicesPriv. framework Versions A DesktopServicesPriv
+ 0x7fff8f8d2000 0x7fff8f8d8fff com. apple. speech. recognition. framework 5.9 5.9 System Library Frameworks Carbon. framework Versions A Frameworks SpeechRecognition. framework Versions A SpeechRecognition
+ 0x7fff8f93c000 0x7fff9017dff3 com. apple. CoreGraphics 1.600.0 788.3 System Library Frameworks CoreGraphics. framework Versions A CoreGraphics
+ 0x7fff90299000 0x7fff90300ff7 com. apple. framework. CoreWiFi 3.0 300.4 System Library PrivateFrameworks CoreWiFi. framework Versions A CoreWiFi
+ 0x7fff9030e000 0x7fff9030efff libOpenScriptingUtil. dylib 162.2 usr lib libOpenScriptingUtil. dylib
+ 0x7fff9030f000 0x7fff90360fff com. apple. audio. CoreAudio 4.0 4.0 System Library Frameworks CoreAudio. framework Versions A CoreAudio
+ 0x7fff903df000 0x7fff903e7fff libsystem dnssd. dylib 576.30.4 usr lib system libsystem dnssd. dylib
+ 0x7fff903e8000 0x7fff90422ffb com. apple. DebugSymbols 115 115 System Library PrivateFrameworks DebugSymbols. framework Versions A DebugSymbols
+ 0x7fff90423000 0x7fff90425fff libsystem configuration. dylib 699.40.2 usr lib system libsystem configuration. dylib
+ 0x7fff9053a000 0x7fff90556ff7 libsystem malloc. dylib 53.30.1 usr lib system libsystem malloc. dylib
+ 0x7fff90557000 0x7fff905e3fe7 libsystem c. dylib 1044.40.1 usr lib system libsystem c. dylib
+ 0x7fff905e4000 0x7fff905e8fff libCoreVMClient. dylib 79.1 System Library Frameworks OpenGL. framework Versions A Libraries libCoreVMClient. dylib
+ 0x7fff9062b000 0x7fff908aaff7 com. apple. CoreData 111 526.3 System Library Frameworks CoreData. framework Versions A CoreData
+ 0x7fff908ab000 0x7fff908aefff com. apple. IOSurface 97.4 97.4 System Library Frameworks IOSurface. framework Versions A IOSurface
+ 0x7fff90c26000 0x7fff90c2cfff libsystem trace. dylib 72.20.1 usr lib system libsystem trace. dylib
+ 0x7fff90c2d000 0x7fff90c68fff com. apple. Symbolication 1.4 56045 System Library PrivateFrameworks Symbolication. framework Versions A Symbolication
+ 0x7fff90c86000 0x7fff90c8afff com. apple. CommonPanels 1.6 96 System Library Frameworks Carbon. framework Versions A Frameworks CommonPanels. framework Versions A CommonPanels
+ 0x7fff90c8b000 0x7fff90fbcfff com. apple. Foundation 6.9 1154 System Library Frameworks Foundation. framework Versions C Foundation
+ 0x7fff90fbd000 0x7fff9102bff3 com. apple. Heimdal 4.0 2.0 System Library PrivateFrameworks Heimdal. framework Versions A Heimdal
+ 0x7fff9102c000 0x7fff91172fef libsqlite3. dylib 168.2 usr lib libsqlite3. dylib
+ 0x7fff916e0000 0x7fff916e4fff com. apple. TCC 1.0 1 System Library PrivateFrameworks TCC. framework Versions A TCC
+ 0x7fff92074000 0x7fff92074fff com. apple. CoreServices 62 62 System Library Frameworks CoreServices. framework Versions A CoreServices
+ 0x7fff92077000 0x7fff92077fff com. apple. Cocoa 6.8 21 System Library Frameworks Cocoa. framework Versions A Cocoa
+ 0x7fff92078000 0x7fff92089fff libcmph. dylib 1 usr lib libcmph. dylib
+ 0x7fff920d1000 0x7fff920e2ff7 libz. dylib 55 usr lib libz. dylib
+ 0x7fff92167000 0x7fff921b6ff7 com. apple. opencl 2.2 2.2 System Library Frameworks OpenCL. framework Versions A OpenCL
+ 0x7fff92288000 0x7fff9228aff7 libsystem coreservices. dylib 9 usr lib system libsystem coreservices. dylib
+ 0x7fff9228b000 0x7fff92290ffb libheimdal asn1. dylib 398.40.1 usr lib libheimdal asn1. dylib
+ 0x7fff92291000 0x7fff9230afe7 libcorecrypto. dylib 233.30.1 usr lib system libcorecrypto. dylib
+ 0x7fff923f1000 0x7fff92519ff7 com. apple. coreui 2.1 308.6 System Library PrivateFrameworks CoreUI. framework Versions A CoreUI
+ 0x7fff9251a000 0x7fff92534ff3 com. apple. Ubiquity 1.3 313 System Library PrivateFrameworks Ubiquity. framework Versions A Ubiquity
+ 0x7fff92535000 0x7fff930b6ff7 com. apple. AppKit 6.9 1348.17 System Library Frameworks AppKit. framework Versions C AppKit
+ 0x7fff930b7000 0x7fff930e2ff3 libarchive. dylib 30 usr lib libarchive. dylib
+ 0x7fff93110000 0x7fff9313dfff com. apple. CoreVideo 1.8 145.1 System Library Frameworks CoreVideo. framework Versions A CoreVideo
+ 0x7fff93633000 0x7fff93650ffb libresolv. dylib 57 usr lib libresolv. dylib
+ 0x7fff93651000 0x7fff93651fff com. apple. Accelerate. vecLib 3.10 vecLib 3.10 System Library Frameworks Accelerate. framework Versions A Frameworks vecLib. framework Versions A vecLib
+ 0x7fff93652000 0x7fff9367dff7 com. apple. DictionaryServices 1.2 229.1 System Library Frameworks CoreServices. framework Versions A Frameworks DictionaryServices. framework Versions A DictionaryServices
+ 0x7fff937e8000 0x7fff93b03fcf com. apple. vImage 8.0 8.0 System Library Frameworks Accelerate. framework Versions A Frameworks vImage. framework Versions A vImage
+ 0x7fff93b04000 0x7fff93ba2fff com. apple. Metadata 10.0 917.36 System Library Frameworks CoreServices. framework Versions A Frameworks Metadata. framework Versions A Metadata
+ 0x7fff93be2000 0x7fff93c51fff com. apple. SearchKit 1.0 1.0 System Library Frameworks CoreServices. framework Versions A Frameworks SearchKit. framework Versions A SearchKit
+ 0x7fff93f16000 0x7fff93f20ff7 com. apple. NetAuth 5.2 5.2 System Library PrivateFrameworks NetAuth. framework Versions A NetAuth
+ 0x7fff93f35000 0x7fff93f48ff7 com. apple. CoreBluetooth 1.0 1 System Library Frameworks CoreBluetooth. framework Versions A CoreBluetooth
+ 0x7fff93f49000 0x7fff93f50fff com. apple. NetFS 6.0 4.0 System Library Frameworks NetFS. framework Versions A NetFS
+ 0x7fff9462a000 0x7fff94653ffb libxslt. dylib 13 usr lib libxslt. dylib
+ 0x7fff9465c000 0x7fff946fbe27 com. apple. AppleJPEG 1.0 1 System Library PrivateFrameworks AppleJPEG. framework Versions A AppleJPEG
+ 0x7fff94781000 0x7fff947cbfff com. apple. HIServices 1.22 523 System Library Frameworks ApplicationServices. framework Versions A Frameworks HIServices. framework Versions A HIServices
+ 0x7fff947cc000 0x7fff947deff7 com. apple. ImageCapture 9.0 9.0 System Library Frameworks Carbon. framework Versions A Frameworks ImageCapture. framework Versions A ImageCapture
+ 0x7fff947ef000 0x7fff947effff com. apple. audio. units. AudioUnit 1.12 1.12 System Library Frameworks AudioUnit. framework Versions A AudioUnit
+ 0x7fff947f0000 0x7fff94879ff7 com. apple. CoreSymbolication 3.1 57020.2 System Library PrivateFrameworks CoreSymbolication. framework Versions A CoreSymbolication
+ 0x7fff9487a000 0x7fff94897fff libsystem kernel. dylib 2782.40.9 usr lib system libsystem kernel. dylib
+ 0x7fff94898000 0x7fff94aa8ff7 com. apple. CFNetwork 720.7 720.7 System Library Frameworks CFNetwork. framework Versions A CFNetwork
+ 0x7fff94aa9000 0x7fff94aabfff libquarantine. dylib 76.20.1 usr lib system libquarantine. dylib
+ 0x7fff94ae5000 0x7fff94aeefff libGFXShared. dylib 11.2 System Library Frameworks OpenGL. framework Versions A Libraries libGFXShared. dylib
+ 0x7fff94aef000 0x7fff94af0fff libsystem secinit. dylib 18 usr lib system libsystem secinit. dylib
+ 0x7fff94b16000 0x7fff94b16fff com. apple. Accelerate 1.10 Accelerate 1.10 System Library Frameworks Accelerate. framework Versions A Accelerate
+ 0x7fff94b17000 0x7fff94b41ff7 libdispatch. dylib 442.4 usr lib system libdispatch. dylib
+ 0x7fff94b42000 0x7fff94c7cfff com. apple. ImageIO. framework 3.0 1239 System Library Frameworks ImageIO. framework Versions A ImageIO
+ 0x7fff94c7d000 0x7fff94c96ff3 com. apple. openscripting 1.4 162.2 System Library Frameworks Carbon. framework Versions A Frameworks OpenScripting. framework Versions A OpenScripting
+ 0x7fff94c97000 0x7fff94cbffff libsystem info. dylib 459.40.1 usr lib system libsystem info. dylib
+ 0x7fff94cc0000 0x7fff94d0dff7 com. apple. print. framework. PrintCore 10.3 451.1 System Library Frameworks ApplicationServices. framework Versions A Frameworks PrintCore. framework Versions A PrintCore
+ 0x7fff94d0e000 0x7fff94da2fff com. apple. ink. framework 10.9 213 System Library Frameworks Carbon. framework Versions A Frameworks Ink. framework Versions A Ink
+ 0x7fff94dbc000 0x7fff94dccff7 libbsm. dylib 34 usr lib libbsm. dylib
+ 0x7fff94dfd000 0x7fff94e43ff7 libFontRegistry. dylib 134.1 System Library Frameworks ApplicationServices. framework Versions A Frameworks ATS. framework Versions A Resources libFontRegistry. dylib
+ 0x7fff94e48000 0x7fff94e62ff7 libextension. dylib 55.2 usr lib libextension. dylib
+ 0x7fff950a2000 0x7fff95162ff7 com. apple. backup. framework 1.5 1.5 System Library PrivateFrameworks Backup. framework Versions A Backup
+ 0x7fff9516d000 0x7fff95286ffb com. apple. CoreText 352.0 454.10 System Library Frameworks CoreText. framework Versions A CoreText
+ 0x7fff952e9000 0x7fff9538bfff com. apple. Bluetooth 4.6 4.6f3 System Library Frameworks IOBluetooth. framework Versions A IOBluetooth
+ 0x7fff953aa000 0x7fff953caff7 com. apple. MultitouchSupport. framework 264.6 264.6 System Library PrivateFrameworks MultitouchSupport. framework Versions A MultitouchSupport
+ 0x7fff95488000 0x7fff954e3fe7 libTIFF. dylib 1239 System Library Frameworks ImageIO. framework Versions A Resources libTIFF. dylib
+ 0x7fff955c6000 0x7fff955c8fff libRadiance. dylib 1239 System Library Frameworks ImageIO. framework Versions A Resources libRadiance. dylib
+ 0x7fff955de000 0x7fff955defff com. apple. ApplicationServices 48 48 System Library Frameworks ApplicationServices. framework Versions A ApplicationServices
+ 0x7fff955f9000 0x7fff95648ff7 libstdc++. dylib 104.1 usr lib libstdc++. dylib
+ 0x7fff95649000 0x7fff956a3ff7 com. apple. LanguageModeling 1.0 1 System Library PrivateFrameworks LanguageModeling. framework Versions A LanguageModeling
+ 0x7fff956f4000 0x7fff9570eff7 com. apple. Kerberos 3.0 1 System Library Frameworks Kerberos. framework Versions A Kerberos
+ 0x7fff95798000 0x7fff9579dfff libsystem stats. dylib 163.30.2 usr lib system libsystem stats. dylib
+ 0x7fff957f9000 0x7fff957feff7 libunwind. dylib 35.3 usr lib system libunwind. dylib
+ 0x7fff95850000 0x7fff95974ff7 com. apple. LaunchServices 644.56 644.56 System Library Frameworks CoreServices. framework Versions A Frameworks LaunchServices. framework Versions A LaunchServices
+ 0x7fff95975000 0x7fff95a65fef libJP2. dylib 1239 System Library Frameworks ImageIO. framework Versions A Resources libJP2. dylib
+ 0x7fff95c26000 0x7fff95c26ff7 liblaunch. dylib 559.40.1 usr lib system liblaunch. dylib
+ 0x7fff95c55000 0x7fff95c6eff7 com. apple. CFOpenDirectory 10.10 187 System Library Frameworks OpenDirectory. framework Versions A Frameworks CFOpenDirectory. framework Versions A CFOpenDirectory
+ 0x7fff95c6f000 0x7fff95c7aff7 com. apple. CrashReporterSupport 10.10 631 System Library PrivateFrameworks CrashReporterSupport. framework Versions A CrashReporterSupport
+ 0x7fff95c7b000 0x7fff95c8afff com. apple. LangAnalysis 1.0 1.0 System Library Frameworks ApplicationServices. framework Versions A Frameworks LangAnalysis. framework Versions A LangAnalysis
+ 0x7fff95c8b000 0x7fff95c96ff7 libkxld. dylib 2782.40.9 usr lib system libkxld. dylib
+ 0x7fff95c97000 0x7fff95d89ff3 libxml2. dylib 26.1 usr lib libxml2. dylib
+ 0x7fff95d8a000 0x7fff95d92ff3 com. apple. CoreServices. FSEvents 1210.20.1 1210.20.1 System Library Frameworks CoreServices. framework Versions A Frameworks FSEvents. framework Versions A FSEvents
+ 0x7fff95d93000 0x7fff95d93ff7 libunc. dylib 29 usr lib system libunc. dylib
+ 0x7fff95e35000 0x7fff95e3dffb libcopyfile. dylib 118.2 usr lib system libcopyfile. dylib
+ 0x7fff95fa0000 0x7fff95fa4ff7 libGIF. dylib 1239 System Library Frameworks ImageIO. framework Versions A Resources libGIF. dylib
+ 0x7fff95fd8000 0x7fff962ddff3 com. apple. HIToolbox 2.1 758.7 System Library Frameworks Carbon. framework Versions A Frameworks HIToolbox. framework Versions A HIToolbox
+ 0x7fff962de000 0x7fff962f8ff7 liblzma. dylib 7 usr lib liblzma. dylib
+ 0x7fff96384000 0x7fff963f5ffb com. apple. ApplicationServices. ATS 360 375.4 System Library Frameworks ApplicationServices. framework Versions A Frameworks ATS. framework Versions A ATS
+
+External Modification Summary:
+ Calls made by other processes targeting this process:
+ task for pid: 0
+ thread create: 0
+ thread set state: 0
+ Calls made by this process:
+ task for pid: 0
+ thread create: 0
+ thread set state: 0
+ Calls made by all processes on this machine:
+ task for pid: 75659
+ thread create: 0
+ thread set state: 0
+
+VM Region Summary:
+ReadOnly portion of Libraries: Total 206.7M resident 172.0M 83 swapped out or unallocated 34.7M 17 
+Writable regions: Total 505.5M written 142.5M 28 resident 409.4M 81 swapped out 0K 0 unallocated 96.2M 19 
+
+REGION TYPE VIRTUAL
+ 
+Dispatch continuations 16.0M
+Kernel Alloc Once 4K
+MALLOC 474.5M
+MALLOC admin 32K
+STACK GUARD 56.0M
+Stack 12.1M
+VM ALLOCATE 16K
+VM ALLOCATE reserved 16K reserved VM address space unallocated 
+ DATA 17.9M
+ IMAGE 528K
+ LINKEDIT 78.8M
+ TEXT 127.9M
+ UNICODE 552K
+shared memory 4K
+ 
+TOTAL 784.3M
+TOTAL, minus reserved VM space 784.3M
+
+Model: MacBookPro11, BootROM MBP112.0138. B15, 4 processors, Intel Core i7, 2.2 GHz, 16 GB, SMC 2.18f15
+Graphics: Intel Iris Pro, Intel Iris Pro, Built In
+Memory Module: BANK 0 DIMM0, 8 GB, DDR3, 1600 MHz, 0x802C, 0x31364B544631473634485A2D314736453120
+Memory Module: BANK 1 DIMM0, 8 GB, DDR3, 1600 MHz, 0x802C, 0x31364B544631473634485A2D314736453120
+AirPort: spairport wireless card type airport extreme 0x14E4, 0x134, Broadcom BCM43xx 1.0 7.15.166.24.3 
+Bluetooth: Version 4.6f3 16238, 3 services, 27 devices, 1 incoming serial ports
+Network Service: Wi Fi, AirPort, en0
+Serial ATA Device: APPLE SSD SM0256F, 251 GB
+USB Device: Internal Memory Card Reader
+USB Device: BRCM20702 Hub
+USB Device: Bluetooth USB Host Controller
+USB Device: Apple Internal Keyboard Trackpad
+Thunderbolt Bus: MacBook Pro, Apple Inc. 17.1
+can you give us
+
+ CODELCODEL 
+ 'extra link args': 'extra compile args': 'define macros': 
+ ogrisel can you remind me of the details with accelerate?
+
+ AWNystrom you are using apple accelerate blas, which is known to not cooperate with multi processing. Did you install numpy via conda?
+If you are in an academic setting, you could get the conda accelerate package yes that is a different accelerate, which contains numpy linked against MKL.
+Or you could build a numpy yourself and link it against a different blas.
+I'm not sure if there are is a free conda numpy that for OS X that is not linked against accelerate.
+
+
+The problem is that multiprocessing does a fork without an exec. Many libraries like some versions of Accelerate vecLib, some versions of MKL, the OpenMP runtime of GCC, nvidia's cuda and probably many others, manage their own internal thread pool. Upon a syscall to fork, the thread pool state in the child process is corrupted: the thread pool things it has many threads while only the main thread state has been forked. It's possible to change the libraries to make them detect when a fork happens and reinitialize the thread pool in that case: we did that for OpenBLAS merged upstream in master since 0.9 and we contributed a LINKLINK not yet reviewed to GCC's OpenMP runtime.
+
+In the end the real culprit is Python's multiprocessing that does fork without exec to reduce the overhead of starting and using new Python process for parallel computing, it's kind of a hack. This is a violation of the POSIX standard and therefore organizations like Apple refuse to consider the lack of fork safety in Accelerate vecLib as a bug.
+
+In Python 3.4+ it's now possible to configure multiprocessing to use the 'forkserver' or 'spawn' start methods instead of the default 'fork' to manage the process pools. This should make it possible to not be subject to this issue anymore. We don't use it by default in joblib because it causes some overhead and would make the default behavior slightly different in Python 2.7 and Python 3.4+. Maybe we should change the default to 'forkserver' under POSIX to have this problem disappear for Python 3.4+ users.
+Thank you for the great explanation. Should we add this a short version of this to the FAQ? And open a dedicated fork savety issue to keep track?
+Thanks, Andreas. I have some latent memory of having to change numpy versions to get something to work and doing it via pip.
+
+
+Good idea, I am on it.
+In addition to documenting the problem in the scikit learn FAQ I went ahead and make joblib use the forkserver start method by default under POSIX system with Python 3.4 or later: joblib joblib 232.
+
+Feedback appreciated.

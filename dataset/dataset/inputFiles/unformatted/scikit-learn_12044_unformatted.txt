@@ -1,0 +1,379 @@
+Currently we have an interface for OPTICS with custom method `extract_dbscan`. This is good for usability and visibility of the functionality, but means that a generic parameter search tool (like `GridSearchCV`) can't use OPTICS to perform DBSCAN at various `eps`.
+
+This would involve adding an `eps` parameter which, when None, would use the default OPTICS clustering; when not None would use `extract_dbscan`. But we would also need to retain the model across multiple fits...
+
+Here are two alternative interfaces:
+* Add a `warm_start` parameter (like many classifiers, regressors, but uncharted territory for clusterers). When True, and `fit` or `fit_predict` is called, the current `reachability_`, `ordering_` and `core_distances_` would be kept, but a different final clustering step would be used to output / store `labels_`.
+* Add a `memory` parameter, like in hierarchical clustering. This would cache the mapping from parameters to `reachability_`, `ordering_` and `core_distances_` using a `joblib.Memory`.
+
+I think the first option sounds more appropriate.Hey @jnothman I would like to take up this, is there any basic requirement that is already there in the code base that I need to be acquainted with ?@jnothman, I think #12036 is kinda related to this one.Well, I wouldn't think of this as a good first issue, @Sriharsha-hatwar. Please try contribute to something more straightforward until you are familiar with our contribution process.
+
+@adrinjalali, yes it is... I'm yet to read that.I have worked on a documentation issue earlier. Can I take this issue? If yes, I will go through the issue and code to make sure that I can handle it. 
+
+Do you feel comfortable with what this issue is suggesting?I am not very comfortable yet but I am trying to read the background to understand it further. Meanwhile, if someone else pops up to fix this issue they can take it.Doesn't this apply to all extraction methods? The warm_start would apply to the first stage (`_extract_optics_ordering`), and the rest can use the calculated values independent of the extraction method.
+
+I guess what I'm asking, is that, should we then add all parameters related to extract methods to the `fit` method?To the class, not the fit method, but yes. I hope this is indeed an
+appropriate use of warm_start
+I think we need to make decision here ASAP since we've promised OPTICS in 0.21.
+
+My main points for API design are as follows:
+(1) Users don't need to calculate RD/CD again if they want to extract clusters with different methods/different parameters.
+(2) If possible, provide users with a way to only calculate RD/CD (e.g., method=None). Actually, OPTICS itself only returns RD/CD. 
+
+Regarding ``warm_start``, the problem is, if we reuse RD/CD, we need to ensure that users pass in the same ``X``. Is it possible for ``warm_start``?
+ 
+Maybe an alternative solution is not including ``fit_predict`` and ``predict`` here, so we'll have ``fit`` (calculates RD/CD), ``extract_dbscan``, ``extract_...``. But the problem here is that it seems strange that a cluster algorithm doesn't have both ``fit_predict`` and ``predict``.I think we need to provide fit_predict and labels_ for API consistency and
+just note that this is something we do poorly. (I hope we are already aware
+that we have a problem of efficiently reusing sufficient statistics with
+different aggregates through a constant interface. We have seen similar API
+problems in scoring, feature importances, grid searches over transformation
+pipelines, etc. This is part of why a tool like dask frames computation in
+terms of a directed acyclic graph.)
+
+I think the strange thing about reusing warm_start here is the notion that
+we often want warm_start=True for maximum usability. We could also consider
+providing the caching of X -> Rd/cd without providing an option, but this
+would be a new design for scikit-learn.
+
+Checking whether it's an identical X is something we could achieve
+approximately with a hash of the data if we really want. Hashing would be
+relatively slow but not nearly as slow as recomputing optics.
+I also think OPTICS as a class in `clustering` should satisfy the usual API requirements.
+
+Once we have an `extract_"method name"` function for the three extraction methods, users can use the calculated RD/CD from OPTICS to extract clusters without having to run `fit`.
+
+We can add a public `calculate_OPTICS_RD_CD` function or whatever and not run the clustering part of the algorithm. However, I wouldn't worry about this part since all the extract methods are of O(n). We almost have that function already anyway.
+
+We can have a naive `warm_start` for now, which would basically ignore `X` if RD/CD are present already. I'm yet to read the other `warm_start` examples we have in the code base, but do they check for having the same X as the input as well?
+
+I'd see the hashing/caching mechanism as a separate project, which would affect probably most classes we have. Since we already do have OPTICS pretty modular, I guess adopting the mechanism would be easy here.Caching would not affect most other classes, in part because they will
+often be run with all sorts of parameters changed. joblib.Memory can do the
+caching, but does unwanted things like actually writing the data to dish...
+
+No, I don't think we have generally needed/wanted to check for identical
+data in other warm_start cases. But warm_start has defaulted to false with
+the assumption that the user knows what they're doing if they switch it on.
+In particular, using warm_start makes sense for varying some parameters and
+not others, but this tends to be very sparsely documented....
+
+I think providing both functions and a method parameter is a great start in
+terms of API. We can then memoise with or without warm_start without
+breaking API.
+> I think we need to provide fit_predict and labels_ for API consistency and just note that this is something we do poorly.
+
+I have to admit that I can't understand the importance of (such a strict) API consistency now. Following Joel's decision, I think I'm fine with things like #12087 (i.e., provide a ``extract_method`` parameter so that we can provide ``labels_`` after ``fit``/``fit_predict``, and provide function ``extract_XXX`` to users so that they can easily try different methods without calculating RD again.)
+WDYT? @jnothman And maybe we can provide ``extract_method = None`` (i.e., doesn't return labels after ``fit``, raise an error for ``fit_predict``). This will enable users to get CD/RD quickly and make it easier for us to benchmark the algorithm.I find having an `extract_RD` function or something more elegant than `extract_method=None` and breaking the API.> breaking the API.
+
+Why will ``extract_method = None`` break the API? I think it's acceptable that when certain param is set to certain value, certain attribute will not be available (e.g., store_cv_values in RidgeClassifierCV).
+
+> I find having an extract_RD function
+
+How will you implement it?
+
+My solution is something like:
+```
+clust = OPTICS(extract_method=...)
+# calculate CD/RD, return labels_ of specific extraction method
+clust.fit(X)
+# try different extraction methods/different parameters
+# without calculating CD/RD again
+clust.extract_XXX(...=...)
+```To me, `OPTICS` is a "clustering" algorithm, and I expect to be able to use any such model in a pipeline where using any clustering is apt. For instance, I would expect to be able to easily use it in a grid search, with a Silhouette score to optimize hyperparameters. That means I expect the object to be in a _valid_ state after a call to `fit`, which for a clustering object means to have `labels_` set.
+
+`store_cv_values` in `RidgeClassifierCV` doesn't break the API, cause not many (if any) other modules depend on that variable to be set to function properly; in contrast, a scoring function would expect a clustering object to have a valid `labels_` property, hence not having it breaks the API.
+
+That said, I personally find it odd that not all clusterings have `predict` function implemented. It feels odd to me to rely on `labels_` rather than getting the results from a predict function. But as long as there's no such common functionality, I think enforcing some common interface (`labels_` in this case) is a sensible option.
+
+My suggestion in the case of `OPTICS` is the following:
+
+```
+clust = OPTICS(extract_method=...)
+# calculate CD/RD, store labels_ of specific extraction method
+clust.fit(X)
+# don't run any extraction method, just calculate CD/RD/ordering:
+clust.calculate_CD_RD_ordering(X)
+# try different extraction methods/different parameters
+# without calculating CD/RD again
+clust.extract_XXX(...=...)
+```> My suggestion in the case of OPTICS is the following:
+
+I see, seems that both solutions are similar. I think they're all acceptable from my side.Honestly I'm not sure whether it's a good idea to (and how to) assign labels to each point in ``extraci_xi`` and ``extract_sqlnk``. I think @adrinjalali 's method for ``extract_xi`` in #12077 is different from the method we already have in ``extract_sqlnk`` and both methods ignore the hierarchical structure of the clusters.In #12077, the `_xi_cluster` extracts the hierarchy of clusters, then `_extract_xi_labels` extract the labels from the hierarchy. Right now it assigns labels according to what would be `minimum=True` in [R's `extractXi`](https://rdrr.io/cran/dbscan/man/optics.html). Implementing the equivalent of `minimum=False` is almost trivial. Same goes for `extract_sqlnk`.
+
+Another aspect to assigning labels is trimming the tree at a certain level, which we can also easily implement.
+
+P.S. I'm waiting for #12087 to get in before I go over the code in #12077 for a cleanup/code improvements.> Right now it assigns labels according to what would be minimum=True in R's extractXi. 
+
+Thanks @adrinjalali , I'll take some time to look at R, but I think we should use a same strategy to extract labels in extract_xi and extract_sqlnk.
+
+Regarding #12087, I'd like to see #12421 in first to avoid unnecessary conflicts.
+One thing bother me is the correctness of extract_sqlnk (See #12375, apart from some mysterious params, I also find a bug). I'm now considering whether we should revert extract_sqlnk (in 0.21).This may not have much bearing on sklearn's API, but I would point out that the OPTICS algorithm itself is defined to **just** produce Reachability and Ordering, not labels... of course, clustering modules in sklearn are expected to produce labels, hence why we default to an extraction> This may not have much bearing on sklearn's API, but I would point out that the OPTICS algorithm itself is defined to just produce Reachability and Ordering, not labels...
+
+This is why I don't like to provide labels in ``fit`` :) But seems that Joel cares about API consistency, so maybe we'll still provide labels after ``fit``.So let's provide an optics_distances function that just produces RD/CD. Or
+an optics function for same but rename the class to OpticsClustering or
+OPTICSClustering. The main point of the class interface for estimators is
+to provide API consistency around diverse underlying functional forms. It
+is appropriate to make the estimator API for OPTICS satisfy the clustering
+API by default.
+So that's actually @adrinjalali 's solution, are you fine with it @jnothman :
+```
+clust = OPTICS(extract_method=...)
+# calculate CD/RD, store labels_ of specific extraction method
+clust.fit(X)
+# don't run any extraction method, just calculate CD/RD/ordering/predecessor
+clust.optics_distances(X)
+# try different extraction methods/different parameters
+# without calculating CD/RD again
+clust.extract_XXX(...=...)
+```
+I'll vote +1 at this point. We can have a try if you approve.optics_distances should be a function, not a method, by comparison to other
+APIs here.
+
+On Tue, 23 Oct 2018 at 18:09, Hanmin Qin <notifications@github.com> wrote:
+
+> So that's actually @adrinjalali <https://github.com/adrinjalali> 's
+> solution, are you fine with it @jnothman <https://github.com/jnothman> :
+>
+> clust = OPTICS(extract_method=...)
+> # calculate CD/RD, store labels_ of specific extraction method
+> clust.fit(X)
+> # don't run any extraction method, just calculate CD/RD/ordering/predecessor
+> clust.optics_distances(X)
+> # try different extraction methods/different parameters
+> # without calculating CD/RD again
+> clust.extract_XXX(...=...)
+>
+> I'll vote +1 at this point. We can have a try if you approve.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/scikit-learn/scikit-learn/issues/12044#issuecomment-432122019>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AAEz67Mg98ruiBmySvF3p701EyCW1aysks5unsCqgaJpZM4WgETG>
+> .
+>
+> optics_distances should be a function, not a method, by comparison to other
+APIs here.
+
+Fine from my side, though I'm unable to figure out why you said "we should".> Fine from my side, though I'm unable to figure out why you said "we should".
+
+Where did I say "we should"?> Where did I say "we should"?
+
+Apologies, I mean I can't understand why optics_distances "should be" a function. So we'll have ``cluster.OPTICS``, ``cluster.optics`` and ``cluster.optics_distances``, right?@qinhanmin2014 , in #12087, we first had `extract_xxx` as methods, then moved them out as functions. So the API with the latest version of that PR would then more or less look like:
+
+```
+cluster.OPTICS
+cluster.optics
+cluster.extract_optics_dbscan
+cluster.extract_optics_sqlnk
+cluster.extract_optics_xi
+cluster.optics_distances
+```
+
+For the sake of consistency, it makes sense to have all those functions either in, or outside the class, all together. I suppose that's what @jnothman means.What is cluster.optics? I don't think we need a function to do distance
+calculation plus clustering.
+
+Why not a method? Well your proposed method changes the state of the
+estimator and is not called fit_*, so that's a problem in my eyes.
+Secondly, it doesn't help to separate out the functional structure of the
+components here, while module level functions make clear what is
+input/output to what. Thirdly, these methods are probably not applicable
+elsewhere, so we don't benefit from them for polymorphism as we do with
+standard estimator verbs; nor are they likely to be used or beneficial for
+inheritance.
+Regarding the verbs. `optics_distances` sounds like `euclidean_distances`.
+I might rather `optics_sort` or `sort_optics` or `optics_order` or
+something. I'm also not sure that `extract` is better than `cluster`.
+I should note that I only really have a strong opinion on not having a
+public method other than fit on OPTICS to calculate distances. I don't mind
+having both functions and methods for extraction.
+1) so you'd be fine with having both `fit` and `fit_optics_order` methods?
+2) I agree in principle with having both functions and methods for extract methods, although you didn't seem to like the part of the code checking for given `None` parameters and replace them with the values in `self`, that's why we removed the methods in the first place. I know it has nothing to do with the actual code, but I don't love the code when it has huge pieces of mostly copy/pasted docstrings, that's why I'd lean towards having only one of the function and method options. But no strong preference here.
+3) I vaguely remember somebody mentioning it was @amueller who added the `cluster.optics` function. I'm not sure why he'd like to have the function though. Does it have specific usecases?> What is cluster.optics? I don't think we need a function to do distance
+calculation plus clustering.
+
++1
+
+> For the sake of consistency, it makes sense to have all those functions either in, or outside the class, all together.
+
+I'll vote -1 for your solution @adrinjalali, at least now, because I don't think it's good to introduce ~5 functions for a single algorithm.
+
+@jnothman @adrinjalali Is it possible to let ``cluster.optics`` return CD/RD/order/predecessor so we'll only have ``cluster.optics`` (calculate RD) and ``cluster.OPTICS`` (calculate RD and provide clusters based on extraction methods)?
+I think it would be confusing to offer a function named optics that did not
+do the clustering if OPTICS does
+Can we agree on one of these options? I guess @jnothman and I prefer option 1 (with some variation on the names), and @qinhanmin2014 prefers option 2, am I right?
+
+1)
+```
+cluster.extract_optics_order
+cluster.extract_optics_{sqlnk, xi, dbscan}
+cluster.OPTICSClustering
+```
+2)
+```
+cluster.OPTICS.fit
+cluster.OPTICS.fit_optics_order
+cluster.OPTICS.extract_{sqlnk, xi, dbscan}
+```
+
+We should also think about handling the hierarchy of clusters and the helper functions we'll come up with for that. I guess depending on the option we go for, they'd be either methods or functions.I guess we have solution 3:
+```
+cluster.optics_order
+cluster.OPTICS.fit
+cluster.OPTICS.extract_{sqlnk, xi, dbscan}
+```
+
+I'll vote +1 for 2 and 3. I'll vote -1 for solution 1, because I don't want to introduce ~5 functions for a single algorithm (but if Joel strongly agree with it or someone else agree with it, then let's do it).
+
+Another thing is to decide whether we need ``cluster.optics``. Maybe we can remove that, because in OPTICS, we actually wants to try multiple extraction methods without calculating RD again.
+
+And I'm not sure whether sqlnk is a good name, need to think about it.@qinhanmin2014 please note that something close to option 2 is what I initially had in #12087 , and then we changed it to what you see now. It'll be nice if you could put your counter arguments beside the arguments which resulted in the change in that PR.@adrinjalali I think the core issue here is whether extract_XXX should be public functions or public methods. I'll vote -1 for functions because It will be difficult for users to use these functions, e.g., users will need to extract RD/CD/ordering/predecessor from the fitted model and pass them into the function along with other parameters. Instead, if extract_XXX are methods, users will only need to pass the parameters and the method can get RD/CD/ordering/predecessor from the fitted model.
+And I still think it's awkward to introduce ~5 functions in classes.rst for a single algorithm.
+
+@jnothman why do you think extract_XXX should be public functions, not public methods (in https://github.com/scikit-learn/scikit-learn/pull/12087#pullrequestreview-155762845)?Sorry this is not a high priority for me yet.
+
+I think they could be available as methods, but that is not consistent with
+other estimators (e.g. we don't have similar extract methods for
+hierarchical clustering that would get different numbers of clusters from
+the same hierarchy; we don't have a method to use a different global
+clusterer or number of clusters in BIRCH; and the extract methods would be
+custom to this clusterer). I think they should be coded as functions,
+whether or not public, to make their input/output explicit and
+encapsulated.
+Maybe we need someone to break the tie here. The question here is that whether the extraction methods of OPTICS should be methods or functions.
+
+methods:
+```
+clust = OPTICS(...)
+# try a certain extraction method
+clust.fit(X)
+# try other extraction methods
+clust.extract_XXX(params from extration method)
+```
+
+functions:
+```
+clust = OPTICS(...)
+# try a certain extraction method
+clust.fit(X)
+# try other extraction methods
+extract_XXX(RD, CD, order, predecessor, params from extration method)
+```
+
+Reasons for methods (from @qinhanmin2014 ):
+(1) Easy to use, i.e., don't need to extract RD/CD/order/predecessor from the estimator manually (I guess it will be strange to pass the estimator into the function).
+(2) it's awkward to introduce ~5 classes/functions in classes.rst for a single algorithm.
+
+Reasons for functions (from @jnothman )
+API consistency, see https://github.com/scikit-learn/scikit-learn/issues/12044#issuecomment-436430428
+
+ping @GaelVaroquaux @TomDLT maybe? Or if @jnothman strongly agree with functions, I'll review accordingly, since it's not so serious.Rather than making a big deal about this decision, let's make the core interface, and then consider whether we want to extend it.
+
+That is, we *need* a way to select with some `method` parameter. We do not *need* any public API to perform each extraction method beyond that.
+
+It is *good code design* to have a separation of concerns across different functions, but they *can be private* at least initially.
+
+*After* we have changed the private interface, and added a `method` parameter, we can worry about what else users will find useful as a public API and how consistent that is with the rest of the library.So @jnothman your comment above means that we can start with private functions (i.e., cluster._extract_XXX)? I'll vote ~+1~ +0 for it (and I think it can be an initial solution for the next release).
+
+The problem is that our example will be awkward, see https://scikit-learn.org/dev/auto_examples/cluster/plot_optics.html, we actually tries different extraction methods there. If we start with private functions, we'll have to use these private functions there (seems that it's not recommended in examples?)
+
+I still persist that we might slightly break our API consistency here, to make our implementation easier to use.+1
+
+⁣Sent from my phone. Please forgive typos and briefness.​
+
+On Nov 12, 2018, 04:01, at 04:01, Hanmin Qin <notifications@github.com> wrote:
+>So @jnothman your comment above means that we can start with private
+>functions (i.e., cluster._extract_XXX)? I'll vote +1 for it (and I
+>think it can be an initial solution for the next release).
+>
+>-- 
+>You are receiving this because you were mentioned.
+>Reply to this email directly or view it on GitHub:
+>https://github.com/scikit-learn/scikit-learn/issues/12044#issuecomment-437737502
+Yes, I have been trying to say similar for a while, but haven't had the
+time to be explicit.
+Hmm, actually I've edited my previous comment (from +1 to +0).
+But we now have +2 from both of you and no -1, so it's an acceptable solution.Can someone kindly summarize the discussion? ping @jnothman @adrinjalali @GaelVaroquaux Yes, just finishing up. I'll write up what we've resolved so you can review it, @qinhanmin2014. Just a moment.
+
+@assiaben is going to be working on implementing some of the changes during the sprint.> Yes, just finishing up. I'll write up what we've resolved so you can review it, @qinhanmin2014. Just a moment.
+
+Thanks and sorry for not taking part in the discussion (and sorry for not replying your email in time).
+I'm heading to bed and I'm busy tomorrow morning. Please start working directly if there's enough consensus.Very sorry, got sidetracked.
+
+This is what we have resolved:
+1. OPTICS class will default to using the 'xi' method when `fit` or `fit_predict` is called.
+2. The method will be selected with a `cluster_method` parameter.
+3. The parameters of all available `cluster_method`s will be available in OPTICS
+4. The cluster methods 'xi' and 'dbscan' will be available, 'sqlnk' will be removed as not certainly meeting our inclusion criteria, while adding excessive complexity for many ordinary use cases.
+5. Public functions will be created which take (reachability distances, optics ordering) and output cluster labels and other details (such as hierarchical clusterings). These will be named `cluster_optics_{METHOD}`
+6. Public function `compute_optics_order` (this name is not set in stone) will calculate reachability distance and OPTICS order
+7. For a hierarchical clustering like 'xi' we should just report the smallest (leaf node) cluster labels. All samples not in a leaf cluster will be labelled -1.
+8. The hierarchy of clusters will be exposed with a public attribute giving start and stop indices in a 2d array (or 2 1d arrays), not as a [list of tuples](https://github.com/scikit-learn/scikit-learn/blob/df261c0fee962d3d1c57283921e42939f25c5835/sklearn/cluster/optics_.py#L601).
+9. An example or other documentation should illustrate how to adjust parameters to make larger leaf-node clusters.
+
+I hope that is everything!
+
+I'm going to review #12087 shortly.great, I’m also considering removing sqlnk these days
+I’m worring about 7, do you have any reference to assign labels in this way?@jnothman I think that API summary looks good. For item 6, I'd recommend `compute_optics_graph`> I'm going to review #12087 shortly.
+
+Who's going to finish it? @adrinjalali or someone else?
+Do we need a branch to hold the OPTICS changes?
+
+> I’m worrying about 7, do you have any reference to assign labels in this way?
+
+E.g., if there's a big cluster and a small cluster (e.g., (1, 10), (4, 5)), then all the points not in the small cluster (i.e., 1-3, 6-10) will be tagged as noise?Adrin is focusing on NOCATS, but Assia will get his/my mentorship on
+#12087. I have found it hard to concentrate on any one thing at the sprint
+so far... But I was very sleep deprived yesterday!
+
+With small clusters and noise the idea is that the user needs to be guided
+in how parameters control minimal cluster size.
+> With small clusters and noise the idea is that the user needs to be guided in how parameters control minimal cluster size.
+
+Is it possible? This seems magical :)
+And I guess you are not answering my question? My question is whether it's reasonable to assign labels in this way.
+
+> But I was very sleep deprived yesterday!
+
+I'm surprised when I saw you editing the wiki in the late night. Wish you a good night's sleep!I think that the one I mean to review is actually #12077 (extract_xi). #12087 needs to be reshaped to match the above parameter names, functional design, etc.
+
+
+Should we rename 'xi' to 'xi_steep'?> I'm surprised when I saw you editing the wiki in the late night. Wish you a good night's sleep!
+
+
+Ahh... You see too much. I was awake a couple of hours in the night. Read a short story. Updated a wiki. Etc :)> I think that the one I mean to review is actually #12077 (extract_xi). #12087 needs to be reshaped to match the above parameter names, functional design, etc.
+
+Maybe we should settle the API first?
+
+And another question @jnothman I guess we don't need the ``optics`` function since we're going to provide ``compute_optics_order`` + ``cluster_optics_{METHOD}``  right？> Should we rename 'xi' to 'xi_steep'?
+
+Both solutions are OK from my side.@qinhanmin2014 #12087 resolves a bunch of these issues. Could you check that PR and let us know what you think in terms of API design?Yes, no need for the optics function.
+I guess we can close?We do not yet have it working with fit_predict, nor did we yet land on a solution for that afaik, so essentially this issue is not resolved.> We do not yet have it working with fit_predict, nor did we yet land on a solution for that afaik, so essentially this issue is not resolved.
+
+@jnothman We support fit_predict (through ClusterMixin) now?The point is to easily be able to get multiple clusterings without recomputing optics.> The point is to easily be able to get multiple clusterings without recomputing optics.
+
+Hmm, I guess we're going to rely on ``compute_optics_graph`` + ``cluster_optics_XXX``?> Hmm, I guess we're going to rely on compute_optics_graph + cluster_optics_XXX?
+
+That's one way, the other way is to have fit + warm_start.> That's one way, the other way is to have fit + warm_start.
+
+Seems that I wrongly assume that you've decided to rely on ``compute_optics_graph`` + ``cluster_optics_XXX``. I'm OK to support warm start (with examples to demonstrate its usage).The point of this issue is that there should be a class-based approach.
+> The point of this issue is that there should be a class-based approach.
+
+What's the application scenario? @jnothman @adrinjalali While the xi method considers variable density in extraction, optics allows
+the user to do multiple dbscan extractions, i.e. fixed density. The goal
+would be to allow the user to efficiently evaluate many different eps, as
+they would in grid search for supervised learning.
+This is admittedly quite low priority as long as parameter search for
+clustering remains on the backburner.
+> The goal would be to allow the user to efficiently evaluate many different eps, as they would in grid search for supervised learning.
+
+But ``GridSearchCV`` will still recompute RD/CD multiple times? I'm still unable to understand why a warm_start parameter will make ``GridSearchCV`` more efficient.
+
+Untagging this from 0.21. Retag if you disagree.
+Definitely fine to clear milestone
+For hierarchical clustering (where computing the tree is much more
+expensive than cutting it for a given number of clusters), my lab has
+been successfully using joblib memory to answer such needs.
+
+Yes, adding a memory parameter is one of the options here, and perhaps
+the simplest and most consistent with other clustering, i.e.
+hierarchical.

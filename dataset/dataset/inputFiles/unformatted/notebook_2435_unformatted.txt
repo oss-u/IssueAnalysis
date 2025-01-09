@@ -1,0 +1,555 @@
+Installed Python (3.6) via brew, and the notebook (version 5.0.0) via pip3.
+When I hit tab, say, after `df.`, nothing happens, then, when I manually complete `df.head()`, execution queued, and run after ~30 seconds. At the same time, suggestion drop-down menu appears.That sounds like it's taking a very long time to find the possible completions, and execution is getting held up behind the completion code. Can you check:
+
+```
+import IPython
+print(IPython.sys_info())
+```
+
+@Carreau if IPython 6 is involved, it sounds like the timeout for jedi completions might not be working.Exactly, it takes too long, and it is IPython 6.0.0.
+```
+{'commit_hash': '51ce9d73b',
+ 'commit_source': 'installation',
+ 'default_encoding': 'UTF-8',
+ 'ipython_path': '/usr/local/lib/python3.6/site-packages/IPython',
+ 'ipython_version': '6.0.0',
+ 'os_name': 'posix',
+ 'platform': 'Darwin-16.5.0-x86_64-i386-64bit',
+ 'sys_executable': '/usr/local/opt/python3/bin/python3.6',
+ 'sys_platform': 'darwin',
+ 'sys_version': '3.6.1 (default, Apr  4 2017, 09:40:21) \n'
+                '[GCC 4.2.1 Compatible Apple LLVM 8.1.0 (clang-802.0.38)]'}
+```Is there a way to turn off autocomplete? It not only slows me down but often also crashes the kernel? And I wonder if I am the only one having this issue on the planet? Thanks.There isn't a way to turn off autocompletion altogether. If I'm right about jedi being the problem, it may be possible to turn off the part that uses jedi. But I'm confused about whether or not the kernel completions actually use jedi (@Carreau?). You're not the only person having problems; see issues on ipython/ipython for more info.Thank you. Adding the line `c.Completer.use_jedi = False` to the IPython configuration file solved the issue (so it appears that not only terminal completions but also kernel completions use Jedi). For future visitors having the same issue, setting configurable options is [explained here](https://ipython.readthedocs.io/en/stable/config/intro.html).
+i'm having the same issue once i updated all my packages with conda.  tab seems to crash my kernal. bit of a hard habit to kill haha@danieljoonlee over on ipython/ipython#10560, there was a bug identified in the conda packages of `jedi`. Apparently [conda-forge](http://conda-forge.github.io/) has a working version of the jedi package. If that doesn't fix things for you, please file a new issue on IPython with the details.@takluyver ah thank you!My (tab) autocomplete intermittently stops working, not sure if this is the same issue --- it does *not* seem to be that it's simply taking too long, it just never appears (nothing happens after hitting tab), but execution time remains the same.  The problem continues until the kernel restarts.  It might be related to significant amounts of data in active memory... but I'm not sure.
+
+Any recommendations to further diagnose issue?
+
+> {'commit_hash': 'd86648c5d',
+>  'commit_source': 'installation',
+>  'default_encoding': 'UTF-8',
+>  'ipython_path': '/Users/lzkelley/anaconda3/lib/python3.5/site-packages/IPython',
+>  'ipython_version': '6.1.0',
+>  'os_name': 'posix',
+>  'platform': 'Darwin-16.7.0-x86_64-i386-64bit',
+>  'sys_executable': '/Users/lzkelley/anaconda3/bin/python',
+>  'sys_platform': 'darwin',
+>  'sys_version': '3.5.4 |Anaconda custom (x86_64)| (default, Aug 14 2017, '
+>                 '12:43:10) \n'
+>                 '[GCC 4.2.1 Compatible Apple LLVM 6.0 (clang-600.0.57)]'}I'm having the same issue on a windows server running windows server 2012R2. Whenever I tab it takes a random amount of time for anything to happen. If I keep writing and commit the cell, nothing happens and it often just does not respond. 
+
+Manually typed selected output below (like our forefathers did it)
+> {'commit_source': 'installation', 
+> 'default_encoding': 'cp1252', 
+> 'ipython_version': '6.1.0', 
+> 'os_name': 'nt', 
+> 'platform': 'Windows-2012ServerR2-6.3.9600-SP0', 
+> 'sys_platform': 'win32', 
+> 'sys_version': '3.5.4 |Anaconda custom (64-bit)| (default, Aug 14 2017, '
+ >        '13:41:13) [MSC v.1900 64 bit (AMD64)]' }I am suddenly and inexplicably having a similar problem. I am used to using tab autocomplete a LOT. Now, when I try to autocomplete from within jupyter notebook or lab, the kernel activity button briefly flashes, but nothing happens. No autocomplete.
+
+I have no idea how to debug or fix this. It is extremely hard to use my notebooks without tab autocomplete.
+
+```
+'commit_hash': 'b65d977c8',
+ 'commit_source': 'installation',
+ 'default_encoding': 'UTF-8',
+ 'ipython_path': '/Users/rpa/anaconda/envs/geo_scipy/lib/python3.6/site-packages/IPython',
+ 'ipython_version': '6.2.0.dev',
+ 'os_name': 'posix',
+ 'platform': 'Darwin-17.4.0-x86_64-i386-64bit',
+ 'sys_executable': '/Users/rpa/anaconda/envs/geo_scipy/bin/python',
+ 'sys_platform': 'darwin',
+ 'sys_version': '3.6.2 | packaged by conda-forge | (default, Jul 23 2017, '
+                '23:01:38) \n'
+                '[GCC 4.2.1 Compatible Apple LLVM 6.1.0 (clang-602.0.53)]'}
+```Have you tried shutting down the server and starting it again? Do you still have tab completions if you use IPython in a terminal?Thanks for your reply!
+
+> Have you tried shutting down the server and starting it again?
+
+Yes. No effect.
+
+> Do you still have tab completions if you use IPython in a terminal?
+
+Yes.
+I have also tried from a different browser (Safari instead of Chrome).What about if you use one of the other Jupyter frontends, like `jupyter qtconsole`?I resolved this by upgrading to ipython version 6.2.1.I've seen a similar problem with IPython 6.3.0. Using it with pandas 0.22 breaks auto completion for pandas column names. Rolling back to 6.2 returns the auto completion. I'm using jedi 0.11.1 but I think the behavior depends on IPython versions more. We switched off our own completions by default for 6.3  to better test the completions we get from Jedi, and there are still some problems with those. I may need to make 6.3.1 to switch back to our own completions.
+
+In the meantime,  you can configure it with `Completer.use_jedi = False`.I've made a 6.3.1 release.I am also now having this problem, particularly with pandas dataframes.
+
+Once I specify a column in a dataframe, autocomplete no longer gives me informative options/attributes. E.g.,
+
+<img width="692" alt="screen shot 2018-08-04 at 4 27 01 pm" src="https://user-images.githubusercontent.com/34904658/43681259-46403a46-9803-11e8-8d24-6b63ce83517d.png">
+
+IPython version is 6.4.0
+jedi version is 0.12.1
+
+Any help would be appreciated!> Once I specify a column in a dataframe, autocomplete no longer gives me informative options/attributes. E.g.,
+> 
+> <img alt="screen shot 2018-08-04 at 4 27 01 pm" width="692" src="https://user-images.githubusercontent.com/34904658/43681259-46403a46-9803-11e8-8d24-6b63ce83517d.png">
+
+I'm having exact same issue. IPython is v7.1.1 with jedi 0.13.1
+It just started happening w/o any particular reason or changes made.
+Tried to reinstall Jupyter, Python3, removing all global packages and removing project venv, downgrading notebook up to 4.2.3, even tried using JupyterLab but unsuccessfully.
+
+Currently the only partial solution for me (it doesn't fully solves the issue and tab-auto completion doesn't auto-complete function parameters) is to use: 
+`%config IPCompleter.greedy=True`
+
+`
+ {
+ 'ipython_version': '7.1.1',
+ 'os_name': 'posix',
+ 'platform': 'Linux-4.4.0-134-generic-x86_64-with-Ubuntu-16.04-xenial',
+ 'sys_platform': 'linux',
+ 'sys_version': '3.6.7 (default, Oct 25 2018, 09:16:13) \n[GCC 5.4.0 20160609]'
+}
+`
+
+Using notebook w/o auto-complete is extremely difficult. Does anyone works on this issue? Because it opened for years. There are some issues of same problem that are marked as solved but nothing fixed.
+Very frustrating.
+
+same issue here! I suspect that, for me, autocompletion in Jupyter stopped working after I updated IPython from 5.3 to 7.2. Curiously enough, Jupyter still autocompletes dictionary keys, but not variables or class members.After an upgrade from 5.x to 7.2 IPython tab completion also fails on some objects in my environment.
+Currently as workaround using ```Completer.use_jedi = False```
+
+```
+{'commit_hash': '523ed2fe5',
+ 'commit_source': 'installation',
+ 'default_encoding': 'UTF-8',
+ 'ipython_path': '<snip>/miniconda3-latest/lib/python3.6/site-packages/IPython',
+ 'ipython_version': '7.2.0',
+ 'os_name': 'posix',
+ 'platform': 'Linux-4.4.0-62-generic-x86_64-with-debian-stretch-sid',
+ 'sys_executable': '<snip>/miniconda3-latest/bin/python',
+ 'sys_platform': 'linux',
+ 'sys_version': '3.6.7 |Anaconda, Inc.| (default, Oct 23 2018, 19:16:44) \n'
+                '[GCC 7.3.0]'}
+```thanks! disabling jedi helpedI've also had to disable jedi because the completions are too flaky, but I do miss the extra functionality; does anyone (cc @takluyver) have a suggestion for how to track down the issue/come up with a minimal example? Debuggers, etc. don't seem to work now that IPython is async and I'm not sure how to test this outside of the REPL.Just to let you know that I installed Jupyter recently and got victim of this TAB issue. 
+
+The workaround disabling Jedi autocompletion fixed the problem.
+
+Info shows the same `commit_hash` and  `ipython_version` posted by @lodagro:
+```
+{'commit_hash': '523ed2fe5',
+ 'commit_source': 'installation',
+ 'default_encoding': 'UTF-8',
+ 'ipython_path': '~/miniconda3/envs/budget/lib/python3.6/site-packages/IPython',
+ 'ipython_version': '7.2.0',
+ 'os_name': 'posix',
+ 'platform': 'Darwin-18.2.0-x86_64-i386-64bit',
+ 'sys_executable': '/Users/sergio/miniconda3/envs/budget/bin/python',
+ 'sys_platform': 'darwin',
+ 'sys_version': '3.6.7 |Anaconda, Inc.| (default, Oct 23 2018, 14:01:38) \n'
+                '[GCC 4.2.1 Compatible Clang 4.0.1 (tags/RELEASE_401/final)]'}
+```@bnaul a suggestion to setup a minimal example to try to reproduce your issue
+
+- clone [jedi](https://github.com/davidhalter/jedi) locally in ```<jedi-clone>```
+- have a look at ```<jedi-clone>/test/completion``` files, [see also documentation on auto-completion tests](https://jedi.readthedocs.io/en/latest/docs/testing.html#auto-completion)
+- add your own test there in a file ```mytest.py```
+- run from ```<jedi-clone>``` using ```pytest test/test_integration.py -T mytest.py```
+
+Full test documentaion see [jedi test docs](https://jedi.readthedocs.io/en/latest/docs/testing.html)
+
+In my case this is 100% Jedi. I added a test to my local jedi clone and could reproduce the issue (IPython is not involoved). Unfortunately i can not open an issue since code is proprietary.
+Just to chime in that after updating IPython to 7.2.0 from 7.0.2 (via Anaconda), I also had some objects fail to autocomplete. Setting `Completer.use_jedi = False` fixed the issue. Hi,
+Same issue here with my jupyter lab/notebook inside a docker.
+
+I've this config inside my `/etc/jupyter/jupyter_notebook_config.py`.
+```
+c = get_config()
+c.NotebookApp.ip = '0.0.0.0'
+c.NotebookApp.port = 8888
+c.NotebookApp.open_browser = False
+c.NotebookApp.token = ''
+c.Completer.use_jedi = False
+
+# https://github.com/jupyter/notebook/issues/3130
+c.FileContentsManager.delete_to_trash = False
+```
+
+With:
+```
+{'commit_hash': '523ed2fe5',
+ 'commit_source': 'installation',
+ 'default_encoding': 'UTF-8',
+ 'ipython_path': '/opt/conda/lib/python3.6/site-packages/IPython',
+ 'ipython_version': '7.2.0',
+ 'os_name': 'posix',
+ 'platform': 'Linux-4.4.0-140-generic-x86_64-with-debian-stretch-sid',
+ 'sys_executable': '/opt/conda/bin/python',
+ 'sys_platform': 'linux',
+ 'sys_version': '3.6.7 | packaged by conda-forge | (default, Nov 21 2018, '
+                '03:09:43) \n'
+                '[GCC 7.3.0]'}
+```
+
+Am I missing something ?disabling Jedi also worked for me. Here is my test case where autocomplete was failing.
+
+```
+
+class Project():
+    def __init__(self, name):
+        self.name = name
+    def foo(self):
+        return
+    def bar(self):
+        return
+
+class Client():
+    @property
+    def project(self):
+        return self._project
+
+    @project.setter
+    def project(self, name):
+        self._project = Project(name)
+```
+
+when trying to do autocomplete, with jedi disabled I am able to see the properties of Project with tab complete. Without it it just shows none.
+
+```
+
+c = Client()
+c.project = ''
+c.project.<tab>
+```
+starting ipython with
+
+ipython --Completer.use_jedi=False
+
+worked.
+
+
+
+Also, adding a function that is called in the init of my class when it is instantiated, works as well
+
+ ```
+   def setup_jedi_false(self):
+        """ This is a temporary bug fix in ipython autocomplete """
+        try:
+            mgc = get_ipython().magic
+            mgc('%config Completer.use_jedi = False')
+        except:
+            pass
+
+```@cdknorow Could you open an issue (including your testcase) in the davidhalter/jedi project?For the case of autocompleting properties, please look at my comment here:
+
+https://github.com/davidhalter/jedi/issues/1299#issuecomment-475369943
+
+TLDR; `use_jedi=False` is not safe, but has more completions, Jedi is safe (no side effects) but currently doesn't return anything when completion on property results.Hi. I am having an issue as well using TAB within Jupyter. when I attempt to call a method off of a Dataframe within the Jupyter Notebook , I am trying to add the ".Unique()" method. But, when I attempt to call whatever methods may be available off of the dataframe object, the only thing that appears is "ipynb_checkpoints/". I have googled this issue but I cannot seem to find a way to resolve it. Does anyone have any advice on this? I tried uninstalling and reinstalling Anaconda and that does not solve the issue.
+
+
+![Capture](https://user-images.githubusercontent.com/25424753/56065122-f4a19b80-5d41-11e9-890b-e4cba370f063.PNG)
+Where are you exactly trying to complete?Sorry David. I don't understand your question. "Where are you exactly trying to complete?"
+
+But I am working with a pandas Dataframe...practicing. When I noticed that when I typed in "df['col2']."     <------ then attempt to call a method by hitting TAB....the notebook takes a while to load then "ipynb_checkpoints/" appears.It won't auto complete off an object like that.  You should try, df.col2.
+
+On Fri, Apr 12, 2019, 3:40 PM Dave Halter <notifications@github.com> wrote:
+
+> Where are you exactly trying to complete?
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/2435#issuecomment-482744260>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AA1-yPoOFs7D2CdnUMMrIQY0lT3rH1rSks5vgQtJgaJpZM4NFO2M>
+> .
+>
+Hi, thanks for the reply, the methods I get when I write the syntax like that are not the methods I expect to get. I expect to see methods like ".unique" or ".value_counts"@AkiraCharles Yeah that won't work usually. There's just too much magic involved to get that working. If you want autocompletions just use `x = df['col2']; x.<tab>`.@davidhalter  Thanks for informing me! I've also only started learning Python (my first programing language) since January and this in my first time using Github. It's awesome to see that people actually try to help you out here. hope I can do the same for others one day. Much Appreciated.In addition to the autocomplete issue, I wasn't able to launch Jupyter Labs in Windows.
+
+Disabling jedi fixed both of these issues for me.
+
+Windows 10 Enterprise
+Python r3.8
+Jupyter Lab 0.35.5
+Jupyter Notebook 5.7.4
+I don't fully understand why there is such resistance to simply evaluating the expression.  90% of the time I would prefer the autocompleter to evaluate as much of the expression as it can so that it can provide more comprehensive completions.  There's no reason that completing `df['col2'].` requires "magic"; all it requires is to evaluate `df['col2']`.  Yes, sometimes I may not want that if the expression is expensive to evaluate, but far more often the expression is cheap to evaluate and I care more about getting good completions.
+
+Is there any way to tell Jedi/IPython to just go ahead and evaluate as much as it needs to in order to autocomplete on whatever I've actually typed?  It would be kind of cool if there were a way to switch this behavior on and off to handle the rare cases where the expression is expensive, or if there were alternative keyboard shortcuts for the two kinds of completion.@BrenBarn concerning this resistance, see also https://github.com/davidhalter/jedi/issues/1299#issuecomment-475369943There's no such switch as of now.
+
+The problem with evaluation is that if you do it you do it for all cases, you quickly get into very nasty scenarios. I think Jedi does evaluation for dicts, so it works most of the time, but just not in cases like this one, where it's not a dict.It seems tab completion (for object attributes) is broken again. For me, it's not systematic, is some times just VERY slow, and it seems if I just start working in a new cell, it will work. 
+
+I'm 
+```
+macOS Mojave Vesion 10.14.6
+MacBook Pro (15-inch, 2018)
+2.9 GHz Intel Core i9
+32 GB 2400 MHz DDR4
+```
+
+Any solutions to this slight, but still very annoying regression?I've checked with two colleagues (one with a Mac, the other with Linux), and they both reported the same problem of tab completion not working all the time.If you want this to improve, please post what's not working. In your case I have NO idea what's working and what's not. `tab completion not working all the time` could mean pretty much anything.@lodagro: I saw that, but later in that issue it says that the "safety" feature was disabled to provide more complete completions.  Yet Jupyter still doesn't complete properties correctly.
+
+@davidhalter: Here are some examples of what isn't working:
+```
+import pandas
+
+x = pandas.DataFrame({"X": ['a', 'b', 'c']})
+```
+
+After this I should be able to do the following, none of which currently work right:
+
+* `x.<TAB>` should offer me all DataFrame methods and the column X.  It displays the autocompletions after hanging for about five seconds.
+* `x.X.<TAB>` or `x["X"].<TAB>` should offer me all Series methods.  Both hang for five seconds and offer no completions.
+* `x.X.str.` or `x["X"].str.<TAB>`should offer me all the string methods available under `x.X.str`.  Both hang for five seconds and offer no completions.Related Issues:
+
+> It displays the autocompletions after hanging for about five seconds.
+
+https://github.com/davidhalter/jedi/issues/520
+
+> x.X.
+
+I'm pretty sure this is https://github.com/davidhalter/jedi/issues/1378
+
+--------
+
+So I guess using pandas with Jedi is just a bit unfortunate and I currently don't really have a good solution for either problem.@davidhalter: One solution is to provide an evaluation-based completion method.  (Maybe this is the `safe=False` method you mentioned on davidhalter/jedi#1378?)  You asked here for people to explain what isn't working, so I'm giving examples.  My point is that if jedi doesn't complete pandas accessors as in the examples I gave, that is perceived as "not working" by users.
+
+I still don't fully understand why you think there's no solution.  Isn't the solution to an evaluation-based completion mechanism?  The main reason I've seen on jedi issue threads is that you're concerned about "safety", but as I mentioned on that issue, I think for many people that is at most a minor concern.  (You seem to realize this too as you mentioned in davidhalter/jedi#1299 that you turned off a similar "safety" feature because people didn't want it.)@BrenBarn I wrote this comment pretty much at the same time you wrote yours: https://github.com/davidhalter/jedi/issues/1378#issuecomment-558849129
+
+It's great that you gave examples, thanks for that. At this point it makes no more sense to discuss it here. The relevant issues are in the Jedi tracker.> Related Issues:
+> 
+> > It displays the autocompletions after hanging for about five seconds.
+> 
+> [davidhalter/jedi#520](https://github.com/davidhalter/jedi/issues/520)
+> 
+> > x.X.
+> 
+> I'm pretty sure this is [davidhalter/jedi#1378](https://github.com/davidhalter/jedi/issues/1378)
+> 
+> So I guess using pandas with Jedi is just a bit unfortunate and I currently don't really have a good solution for either problem.
+
+It seems that it goes beyond those problems in some reported cases above... Although I am not sure how the issues I am referring to below relate to "nested dynamic entries", maybe they do and I apologize in advance if my comment appears as redundant here.
+
+But I was quite surprised by how much this feature failed while trying to start afresh (did not have any issue beforehand, I just wanted to update my system)... I just updated my Anaconda distribution from scratch, installing the default python 3.7, and current stable versions of ipython, jupyter, jedi, etc. from conda channels.
+I insist that this problem appeared as I just upgraded my python environment. The latter being:
+```python
+{'commit_hash': '8bda98619',
+ 'commit_source': 'installation',
+ 'default_encoding': 'utf-8',
+ 'ipython_path': '/home/hugo/anaconda3/lib/python3.7/site-packages/IPython',
+ 'ipython_version': '7.12.0',
+ 'os_name': 'posix',
+ 'platform': 'Linux-4.13.0-45-generic-x86_64-with-debian-stretch-sid',
+ 'sys_executable': '/home/hugo/anaconda3/bin/python',
+ 'sys_platform': 'linux',
+ 'sys_version': '3.7.6 (default, Jan  8 2020, 19:59:22) \n[GCC 7.3.0]'}
+```
+Jedi itself is at version `0.14.1`.
+
+What does **not** work:
+- completion after (_some_) modules name (`sys.getsiz<TAB>`, `numpy.loa<TAB>`, etc... gives **nothing**)
+- listing of functions right after module name and period character (as in `numpy.<TAB>`, nothing comes again...)
+
+What **does** work:
+- completion of variable names
+- listing of functions and completion for _some_modules or functions (e.g. I can complete on `numpy.ab` to list for `abs`, `absolute` and `absolute_import`, but no other functions?!; or a bit more strange, it works after `os.<TAB>` but not after `sys.<TAB>`...
+
+If I skip the use of Jedi (e.g. with `ipython --Completer.use_jedi=False`, all works perfectly fine.
+
+If the current state of things makes tab-completion broken in ipython shells (and hence in notebooks and jupyterlab), then maybe the default should be to not use `jedi` in the default profile of ipython configuration?
+@Hugo-W Dude you are using a Jedi version that is like 8 months old. Please just upgrade. I didn't even read your comment, so much has changed since then.@davidhalter you're so right, I thought I missed something, updating jedi fixed it, thanks!Is it by design or not that if a cell has a variable assignment, it won't autocomplete that variable?
+Example:
+```
+fig, ax = plt.subplots()
+ax.<tab>
+```
+
+If I separate those two lines in different cells, autocomplete is working@mxposed Please post a complete reproduction case. Also what's your Jedi version?@davidhalter Thanks for your reply. This was my almost complete reproduction case. More specifically, let's do this:
+• Cell 1
+```python
+import matplotlib.pyplot as plt
+```
+• Cell 2
+```python
+fig = plt.figure()
+fig.<tab>
+```
+• Cell 3
+```python
+fig.<tab>
+```
+
+When I press <tab> in Cell 2, there is no autocomplete. When I press <tab> in Cell 3, there is autocomplete that I expect, methods of `Figure` class.
+
+My versions:
+python 3.7.1
+jedi 0.16.0These 2 cases are not the same at all, because in one case Jedi does static analysis and in the other Jedi has the actual object and can essentially do a `dir('fig')` on it.
+
+However I feel like this should work if you install latest Jedi and `0.17.0` in combination with `numpydoc`. At least it works for me. Installing numpydoc makes sure that Jedi understands the return types defined in `figure`'s docstring.Strange, can't make it work. Upgraded jedi and a ton of other packages too, but still have the same behaviour. I have an anaconda installation. I'd be very grateful if you can help me figure out why isn't it working.Did you install `numpydoc`?Yes,  numpydoc=0.9.2Can you try it in IPython? I don't use Jupyter Notebook, so it's pretty hard for me to reproduce.
+
+What I do is this: `plt.figure().<tab>` (and it works for me).ipython=7.13.0
+
+Does not work in IPython either, it shows me completion for 3 files I have in that directory that start with a dotPlease run this then:
+
+```
+import matplotlib.pyplot as plt
+import jedi, sys
+import numpy, numpydoc
+print(jedi.__version__, sys.version_info, numpy.__version__, numpydoc.__version__)
+jedi.set_debug_function()
+print(jedi.Interpreter('plt.figure().', [globals()]).completions())
+```
+Wow, there's a ton of debug output.
+```
+0.17.0 sys.version_info(major=3, minor=7, micro=1, releaselevel='final', serial=0) 1.18.2 0.9.2
+
+debug at https://gist.github.com/mxposed/cef09aa3cfd05433a67e954b7b61b2e5
+
+[]
+``I finally found it. The problem is that matplotlib uses the following in its docstring now: ``` figure : `~matplotlib.figure.Figure` ```.
+
+In the older version I tested with, matplotlib used `Figure`, which Jedi was able to understand. IMO this is a matplotlib issue. They should probably just use annotations to clear this up (and make it possible for a lot of static analysis tools [including Jedi] to understand the return type).Hi I think I'm bumping into @mxposed same error but on numpy:
+* Cell 1
+``` 
+import numpy as np
+```
+* Cell 2
+```
+a = np.array([1,2])
+a.d
+```
+(doesn't autocomplete)
+
+* Cell 3
+```
+a.dot
+```
+(autocompleted)
+Below are the versions of the relevant (i think) packages...just checking if this could be similar. 
+Thanks in advance!
+
+```
+# Name                    Version                   Build  Channel
+numpy                     1.18.5           py37ha1c710e_0  
+numpy-base                1.18.5           py37hde5b4d6_0  
+numpydoc                  1.0.0                    pypi_0    pypi
+jedi                      0.17.1                   py37_0  
+ipython                   7.16.1           py37h5ca1d4c_0  
+```
+
+EDIT: I am aware that disabling jedi is a workaround (I read the whole issue)> EDIT: I am aware that disabling jedi is a workaround (I read the whole issue)
+
+I don't think this actually works. Disabling Jedi won't help in this case, because `a` does not exist at that point (I might be mistaken about this, since I don't know exactly how jupyter works). If it actually was defined, Jedi would use the definition and find completions (like what happens in cell 3).
+
+@takluyver @Carreau I'm in favor of closing this issue. The original issue was probably resolved. You could then tag me in newer issues. But this issue serves now as a general autocompletion issue with different people complaining about different things (that were partially fixed a while ago). So I'm in favor of closing. Your call.@davidhalter the cell nr. 2 has been already executed, and disabling jedi does work. Feel free to close the issue, just thought I'd complete with correct information.Closing this for now then, and we can open a separate issue if necessary:
+
+```
+In [10]: import jedi
+    ...: import numpy as np
+    ...: jedi.Interpreter('arr = np.array([1,2])\narr.', [{'np':np}]).complete(2,4)
+Out[10]: [] # expect something like `sum()`
+```@Carreau I guess it should be more like `jedi.Interpreter('arr = np.array([1,2])\narr.', [{'np':np, 'arr': arr}]).complete(2,4)`
+
+Which surprisingly to me doesn't work, it's a bug in Jedi. Opened https://github.com/davidhalter/jedi/issues/1628 in favor of this ticket.
+
+Also feel free to tag me whenever these kind of issues come up.Thanks a lot @davidhalter for taking care of this, jedi is awesome!I had the same problem. I use pyenv and discovered that jupyter does not search at pyenv's repository for jedi files. Thus, if you use pyenv, you need to install jedi on your local python instalationRan into this recently and just found this thread, upgrading to `jedi=0.17.2` fixed our tab auto completion bug.I had this problem in a conda environment only. Disabling jedi by adding `%config Completer.use_jedi = False` to the JN helped.
+I also had this problem oddly. Completion worked in a venv with jedi=0.17.2 . completion did not work with a new venv using 0.18 
+downgrading did the trick, this thread was a help.This is a different issue. It's essentially this issue: https://github.com/ipython/ipython/issues/12740
+
+As a temporary solution use:
+
+```
+pip install jedi==0.17.2
+```
+
+As soon as IPython master is released, we're fine.@davidhalter Downgrading jedi from 0.18 to 0.17.2 worked for me. Thanks for posting here and referencing the jedi issue. @davidhalter yep downgrading Jedi worked for me too. Thanks!!!Downgrading from jedi 0.18.0 to 0.17.2 fixed this issue for me in Windows. Just ran "pip install jedi==0.17.2"> This is a different issue. It's essentially this issue: [ipython/ipython#12740](https://github.com/ipython/ipython/issues/12740)
+> 
+> As a temporary solution use:
+> 
+> ```
+> pip install jedi==0.17.2
+> ```
+> 
+> As soon as IPython master is released, we're fine.
+
+Thanks a lot, it works for me!
+I am having the same issue. It is because of Jedi as mentioned.
+
+```
+{'commit_hash': '95d2b79a2',
+ 'commit_source': 'installation',
+ 'default_encoding': 'utf-8',
+ 'ipython_path': '~/anaconda3/envs/ml_env/lib/python3.8/site-packages/IPython',
+ 'ipython_version': '7.18.1',
+ 'os_name': 'posix',
+ 'platform': 'Linux-5.4.0-70-generic-x86_64-with-glibc2.10',
+ 'sys_executable': '~anaconda3/envs/ml_env/bin/python',
+ 'sys_platform': 'linux',
+ 'sys_version': '3.8.8 (default, Feb 24 2021, 21:46:12) \n[GCC 7.3.0]'}
+```
+ 
+ 
+```
+[IPKernelApp] ERROR | Exception in message handler:
+Traceback (most recent call last):
+  File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/ipykernel/kernelbase.py", line 268, in dispatch_shell
+    yield gen.maybe_future(handler(stream, idents, msg))
+  File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/tornado/gen.py", line 762, in run
+    value = future.result()
+  File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/tornado/gen.py", line 234, in wrapper
+    yielded = ctx_run(next, result)
+  File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/ipykernel/kernelbase.py", line 583, in complete_request
+    matches = yield gen.maybe_future(self.do_complete(code, cursor_pos))
+  File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/ipykernel/ipkernel.py", line 360, in do_complete
+    return self._experimental_do_complete(code, cursor_pos)
+  File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/ipykernel/ipkernel.py", line 385, in _experimental_do_complete
+    completions = list(_rectify_completions(code, raw_completions))
+  File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/IPython/core/completer.py", line 484, in rectify_completions
+    completions = list(completions)
+  File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/IPython/core/completer.py", line 1818, in completions
+    for c in self._completions(text, offset, _timeout=self.jedi_compute_type_timeout/1000):
+  File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/IPython/core/completer.py", line 1861, in _completions
+    matched_text, matches, matches_origin, jedi_matches = self._complete(
+  File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/IPython/core/completer.py", line 2029, in _complete
+    completions = self._jedi_matches(
+  File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/IPython/core/completer.py", line 1373, in _jedi_matches
+    interpreter = jedi.Interpreter(
+  File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/jedi/api/__init__.py", line 725, in __init__
+    super().__init__(code, environment=environment,
+TypeError: __init__() got an unexpected keyword argument 'column'
+```> I am having the same issue. It is because of Jedi as mentioned.
+> 
+> ```
+> {'commit_hash': '95d2b79a2',
+>  'commit_source': 'installation',
+>  'default_encoding': 'utf-8',
+>  'ipython_path': '~/anaconda3/envs/ml_env/lib/python3.8/site-packages/IPython',
+>  'ipython_version': '7.18.1',
+>  'os_name': 'posix',
+>  'platform': 'Linux-5.4.0-70-generic-x86_64-with-glibc2.10',
+>  'sys_executable': '~anaconda3/envs/ml_env/bin/python',
+>  'sys_platform': 'linux',
+>  'sys_version': '3.8.8 (default, Feb 24 2021, 21:46:12) \n[GCC 7.3.0]'}
+> ```
+> 
+> ```
+> [IPKernelApp] ERROR | Exception in message handler:
+> Traceback (most recent call last):
+>   File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/ipykernel/kernelbase.py", line 268, in dispatch_shell
+>     yield gen.maybe_future(handler(stream, idents, msg))
+>   File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/tornado/gen.py", line 762, in run
+>     value = future.result()
+>   File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/tornado/gen.py", line 234, in wrapper
+>     yielded = ctx_run(next, result)
+>   File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/ipykernel/kernelbase.py", line 583, in complete_request
+>     matches = yield gen.maybe_future(self.do_complete(code, cursor_pos))
+>   File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/ipykernel/ipkernel.py", line 360, in do_complete
+>     return self._experimental_do_complete(code, cursor_pos)
+>   File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/ipykernel/ipkernel.py", line 385, in _experimental_do_complete
+>     completions = list(_rectify_completions(code, raw_completions))
+>   File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/IPython/core/completer.py", line 484, in rectify_completions
+>     completions = list(completions)
+>   File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/IPython/core/completer.py", line 1818, in completions
+>     for c in self._completions(text, offset, _timeout=self.jedi_compute_type_timeout/1000):
+>   File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/IPython/core/completer.py", line 1861, in _completions
+>     matched_text, matches, matches_origin, jedi_matches = self._complete(
+>   File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/IPython/core/completer.py", line 2029, in _complete
+>     completions = self._jedi_matches(
+>   File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/IPython/core/completer.py", line 1373, in _jedi_matches
+>     interpreter = jedi.Interpreter(
+>   File "~/anaconda3/envs/ml_env/lib/python3.8/site-packages/jedi/api/__init__.py", line 725, in __init__
+>     super().__init__(code, environment=environment,
+> TypeError: __init__() got an unexpected keyword argument 'column'
+> ```
+
+Downgrading jedi as below solved my problem. This issue helped a lot. Thanks.
+
+pip install jedi==0.17.2For those using Jupyterlab and who have many kernels associated with `conda` environments, just wanted to add that you need to install jedi==0.17.2 in each kernel (conda environment), not just your base environment that contains jupyter lab.

@@ -1,0 +1,579 @@
+<em>Please make sure that this is a build/installation issue. As per our [GitHub Policy](https://github.com/tensorflow/tensorflow/blob/master/ISSUES.md), we only address code/doc bugs, performance issues, feature requests and build/installation issues on GitHub. tag:build_template</em>
+
+**System information**
+- OS Platform and Distribution (e.g., Linux Ubuntu 16.04): windows 10
+- Mobile device (e.g. iPhone 8, Pixel 2, Samsung Galaxy) if the issue happens on mobile device:
+- TensorFlow installed from (source or binary): pip
+- TensorFlow version: 2
+- Python version: 3.8
+- Installed using virtualenv? pip? conda?: venv
+- Bazel version (if compiling from source): NA
+- GCC/Compiler version (if compiling from source): NA
+- CUDA/cuDNN version: NA
+- GPU model and memory: NA
+
+
+
+**Describe the problem**
+ cant install tensorflow
+**Provide the exact sequence of commands / steps that you executed before running into the problem**
+
+install python 3.8
+create a new venv
+`venv> pip install tensorflow`
+fails with `ERROR: Could not find a version that satisfies the requirement tensorflow (from versions: none)
+ERROR: No matching distribution found for tensorflow`
+
+
+**Any other info / logs**
+Include any logs or source code that would be helpful to diagnose the problem. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+
+
+EDIT: I guess you don't provide binaries for python 3.8 (https://pypi.org/project/tensorflow/#files)
+is there another issue I can subscribe for about support for python 3.8? (couldn't find one, so keeping this open for now)As you can refer from this [page](https://www.tensorflow.org/install/pip) Tensorflow is only supported till python 3.7 as of now.'awaiting response' from me?
+
+In any case, I would prefer subscribe to an issue than wait for the web page update.@amitport I am going to close this issue and we will keep you updated once Tensorflow supports Python 3.8.Are you satisfied with the resolution of your issue?
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/33374">Yes</a>
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/33374">No</a>
+still, IMHO, python3.8 support should be an issue open for discussion/contribution/updates.> As you can refer from this [page](https://www.tensorflow.org/install/pip) Tensorflow is only supported till python 3.7 as of now.
+
+The page says 'python > 3.4' and then if you scroll down to 'Package Locations' you can see that there isn't one for 3.8, and I guess that means we're supposed to know to use 3.7 (or 3.6 for Windows)? Last I checked, both 3.7 and 3.8 are '> 3.4' so the documentation should probably reflect the version restrictions clearly.Looks like there are also build issues with python 3.8.
+Let's follow those up in https://github.com/tensorflow/tensorflow/issues/33543
+
+And once all our dependencies release python 3.8 packages, we will quickly move to prepare ours.so how install 3.7? i am on 3.8 now x.x@nonoyek as gunan said. They're waiting for their dependencies to release python3.8 packages and then release their python3.8.
+
+you can either wait (hopefully not long) or install python3.7 (if you asking how to do that, then this is not the correct place. try stackoverflow.com)I have the same issue. Now I have both 3.7 and 3.8 installed, but it defaults to 3.8.
+
+I've tried to uninstall 3.8 by removing the 3.8 folder in Applications and also in the Python.Framework directory, but it is still looking for that path and just doesn't find it.
+
+How do I go back to 3.7?@geoffreyhughes @nonoyek @amitport 
+
+TensorFlow currently not support python 3.7. but I have solved this issue (on windows 10) by using Python environments like virtualenv , conda.
+
+first, you need to download python 3.5x or 3.6x >> https://www.python.org/downloads/ 
+and install it to your machine. then you'll need to create a virtual environment with Python 3.6 or 3.5.
+( virtualenv -p {path to python.exe(3.6)}  {environment name} ) .
+
+finally, check your python version with activating the virtual environment. 
+
+I was able to successfully build TF on windows with python 3.8.
+However, grpcio still did not publish their python 3.8 package.
+Therefore, we are blocked on their release for our python 3.8 releaseFYI, these are the issues at grcpio: https://github.com/grpc/grpc/issues/20615 and https://github.com/grpc/grpc/issues/20831I will reopen this issue until python 3.8 nightlies are out.Are you satisfied with the resolution of your issue?
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/33374">Yes</a>
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/33374">No</a>
+closed by accident... sorryThis is not limited to windows. Rolling linux distributions without the option to downgrade  software packages are also facing the problem, especially with pip.@georgebush422 @gowthamkpr  should probably remove [subtype:windows](https://github.com/tensorflow/tensorflow/labels/subtype%3Awindows) tagGrpcio has released binaries for 3.8: grpc/grpc#20831. Do we have an estimate for when TF will be releasing?That's great news. We can start working on it. The roadmap is to first release `tf-nightly` with support for Python 3.8 (that is, provide support on `master` branch) and only after that we will release a TF version for 3.8. That is, TF 2.1 will not support 3.8 (as we are already in the process of releasing it) but TF 2.2 most likely will.I am on Arch Linux rolling release, I cannot install the any versions of tensorflow.
+lol Do I have to change the OS ?, not worth it.@debendraoli Install tensorflow using the Arch package.@debendraoli please read previous messages on the issue. Support for python3.8 is not yet released but will be done in the next year.> @debendraoli Install tensorflow using the Arch package.
+
+how to install tensorflow arch package on virtualenv? Install it systemwide. Or use 3.7 in a virtualenv.
+
+On Sun, Dec 29, 2019, 17:13 Thomas Yeun <notifications@github.com> wrote:
+
+> @debendraoli <https://github.com/debendraoli> Install tensorflow using
+> the Arch package.
+>
+> how to install tensorflow arch package on virtualenv?
+>
+> —
+> You are receiving this because you are subscribed to this thread.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/33374?email_source=notifications&email_token=AA4OENI62K7BM46JOVYH753Q3DLEJA5CNFSM4JA4OP42YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOEHZEAUA#issuecomment-569524304>,
+> or unsubscribe
+> <https://github.com/notifications/unsubscribe-auth/AA4OENLAJGIZC2WV5THYJQLQ3DLEJANCNFSM4JA4OP4Q>
+> .
+>
+Arch guys, please create a different issue, don't pollute this onePython 3.8.0b1 Release Date: June 4, 2019
+I guess Top5 most popular Github project could do better.
+Please update this issue with the progress on scale from 0 to 100 with step size 10.As we are a large project, we have to wait untill all our dependencies are
+python 3.8 compatible. This also prevents us from being able to try with
+the beta release, the release you mention. Grpcio only released a
+compatible package in mid-December, and we only were able to make sure all
+our build issues are resolved.
+So, if you like you can build TF from sources for python 3.8 at the moment.
+
+Nowadays, most of the team is on vacation. As we slowly come back from
+holidays, we will set up nightly 3.8 builds sometime in January. Official
+release with python 3.8 is planned in march, the 2.2 release. 2.1 was cut
+before all python 3.8 issues were resolved.
+
+On Mon, Jan 6, 2020, 12:34 PM Alexander Grigoryev <notifications@github.com>
+wrote:
+
+> Python 3.8.0b1 Release Date: June 4, 2019
+> I guess Top5 most popular Github project could do better.
+> Please update this issue with the progress on scale from 0 to 100 with
+> step size 10.
+>
+> —
+> You are receiving this because you were assigned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/33374?email_source=notifications&email_token=AB4UEONV6BFCXYNDALXH3C3Q4L3KHA5CNFSM4JA4OP42YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOEIE5IVI#issuecomment-571069525>,
+> or unsubscribe
+> <https://github.com/notifications/unsubscribe-auth/AB4UEOOMCDI3BA3QIRACXT3Q4L3KHANCNFSM4JA4OP4Q>
+> .
+>
+As others said, in the meantime, it would go a long way if you could fix the docs as currently, it could be hard for newcomers to figure out why `pip install tensorflow` yields since it is stated that the Python Requirement is python 3.4 or later.
+
+```console
+ERROR: Could not find a version that satisfies the requirement tensorflow (from versions: none)
+ERROR: No matching distribution found for tensorflow
+```
+
+@debendraoli you don't need to change OS, just use `virtualenv`.  > @debendraoli you don't need to change OS, just use `virtualenv`.
+
+As he mentioned, you don't need to change OS, you just need python 3.7. Try the following:
+```
+virtualenv --system-site-packages -p python3.7 DEST_DIR 
+```
+
+`DEST_DIR` is your destination directory. Make sure you have Python 3.7 installed. In my case, I installed it from the AUR.> As others said, in the meantime, it would go a long way if you could fix the docs as currently, it could be hard for newcomers to figure out why pip install tensorflow yields since it is stated that the Python Requirement is python 3.4 or later.
+
+Great suggestion. Thank you for the feedback.
+@lamberta Can we update our docs to say currently python 3.8 is not supported yet?Sure. System requirements are in this doc: https://github.com/tensorflow/docs/blob/master/site/en/install/pip.html#L31
+
+What should it say? Python 3.4-3.7 ?@lamberta yes, and "3.8 soonish".  This was were I also expected the docs to mention the requirements of Python supported.  I'd advise the team to keep that updated, requirements being a fairly important thing :)FYI, I built TF 1.15 with Python 3.8 myself at https://github.com/yaroslavvb/tensorflow-community-wheels/issues/139Are you satisfied with the resolution of your issue?
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/33374">Yes</a>
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/33374">No</a>
+Why was this closed? It is not resolved AFAIK (yes it can be built locally, but that's not the issue)ERROR: Could not find a version that satisfies the requirement tf-nightly (from versions: none)
+ERROR: No matching distribution found for tf-nightly
+Doesn't work here either.it was autoclosed by a commit. we are still aware that 3.8 binaries are not available.@NIravMeghani this issue is still open, I would have been surprised if it did work@NIravMeghani Your wheel link points to a tensorflow 1.8.0 macOS wheel that is not compiled for python3.8. There is no way this wheel could actually work :) Also this issue is about python3.8 support for tensorflow 2.x.
+
+Look at https://www.tensorflow.org/install/pip#package-location for the latest possible wheels (Python 3.8 wheels are not yet available).
+
+For now the easiest way is to build the wheel by yourself, takes possibly a few hours max.
+Follow the instructions at https://www.tensorflow.org/install/source_windows
+Additional potentially useful hints:
+```
+SET BAZEL_VC=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC
+SET BAZEL_VS=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community
+SET CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1
+SET CUDA_TOOLKIT_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1
+```
+Also set `set BAZEL_VC_FULL_VERSION=14.16.27023` for tensorflow 2.1 build regardless what the actual VC version is (any version works as long as it matches `float(environ_cp.get('TF_VC_VERSION', '0')) >= 16.4`). This is to ensure the build does not take a full day. Look at `configure.py` for the details.
+
+Clone the tensorflow source from git, checkout the tag of your interest (2.1 is known to work, not sure about 1.15).
+
+python configure.py
+Optimization flags
+/arch:AVX2
+```
+bazel build --config=opt --define=no_tensorflow_py_deps=true //tensorflow/tools/pip_package:build_pip_package
+
+bazel-bin\tensorflow\tools\pip_package\build_pip_package C:/tmp/tensorflow_cuda_10_1
+```until 2.2 is released, `pip install tensorflow` will not work with python 3.8
+Please see https://github.com/tensorflow/tensorflow/issues/33374#issuecomment-571074915@mihaimaruseac , Please consider these changes in [#1435](https://github.com/tensorflow/docs/pull/1435) for doc correction till python 3.8 is not supported and review PR.Release date for a new version tensorflow that works on Python 3.8?So only downgrading to 3.7 or lower is the solution?For now there are 2 solutions: use Python 3.7 or compile from source. 
+
+TF 2.2 will have python3.8 support.What about `tf-nightly`?We have some issues on Linux CPU where `tf-nightly` has been broken these past few days. Once they are resolved we can restart the process of building 3.8 nightlies and it should be at most 2-3 days after that.
+
+So, hopefully by mid February we can release 3.8 nightlies.@mihaimaruseac Any ETA on TF 2.2? Weeks? Months?
+
+Edit: I should read more carefully, thanks!
+
+>So, hopefully by mid February we can release 3.8 nightlies.@martinwicke @ewilderj do we have our release roadmap published externally?Looks like a 3.8 wheel is now available for Linux:
+
+![image](https://user-images.githubusercontent.com/3727925/75978118-bd962480-5ed5-11ea-9a43-77d0043ffe3f.png)
+@ErikBjare @gunan I guess this is something like a roadmap? https://github.com/orgs/tensorflow/projects/8#card-32797473@harahu Yes, those are the issues that should be solved before TF2.2 gets released.
+
+@beojan (and others): Yes, nightly now has py3.8 support and TF 2.2 will also have this. However, note that this will be for Windows and Linux for now. MacOS support is supposed to arrive in the upcoming weeks, hopefully before the TF 2.2 final release (it's an upstream issue, not something we can fix at the moment).Curious. Tried today pip install tf-nightly on Windows with Python 3.82 x64 and get this message:
+ERROR: Could not find a version that satisfies the requirement tf-nightly-gpu (from versions: none)
+ERROR: No matching distribution found for tf-nightly-gpu> Curious. Tried today pip install tf-nightly on Windows with Python 3.82 x64 and get this message:
+> ERROR: Could not find a version that satisfies the requirement tf-nightly-gpu (from versions: none)
+> ERROR: No matching distribution found for tf-nightly-gpu
+
+Not yet published for Windows:
+https://pypi.org/project/tf-nightly/2.2.0.dev20200307/#filesIs anyone working on this issue? I see no progress with the Windows Version. Any possibilities to put priority on it? Like using Patreon or other Donation sites? Else would start fixing it myself in case it stays open for the next few months :)@NickDinges It's likely part of the 2.2.0 release.
+
+Current option is to compile it manually: Windows, Python 3.8 and CUDA 10.1 is known to work with the latest r2.2 branch and v2.2.0-rc0 tag.  Unfortunately without TensorRT and XLA support.2.2.0 release should have python 3.8Correct.
+Tf nightlies and 2.2.0 rc0 both have python 3.8 support. Except for macos,
+which is due to some issues we are having updating our mac cloud.
+
+On Sat, Mar 14, 2020, 8:47 AM Mihai Maruseac <notifications@github.com>
+wrote:
+
+> 2.2.0 release should have python 3.8
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/33374#issuecomment-599083532>,
+> or unsubscribe
+> <https://github.com/notifications/unsubscribe-auth/AB4UEOKDLQ5IQNHQRR25ZKDRHORJFANCNFSM4JA4OP4Q>
+> .
+>
+Yes, just curious while there is still no image.
+
+https://pypi.org/project/tf-nightly/2.2.0.dev20200307/#files@NickDinges this seems like a bug on our sideHi all, I am on a mac catalina with python 3.8. What should I do? Should I compile from source, wait for the new release or downgrade to python3.7? @NickDinges py38 pips for 2.2.0-rc0 will get uploaded shortly. Also, we have a fix in progress for the nightly pips for windows/py38.
+
+@lucaturchet If in rush, downgrading to py3.7 will allow you to `pip install`. Otherwise, you can try compiling from source or waiting until 2.2 final release@mihaimaruseac  thanks a lot. Could you please provide an estimate of when you foresee to release the support for 3.8? Just to have an ideaA few weeks. We already have rc0 for 2.2@NickDinges Python 3.8 pips uploaded to [`tf-nightly-gpu`](https://pypi.org/project/tf-nightly-gpu/#files) and [`tf-nightly-cpu`](https://pypi.org/project/tf-nightly-cpu/#files) for Windows and Linux. From tomorrow all these will also be uploaded to `tf-nightly`Awesome! Thanks :-)Just checked, all files are updated except those needed for windows ;-([tf-nightly](https://pypi.org/project/tf-nightly/#files), [tf-nightly-cpu](https://pypi.org/project/tf-nightly-cpu/#files), and [tf-nightly-gpu](https://pypi.org/project/tf-nightly-gpu/#files) all have linux and windows python 3.8 packages.
+
+Probably you checked before they got uploadedYes. Works now. The windows image was 5 hours later than the other images :-) Didnt expect that :)Does it really work? Please help how to install. 
+My attempt: **pip install tensorflow** has brown the same as one month ago:
+
+"Could not find the version that satisfies the requirement tensorflow..."Yes. you have to use "pip install tf-nightly-gpu"Yes. Thanks. 
+I tried to execute the simple CV code:
+
+```
+import imageai
+from imageai.Detection import ObjectDetection
+import os
+
+execution_path = os.getcwd()
+detector = ObjectDetection()
+detector.setModelTypeAsYOLOv3()
+detector.setModelPath(os.path.join(execution_path, "yolo.h5"))
+detector.loadModel()
+detections = detector.detectObjectFromImage(input_image = os.path.join(execution_path,
+                                                                "input.jpg"), output_image_path =
+                                                                os.path.join(execution_path, "output.jpg"),
+                                                                minimum_percentage_probability = 30)
+for eachObject in detections:
+    print(eachObject["name"], " : ", eachObject["percentage_probability"],
+            " : ", eachObject["box_points"])
+    print("_", x10)
+```
+
+Anyway I still have a problem with Tensorflow:
+
+```
+Traceback (most recent call last):
+detector = ObjectDetection()
+...\imageai\Detection\__init__.py", line 88, in __init__
+    self.sess = K.get_session()
+...\keras\backend\tensorflow_backend.py", line 378, in get_session
+    raise RuntimeError(
+RuntimeError: `get_session` is not available when using TensorFlow 2.0.
+```
+
+May be approach in my code is obsolete.Check this: https://stackoverflow.com/questions/58255821/how-to-use-k-get-session-in-tensorflow-2-0-or-how-to-migrate-ittf_nightly_gpu-2.2.0.dev20200315 is still expecting cuda 10.1 not 10.2@keke8273 I don't think cuda 10.2 will be supported in TF 2.2.
+
+If you already have installed the latest nvidia drivers and cuda, consider adding 10.1 cuda as a manual download and adjusting the paths. Latest nvidia drivers work with older cuda versions.
+
+See https://twitter.com/ahtik/status/1238079762758807554 for some hints.> Except for macos, which is due to some issues we are having updating our mac cloud.
+
+@gunan  Is there an issue number for this that can be followed? Please don't derail the thread with other issues. CUDA 10.2 is not the focus of TF 2.2 (though you should be able to compile from source).
+
+@alanjcastonguay it is an internal issue unfortunately, so no public issue number. We will update this thread when all versions will have py38 releases> Yes. you have to use "pip install tf-nightly-gpu"
+
+Do i have to update pip or something ? I'm still getting the same error. At this point it might be me trying to use python for the first time...Yes you have to update pip.
+
+On Mon, Mar 16, 2020, 10:04 Iluvalar <notifications@github.com> wrote:
+
+> Yes. you have to use "pip install tf-nightly-gpu"
+>
+> Do i have to update pip or something ? I'm still getting the same error.
+> At this point it might be me trying to use python for the first time...
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/33374#issuecomment-599652823>,
+> or unsubscribe
+> <https://github.com/notifications/unsubscribe-auth/AAEM57J5JTDIYA7ZXQ7PKN3RHZLZ7ANCNFSM4JA4OP4Q>
+> .
+>
+I'm currently setting up a new clean Windows 10 OS and am getting this error with the latest default build of Python `3.8.2`. The OS is update to date for all Windows updates.
+
+Both options still have an error:
+```bash
+pip install tensorflow
+pip install tf-nightly-gpu
+```
+Both still error:
+```
+ERROR: Could not find a version that satisfies the requirement tensorflow (from versions: none)
+ERROR: No matching distribution found for tensorflow
+```
+
+Does anyone know of helpful build instructions to work around this issue or is there anything I can provide from my system that might help?According to https://github.com/tensorflow/tensorflow/issues/33374#issuecomment-599226072 we only have nightly pips at the moment with python3.8
+
+Can you try any of those packages? Also, make sure you have `pip` upgraded (`pip install --upgrade pip setuptools`) and that your CPU supports AVX@ConradSollitt , "works for me". Both for `tensorflow` and `tf-nightly-gpu` pip.
+```
+C:\Users\ak>\python38\python.exe -m venv \arx\tf2-2.2rc
+C:\Users\ak>\arx\tf2-2.2rc\Scripts\activate
+
+(tf2-2.2rc) C:\Users\ak>python -VV
+Python 3.8.2 (tags/v3.8.2:7b3ab59, Feb 25 2020, 23:03:10) [MSC v.1916 64 bit (AMD64)]
+```
+
+**tf-nightly-gpu**
+
+```
+(tf2-2.2rc) C:\Users\ak>pip install --no-cache-dir tf-nightly-gpu
+Collecting tf-nightly-gpu
+  Downloading tf_nightly_gpu-2.2.0.dev20200319-cp38-cp38-win_amd64.whl (400.0 MB)
+```
+
+**tensorflow**
+```
+(tf2-2.2rc) C:\Users\ak>pip install --no-cache-dir tensorflow
+Collecting tensorflow
+  Downloading tensorflow-2.2.0rc1-cp38-cp38-win_amd64.whl (459.1 MB)
+```
+
+**tensorflow-gpu**
+```
+(tf2-2.2rc) C:\Users\ak>pip install --no-cache-dir tensorflow-gpu
+Collecting tensorflow-gpu
+  Downloading tensorflow_gpu-2.2.0rc1-cp38-cp38-win_amd64.whl (460.3 MB)
+```
+
+EDIT: I was a bit quick with the conclusion, `tensorflow-gpu` installation fails after a few minutes with
+```
+ERROR: Could not find a version that satisfies the requirement tensorflow-gpu-estimator<2.3.0,>=2.2.0rc0 (from tensorflow-gpu) (from versions: 2.1.0)
+ERROR: No matching distribution found for tensorflow-gpu-estimator<2.3.0,>=2.2.0rc0 (from tensorflow-gpu)
+```Oh, there shouldn't be any `tensorflow-gpu-estimator`. Thanks for catching that. We will have to fix by the final release@mihaimaruseac and @ahtik  Thanks for taking time to help, it works now! 👍 
+
+Normally I would use `python --version` to check version but now realize I need to probably use `python -VV` in most cases. I used the default download link for Windows from the main Python site and ended up installing 32-bit.
+
+Once I installed 64-bit build of Python it worked to install. Then after downloading the latest [Visual Studio C++ Redistributable](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) I was able to run a previous image classification server that I had created.
+
+Seems like there is opportunity to improve the following error messages in pip and I see that there is at least one issue open at https://github.com/pypa/pip/issues/6526
+```
+ERROR: Could not find a version that satisfies the requirement {package} (from versions: none)
+ERROR: No matching distribution found for {package}
+```
+
+Regardless that is not a TensorFlow issue though Hi,
+
+I have downloaded the anaconda and created a virtual env with python 3.8.2 . am not able to install tensorflow 2.1.0 in 3.8.2 env.
+is it still the issue in 3.8.2 python for Tensorflow ? or it fixed ?
+how i can install Tf 2.1.0 in python 3.8.2TensorFlow 2.1 is **NOT** released on Python 3.8
+TensorFlow 2.2 **WILL BE** released on Python 3.8@amrithadevadiga 
+Iterating on what was already said, it's still not available, it will be!
+As an advice, always try to catch/read the thread before posting... TF 2.2.0-rc2 has been released and Python 3.8 wheels are available to install. https://pypi.org/project/tensorflow/2.2.0rc2/#filesAre you satisfied with the resolution of your issue?
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/33374">Yes</a>
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/33374">No</a>
+@mihaimaruseac 
+Any hopes for a Mac release?> TF 2.2.0-rc2 has been released and Python 3.8 wheels are available to install. https://pypi.org/project/tensorflow/2.2.0rc2/#files
+
+Is this production ready? I can't say so! Then why closing the issue? Are you guys done? Do you have the specific date of final? Stop wasting our time please, py38 is over a year here. For anyone else: please shut up and stop derailing the issue until it's over.Sorry, closed by mistake. Reopening.
+
+We publish the RCs for two reasons: so people can test early and identify major regression (since we only do patch releases for security reasons) and so that people who want to be on the bleeding edge and don't want to compile from source can still get access to pips compiled on new infrastructure. RC versions can be specified during `pip install`.
+
+Furthermore, once RC versions are released, you can be sure that a final version is at most a few weeks ahead, depending on how many regressions are identified in an RC. We are in RC2 and it's likely that the release happening this week will be a final release.
+
+@j-pb: unfortunately the upstream team has been unresponsive in providing support for building on MacOS. We will probably have to go ahead without a 3.8 release on MacOS now and upload the pips for python 3.8 at a later time when the upstream issues get solved@mihaimaruseac Aight! Thanks for the heads up :)pip install tensorflow==2.2.0rc2
+ERROR: Could not find a version that satisfies the requirement tensorflow==2.2.0rc2 (from versions: none)
+ERROR: No matching distribution found for tensorflow==2.2.0rc2@acegilz It's useful to comment with the OS and exact steps taken to get to this error.
+`pip install tensorflow==2.2.0rc2` does work fine for both Ubuntu and Windows 10, using 64-bit Python 3.8. Output from `python -VV` can help you pinpoint the issue.@acegilz Are you sure you are on python **3.8** and not **3.8.2**?
+ `pip install tensorflow==2.2.0rc2` works on 3.8 but won't on 3.8.2 I had to add a virtual env with a plain 3.8.0 installation for it to work.That is very surprising. The packages for 3.8 should work for all patch
+releases.
+@constantinexisc It should work with both 3.8 and 3.8.2. It's not clear which OS @acegilz is using, but at this point there are no python 3.8 wheels available for MacOS.
+
+Linux and Windows should work fine, https://pypi.org/project/tensorflow/2.2.0rc2/#filesWell that's weird. I'm on windows 10 insiders so I won't bother figuring why exactly my 3.8.2 installation didn't work with 2.2.0rc2, working fine on 3.8 now.@constantinexisc Most likely the culprit is 64 vs 32 bit python version. Could you check both python binaries by running corresponding `python.exe -VV` and comparing the results? TF 2.2.0rc2 Windows wheels are only available for 64 bit Python.I'll be damned you are right! The 3.8.2 is the 32bit version. How did I install a 32bit python.. my eyesight needs some work. Thanks for clearing it up 😅RC3 is out and has [py3.8 pips for all 3 operating systems](https://pypi.org/project/tensorflow/2.2.0rc3/#files)Can someone with an older macos installed verify our mac images?
+We had to build on macos catalina, therefore, we want to make sure they are ok on older versions before we release final.Ubuntu 20.04 will ship with Python 3.8.x (possibly 3.8.2), so this means you can't install tensorflow on it yet.@fcole90 that's not completely true. First, you can always use a virtualenv with another python. But also later this week or early next week we'l release tf 2.2 final that would work with Python 3.8Yes, of course I meant with the shipped python. I installed myself a 3.7 in a virtualenv as well. BTW, great to hear that you're going to release that version soon 😃Confirmed that I could "import tensorflow" with MacOS 10.14.6 and Python 3.8.2
+
+```
+(venv) ➜  src sw_vers
+ProductName:	Mac OS X
+ProductVersion:	10.14.6
+BuildVersion:	18G4032
+(venv) ➜  src pip list | grep tensorflow
+tensorflow             2.2.0rc3   
+tensorflow-estimator   2.2.0rc0   
+WARNING: You are using pip version 19.2.3, however version 20.0.2 is available.
+You should consider upgrading via the 'pip install --upgrade pip' command.
+(venv) ➜  src python
+Python 3.8.2 (default, Mar 11 2020, 00:28:52) 
+[Clang 11.0.0 (clang-1100.0.33.17)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import tensorflow
+>>> 
+```
+@jontignis thanks for verifying. [In rc4](https://github.com/tensorflow/tensorflow/blob/v2.2.0-rc4/tensorflow/tools/pip_package/setup.py#L304), the pip package still declares support for 2.7 (contrary to what docs say), but not 3.8:
+```python
+ # PyPI package information.
+    classifiers=[
+        ...
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Topic :: Scientific/Engineering',
+        ...
+    ],
+```
+
+Is there any hope that final release will support 3.8?
+@mjmikulski 2.x drop and 3.8 intro was pushed in the beginning of Mar (https://github.com/tensorflow/tensorflow/pull/37384) and should be part of 2.2 release. These classifiers are just for metainfo, you can already today use rc4 Python 3.8 wheels on all the supported platforms (https://pypi.org/project/tensorflow/2.2.0rc4/#files) either with CPU or with CUDA 10.1. CUDA 10.2 requires manual build, is known to work at least with Linux and Windows.
+
+@mihaimaruseac any ideas why https://github.com/tensorflow/tensorflow/pull/37384 is not merged into the r2.2 branch?@ahtik: there was no PR to cherry-pick. On it#39188 should fixYEAH!!  This was fixed in [TensorFlow 2.2.0](https://github.com/tensorflow/tensorflow/releases) which was released 11 hours ago.And now we can finally close this. Apologies for the long time until the final release.Are you satisfied with the resolution of your issue?
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/33374">Yes</a>
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/33374">No</a>
+God bless. Please make following releases quicker.We prefer to not release it if we find there are issues. Sometimes that makes for a longer wait.I still can't install `tensorflow` on **windows 10 (64bit -2004 )** **python 3.8.2** by running 
+> `pip install tensorflow`
+
+It returns this error: 
+`ERROR: Could not find a version that satisfies the requirement tensorflow (from versions: none)
+ERROR: No matching distribution found for tensorflow`
+
+<br/>
+
+I also tried using this command: 
+> `python -m pip install --upgrade https://storage.googleapis.com/tensorflow/windows/gpu/tensorflow_gpu-2.2.0-cp38-cp38-win_amd64.whl`
+
+Which also didn't work and returned this error: 
+`ERROR: tensorflow_gpu-2.2.0-cp38-cp38-win_amd64.whl is not a supported wheel on this platform.`
+
+<br/>
+
+**What'd I do now**?@Prottoy2938 Does `python -VV` confirm you're using python v3.8.2 AMD64/64-bit? It does sound like a 32 vs 64 bit python binary issue.`pip --version ` # Linked to Python 3.8 or to legacy Python?  
+`pip3 --version ` # Linked to Python 3.8?
+
+`python3.8 -m pip install tensorflow`
+
+`py --version `  # if Python 3.8 then
+`py -m  pip install tensorflow`@cclauss Often `python --version` is not useful as it does not show the 32 vs 64 bit build info, which causes problems all the time because of the way python.org Download site at https://www.python.org/downloads/ defaults to the 32-bit Windows installer without even warning about being a 32-bit. `python -VV` shows both the version and 32 vs 64 bit info.@ahtik , `python -W` returns 
+
+`Python 3.8.2 (tags/v3.8.2:7b3ab59, Feb 25 2020, 22:45:29) [MSC v.1916 32 bit (Intel)]`
+
+And my device's processors: 
+`intel(r) core(tm) i5-6200u cpu @ 2.30ghz 2.40ghz`@Prottoy2938 There you go :) Replace your a 32-bit python with a 64-bit version and it's good to go. Tensorflow does not support 32-bit architecture. `i5-6200u` would be fine.I couldn't install it. when I run `python3.8 -m pip install tensorflow` I get this error >> `ERROR: Could not find a version that satisfies the requirement tensorflow (from versions: none) ERROR: No matching distribution found for tensorflow`@AsmaTidafi `python -W`? Please read messaged above, in case solution is present@mihaimaruseac
+```
+Python 3.8.0 (default, Nov 12 2019, 19:43:25)
+[GCC 5.4.0]
+```Operating system? CPU version and architecture? `pip --version`? `pip3 --version`? I would recommend opening a new issue and filling in issue template, after making sure that the solution presented here does not apply:
+
+1. check that your CPU supports 64 bit binaries and AVX
+1. check that your Python is on 64 bits
+1. check that `pip` is updated to the latest version@AsmaTidafi Also try `python -VV` or in your case likely `python3.8 -VV`. I used that after help from @mihaimaruseac and other's here and realized I was running a 32-bit Version of Python on 64-Bit Windows when I had last setup a new computer. The default Python download link for Windows users is 32-bit so it's easy to make the mistake during setup; luckily if that's the case it's easy to uninstall and then re-install the 64-bit version.1.All the above methods dont work.When i type tensorflow --version,shows no module 'tensorflow'.
+NameError                                 Traceback (most recent call last)
+<ipython-input-4-5a6241c68c53> in <module>
+----> 1 tensorflow --v
+
+NameError: name 'tensorflow' is not defined
+although on pip install tensorflow shows requirement satisfied* `python3 --version`
+* `python3 -VV`  # Vee-Vee, not W
+* `python3 -c "import tensorflow ; print(tensorflow.__version__)"`Hi Thank you for your reply but actually when i run it shows python-3 is
+not defined.
+please look as to how can I download tensorflow i tried everything
+
+On Wed, Jul 8, 2020 at 12:45 PM Christian Clauss <notifications@github.com>
+wrote:
+
+>
+>    - python3 --version
+>    - python3 -W
+>    - python3 -c "import tensorflow ; print(tensorflow.*version*)"
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/33374#issuecomment-655335060>,
+> or unsubscribe
+> <https://github.com/notifications/unsubscribe-auth/AJ7CHEONS2LDLZMZTOUYFGTR2QMJJANCNFSM4JA4OP4Q>
+> .
+>
+Are you on Linux, macOS, or Windows?
+
+If Windows, use `py` instead of `python3` in the examples above.
+
+If on Linux or macOS, try `which -a python3 ; which -a python`Nope same error
+python3 -c "import tensorflow ; print(tensorflow.*version*)"
+error:
+
+ File "<ipython-input-21-910ef3eb6f32>", line 1    py -c import
+tensorflow          ^SyntaxError: invalid syntax
+
+
+On Wed, Jul 8, 2020 at 12:54 PM Christian Clauss <notifications@github.com>
+wrote:
+
+> Are you on Linux, macOS, or Windows?
+>
+> If Windows, use py instead of python3 in the examples above.
+>
+> If on Linux or macOS, try which -a python3 ; which -a python
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/33374#issuecomment-655338881>,
+> or unsubscribe
+> <https://github.com/notifications/unsubscribe-auth/AJ7CHEM6JCIQYKW7WSWZJJLR2QNJVANCNFSM4JA4OP4Q>
+> .
+>
+You must have forgotten the quotes on the statement above.
+What was the result of `py -VV` ?@Aanyajain
+Try `python3 -c 'import tensorflow as tf; print(tf.__version__)'`
+
+Did you try and first install tensorflow? Full syntax from CLI: `python3 -m pip install tensorflow`
+
+@cclauss I think there might be an issue with `*` vs `_` characters is related to markdown formatting. I just used the code formatting to update the command so it can be correctly copied and pasted.
+Yes sir i tried it it shows error:
+
+ File "<ipython-input-1-e11003545201>", line 1    python3 -m pip
+install tensorflow               ^SyntaxError: invalid syntax
+
+
+
+
+On Wed, Jul 8, 2020 at 3:07 PM Conrad Sollitt <notifications@github.com>
+wrote:
+
+> @Aanyajain <https://github.com/Aanyajain>
+> Try python3 -c 'import tensorflow as tf; print(tf.__version__)'
+>
+> Did you try and first install tensorflow? Full syntax from CLI: python3
+> -m pip install tensorflow
+>
+> @cclauss <https://github.com/cclauss> I think there might be an issue
+> with * vs _ characters is related to markdown formatting. I just used the
+> code formatting to update the command so it can be correctly copied and
+> pasted.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/33374#issuecomment-655408995>,
+> or unsubscribe
+> <https://github.com/notifications/unsubscribe-auth/AJ7CHEKYHFZDMBVERRVUVMLR2Q46LANCNFSM4JA4OP4Q>
+> .
+>
+@Aanyajain 
+Sounds like you might have an issue with your Python setup; looks like the `python` or `python3` command runs a version of `ipython` on your local machine. Can you try the following and report back?:
+
+1) Create File: **tf_ver.py**
+~~~
+import tensorflow as tf
+print(tf.__version__)
+~~~
+
+2) Then run:
+`python tf_ver.py' or `python3 tf_ver.py'Hello sir I have a new problem I cant run any cmd in jupyter notebook as it
+is not getting connected like the symbol on top just breaks when I run any
+Command.Can you please help.Its not working I dont know what to do I
+searched everywhere on net nothing yet.If it gets connected then Ill
+probably try to run what you just sent.
+Please help Im direly in need of it.
+
+On Wed, Jul 8, 2020 at 3:41 PM Conrad Sollitt <notifications@github.com>
+wrote:
+
+> @Aanyajain <https://github.com/Aanyajain>
+> Sounds like you might have an issue with your Python setup; looks like the
+> python or python3 command runs a version of ipython on your local
+> machine. Can you try the following and report back?:
+>
+>    1. Create File: *tf_ver.py*
+>
+> import tensorflow as tf
+> print(tf.__version__)
+>
+>
+>    1. Then run:
+>    python tf_ver.py' or python3 tf_ver.py'
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/33374#issuecomment-655425907>,
+> or unsubscribe
+> <https://github.com/notifications/unsubscribe-auth/AJ7CHEI7PJ6S3QOV2LW7JCLR2RA4FANCNFSM4JA4OP4Q>
+> .
+>
+@Aanyajain please open a new issue. In this case, it seems your system is in a bad state, not an issue of TensorFlow. We recommend StackOverflow for questions related to the operating system setup.
+
+Edit: Locking this conversation as the original issue has been resolved and there are many people subscribed to this. We don't want all of them to be notified for every additional issue. Please open new issues, filling in issue template as that would make debugging much easier.

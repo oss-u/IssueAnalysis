@@ -1,0 +1,1833 @@
+After the conda installation, the Jupyter notebook does not start. There is a command window, which shows up for 1 2 seconds but disappears. The Spyder does work properly so far. 
+
+More background information here: Windows 7, used to have an older version Anaconda, tried to update but found nothing worked after update. Uninstalled, and reinstalled the latest version Anaconda 4.0 with python2.7 64bit. Neither Spyder or Jupyter launches afterwards. Did conda update all. Found Spyder works but not Jupyter Notebook.Can you get an Anaconda command prompt and run CODESCODES in it? It probably won't work, but you should get an error message saying what's failing.takluyver,
+Thanks a lot! I just tried, and found it actually works by running from the command window! The problem looks like that the Jupyter notebook shortcut in the Windows start menu is messed up?I wonder if that's left over from the older version of Anaconda. The shortcut properties might tell you what it's trying to call there may be a wrong path to Anaconda or something.Closing as I don't think there's anything wrong in our code; feel free to keep using comments to work out what's going on.Did you fix this problem? I got this problem as well. Jupyter is launching from the cmd but not from the Windows shortcut. Can you look at the properties of the Windows shortcut to see what it's launching? The shortcut is something that Anaconda makes, so we don't directly control it.i looked at the properties. this is what it's launching:
+
+
+
+
+
+ HOME Yes, the problem was resolved. The shortcut was the issue. I had to
+manually change the Shortcut target in windows 7 to the following:
+
+Let me know if works.
+Thanks,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+jap, using jupyter notebook. exe as shortcut target did the trick!
+
+thank you very much! Thanks hlignin. If anyone wants to follow up the shortcut issue, the LINKLINK repo is probably the place to report it.This is my environment.
+
+
+
+I've experienced the same problem.
+
+This is the default target of Jupyter Notebook shortcut. in my case 
+
+
+In here, CODESCODES caused the problem.
+
+So, I solved the problem with following solutions.
+Please choose your preferred method.
+
+ Add a new CODESCODES in system variables.
+Go to CODESCODES, add a new CODESCODES in system variables.
+
+
+
+
+ Change CODESCODES to path.
+ CODESCODES ⇒ CODESCODES 
+
+
+ Change CODESCODES to CODESCODES and add in system variables.
+ CODESCODES ⇒ CODESCODES 
+Go to CODESCODES, add a new CODESCODES in system variables.
+
+Thanks for the detailed write up! Someone should probably report this to
+Anaconda, because they make the start menu shortcut.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ hwyncho great work! Thanks!Hi, 
+I looked at my set up and the icons have the following properties:
+
+
+
+
+
+
+ this part is missing from the target text due to limit on the taget text box in icon properties pop up: ts jupyter notebook script. py 
+
+Two questions:  I think the missing part of the file path is causing a problem. Would you agree? The second entry is not point to the envs version of cwp. py, which could also be causing a problem. Would you agree? 
+
+If the first is correct, I believe the only way to correct is for me to change my User folder name which seems quite problematic for Win 10. Any suggestions? 
+
+Many Thanks, 
+
+Alan
+
+1. I don't know if that's a problem affecting the actual value, or just its display in the properties dialog. If it is affecting the actual value, it could very well be the problem. I'm not entirely sure what CODESCODES does, but I suspect it doesn't matter that it's not pointing to the one in the env. You're better off asking Anaconda people about it.Hi, I have the same issue here as well, Jupyter opens from the command line but not from the shortcut. How do I inspect the shortcut to see where it is linking to? I can't find the shortcut in the Anaconda3 folder.Just solved this for the windows shortcut on Windows 8. My windows user has a space in the name, so in the shortcut I had to wrap the USERPROFILE path with double quotes as USERPROFILE 
+
+Still have been unable to get the shortcut within anaconda navigator working. JoomSavvy Thanks! Put USERPROFILE in double quotes. now the shortcut is working! JoomSavvy Thanks, it worked for me!It appears your doc and code are not longer in sync for example running jupyter notebook fails. Running jupyter notebook works however.I tried to open jupyter from anaconda command prompt and also from navigator but for both it doesn't open up. Instead of Internet explorer microsoft edge comes up but doesn't open jupyter and gets close automatically. what could be the issue? 
+P. S. i am able to open spider. Eyshika if you enter CODESCODES in a command prompt what is the exact, full output you see in the terminal? Just copy paste the un abridged edited output into a new comment.
+
+Even if a browser doesn't open up you should be able to manually open a browser and navigate to CODESCODES.
+
+Also, I'd recommend to never use Internet Explorer, basically for anything but in particular I don't think the notebook works with it.  LINKLINK 
+
+Also, if I should not open it on Internet explorer then which browser is recommended?Chrome and Firefox are well supported. Edge should be fine, so I'm a bit surprised. If you grab that full url that has the token and put it in Edge, does it do the same weird behavior?It works now, with url. i don't know why it was showing error.
+But now it's not giving me any output on python3 jupyterAny errors in the output on the terminal you started it from?Hi I have the same problem on windows 10. Both Jupyter and Spider cannot be launched. I tried all your solutions mentioned above, but still it is not working.My problem was my user's folder had a space in folder name.
+
+After creating a new user and switching to that windows user, windows shortcuts and links from within' Anaconda worked fine.
+
+Windows 8.1 64 Bit. Latest Anaconda.
+
+Note: I ended up uninstalling an reinstalling Anaconda but my sense is the problem was really just the space in the windows user username user folder. rgbkrk you were right, It works perfectly now tatullia When you type jupyter notebook in your prompt it must be giving you some url, use that url to open jupyterTrying to update, re installed completely and now I get this error. megamindbrian What is the error you are getting?I tried installing with pip and got py36 
+
+Cannot open
+
+
+Installed with conda instructions and it works now. Thank you! Might need
+to look into the installer code because I don't think pip install works on
+Windows.
+
+
+
+
+
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+CONFIDENTIALITY NOTICE: The contents of this email message and any
+attachments are intended solely for the addressee s and may contain
+confidential and or privileged information and may be legally protected
+from disclosure. It is then shared with tech companies, bots, hackers,
+government agencies, and marketers. The security of this message is none,
+and it may be shared on Instagram at anytime. If you are OK with this,
+please respond. There isn't really any security or privacy anywhere. If
+you disagree you may want to go camping and talk to people face to face
+like in old times.
+The error I get is
+ LINKLINK 
+ tareknahool That looks like a path problem. In Advanced system settings Environment Variables, what does the PATH read as?
+Did you follow conda instructions?
+
+ Dear megamindbrian, thax for your prompt response.
+But, actually I don’t know how to solve this problem.Try these instructions, and post your PATH variable and what instructions
+you followed to start installing jupyter in the first place:
+ LINKLINK 
+
+
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ I studied computers 
+
+CONFIDENTIALITY NOTICE: The contents of this email message and any
+attachments are intended solely for the addressee s and may contain
+confidential and or privileged information and may be legally protected
+from disclosure. It is then shared with tech companies, bots, hackers,
+government agencies, and marketers. The security of this message is none,
+and it may be shared on Instagram at anytime. If you are OK with this,
+please respond. There isn't really any security or privacy anywhere. If
+you disagree you may want to go camping and talk to people face to face
+like in old times.
+The Anaconda prompt is supposed to set up PATH for you, but it looks like it's going wrong. You might try asking on anaconda issues: LINKLINK Same issue here with the latest Anaconda3 build 5.1 for Win10 64 bit. After installing the full anaconda distribution, neither Python nor Jupyter can be launched from the command prompt. I get xyz is not a recognized command. error on the Anaconda prompt. I'm planning to manually add the Anaconda home directory scripts paths to the PATH environment variable and report back what I encounter thereafter. If CODESCODES doesn't work either, that's definitely an Anaconda problem, so I'd suggest opening an issue on anaconda issues.I installed anaconda3.6 for windows 10 64 bit via UI and then did conda install py27. I am able to start spyder etc and change engine from 3.6 to 2. I have added anaconda in the path for my user. Jupyter notebok no longer loading and it shows below error. 
+
+ CODELCODEL You'll need to update the CODESCODES package in conda.install from cmd as pip3 install jupyter
+ LINKLINK 
+
+ after that it is installed
+ LINKLINK 
+
+
+Jupyter launch error Your help
+
+ The port 8888 is already in use, trying another port.
+ The port 8889 is already in use, trying another port.
+ The port 8890 is already in use, trying another port.
+ The port 8891 is already in use, trying another port.
+ The port 8892 is already in use, trying another port.
+
+
+ Error loading server extension jupyterlab
+ Traceback most recent call last:
+
+ self. run, cwd HERE, quiet True 
+
+ proc Process cmd, kwargs 
+
+ self. proc self. create process cwd cwd, env env 
+
+ cmd which cmd, kwargs. get 'env' 
+
+ raise ValueError msg 
+ ValueError: Please install nodejs 5+ and npm before continuing installation. nodejs may be installed using conda or directly from the nodejs websi
+te.
+
+ 
+
+ Traceback most recent call last:
+
+ func self 
+
+ info get app info app dir 
+
+ handler AppHandler app dir, logger 
+
+ raise ValueError msg 
+ ValueError: Please install nodejs 5+ and npm before continuing installation. nodejs may be installed using conda or directly from the nodejs websi
+te.
+
+ 0 active kernels
+ The Jupyter Notebook is running at:
+ LINKLINK 
+ Use Control C to stop this server and shut down all kernels twice to skip confirmation.
+ 
+
+ Copy paste this URL into your browser when you connect for the first time,
+ to login with a token:
+ LINKLINK 
+ Accepting one time token authenticated connection from:1
+ Creating new notebook in
+
+
+WHAT I SHOULD DO TO RESOLVE THIS PROBLEM?
+Please install nodejs 5+ and npm before continuing installation. nodejs may be installed using conda or directly from the nodejs website.my jupyter progrmme and jupyter notepad is not getting launched nor from windows shortcurt niether from promt commandHii I am a beginner I am getting like this when I am running jupyter notebook can anybody tell me how to resolve it
+
+
+Hello, I'm getting the following error while launching Jupyter notebook from cmd. Please can someone suggest a path forward?
+
+ 
+Gayathrys MacBook Air: gayathrydasika jupyter notebook
+ Users gayathrydasika anaconda2 lib python2.7 site packages IPython html. py:14: ShimWarning: The CODESCODES package has been deprecated since IPython 4. You should import from CODESCODES instead. CODESCODES has moved to CODESCODES.
+ CODESCODES has moved to CODESCODES. ShimWarning 
+ Users gayathrydasika anaconda2 lib python2.7 site packages IPython config. py:13: ShimWarning: The CODESCODES package has been deprecated since IPython 4. You should import from traitlets. config instead.
+ You should import from traitlets. config instead. ShimWarning 
+ Users gayathrydasika anaconda2 lib python2.7 site packages IPython utils traitlets. py: UserWarning: IPython. utils. traitlets has moved to a top level traitlets package.
+ warn IPython. utils. traitlets has moved to a top level traitlets package. 
+
+Traceback most recent call last: 
+File Users gayathrydasika anaconda2 bin jupyter notebook, line 11, in 
+
+ 
+File Users gayathrydasika anaconda2 lib python2.7 site packages jupyter core application. py, line 266, in launch instance
+ return super JupyterApp, cls. launch instance argv argv, kwargs 
+ 
+File Users gayathrydasika anaconda2 lib python2.7 site packages traitlets config application. py, line 657, in launch instance
+ app. initialize argv 
+ 
+File, line 2, in initialize
+ 
+File Users gayathrydasika anaconda2 lib python2.7 site packages traitlets config application. py, line 87, in catch config error
+ return method app, args, kwargs 
+ 
+File Users gayathrydasika anaconda2 lib python2.7 site packages notebook notebookapp. py, line 1535, in initialize
+
+ 
+File Users gayathrydasika anaconda2 lib python2.7 site packages notebook notebookapp. py, line 1238, in init configurables
+ log self. log,
+ 
+File Users gayathrydasika anaconda2 lib python2.7 site packages jupyterdrive mixednbmanager. py, line 51, in init 
+ manager class import item scheme 
+
+ File Users gayathrydasika anaconda2 lib python2.7 site packages IPython utils importstring. py, line 35, in import item
+ raise ImportError 'No module named s' obj 
+
+ImportError: No module named FileContentsManager
+  hemanth786 I am getting same error as hemanth.
+Please help, in Anaconda prompt, It shows same kind of problem as Hemanth showed.
+And it opens a browser tab, which has:
+Connection refused: localhost:8888Hey! My Jupyter notebook also cannot launch both through anaconda navigator and the prompt. It shows like this.
+ LINKLINK 
+ LINKLINK 
+I've tried pasting the URL showing in the cmd to Chrome, but it still cannot launch.
+I'll be grateful if anyone can answer to my question.
+
+ dhirschfeld Hi, do you know what can I do if localhost:8000 cannot also open in the browser? I've tried Chrome, IE, Edge. And installed Anaconda twice. In IE you need to go to the Internet Options and under the proxy info there add a bypass for CODESCODES  dhirschfeld Thanks so much! It works well now!Hi,
+
+I am not able to create new or view any of my. ipynb files in the browser when launched either through cmd prompt or Anaconda Navigator. I could easily launch and view files till yesterday but I don't know what happened that I can't anymore. The screenshot show the successful opening of Jupyter notebook dashboard but I am not able to view. ipynb files.
+ LINKLINK 
+ megha89 did you resolve your problem? I have the exact same issue where I can launch jupyter notebook but I can't open or edit any of my notebooks. Everything was working fine until I tried to install the ggplot library via the conda prompt and now I get an internal server 500 error.I think Anti virus is blocking your application. When you installed
+Anaconda a screen pops up stating do you want to allow the application to
+access outside. You might have cancelled that screen which is why you may
+be facing the problem. Disable antivirus and launch jupyter. If it doesnt
+work again. Please uninstall the software and reinstall once again, this
+time carefully see each screen.
+Rgds
+Prasad
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Prasad K
+Mobile: 98456 98426
+Thanks transtrades, I tried that but didn't seem to resolve the problem. I'll have to uninstall and reinstall. Any chance you know of an easy way to archive all my files before I uninstall?Did you try from start menu? Go to Windows Start Anaconda3 Jupyter and
+open. It may open Jupyter after a minute.
+
+If you want to reinstall, Your files will not be lost if you have saved
+them in some folder with a name and not as Untitled1, Untitled2. Untitled
+files get lost.
+
+Better transfer all the code files to a backup drive such as D or E. or
+pen drive.
+
+
+
+When you uninstall there will still be traces of the software in folders
+under your Users. There will be minor folders such as. anaconda, conda, spyder. just delete them using Shift + del.
+
+Restart the system and then reinstall anaconda. It is advisable to install
+
+while installing.
+
+Reason you will need to add libraries later using cmd command prompt It
+
+install the libraries.
+
+While installing you will get a java pop up asking that a program is trying
+to access outside, do you want to allow? you check the options and say Yes
+
+After Jupyter is installed, go to Start Anaconda3 Jupyter Notebook. It
+will take a minute opens and gives out a weblink on cmd prompt. copy the
+same and paste it on chrome netscape internet explorer and Jupyter will
+open on the browser.
+
+Rgds
+Prasad
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Prasad K
+Mobile: 98456 98426
+I tried launching from the start menu, from the anaconda navigator, and from the conda prompt. Each time I am able to launch the Jupyter NOtebook tree but when I try to open a python notebook I get the 500: Internal Server error. And this is what I see in the prompt:
+
+
+ web. asynchronous
+ AttributeError: module 'tornado. web' has no attribute 'asynchronous'
+ 
+ Host: localhost:8888,
+ Connection: keep alive,
+ Upgrade Insecure Requests: 1,
+ User Agent: Mozilla 5.0 Windows NT 10.0; Win64; x64 AppleWebKit 537.36 KHTML, like Gecko Chrome 72.3626.121 Safari 537.36,
+ Accept: text html, application xhtml+xml, application xml;q 0. image webp, image apng, ;q 0.
+ Referer: LINKLINK,
+ Accept Encoding: gzip, deflate, br,
+ Accept Language: en US, en;q 0.
+
+ 
+ 500 GET notebooks DSC 478 Project Norm 20and 20weight. ipynb:1 204.49ms referer LINKLINK 
+Pls go to start. Select Anaconda Command prompt, Right click and open as
+administrator. In the command prompt type pip install upgrade jupyter
+and press enter. See whether it works
+Rgds
+Prasad
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Prasad K
+Mobile: 98456 98426
+If your jupyter doen't open, dont bother. You can use google collab which
+gives free jupyter interface for programming. you will be working on google
+hosted server. you can work from laptop or mobile and you just need to have
+internet connection and gmail account. You can work at a stretch for 8
+hours. visit LINKLINK and open your account. Then
+go and open new jupyter notebook and do coding.
+
+Rgds
+Prasad
+
+On Fri, Mar 22, 2019 at 10:28 AM Prasad K wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Prasad K
+Mobile: 98456 98426
+Awesome, thanks!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I had same problem. Conda didn't launch jupyter notebook. I found a hard way and I can open now. My solution is: 
+1 Open Anaconda Navigator
+
+
+copy and paste this your browser and done. I hope it will be helpfullTraceback most recent call last:
+
+ from notebook. notebookapp import main
+
+ from zmq. eventloop import ioloop
+
+ from zmq import backend
+
+ reraise exc info 
+
+ raise value
+
+ ns select backend first 
+
+ mod import name, fromlist public api 
+
+ from. import constants, error, message, context,
+
+
+I am getting this errorhi i ve been trying to launch jupyter and spyder both don't work. I tried to open through command prompt there is no response for indefinite time. tried to install notebook from pip too. 
+using a win 10 64 bit os.
+Is this the first time? You have cancelled a small screen which would have
+said. Python is trying to contact external site. That's why you are not
+able to open. Restart, try to open spider or Jupiter. If you get that
+message, enable it. Then spyder Jupiter will open. If you dont get the
+screen. Uninstall and reinstall anaconda. This time if a small screen pops
+up python is trying to contact external site, enable it
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+First time working with jupyter? no.
+no, did not get any sort of popup screen, have already tried uninstalling and reinstalling a couple of times what changed this time was spyder launched till completion of code for python but i still couldnt access the environment. when i try to close anaconda navigator it prompts that notebook and spyder are running. i tried manually accessing localhost: port with all the browsers. thanks for the response though.
+
+What's your RAM & CPU configuration, Usually spyder takes 3 minutes to
+start. Jupiter also takes a minute or two.
+
+For spyder wait for 3 4 min. Incase of jupyterwhen you click on Jupiter in
+START menu a popup command prompt opens. Move your mouse cursor inside that
+command window and press enter. It will show some messages and opens in
+your browser
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Your firewall is blocking python
+
+On Thu, Jun 18, 2020, 10:29 Prasad K wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Python 3.9 tags v3.9:13c94747c7, Aug 17 2020, 18:58:18 on win32
+Type help, copyright, credits or license for more information.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Requirement already satisfied: importlib metadata; python version 2.4 nbformat 4.0 ipywidgets jupyter 2.0 
+
+
+
+
+
+
+
+
+Even though everything is satisfied jupyter notebook not opening in browser. its just stuck over there in command problem. I could not even type anything. There is absolutely no response in command prompt. I used pip for installation on windows 10 64 bit.
+ Please anybody has any solution? I will be really grateful because I m doing this since yesterday and stuck at it.
+Thank You.
+ LINKLINK 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Your firewall and antivirus would be blocking python. If you allow python
+to be connected to internet by providing exception in antivirus or firewall
+you will not face problem.
+
+Instead of installing python in your computer, try using cloud version of
+python in google colab. It is free but you need internet
+colab. research. google. com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Thank you Transtrades, your information is really helpfulThank you so much for the reply and your information is really helpful.
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hi, i have encounted this error while trying to launch jupyter notebook. Please help.
+
+Traceback most recent call last:
+
+ from notebook. notebookapp import main
+
+ from zmq. eventloop import ioloop
+
+ from zmq import backend
+
+ raise original error from None
+
+ ns select backend first 
+
+ mod import module name 
+
+ return bootstrap. gcd import name, package, level 
+
+ from. import 
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hi did you manage to solve this error? What did you do?Looks like jupyter is not installed properly.
+
+If you have installed Anaconda, try opening jupyter from Anaconda Navigator.
+
+Another attempt type localhost:8080 or localhost:8888 in your browser
+
+
+
+Use google colab which has jupyter on cloud at research. google. com
+
+On Sat, 13 Mar, 2021, 20:28 Cherylcxq, wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sorry research. colab. google. com
+
+On Sat, 13 Mar, 2021, 20:37 Prasad K, wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I have problem but when I open jupter notebook. exe its work but I have other problem how I can connect with anacondaUninstall all
+
+
+
+After installation is complete when you launch jupyter your application may
+be blocked by firewall or antivirus. Pls enable it to connect to internet
+
+
+
+On Sat, 13 Mar, 2021, 11:39 Cherylcxq, wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

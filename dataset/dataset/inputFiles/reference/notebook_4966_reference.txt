@@ -1,0 +1,3 @@
+Same issue fixed for me by updating conda and reinstalling jupyter:
+
+ CODELCODEL 

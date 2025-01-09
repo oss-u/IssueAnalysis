@@ -1,0 +1,1877 @@
+### System information:
+Have I written custom code: No
+OS Platform and Distribution: Windows 10 Pro updated
+Mobile device: None
+TensorFlow installed from: pip install
+TensorFlow version:  1.11.0
+Python Version: 3.6.6
+Bazel version: not installed
+CUDA/cuDNN version: CUDA 9.0, cuDNN 8.0
+GPU model and memory: GF-GTX970 STRIX
+Exact command to reproduce:
+pip install tensorflow
+pip install tensorflow-gpu
+python
+import tensorflow as tf
+
+### Problem
+I have had this error consistently even after trying to downgrade to older versions of CUDA tool, cuDNN, python, tensorflow and tensorflow-gpu. I have updated my enviornment variables. I have installed Visual C++ Redistributable Update.
+I have read and tried to follow the solutions from other similar issues (such as #10033 and #17101), but have not succeeded in fixing the problem. 
+
+### Log
+C:\Users\user>python
+Python 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+ <> import tensorflow as tf
+Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\__init__.py", line 22, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python36\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.Thank you for your post. We noticed you have not filled out the following field in the issue template. Could you update them if they are relevant in your case, or leave them as N/A? Thanks.
+Mobile device> Thank you for your post. We noticed you have not filled out the following field in the issue template. Could you update them if they are relevant in your case, or leave them as N/A? Thanks.
+> Mobile device
+
+Ok done.I had the same issue while trying to use tensorflow-gpu on windows 10.
+Since i couldn't get it to work on cuDNN10..i opted for 9 instead using...
+
+>conda create --name tf-gpu
+>conda install -c aaronzs tensorflow-gpu
+>conda install -c anaconda cudatoolkit
+>conda install -c anaconda cudnn
+>conda install keras-gpu
+
+you can also check the fullpost on https://www.pugetsystems.com/labs/hpc/The-Best-Way-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-1187/
+
+Credit to Dr Donald KinghornI have same problem with you @damcclane . How did you solve ?
+
+Win10 x64, python 3.6, cuda9 with cudnn 7.0.5 and also Win10 x64, python 3.7, cuda10 with cudnn 7.3.1
+
+Both has the same problem. My graphic card is Nvidia GeForce 1050 TiSame issue. Win10 x64, python 3.5, tensorflow-gpu 1.11.0, CUDA 8 with CUDNN 6 installed.Same problem,Win10 x64,python 3.6 ,cuda 9 with cudnn 7.0Same problem, anyone knows how to solve this?Same problem here… :(I've had this issue in the past and it was because I had the wrong version of CUDNN. You could try downloading a few of them and see if any of those work.I would like to encourage all who are facing this issue to create a new issue on [TensorFlow repo](https://github.com/tensorflow/tensorflow/issues/new) so that we can focus on solving your problem on individual basis since the system config can vary from person to person. Thanks!Fixed, Thenks!
+
+On Wed, Oct 17, 2018 at 10:39 AM Corentin Jemine <notifications@github.com>
+wrote:
+
+> I've had this issue in the past and it was because I had the wrong version
+> of CUDNN. You could try downloading a few of them and see if any of those
+> work.
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/22794#issuecomment-430676267>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AYfA4TRxTaZ7pKfyszlWqPGknt_ohvlaks5ul082gaJpZM4XLOd->
+> .
+>
+I installed CUDA9 and cuDNN 7.0.5 again and restarted the computer. The related problem has just gone.I am using Cuda10 and cudaNN 7.3.1.20 and i got the following error can someone tell the solution @tensorflowbutler 
+Traceback (most recent call last):
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\__init__.py", line 22, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\Darshan\AppData\Local\Programs\Python\Python36\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+
+Failed to load the native TensorFlow runtime.Same issue, Windows 10 x64, python3.5, tensorflow-gpu 1.11.0, CUDA 10.0, cudnn 7.3.1, my graphics card is  GTX 1070Ti@iteratorlee 
+> I would like to encourage all who are facing this issue to create a new issue on [TensorFlow repo](https://github.com/tensorflow/tensorflow/issues/new/choose) so that we can focus on solving your problem on individual basis since the system config can vary from person to person. Thanks!
+
+Same problem, on cuda 10, when I install anaconda I have missed the PyHamcrest, after I install "pip install PyHamcrest" all worked fine until today. I get the same error.  I am facing the same issues. The problem appears also in importing another package named PyQSTEM for electron microscopy simulation. If someone can find a way to fix the problem, could please share here the solution? Thanks
+> Same issue, Windows 10 x64, python3.5, tensorflow-gpu 1.11.0, CUDA 10.0, cudnn 7.3.1, my graphics card is GTX 1070Ti
+
+Same issue, and I tried to install CUDA 9.0, but NVIDIA inform me the driver is not compatible graphic hardware, but with CUDA 10.0, there is no such warning.Lucky, Issue solved when getting visual studio 2017 with C++ package installed, Windows 10 x64, python3.6.7, tensorflow-gpu 1.11.0, cudnn 7.3.1, both cuda 9.0 & cuda 10.0  installed(not checking which is the right one), my graphics card is GTX 1070Ti.I just downgraded TensorFlow to 1.10.0 and it worked
+
+`pip install tensorflow-gpu==1.10.0`I finally solve the problem by installing cuda 9.0 instead of 9.2 or 10.0 with tensorflow 1.12.0 and cudnn 7.4.1.5I can confirm, that the following assembly does not work on Windows 10:
+
+* tensorflow 1.12.0
+* cuda toolkit 10.0.130
+* cudnn 7.4.1.5
+
+Additional infos:
+
+* NVIDIA Quadro P1000 with NVIDIA driver 411.81
+* Microsoft Visual C++ 2015 Redistributable 14.0.24215 (``C:\Windows\system32\msvcp140.dll`` exists)
+* Python 3.6.7
+
+I also get the message
+
+> ImportError: DLL load failed: The specified module could not be found.
+
+Unfortunately, it does not say which module is missed.
+
+[EDIT]
+
+Just realized, that you write:
+
+> TensorFlow supports CUDA 9.0. 
+
+I'll reinstall now.
+Traceback (most recent call last):
+  File "C:\Program Files\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Program Files\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Program Files\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Program Files\Python36\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Program Files\Python36\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: %1 is not a valid Win32 application.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ABC\Desktop\pyprograms\tensorflowbasic\1.py", line 1, in <module>
+    import tensorflow as tf
+  File "C:\Program Files\Python36\lib\site-packages\tensorflow\__init__.py", line 24, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "C:\Program Files\Python36\lib\site-packages\tensorflow\python\__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "C:\Program Files\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "C:\Program Files\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Program Files\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Program Files\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Program Files\Python36\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Program Files\Python36\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: %1 is not a valid Win32 application.My install:
+
+Windows 10.0.17763.134 x64
+NVIDIA Driver 416.92
+CUDA 10.0.130
+CUDNN 7.4.1.5 for CUDA 10.0
+Python 3.6.7
+GeForce GTX 1080 Ti
+
+The cause of this error seems to be people installing Python without Tcl/Tk support not realizing that Tcl is necessary for SWIG and module imports. I just tested this and in my case it was not enough to modify the Python installation to add Tcl/Tk -- I had to delete everything and install from scratch and now I am not getting the error anymore.
+
+TL;DR -- just fully remove and reinstall Python with Tcl/Tk option selected.After spending almost two days, I finally solved the problem by installing:
+
+- cuda 9.0 instead of 9.2 or 10.0 
+- tensorflow1.12.0 
+- cudnn 7.4.1.5
+
+Thanks to @WuYunfan 💯 First I install 
+- CUDA 10.0
+- cudnn 7.3
+- tensorflow 1.12.0
+
+and I got this error.
+Then I uninstall tf 1.12 and install tf 1.10 . It ask me for cudart64.dll. I add it into path and tf works.
+Then I reinstall tf 1.12 and all works well.TensorFlow supports CUDA 9.0@ljzsky While it is true that TensorFlow will officially support CUDA 10.0 from version 1.13, TensorFlow 1.12 can be (and has been) built against CUDA 10.0 and it works with it just fine.@linsui What you say makes absolutely no sense. TensorFlow is a library which has no means to ask you for cudart64.dll.@levicki I don't know why but tf1.10 shows different message from tf1.11 and tf1.12.l got this problem
+Traceback (most recent call last):
+  File "C:\anaconda\envs\tensorflow\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\anaconda\envs\tensorflow\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\anaconda\envs\tensorflow\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\anaconda\envs\tensorflow\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\anaconda\envs\tensorflow\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "C:\anaconda\envs\tensorflow\lib\site-packages\tensorflow\__init__.py", line 24, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "C:\anaconda\envs\tensorflow\lib\site-packages\tensorflow\python\__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "C:\anaconda\envs\tensorflow\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "C:\anaconda\envs\tensorflow\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\anaconda\envs\tensorflow\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\anaconda\envs\tensorflow\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\anaconda\envs\tensorflow\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\anaconda\envs\tensorflow\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+Failed to load the native TensorFlow runtime.
+
+please can someone tell me how to solve this problem? 
+
+@thischeng 
+This is not a support forum, this is a place where issues are reported along with enough information for developers to reproduce them, and if they turn out to be an actual issue in the tensorflow code they will be fixed in one of the future releases.
+
+It seems that you have not even bothered to read this thread, because there are several workarounds posted above including mine.
+
+Finally, asking for help without specifying full hardware and software configuration and without listing what steps you have taken so far to try to solve the issue on your own is rude to say the least.@levicki 
+thank you for you criticism , i did' t see it clearly, next time i will pay attention to my way of asking questions.I encountered the same issue. My configuration is:
+
+- CUDA Toolkit v9.0 (installed without Visual Studio support)
+- Tensorflow-gpu v 1.12.0 (installed with pip)
+- cudnn v7.4.1.5 CUDA v9.0 compatible.
+- nVidia GeForce 1070
+- Windows 10 Home
+
+After spending almost a day figuring out why tensorflow did not find the correct dll file, I found a guide on how to install cudnn that, by the way, is not as simple as it seems. The guide is written by nVidia and here you are the actions I follow. 
+
+1. Download from nVidia official site, the correct cudnn version for your configuration.
+2. Then extract cuda folder, it does not matter where you extract it.
+3. Open File Explorer and go to the directory where you installed CUDA, in my case that was C:/Program Files/NVIDIA GPU Computing Toolkit.
+4. Go to CUDA/v9.0/lib/x64. Here you have to put the file named "cudnn.lib" that you can find inside CUDA/lib/x64 (cudnn package, downloaded from nVidia)
+5. Repeat the process for (left cudnn package, right CUDA installation path): 
+- CUDA/bin/cudnn64_7.dll -> CUDA/v9.0/bin
+- CUDA/include/cudnn.h    -> CUDA/v9.0/include
+6. Now you have to check if the environment variable is set correctly. Be sure CUDA_PATH variable, with C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0 value is present, if not add it.
+7. Enjoy tensorflow-gpu working on your system> I encountered the same issue. My configuration is:
+> 
+> * CUDA Toolkit v9.0 (installed without Visual Studio support)
+> * Tensorflow-gpu v 1.12.0 (installed with pip)
+> * cudnn v7.4.1.5 CUDA v9.0 compatible.
+> * nVidia GeForce 1070
+> * Windows 10 Home
+> 
+> After spending almost a day figuring out why tensorflow did not find the correct dll file, I found a guide on how to install cudnn that, by the way, is not as simple as it seems. The guide is written by nVidia and here you are the actions I follow.
+> 
+> 1. Download from nVidia official site, the correct cudnn version for your configuration.
+> 2. Then extract cuda folder, it does not matter where you extract it.
+> 3. Open File Explorer and go to the directory where you installed CUDA, in my case that was C:/Program Files/NVIDIA GPU Computing Toolkit.
+> 4. Go to CUDA/v9.0/lib/x64. Here you have to put the file named "cudnn.lib" that you can find inside CUDA/lib/x64 (cudnn package, downloaded from nVidia)
+> 5. Repeat the process for (left cudnn package, right CUDA installation path):
+> 
+> * CUDA/bin/cudnn64_7.dll -> CUDA/v9.0/bin
+> * CUDA/include/cudnn.h    -> CUDA/v9.0/include
+> 
+> 1. Now you have to check if the environment variable is set correctly. Be sure CUDA_PATH variable, with C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0 value is present, if not add it.
+> 2. Enjoy tensorflow-gpu working on your system
+
+Thank you! that solved my problem! 
+My system:
+windows 10
+python 3.6
+Cuda Toolkit v9.0
+cudnn 7.4.2
+Graphics card: Nvidia p4000
+
+After uninstalling v10 and its associated cudnn and then installing the above mentioned and then following the tutorial from (andpi314)
+Tensor Flow GPU up and running.
+This is my situation, check the cudnn's copy &paste， make sure bin,include,lib, the file of the three folders are copying and pasting to the same path of the cuda, i just copy to the wrong path ,after checking the system path of cuda ,do the copy &paste again,then it runs correctly.Traceback (most recent call last):
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\site-packages\tensorflow\__init__.py", line 24, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\site-packages\tensorflow\python\__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\SPECTRE\Anaconda3\envs\tfpose\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+
+Failed to load the native TensorFlow runtime.I met the same situation and my config is: 
+CUDA10
+cudnn v7.4 for CUDA10
+Tensorflow-gpu v1.12.0
+
+I see the solutions above that suggest the CUDA9, but the information in my GeForce Controler shows my GPU GTX1050Ti only supports CUDA10(it writes "NVIDIA CUDA 10.0.132 driver", actually I don't know what it means), how can I resolve this?> I installed CUDA9 and cuDNN 7.0.5 again and restarted the computer. The related problem has just gone.
+
+@Asichurter I have the same graphic card and have no problem with above combination.**SOLUTION**! If you're trying to run TF with CUDA 10
+
+Tensorflow 1.12 DOES NOT support CUDA 10 but nightly build DOES
+
+There are 2 solutions
+1. Remove TF 1.12 and install nightly build 1.13
+pip uninstall tensorflow-gpu
+pip install tf-nightly-gpu
+
+Alternative solution: Downgrade CUDA to 9.0
+
+Remember about copying CUDNN files to right location in CUDA installation folder every time when reinstallingI had the same problems, and tried most of the proposed fixes for about 3 hours with no luck.  However I found the post by kennedyCzar at the top - and this fixed my issue ("ImportError: DLL load failed: The specified module could not be found.")  I highly encourage readers to try this approach as it is fast and easy.  I specifically went to the referenced blog post by Dr. Donald Kinghorn and followed the instructions.
+
+See below for copy of kennedyCzar's post from Oct 16, 2018:
+
+> 
+> 
+> I had the same issue while trying to use tensorflow-gpu on windows 10.
+> Since i couldn't get it to work on cuDNN10..i opted for 9 instead using...
+> 
+> > conda create --name tf-gpu
+> > conda install -c aaronzs tensorflow-gpu
+> > conda install -c anaconda cudatoolkit
+> > conda install -c anaconda cudnn
+> > conda install keras-gpu
+> 
+> you can also check the fullpost on https://www.pugetsystems.com/labs/hpc/The-Best-Way-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-1187/
+> 
+> Credit to Dr Donald Kinghorn
+
+I had CUDA 10 running with tensorflow-gpu v1.12. I didn't read the small prints and thus missed that this version didnt work with CUDA 10. Downgraded to CUDA 9 and it works now.I had the same issue with TensorFlow 1.12.0 and none of the solutions worked for me. Then I downgraded to TensorFlow 1.10.0 and this time the error message was much more informative. It told me that cudart64_90.dll could not be found which is located in `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\bin`. After adding this specific path to the PATH variable, it run smoothly without errors.
+
+This makes me wonder if there is a bug in TensorFlow so that it fails to navigate to the "bin" subfolder itself given that `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0` is already present in numerous environment variables like CUDA and CUDA_HOME, so it should be able to find it.
+
+Secondly, it makes me wonder why TensorFlow 1.12.0 has so much less informative error messages. In 1.12.0 it just says that some DLL could not be imported. In 1.10.0 it showed me exactly which DLL is missing and even proposed the working solution to add it to PATH. This is a way better error handling and I suggest that you revisit the commit from the person who thought obscuring error messages was a good idea.> **SOLUTION**! If you're trying to run TF with CUDA 10
+> 
+> Tensorflow 1.12 DOES NOT support CUDA 10 but nightly build DOES
+> 
+> There are 2 solutions
+> 
+> 1. Remove TF 1.12 and install nightly build 1.13
+>    pip uninstall tensorflow-gpu
+>    pip install tf-nightly-gpu
+> 
+> Alternative solution: Downgrade CUDA to 9.0
+> 
+> Remember about copying CUDNN files to right location in CUDA installation folder every time when reinstalling
+
+**confirm this solution**
+
+use tf-nightly-gpu
+win10
+cuda 10.0
+python 3.6.4
+geforce 960M
+cudnn64_7> I finally solve the problem by installing cuda 9.0 instead of 9.2 or 10.0 with tensorflow 1.12.0 and cudnn 7.4.1.5
+
+but i download the cudnn7.4.1.5 instead of cudnn7.0.5 still encounter this error.
+my configuration following:
+cuda 9.0
+cudnn7.4.1
+pip install tensorflow-gpu==1.12.0
+python 3.6.4
+nvidia geforce 1080TI
+> > I finally solve the problem by installing cuda 9.0 instead of 9.2 or 10.0 with tensorflow 1.12.0 and cudnn 7.4.1.5
+> 
+> but i download the cudnn7.4.1.5 instead of cudnn7.0.5 still encounter this error.
+> my configuration following:
+> cuda 9.0
+> cudnn7.4.1
+> pip install tensorflow-gpu==1.12.0
+> python 3.6.4
+> nvidia geforce 1080TI
+
+Final i downgrade the bazel version to 0.20.0 (from 0.21.0) solve this issue. but i don't know why can't compatible for lastst bazel version.cuda 10.0
+cudnn7.4.2
+pip install tf-nightly-gpu
+python 3.6.4
+nvidia geforce 1070
+
+it works.>cuda 10.0
+cudnn7.4.2
+pip install tf-nightly-gpu
+python 3.6.4
+nvidia geforce 1070
+
+>it works.
+
+It is working for me now as well. Thanks for it.
+Just a note: I was unable to properly uninstall TF and had a lower Python version. I uninstalled Python completely and installed version 3.6.8 instead of 3.6.4.
+Then used `pip install tf-nightly-gpu` to install TF and is working nowInstallation of Microsoft Build Tools 2015 helps me with this issue. It works now.> I have same problem with you @damcclane . How did you solve ?
+> 
+> Win10 x64, python 3.6, cuda9 with cudnn 7.0.5 and also Win10 x64, python 3.7, cuda10 with cudnn 7.3.1
+> 
+> Both has the same problem. My graphic card is Nvidia GeForce 1050 Ti
+
+tensorflow doesn't support python 3.7 you can create a different environment with lower python through anacondaI had the exact same issue. According to the [GPU Support Guide](https://www.tensorflow.org/install/gpu), I have all the correct versions of CUDA and cuDNN installed - CUDA 9.0 and cuDNN 7.4.2.24.
+
+What ended up working for me was entering the following commands after installing all the dependencies:
+
+```
+SET PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\bin;%PATH%
+SET PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\extras\CUPTI\libx64;%PATH%
+SET PATH=C:\tools\cuda\bin;%PATH%
+```
+The `cuda` folder from your cuDNN zip must be copied to `C:\tools\`.
+
+Hope this was helpful.i am also see the same issue
+Hi guys, I've seen this problem a few times now and can comment on a few things.
+First of which seems to be that Jupyter notebooks can sort of "hold on" to a bad tensorflow configuration (even after resetting the kernel) a full stop and start of the Jupyter solved this for me at least once.
+
+The other things are all related to CUDA. I HIGHLY recommend that you just uninstall all version of CUDA, then install V10, and make sure to get the correct cudnn too.
+
+To install Cudnn, just copy and paste everything in the cuda folder, over into your cuda install.
+
+These are basically all the issues with this error. Remember you can test cuda by typing `nvcc --version` and making sure it returns v10. If this command doesn't work, then it means your setup cannot see cuda properly.
+
+if you see the issue , you cloud try install tf-nightly.this way can solve you issue### **### The SOLUTION for "ImportError: DLL load failed: The specified procedure could not be found."**
+
+When you import numpy you get this error, right? 
+`python -c "import numpy"`
+
+So go to the Anaconda folder and go to site-packages folder according to the environment of anaconda.  Then go to numpy\.libs folder. There are *.dll file, right?
+
+Now copy the link to the .libs folder and enter the path with "PATH" in anaconda prompt. 
+`PATH=path\to\site-packages\numpy\.libs;%PATH%`
+
+Now check again to import numpy.
+`python -c "import numpy"`
+
+Now it is working right? Installation:
+
+```
+(base) C:\Users\omarc>pip install tensorflow-gpu
+Collecting tensorflow-gpu
+  Downloading https://files.pythonhosted.org/packages/1f/31/62178ec117dc0318bde6e3b4f2a066a2ea637cc806ff53cb26e36974280a/tensorflow_gpu-1.13.0rc2-cp37-cp37m-win_amd64.whl (259.8MB)
+    100% |████████████████████████████████| 259.8MB 17kB/s
+Collecting keras-applications>=1.0.6 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/90/85/64c82949765cfb246bbdaf5aca2d55f400f792655927a017710a78445def/Keras_Applications-1.0.7-py2.py3-none-any.whl (51kB)
+    100% |████████████████████████████████| 61kB 3.6MB/s
+Requirement already satisfied: six>=1.10.0 in c:\programdata\anaconda3\lib\site-packages (from tensorflow-gpu) (1.12.0)
+Collecting absl-py>=0.1.6 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/31/bc/ab68120d1d89ae23b694a55fe2aece2f91194313b71f9b05a80b32d3c24b/absl-py-0.7.0.tar.gz (96kB)
+    100% |████████████████████████████████| 102kB 9.3MB/s
+Collecting termcolor>=1.1.0 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/8a/48/a76be51647d0eb9f10e2a4511bf3ffb8cc1e6b14e9e4fab46173aa79f981/termcolor-1.1.0.tar.gz
+Requirement already satisfied: wheel>=0.26 in c:\programdata\anaconda3\lib\site-packages (from tensorflow-gpu) (0.32.3)
+Collecting astor>=0.6.0 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/35/6b/11530768cac581a12952a2aad00e1526b89d242d0b9f59534ef6e6a1752f/astor-0.7.1-py2.py3-none-any.whl
+Collecting keras-preprocessing>=1.0.5 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/c0/bf/0315ef6a9fd3fc2346e85b0ff1f5f83ca17073f2c31ac719ab2e4da0d4a3/Keras_Preprocessing-1.0.9-py2.py3-none-any.whl (59kB)
+    100% |████████████████████████████████| 61kB 7.7MB/s
+Collecting gast>=0.2.0 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/4e/35/11749bf99b2d4e3cceb4d55ca22590b0d7c2c62b9de38ac4a4a7f4687421/gast-0.2.2.tar.gz
+Requirement already satisfied: numpy>=1.13.3 in c:\programdata\anaconda3\lib\site-packages (from tensorflow-gpu) (1.15.4)
+Collecting tensorboard<1.13.0,>=1.12.0 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/07/53/8d32ce9471c18f8d99028b7cef2e5b39ea8765bd7ef250ca05b490880971/tensorboard-1.12.2-py3-none-any.whl (3.0MB)
+    100% |████████████████████████████████| 3.1MB 3.9MB/s
+Collecting protobuf>=3.6.1 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/77/78/a7f1ce761e2c738e209857175cd4f90a8562d1bde32868a8cd5290d58926/protobuf-3.6.1-py2.py3-none-any.whl (390kB)
+    100% |████████████████████████████████| 399kB 251kB/s
+Collecting tensorflow-estimator<1.14.0rc0,>=1.13.0rc0 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/67/c1/3e8f58945f55769274e490d85df3bc4639ac258c60c6e3c6c7973d2a9e81/tensorflow_estimator-1.13.0rc0-py2.py3-none-any.whl (367kB)
+    100% |████████████████████████████████| 368kB 350kB/s
+Collecting grpcio>=1.8.6 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/17/80/b135a60dfb12e9e0d691e4e66020b6f90fd8864e17ed5c719881bdea7d41/grpcio-1.18.0-cp37-cp37m-win_amd64.whl (1.5MB)
+    100% |████████████████████████████████| 1.5MB 2.3MB/s
+Requirement already satisfied: h5py in c:\programdata\anaconda3\lib\site-packages (from keras-applications>=1.0.6->tensorflow-gpu) (2.8.0)
+Requirement already satisfied: werkzeug>=0.11.10 in c:\programdata\anaconda3\lib\site-packages (from tensorboard<1.13.0,>=1.12.0->tensorflow-gpu) (0.14.1)
+Collecting markdown>=2.6.8 (from tensorboard<1.13.0,>=1.12.0->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/7a/6b/5600647404ba15545ec37d2f7f58844d690baf2f81f3a60b862e48f29287/Markdown-3.0.1-py2.py3-none-any.whl (89kB)
+    100% |████████████████████████████████| 92kB 8.4MB/s
+Requirement already satisfied: setuptools in c:\programdata\anaconda3\lib\site-packages (from protobuf>=3.6.1->tensorflow-gpu) (40.6.3)
+Collecting mock>=2.0.0 (from tensorflow-estimator<1.14.0rc0,>=1.13.0rc0->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/e6/35/f187bdf23be87092bd0f1200d43d23076cee4d0dec109f195173fd3ebc79/mock-2.0.0-py2.py3-none-any.whl (56kB)
+    100% |████████████████████████████████| 61kB 6.2MB/s
+Collecting pbr>=0.11 (from mock>=2.0.0->tensorflow-estimator<1.14.0rc0,>=1.13.0rc0->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/8c/7f/fed53b379500fd889707d1f6e61c2a35e12f2de87396894aff89b017d1d6/pbr-5.1.2-py2.py3-none-any.whl (107kB)
+    100% |████████████████████████████████| 112kB 10.5MB/s
+Building wheels for collected packages: absl-py, termcolor, gast
+  Running setup.py bdist_wheel for absl-py ... done
+  Stored in directory: C:\Users\omarc\AppData\Local\pip\Cache\wheels\90\db\f8\2c3101f72ef1ad434e4662853174126ce30201a3e163dcbeca
+  Running setup.py bdist_wheel for termcolor ... done
+  Stored in directory: C:\Users\omarc\AppData\Local\pip\Cache\wheels\7c\06\54\bc84598ba1daf8f970247f550b175aaaee85f68b4b0c5ab2c6
+  Running setup.py bdist_wheel for gast ... done
+  Stored in directory: C:\Users\omarc\AppData\Local\pip\Cache\wheels\5c\2e\7e\a1d4d4fcebe6c381f378ce7743a3ced3699feb89bcfbdadadd
+Successfully built absl-py termcolor gast
+Installing collected packages: keras-applications, absl-py, termcolor, astor, keras-preprocessing, gast, grpcio, markdown, protobuf, tensorboard, pbr, mock, tensorflow-estimator, tensorflow-gpu
+Successfully installed absl-py-0.7.0 astor-0.7.1 gast-0.2.2 grpcio-1.18.0 keras-applications-1.0.7 keras-preprocessing-1.0.9 markdown-3.0.1 mock-2.0.0 pbr-5.1.2 protobuf-3.6.1 tensorboard-1.12.2 tensorflow-estimator-1.13.0rc0 tensorflow-gpu-1.13.0rc2 termcolor-1.1.0
+
+```
+
+Output of some sample code:
+
+```
+
+C:\ProgramData\Anaconda3\python.exe "C:/Users/omarc/OneDrive - Massachusetts Institute of Technology/test_tensorflow/keras-master/examples/mnist_cnn.py"
+Using TensorFlow backend.
+Traceback (most recent call last):
+  File "C:\ProgramData\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\ProgramData\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\ProgramData\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\ProgramData\Anaconda3\lib\imp.py", line 242, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\ProgramData\Anaconda3\lib\imp.py", line 342, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:/Users/omarc/OneDrive - Massachusetts Institute of Technology/test_tensorflow/keras-master/examples/mnist_cnn.py", line 9, in <module>
+    import keras
+  File "C:\ProgramData\Anaconda3\lib\site-packages\keras\__init__.py", line 3, in <module>
+    from . import utils
+  File "C:\ProgramData\Anaconda3\lib\site-packages\keras\utils\__init__.py", line 6, in <module>
+    from . import conv_utils
+  File "C:\ProgramData\Anaconda3\lib\site-packages\keras\utils\conv_utils.py", line 9, in <module>
+    from .. import backend as K
+  File "C:\ProgramData\Anaconda3\lib\site-packages\keras\backend\__init__.py", line 89, in <module>
+    from .tensorflow_backend import *
+  File "C:\ProgramData\Anaconda3\lib\site-packages\keras\backend\tensorflow_backend.py", line 5, in <module>
+    import tensorflow as tf
+  File "C:\ProgramData\Anaconda3\lib\site-packages\tensorflow\__init__.py", line 24, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "C:\ProgramData\Anaconda3\lib\site-packages\tensorflow\python\__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "C:\ProgramData\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "C:\ProgramData\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\ProgramData\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\ProgramData\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\ProgramData\Anaconda3\lib\imp.py", line 242, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\ProgramData\Anaconda3\lib\imp.py", line 342, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+
+Failed to load the native TensorFlow runtime.
+
+See https://www.tensorflow.org/install/errors
+
+for some common reasons and solutions.  Include the entire stack trace
+above this error message when asking for help.
+
+Process finished with exit code 1
+```
+> pip install tensorflow-gpu==1.10.0
+
+ Could not find a version that satisfies the requirement tensorflow-gpu==1.10.0 (from versions: 1.13.0rc1, 1.13.0rc2)
+No matching distribution found for tensorflow-gpu==1.10.0> > pip install tensorflow-gpu==1.10.0
+> 
+> Could not find a version that satisfies the requirement tensorflow-gpu==1.10.0 (from versions: 1.13.0rc1, 1.13.0rc2)
+> No matching distribution found for tensorflow-gpu==1.10.0
+
+If you can't get an older version of tensorflow-gpu, I had the same dll issue while using CUDA 9.0 and tensorflow-gpu 1.13.0. Installed 10.0 and it seems to have solved the problem so far. Based on that, pretty sure 1.13.0 requires 10 instead of 9.> cuda 10.0
+> cudnn7.4.2
+> pip install tf-nightly-gpu
+> python 3.6.4
+> nvidia geforce 1070
+> 
+> it works.
+
+Same here
+python 3.6.7
+geforce 1060
+
+I had problems with numpy, so make sure to use numpy 1.16. I had to reinstall it from pip because Anaconda's version is outdated.have the same problem. I use non-gpu version TF, so I guess it is not a cuda or cudnn prblem?
+python 3.6.0
+TF 1.12.0
+numpy 1.16.1
+protobuf 3.6.1
+Don’t use protobuf 3.6 that’s probably the problem. I believe the latest you can use is 3.3 go to there github and find earlier versions.I am running something that uses TF 1.12, that requires protobuf 3.6.1. oh well....
+The problem is about **_version compatibility_**. It's about compatibility of **_tensorflow_**, **_python_**, **_cudnn_** and **_cuda_**. Version compatibility can be found on [this page](https://tensorflow.google.cn/install/source_windows). Take my computer for example. 
+
+### System information:
+OS Platform and Distribution: Windows 10 (I don't think it matters.)
+Mobile device: None
+TensorFlow installed from: pip install
+**TensorFlow version: 1.4.0** (**important**)
+**Python Version: 3.6**  (**important**)
+Bazel version: not installed (I'm not compiling from source code, so I don't need it.)
+**CUDA/cuDNN version: cuda_8.0.61_win10.exe,  cudnn-8.0-windows10-x64-v6.0.zip** (**important**)
+GPU model : Geforce GTX Series  (I don't think it matters.)
+
+### Solution:
+Based on the version compatibility table in the above [page](https://tensorflow.google.cn/install/source_windows). This line 
+
+tensorflow_gpu-1.4.0 | 3.5-3.6 | MSVC 2015 update 3 | Cmake v3.6.3 | 6 | 8
+-- | -- | -- | -- | -- | --
+
+
+
+I use **_python3.6_**.7 (Actually your version belongs to python3.6 Series is ok, because I tried python3.6.3 on the wrong version of other software .It has same error called "ImportError: DLL load failed blablablabalbla...". According the form in the Hyperlink, if you use python3.5 ,it should be ok.) 
+I has installed **_cuda8.0_** and **_cudnnv6_**(When you unzip this zip, it contains the **_cudnn64_6.dll_** file. And you need put the cudnn64_6.dll in the right path ) (The number **8** in the last column is the number of CUDA versions. The number **6** in the fifth column is the number of cudnn versions)
+SO ,I **_pip install tensorflow-gpu==1.4.0_** and then **import tensorflow as tf** , it works.
+
+I found this problem because when I fixed the Python and CUDA and cudnn versions, installing the lower version of tensorflow prompted another error: the cudnn64_*. DLL file was not found.The following steps describe how to build a cuDNN dependent program. In the following sections:
+your CUDA directory path is referred to as C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0
+your cuDNN directory path is referred to as <installpath>
+Navigate to your <installpath> directory containing cuDNN.
+Unzip the cuDNN package.
+cudnn-9.0-windows7-x64-v7.zip
+or
+cudnn-9.0-windows10-x64-v7.zip
+Copy the following files into the CUDA Toolkit directory.
+Copy <installpath>\cuda\bin\cudnn64_7.dll to C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\bin.
+Copy <installpath>\cuda\ include\cudnn.h to C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\include.
+Copy <installpath>\cuda\lib\x64\cudnn.lib to C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\lib\x64.
+
+The document of cudnn give the right cudnn setup way, when I put this file into the specify location, it works
+The full document can be found in [https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html](url)This worked for me 
+Windows 10 
+python 3.6.X  (downgraded from 3.7) 
+Tensorflow 1.12  (not working with 1.13.1 for sure, downgraded)
+CUDA/cudnn 9.0 (make sure follow @mxl1990 's step to copy those files) 
+Thanks all the above. I am gonna try again soonI have the same question with the author,and i solve it now.
+window 10
+python 3.6.2
+gpu rtx2080
+my problem is the version of CUDA and the cudnn does not fit each other.
+2019/3/3 today the newest version of CUDA is 10.1 but there isn't a corresponding version of cudnn.
+so i changed the CUDA 10.0 and reinstall the tensorflow,it works now!
+Ran into the same problem.
+
+If you are using Anaconda (Python 3.6), highly suggest to use `conda` instead of `pip`. It usually takes care of EVERYTHING: `conda install tensorflow-gpu`
+
+```
+(base) C:\Users>conda install tensorflow-gpu
+Solving environment: done
+
+## Package Plan ##
+
+  environment location: D:\Software\Anaconda3
+
+  added / updated specs:
+    - tensorflow-gpu
+
+
+The following packages will be downloaded:
+
+    package                    |            build
+    ---------------------------|-----------------
+    cudnn-7.3.1                |        cuda9.0_0       170.9 MB
+    grpcio-1.12.1              |   py36h1a1b453_0         1.4 MB
+    tensorflow-base-1.12.0     |gpu_py36h6e53903_0       180.8 MB
+    conda-4.6.7                |           py36_0         1.7 MB
+    tensorflow-1.12.0          |gpu_py36ha5f9131_0           4 KB
+    keras-preprocessing-1.0.5  |           py36_0          52 KB
+    gast-0.2.2                 |           py36_0         138 KB
+    keras-applications-1.0.6   |           py36_0          49 KB
+    tensorboard-1.12.0         |   py36he025d50_0         3.1 MB
+    termcolor-1.1.0            |           py36_1           8 KB
+    absl-py-0.7.0              |           py36_0         157 KB
+    protobuf-3.6.0             |   py36he025d50_0         517 KB
+    cudatoolkit-9.0            |                1       339.8 MB
+    tensorflow-gpu-1.12.0      |       h0d30ee6_0           3 KB
+    markdown-3.0.1             |           py36_0         125 KB
+    _tflow_select-2.1.0        |              gpu           3 KB
+    libprotobuf-3.6.0          |       h1a1b453_0         2.0 MB
+    astor-0.7.1                |           py36_0          44 KB
+    ------------------------------------------------------------
+                                           Total:       700.7 MB
+```
+
+If you already messed up the versions, try to use `conda remove` or `pip uninstall` to delete packages, including `tensorflow-gpu` and `tensorflow`. Or remove Anaconda and reinstall it.
+
+> I have the same question with the author,and i solve it now.
+> window 10
+> python 3.6.2
+> gpu rtx2080
+> my problem is the version of CUDA and the cudnn does not fit each other.
+> 2019/3/3 today the newest version of CUDA is 10.1 but there isn't a corresponding version of cudnn.
+> so i changed the CUDA 10.0 and reinstall the tensorflow,it works now!
+
+@parkerdu Savior! My system is running Python 3.7.1 on Windows 10 and my GPU is RTX 2080 Ti. All I did was downgrading CUDA from 10.1 to 10.0 and it now works. But I'm a little confused with what you mean by 
+
+> the newest version of CUDA is 10.1 but there isn't a corresponding version of cudnn.
+
+since there is a version of cuDNN released on Feb 25, 2019 according to [https://developer.nvidia.com/rdp/cudnn-download](url) . It doesn't work with the latest version of TensorFlow installed through "pip install tensorflow-gpu" in my case but it's there. I'm wondering why it's not the 
+
+> corresponding version of cudnn. 
+
+Again, thanks for your solution.   > > I have the same question with the author,and i solve it now.
+> > window 10
+> > python 3.6.2
+> > gpu rtx2080
+> > my problem is the version of CUDA and the cudnn does not fit each other.
+> > 2019/3/3 today the newest version of CUDA is 10.1 but there isn't a corresponding version of cudnn.
+> > so i changed the CUDA 10.0 and reinstall the tensorflow,it works now!
+> 
+> @parkerdu Savior! My system is running Python 3.7.1 on Windows 10 and my GPU is RTX 2080 Ti. All I did was downgrading CUDA from 10.1 to 10.0 and it now works. But I'm a little confused with what you mean by
+> 
+> > the newest version of CUDA is 10.1 but there isn't a corresponding version of cudnn.
+> 
+> since there is a version of cuDNN released on Feb 25, 2019 according to [https://developer.nvidia.com/rdp/cudnn-download](url) . It doesn't work with the latest version of TensorFlow installed through "pip install tensorflow-gpu" in my case but it's there. I'm wondering why it's not the
+> 
+> > corresponding version of cudnn.
+> 
+> Again, thanks for your solution.
+
+you are right! I haven't see the latest version of cudnn. Thanks for your point.After hours of installing different versions I finally managed to make it work, this is my final setup:
+
+* Python 3.6.8
+* Tensorflow 1.13
+* CUDA 10
+* cuDNN v7.5.0 (Feb 21, 2019), for CUDA 10.0
+
+I tried with CUDA 10.1 but didn't work, switched to 10.0 and it finally worked.python 3.7.2
+Tensorflow-gpu 2.0.0a0
+tensorboard          1.13.0
+tensorflow-estimator 1.13.0
+CUDA 10.1
+cuDNN v7.5.0 for CUDA10.0
+win10 x64
+Please help@steven12138 You can follow the previous post that worked. 
+AFAIK, the python 3.7.X python is not supported. This is what worked for me on Window 10 and for GPU NVIDIA GeForce RTX 2080 Ti:
+Python 3.5 (3.6 did not work)
+Tensorflow-gpu 1.13 (or tf-nightly-gpu)
+CUDA 10
+cuDNN for CUDA 10.0
+The problem was because of using python 3.6. Using Python 3.5 solved it.CUDA 9.0
+cudnn 7.0.5
+Windows 10
+tf 1.12.0
+failed...no idea
+
+----
+solved, 
+one problem is the PATH is incorrect, I corrected it but the problem still exists.
+Then I downgrade the tf to 1.10.0, and it works.> Ran into the same problem.
+> 
+> If you are using Anaconda (Python 3.6), highly suggest to use `conda` instead of `pip`. It usually takes care of EVERYTHING: `conda install tensorflow-gpu`
+> 
+> ```
+> (base) C:\Users>conda install tensorflow-gpu
+> Solving environment: done
+> 
+> ## Package Plan ##
+> 
+>   environment location: D:\Software\Anaconda3
+> 
+>   added / updated specs:
+>     - tensorflow-gpu
+> 
+> 
+> The following packages will be downloaded:
+> 
+>     package                    |            build
+>     ---------------------------|-----------------
+>     cudnn-7.3.1                |        cuda9.0_0       170.9 MB
+>     grpcio-1.12.1              |   py36h1a1b453_0         1.4 MB
+>     tensorflow-base-1.12.0     |gpu_py36h6e53903_0       180.8 MB
+>     conda-4.6.7                |           py36_0         1.7 MB
+>     tensorflow-1.12.0          |gpu_py36ha5f9131_0           4 KB
+>     keras-preprocessing-1.0.5  |           py36_0          52 KB
+>     gast-0.2.2                 |           py36_0         138 KB
+>     keras-applications-1.0.6   |           py36_0          49 KB
+>     tensorboard-1.12.0         |   py36he025d50_0         3.1 MB
+>     termcolor-1.1.0            |           py36_1           8 KB
+>     absl-py-0.7.0              |           py36_0         157 KB
+>     protobuf-3.6.0             |   py36he025d50_0         517 KB
+>     cudatoolkit-9.0            |                1       339.8 MB
+>     tensorflow-gpu-1.12.0      |       h0d30ee6_0           3 KB
+>     markdown-3.0.1             |           py36_0         125 KB
+>     _tflow_select-2.1.0        |              gpu           3 KB
+>     libprotobuf-3.6.0          |       h1a1b453_0         2.0 MB
+>     astor-0.7.1                |           py36_0          44 KB
+>     ------------------------------------------------------------
+>                                            Total:       700.7 MB
+> ```
+> If you already messed up the versions, try to use `conda remove` or `pip uninstall` to delete packages, including `tensorflow-gpu` and `tensorflow`. Or remove Anaconda and reinstall it.
+
+this guy saved a day, thank youI use virtualenv with python 3.6.8, and just run 
+`pip install tensorflow-gpu`
+
+cuda 9.0
+cudnn 7.4.1 for cuda 9.0
+python 3.6.8
+tensorflow 1.12.0 
+visual C ++ 2015 redistribution
+
+This Configuration works. 
+Attention, tensorflow 1.13 not works for me with this configuration.
+
+=========================Edit================
+As I've tried again.
+If you want use tensorflow 1.13.1, you can refer to the configuration below:
+cuda 10.0
+cudnn 7.5.0 for cuda 10.0
+python 3.6.8
+tensorflow 1.13.1
+visual C++ redistribution 2015 or 2017
+
+And i find , the official site said that tensorflow only support cuda 9 now, but actually it is already update to CUDA 10 , you can find on the release note at github.
+
+so simplicity,  CUDA 9.0 ( cudnn 7.4.1)  == > tensorflow 1.12.0
+                      CUDA 10.0 (cidnn 7.5.0)== > tensorflow 1.13.1python 3.7.2
+Tensorflow-gpu 2.0.0a0
+tensorboard 1.13.0
+tensorflow-estimator 1.13.0
+CUDA 10.1
+cuDNN v7.5.0 for CUDA10.0
+win10 x64
+Didn't workI have no problem at the terminal, but I have this problem on pycharm, I hope I can give you a reference.
+
+Win10+python 3.6+cuda 10.0+cudnn 7.5+tensorflow 1.13.1I had same issue. I resolved it by uninstalling tensorflow-gpu and reinstalling through conda.
+
+`conda install tensorflow-gpu`I had a problem 
+
+TypeError: Couldn't build proto file into descriptor pool!
+Invalid proto descriptor for file "object_detection/protos/post_processing.proto":
+  object_detection/protos/post_processing.proto: Import "object_detection/protos/calibration.proto" has not been loaded.
+  object_detection.protos.PostProcessing.calibration_config: "object_detection.protos.CalibrationConfig" seems to be defined in "protos/calibration.proto", which is not imported by "object_detection/protos/post_processing.proto".  To use it here, please add the necessary import.> I just downgraded TensorFlow to 1.10.0 and it worked
+> 
+> `pip install tensorflow-gpu==1.10.0`
+
+When I ran the ```pip install tensorflow-gpu``` command, 1.13.0 got installed and I got the error ```Win10: ImportError: DLL load failed: The specified module could not be found```. So I tried downgrading to ```1.10.0``` as @57ar7up suggested. This did not work as pip could not find the required ```.whl``` file and the connection kept timing out. 
+
+So I followed @WuYunfan 's approach and ```1.12.0``` worked.
+> I finally solve the problem by installing cuda 9.0 instead of 9.2 or 10.0 with tensorflow 1.12.0 and cudnn 7.4.1.5
+
+
+Finally my setup is:
+* Nvidia GTX 1070
+* CUDA 9.0 with the 4 patches (This installed GeForce drivers 385.54)
+* CuDNN v7.5.0.56 (for CUDA 9.0)
+* TF GPU 1.12.0
+
+I guess ```1.13.0``` is to be used for CUDA 10.0Python 3.6.4 |Anaconda custom (64-bit)| (default, Jan 16 2018, 10:22:32) [MSC v.1900 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import tensorflow
+Traceback (most recent call last):
+  File "D:\MLandBigData\Anaconda3.5\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "D:\MLandBigData\Anaconda3.5\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "D:\MLandBigData\Anaconda3.5\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "D:\MLandBigData\Anaconda3.5\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "D:\MLandBigData\Anaconda3.5\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: 找不到指定的模块。
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "D:\MLandBigData\Anaconda3.5\lib\site-packages\tensorflow\__init__.py", line 24, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "D:\MLandBigData\Anaconda3.5\lib\site-packages\tensorflow\python\__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "D:\MLandBigData\Anaconda3.5\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "D:\MLandBigData\Anaconda3.5\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "D:\MLandBigData\Anaconda3.5\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "D:\MLandBigData\Anaconda3.5\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "D:\MLandBigData\Anaconda3.5\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "D:\MLandBigData\Anaconda3.5\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: 找不到指定的模块。
+
+
+Failed to load the native TensorFlow runtime.
+
+See https://www.tensorflow.org/install/errors
+
+for some common reasons and solutions.  Include the entire stack trace
+above this error message when asking for help.python 3.7.1
+Tensorflow-gpu 1.13.1
+
+CUDA 8.0
+cuDNN v7.1.4 for CUDA 8.0
+win10 x64
+Please help
+===========================
+I built the tensorflow from source with environments following and worked:
+python 3.7.1
+Tensorflow-gpu 1.13.1
+
+CUDA 9.1
+cuDNN v7.0.5 for CUDA 9.1
+win10 x64My error message is copied a few lines down. I have tried some of the solutions that seemed to work for other people, but did not have them work for me.  Specifically: 
+Always python 3.6.8 & Windows 10 & Visual Studios 2017 & Quadro M1000M GPU
+Used pip to install tensorflow-gpu 1.13.1
+After reading I found out that CUDA 10.1 (which I tried originally) doesn't work with anything, so I switched to CUDA 10.0. With CUDA 10.0 I tried cudNN 7.4.2 & 7.5.0. Neither works, I still have CUDA 10.1 installed (does tensorflow automatically try both, or do I need to set it to use 10.0 somehow?). 
+
+I have previously uninstalled & reinstalled tensorflow-gpu a few times (also plain tensorflow - which does not detect my GPU), though tensorflow-gpu was always installed for my tests. This is also my first time working with either CUDA or cudNN, so I'm not 100% sure I "installed" cudNN correctly (from extracted cudNN folders bin, lib & include copy the relevant file over to the Cuda bin, lib & inc folders). I also installed tf-nightly-gpu, as that worked with one solution.
+
+Error message: 
+
+Python 3.6.8rc1 (v3.6.8rc1:cc3e73212a, Dec 12 2018, 00:15:46) [MSC v.1900 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import tensorflow as tf
+Traceback (most recent call last):
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\__init__.py", line 28, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\imp.py", line 243, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\601969\AppData\Local\Programs\Python\Python36\lib\imp.py", line 343, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.Same issue. Win10 x64, python 3.6, tensorflow-gpu 1.12.0, CUDA 10.1 with CUDNN 10.1 installed.> I use virtualenv with python 3.6.8, and just run
+> `pip install tensorflow-gpu`
+> 
+> cuda 9.0
+> cudnn 7.4.1 for cuda 9.0
+> python 3.6.8
+> tensorflow 1.12.0
+> visual C ++ 2015 redistribution
+> 
+> This Configuration works.
+> Attention, tensorflow 1.13 not works for me with this configuration.
+> 
+> =========================Edit================
+> As I've tried again.
+> If you want use tensorflow 1.13.1, you can refer to the configuration below:
+> cuda 10.0
+> cudnn 7.5.0 for cuda 10.0
+> python 3.6.8
+> tensorflow 1.13.1
+> visual C++ redistribution 2015 or 2017
+> 
+> And i find , the official site said that tensorflow only support cuda 9 now, but actually it is already update to CUDA 10 , you can find on the release note at github.
+> 
+> so simplicity, CUDA 9.0 ( cudnn 7.4.1) == > tensorflow 1.12.0
+> CUDA 10.0 (cidnn 7.5.0)== > tensorflow 1.13.1
+
+Thank you. solved my issue
+my setting
+Win10 + python 3.6.6 + GeForce GTX 1050 Ti (Legion Notebook)
+Visual Studio Community 2017 + CUDA 10.0 (cudnn 7.5.0)  + tensorflow 1.13.1 
+
+Overall, getting the basic validation test to work for tensorflow-gpu (1.13.1) is a big ordeal -- don't know where exactly the utterly useless DLL load error message comes from...
+
+Noting down my parameters (as of 03/18/2019) in case it helps any brave soul !
+Base framework: Windows 10 Pro/64,    Anaconda 3-5.1.0 (python 3.6.4),  
+                          Visual Studio 2017       [GPU=RTX2060]
+Unsuccessful target setup that throws the DLL error: 
+       CUDA 10.1 + corresponding cuDNN (7.5.0.56)
+What seems to work (after resolving minor glitch with numpy version in anaconda)
+       CUDA 10.0 + cuDNN 7.4.1.5I tried with CUDA 10.1 but all version combinations didn't work, then I switched to CUDA 10.0 as someone suggested and it finally worked. So I guess the problem lies at the CUDA 10.1.
+
+My successful version combinations are:
+
+CUDA 10.0  (NOT CUDA 10.1)
+cuDNN v7.5.0 (Feb 21, 2019), for CUDA 10.0 (NOT the one for CUDA 10.1)
+Annaconda Anaconda 2018.12 (with Python 3.7 version, 64-Bit Graphical Installer)
+
+Then I tested 2 combinations: Python 3.7.1 + Tensorflow 1.13.1 and Python 3.68 + Tensorflow 2.0.0-alpha0. They both work.
+
+BTW, I used 
+     conda install tensorflow-gpu
+instead of 
+      pip install tensorflow-gpu
+to install tensorflow as someone suggested.
+
+Good luck.i had the same issue using (conda install tensorflow-gpu) solve the problem.
+cuda 10.0
+cudnn 7.41.5 for cuda 10.0
+python 7.1> I just downgraded TensorFlow to 1.10.0 and it worked
+> 
+> `pip install tensorflow-gpu==1.10.0`
+
+yes, it works. mark!> I have the same question with the author,and i solve it now.
+> window 10
+> python 3.6.2
+> gpu rtx2080
+> my problem is the version of CUDA and the cudnn does not fit each other.
+> 2019/3/3 today the newest version of CUDA is 10.1 but there isn't a corresponding version of cudnn.
+> so i changed the CUDA 10.0 and reinstall the tensorflow,it works now!
+
+Hi, I have the same setup with python 3.7.
+Now there is a cudnn version of CUDA 10.1, however tensorflow-gpu still doesn't work if I install it from pip.
+Did you rebuild it yourself?
+
+Edit.: Found the issue. Even tho there is a  cudNN version from nvidia to support CUDA 10.1, there is no python library to support CUDA 10.1. This library is installed as a dependency with tensorflow-gpu, but only supports CUDA 10.0.I just installed latest conda 3.7 
+run "conda install tensorflow-gpu" in anaconda promt
+no need to install cuda, cudann and mess with PATH variables
+everything worksI can confirm that CUDA 10.1 does not work. But then, tensorflow never claimed it did and its guide asks to [download CUDA 10.0](https://www.tensorflow.org/install/gpu).
+
+For those who can't find this version, it's available in the NVIDIA archives and here is a direct link: https://developer.nvidia.com/cuda-10.0-download-archiveMy settings:
+
+Python 3.6.5
+CUDA 9.0
+cuDNN 7.41.5
+tensorflow 1.12.0
+tensorflow-gpu 1.12.0
+
+great workHi All,
+
+Facing the same issue!
+
+Can anyone provide a 'working' env info for _AMD Radeon HD7500M_ Graphic Accelerator with the following:
+
+- Win10 Pro, FU 1803
+- I3 3rd Gen, 4GB
+- CUDA ver.10.0.130
+- CUDNN ver 7.3.1 for 10.0_0
+- Anaconda3 (2018.12)
+- Py 3.7.1
+- Tensorflow-gpu 1.13.1 - 'Conda' install using 'Anaconda prompt'
+
+Thanks!
+
+
+I got the same DLL load failed error when running trying to run tensorboard, no problems running the others:
+
+Win10
+tensorflow-gpu 1.11.0
+tensorboard 1.11.0
+cudnn 7.1.4
+cuda9.0_0
+python 3.6.3My settings:
+
+Win10x64
+tensorflow-gpu 1.13.1
+CUDA 10.1
+CUDNN 7.5 for cuda10.1
+python 3.7.1
+
+And I got the same error! 
+
+
+> I got the same DLL load failed error when running trying to run tensorboard, no problems running the others:
+> 
+> Win10
+> tensorflow-gpu 1.11.0
+> tensorboard 1.11.0
+> cudnn 7.1.4
+> cuda9.0_0
+> python 3.6.3
+
+I fixed the error by upgrading cygrpc in pip since the DLL load import error comes up when importing cygrpc> My settings:
+> 
+> Win10x64
+> tensorflow-gpu 1.13.1
+> CUDA 10.1
+> CUDNN 7.5 for cuda10.1
+> python 3.7.1
+> 
+> And I got the same error!
+
+I've changed the env :
+·tensorflow-gpu 1.12.0
+·CUDA 9.0
+·Cudnn 7.5 for CUDA9.0
+·python3.6.8
+
+Finally, it works!
+Is it that tf-gpu works with 'NVIDIA' accelerators ONLY!
+
+'RADEON' ones - need to use a different lib/ build!https://github.com/fo40225/tensorflow-windows-wheel
+
+Took me ages but finally sorted this issue on my PC. Was a mixture of not having the correct cuDNN installed and VS redist. Find the correct versions for your Python version, CPU and Graphics card in the link above.Thank you DTopping256!!!  > I had same issue. I resolved it by uninstalling tensorflow-gpu and reinstalling through conda.
+> 
+> `conda install tensorflow-gpu`
+
+I was creating a new venv and downloaded tensorflow-gpu again following the directions here (https://www.tensorflow.org/install/pip). However, it installed the latest stable version (1.13) which caused a problem. I installed tf-gpu using conda and they installed the packages together with tf-gpu version 1.12.0-h0d30ee6_0. I guess the 1.12v doesn't cause any issues at least on my laptop.
+
+FYI:
+Win10x64
+CUDA V10.1.105
+python 3.6.5
+nvidia gpu 1070 max-qThe same problem.
+win10 x64
+cuda 9.0.176
+cudnn 7.0
+python 3.6.0
+tensorflow-gpu 1.13.0
+
+------------------------------------------------
+@2019/04/16
+I have soved the problem by setup tensorflow-gpu-1.12，maybe the latest version tensorflow-gpu-1.13 need cuda-10.0.
+
+Tehre is [my summary](https://blog.csdn.net/pkxpp/article/details/88925868), but the language is chinese.^_^
+> I had same issue. I resolved it by uninstalling tensorflow-gpu and reinstalling through conda.
+> 
+> `conda install tensorflow-gpu`
+
+This worked with me too, I have installed tensorflow with **pip** and then I uninstalled it using `pip uninstall tensorflow-gpu` and then again installed using `conda install tensorflow-gpu`Microsoft Windows [Version 6.3.9600]
+(c) 2013 Microsoft Corporation. All rights reserved.
+
+C:\Users\Dell>python
+Python 3.7.1 (default, Dec 10 2018, 22:54:23) [MSC v.1915 64 bit (AMD64)] :: Ana
+conda, Inc. on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> iimprt tensorflow
+  File "<stdin>", line 1
+    iimprt tensorflow
+                    ^
+SyntaxError: invalid syntax
+>>> import tensorflow
+Traceback (most recent call last):
+  File "C:\Users\Dell\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tenso
+rflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\Dell\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tenso
+rflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\Dell\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tenso
+rflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, descript
+ion)
+  File "C:\Users\Dell\Anaconda3\lib\imp.py", line 242, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\Dell\Anaconda3\lib\imp.py", line 342, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "C:\Users\Dell\Anaconda3\lib\site-packages\tensorflow\__init__.py", line
+24, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-im
+port
+  File "C:\Users\Dell\Anaconda3\lib\site-packages\tensorflow\python\__init__.py"
+, line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "C:\Users\Dell\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tenso
+rflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "C:\Users\Dell\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tenso
+rflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\Dell\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tenso
+rflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\Dell\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tenso
+rflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, descript
+ion)
+  File "C:\Users\Dell\Anaconda3\lib\imp.py", line 242, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\Dell\Anaconda3\lib\imp.py", line 342, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+
+Failed to load the native TensorFlow runtime.
+
+See https://www.tensorflow.org/install/errors
+
+for some common reasons and solutions.  Include the entire stack trace
+above this error message when asking for help.
+>>>What a sorry mess of an install process this currently is! 
+
+With thanks to the contributors here I have finally got it working (I think!) 
+
+I had followed all the regular PIP install processes from the tensorflow page and had ended up with this combination on my new Windows 10 desktop (Nvid GTX 1660) & Ananconda with a new Python 3.6 environment. 
+
+Tens: 1.13.1 
+Cuda: 10.1 
+cuDNN: 7.5 
+
+and also updated my system PATH to add those libraries as needed (although some CUDA paths had appeared already there,  presumably as part the its install now, but more paths were added as needed as described [here](https://www.tensorflow.org/install/gpu#windows_setup)). 
+
+in jupyter tried to: 
+import tensorflow as tf 
+
+and got the error everyone sees: 
+ImportError: DLL load failed: The specified module could not be found.
+
+My first attempt at a solution worked! 
+
+following the advice from @oshadaamila [above](https://github.com/tensorflow/tensorflow/issues/22794#issuecomment-478855387) I uninstalled the PiP tensorflow and reinstall using Conda . 
+
+Conda brought in the following versions: 
+Tens: 1.13.1 
+Cuda: 10.0.130
+cuDNN: 7.3 
+
+The import now works and a small code test ran fine: 
+
+a= tf.constant(4)
+b=tf.constant(5)
+sess=tf.Session()
+c= a+b
+print('Sum= ', sess.run(c))
+
+gives the answer of 9. 
+
+I did not change anything in the system PATH environment - all the new CUDA and cuDNN are now installed in the Anaconda3/pkgs folders so they seem to be preferentially referenced when in a python environment. 
+
+Its possible I will have errors if trying to work something outside the Ananconda environment but for now Im even trying to do that. 
+ ### For TensorFlow 1.31.1
+
+tensorflow/configure.py 
+```
+_DEFAULT_CUDA_VERSION = '10.0'   // see here
+
+_DEFAULT_CUDA_PATH_WIN = ('C:/Program Files/NVIDIA GPU Computing '
+                          'Toolkit/CUDA/v%s' % _DEFAULT_CUDA_VERSION)
+
+# ...
+
+def set_tf_cuda_version(environ_cp):
+  """Set CUDA_TOOLKIT_PATH and TF_CUDA_VERSION."""
+  ask_cuda_version = (
+      'Please specify the CUDA SDK version you want to use. '
+      '[Leave empty to default to CUDA %s]: ') % _DEFAULT_CUDA_VERSION
+
+  # ...
+
+  for _ in range(_DEFAULT_PROMPT_ASK_ATTEMPTS):
+    # Configure the Cuda SDK version to use.
+    tf_cuda_version = get_from_env_or_user_or_default(
+        environ_cp, 'TF_CUDA_VERSION', ask_cuda_version, _DEFAULT_CUDA_VERSION)
+
+  # ...
+
+  environ_cp['TF_CUDA_VERSION'] = tf_cuda_version
+```
+
+**so the curren CUDA version is 10.0，but the NVIDIA give 10.1**，install  CUDA10.0 and cudnn10.0 then restart cmd，is will work
+
+for older version https://developer.nvidia.com/cuda-toolkit-archive
+
+detail: https://blog.kenorizon.cn/note/tensorflow-installation.html
+Try pip install tensorflow-gpu==1.13.1-rc2 if you have to use CUDA 10.0 for RTX. I have CUDA 10.0, cuDNN 7.5.0, python 3.6 and it works!i fixed this by installing cuda 10.1 (i have tensorflow 2.0alpha btw) and cudnn 7.5.0.56
+restart your computer or else import tensorflow-gpu will not workObserved the similar issue with TF 1.13.1 and CUDA 10.1 - fixed by removing CUDA 10.1 and installing CUDA 10.0.I had the same issue and downgrading to CUDA 10.0 solved it (tensorflow 1.13.1, GTX 1080ti)Solved via downgrade to CUDA 10.0 and cuDNN 7.5 for CUDA 10.0 Solved by downgrading to CUDA 10.0, cuDNN v7.5.0.56, Python 3.6.7 and tensorflow 1.13.1. 
+
+Don't forget to clean or uninstall any previous version of tensorflow and CUDA if you attempt to go for this combination. If you have Python 3.7, and trying to install tensorflow 1.13.1 or any lower version, then it won't work because as of now no version of tensorflow is supporting Python 3.7. Remove Python 3.7, and start afresh.Hi, @utkalsinha    Did you install tensorflow from source code? I compile tensorflow source code under CUDA 10.0, cuDNN v7.5.0.56, Python 3.6.6 and tensorflow 1.13.1, but also failed. The only difference between us is I use Python3.6.6 while your is Python3.6.7Do not forget to add the environment variables for CUDA and cuDNN
+SET PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\bin;%PATH%
+SET PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\extras\CUPTI\libx64;%PATH%
+SET PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\include;%PATH%
+SET PATH=C:\tools\cuda\bin;%PATH%Got same problem.. after after one week applying all hook and crook... Just deactivated the Windows defender and it worked> Hi, @utkalsinha Did you install tensorflow from source code? I compile tensorflow source code under CUDA 10.0, cuDNN v7.5.0.56, Python 3.6.6 and tensorflow 1.13.1, but also failed. The only difference between us is I use Python3.6.6 while your is Python3.6.7
+
+@asa008: Nope. I have directly installed tensorflow-gpu via pip as `pip install tensorflow-gpu==1.13.1`After spending some time on it, for `tensorflow==2.0.0-alpha0` , on Windows 10 try to install:
+
+1. python 3.6
+2. CUDA v10.0
+3. cudnn 7.4.1.5> After spending some time on it, for `tensorflow==2.0.0-alpha0` , on Windows 10 try to install:
+> 
+> 1. python 3.6
+> 2. CUDA v10.0
+> 3. cudnn 7.4.1.5
+
+Used Python 3.7.3 with same CUDA and cuDNN but got same DLL error.In my experience (after lots of trial and error), it is best to set the CUDA paths using the GUI based editor on Windows. 
+
+My setup is as follows:
+1. CUDA 10.0
+2. latest cudnn available (follow the instructions on Nvidia site)
+3. Setting the paths using the Environment Variables editor in Windows. 
+--> In my experience, using "SET PATH..." on the Command Line still forgets the new paths. 
+--> I also restarted the PC prior to installing Tensorflow.
+4. Tensorflow v1.13
+5. conda environment with Python 3.6
+
+I haven't tried this on tensorflow alpha, hopefully it works the same.I tested several combinations on my Windows 10 machine, and these are the results:
+FAIL
+tensorflow-gpu==r1.13
+python 3.7.3
+CUDA v10.1
+cudnn 7.5.0.56
+
+FAIL
+tensorflow-gpu==2.0.0-alpha0 
+python 3.7.3
+CUDA v10.1
+cudnn 7.5.0.56
+
+FAIL
+tensorflow-gpu==2.0.0-alpha0 
+python 3.6.8
+CUDA v10.1
+cudnn 7.5.0.56
+
+SUCCESS
+tensorflow-gpu==2.0.0-alpha0 
+python 3.6.8
+CUDA v10.0
+cudnn 7.4.1.5If you have this issue you can downgrade the lib to tensorflow-gpu==1.10.0, at today the superior versions have problems, this issue is common in windows.
+PD. after that you need CUDA to use this lib correctly.What about in Linux, are tensorflow higher versions are much more stable?plz help
+
+WARNING:tensorflow:From C:\Users\HP\Anaconda3\envs\tensorflow\lib\site-packages\tensorflow\python\training\saver.py:1266: checkpoint_exists (from tensorflow.python.training.checkpoint_management) is deprecated and will be removed in a future version.Open ...\Python37\Lib\site-packages\tensorflow\python\\_pywrap_tensorflow_internal.pyd use [Dependency Walker](http://www.dependencywalker.com/), it will show you the DLL dependency tree, you will find which DLL cause the problem. TensorFlow always linked to the specific CUDA version.Same here, Win10 Pro x64, Python 3.6.8, Tensorflow-gpu 1.13.1, cuDNN 7.5.1.10, CUDA 10.1, Driver 430.64
+![image](https://user-images.githubusercontent.com/40433852/58214432-e8c6d300-7d0a-11e9-9d49-809e154d094d.png)
+> My install:
+> 
+> Windows 10.0.17763.134 x64
+> NVIDIA Driver 416.92
+> CUDA 10.0.130
+> CUDNN 7.4.1.5 for CUDA 10.0
+> Python 3.6.7
+> GeForce GTX 1080 Ti
+> 
+> The cause of this error seems to be people installing Python without Tcl/Tk support not realizing that Tcl is necessary for SWIG and module imports. I just tested this and in my case it was not enough to modify the Python installation to add Tcl/Tk -- I had to delete everything and install from scratch and now I am not getting the error anymore.
+> 
+> TL;DR -- just fully remove and reinstall Python with Tcl/Tk option selected.
+
+base on @levicki cuda and cudnn version,   i also set the path according tf offical websit,
+SET PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\bin;%PATH% SET PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\extras\CUPTI\libx64;%PATH% SET PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\include;%PATH% SET PATH=C:\tools\cuda\bin;%PATH%   (can't find tools in C, just ignore this one)
+I installed tensorflow2 alpha  successfully,  by the way my configuration is :
+> Windows 10.0.17763.134 x64
+> NVIDIA Driver 416.92
+> CUDA 10.0.130
+> CUDNN 7.4.1.5 for CUDA 10.0
+> Python 3.5.2
+> GeForce Titan xp x4
+
+if still not work, i also reinstalled pillow and then reinstall tf2, hopes it would helpful.> Same here, Win10 Pro x64, Python 3.6.8, Tensorflow-gpu 1.13.1, cuDNN 7.5.1.10, CUDA 10.1, Driver 430.64
+> ![image](https://user-images.githubusercontent.com/40433852/58214432-e8c6d300-7d0a-11e9-9d49-809e154d094d.png)
+
+Maybe you should use CUDA 10.0, not 10.1。I just solved this problem on my PC, you can verify it use [Dependency Walker](http://www.dependencywalker.com/), like this:
+![image](https://user-images.githubusercontent.com/10413780/58223301-ae315a80-7d4b-11e9-9bee-cd82fa1eef96.png)originally` CUDA 9` working, I updated to `tensorflow-gpu 1.13.1` and it reported DLL not found.
+Then tried downgrading `tensorflow-gpu` to several versions, but still reported DLL not found.
+Then I updated  `CUDA10.1 update1` and `cudnn 7.5.1.10`  (both latest version) it reported DLL not found.
+Then tried downgrading `tensorflow-gpu` still reported DLL not found.
+Then use `dependency Walker`, but this app stuck upon opening (I am using win10)
+Then I copied `dependency Walker` and `_pywrap_tensorflow_internal.pyd` to a win7 device, confirmed it needs a dependency on `CUBLAXX_100.DLL`.
+Then I installed CUDA10.0 and it works.
+
+I shall say it is NOT a good experience everytime I install tensorflow-gpu.
+Clear message and suggestion is needed rather than a simple `DLL missing`+1. Same problem as qinst64.can anyone give me a copy of cuda 10.0? cuda 10.0 has been wiped out ,only a version of 10.1 is available in the official site.Thanks!forget  that my system is windows10.Thank you!oh,I find it,hopeful anyone can get help!
+https://developer.nvidia.com/cuda-toolkit-archiveI faced the same issue, turned out it I simply did not install cudnn (as I thought it would be included by installing CUDA, turned out it isnt)
+Installationguide can be found [here](https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html#install-windows)@ymodak Since it seems impossible to provide tensorflow builds for all possible Python+CUDA+cuDNN versions, would you guys at least consider improving the error message to include:
+
+1. The name of the DLL which can't be found if you are loading it dynamically
+
+Or:
+
+2. The name of the statically loaded DLL which failed to load because of unsatisfied dependency chain?
+SUCCESS
+tensorflow-gpu==1.10.0
+python 3.6.8
+CUDA v9.0
+cudnn 7.6.0
+This finally solved my autokeras installation problem## SUCCESS
+
+ - Windows 10 Home 64bit
+ - [CUDA Toolkit 10.0](https://developer.nvidia.com/cuda-10.0-download-archive) (Sept 2018)
+ - [Download cuDNN v7.6.0 (May 20, 2019), for CUDA 10.0](https://developer.nvidia.com/rdp/cudnn-download#a-collapse760-10)
+ - Python 3.7.3 Windows AMD64
+ - Tensorflow-gpu 1.13.1Can we install cuda and cudnn in Radeon graphic card
+
+On Sat, 6 Apr 2019, 10:22 p.m. Jed Baxter, <notifications@github.com> wrote:
+
+> What a sorry mess of an install process this currently is!
+>
+> With thanks to the contributors here I have finally got it working (I
+> think!)
+>
+> I had followed all the regular PIP install processes from the tensorflow
+> page and had ended up with this combination on my new Windows 10 desktop
+> (Nvid GTX 1660):
+>
+> Tens: 1.13.1
+> Cuda: 10.1
+> cuDNN: 7.5
+>
+> and also updated my system PATH to add those libraries as needed (although
+> some CUDA paths had appeared already there, presumably as part the its
+> install now, but more paths were added as needed as described here
+> <https://www.tensorflow.org/install/gpu#windows_setup>).
+>
+> in jupyter tried to:
+> import tensorflow as tf
+>
+> and got the error everyone sees:
+> ImportError: DLL load failed: The specified module could not be found.
+>
+> My first attempt at a solution worked!
+>
+> following the advice from @oshadaamila <https://github.com/oshadaamila>
+> above
+> <https://github.com/tensorflow/tensorflow/issues/22794#issuecomment-478855387>
+> I uninstalled the PiP tensorflow and reinstall using Conda .
+>
+> Conda brought in the following versions:
+> Tens: 1.13.1
+> Cuda: 10.0.130
+> cuDNN: 7.3
+>
+> The import now works and a small code test ran fine:
+>
+> a= tf.constant(4)
+> b=tf.constant(5)
+> sess=tf.Session()
+> c= a+b
+> print('Sum= ', sess.run(c))
+>
+> gives the answer of 9.
+>
+> I did not change anything in the system PATH environment - all the new
+> CUDA and cuDNN are now installed in the Anaconda3/pkgs folders so they seem
+> to be preferentially referenced when in a python environment.
+>
+> Its possible I will have errors if trying to work something outside the
+> Ananconda environment but for now Im even trying to do that.
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/22794#issuecomment-480519001>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/Auda9lPIPF0BJa_NUNfnkhqoHPcvmTwCks5veNC2gaJpZM4XLOd->
+> .
+>
+Can we install cuda in radeon graphic card
+
+On Sun, 14 Apr 2019, 8:38 a.m. Utkal Sinha, <notifications@github.com>
+wrote:
+
+> Solved by downgrading to CUDA 10.0, cuDNN v7.5.0.56, Python 3.6.7 and
+> tensorflow 1.13.1.
+>
+> Don't forget to clean or uninstall any previous version of tensorflow and
+> CUDA if you attempt to go for this combination. If you have Python 3.7, and
+> trying to install tensorflow 1.13.1 or any lower version, then it won't
+> work because as of now no version of tensorflow is supporting Python 3.7.
+> Remove Python 3.7, and start afresh.
+>
+> —
+> You are receiving this because you commented.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/22794#issuecomment-482915167>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/Auda9j9qH1-Z_UgS8jT6-hZZD4xwlzISks5vgpuugaJpZM4XLOd->
+> .
+>
+@roopahtshree  [GPU](https://www.tensorflow.org/install/gpu#hardware_requirements)
+
+Check below link. NVIDIA® GPU card with CUDA® Compute Capability 3.5 or higher
+https://developer.nvidia.com/cuda-gpus
+
+Had the same issue, but using CUDA 10.0, CUDNN 7, Python 3.6.8, and TensorFlow 1.13 works now.
+https://docs.nvidia.com/deeplearning/sdk/cudnn-support-matrix/index.html
+
+Windows 10
+[cuDNN 7.5.0](https://developer.nvidia.com/compute/machine-learning/cudnn/secure/v7.5.0.56/prod/9.0_20190219/cudnn-9.0-windows10-x64-v7.5.0.56.zip)
+[CUDA 9.0.176](https://developer.nvidia.com/cuda-90-download-archive?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exelocal)
+[tensorflow-gpu 1.10.0](https://files.pythonhosted.org/packages/ae/d9/60e1e73abffaeb0aaca7cc2bcfeb973ec3b314a3e46e26270966829b5207/tensorflow_gpu-1.10.0-cp36-cp36m-win_amd64.whl)
+Anaconda Python 3.6.2
+
+ok!!!
+
+Windows 8.1
+cuDNN 7.6.0 for CUDA 10.0
+CUDA 10.0 for Windows 7
+tensorflow-gpu 1.13.1
+Anaconda Python 3.7+
+
+ok!!!!
+
+@pishangujeniya 
+> * Windows 10 Home 64bit
+> * [CUDA Toolkit 10.0](https://developer.nvidia.com/cuda-10.0-download-archive) (Sept 2018)
+> * [Download cuDNN v7.6.0 (May 20, 2019), for CUDA 10.0](https://developer.nvidia.com/rdp/cudnn-download#a-collapse760-10)
+> * Python 3.7.3 Windows AMD64
+> * Tensorflow-gpu 1.13.1
+
+I've been trying to install tensorflow for the past couple days, and I've tried almost all of these configurations. This one worked for me. Thank you so much.Here I post my solution:
+I also encounter the prolem（**ImportError: DLL load failed: 找不到指定的模块。Failed to load the native TensorFlow runtime**.） while directly using pip isntall(tensorflow1.13.1). I turned to **lfd.uci** and downloaded another  compiled **older version tensorflow1.9** , and then installed it locally. It works .
+- win10 x64
+- cuda10.1 cudnn 7.5
+- anaconda3 2019.3 with python3.7
+It seems like with TensorFlow 1.13.1, only CUDA 10 will work (and not CUDA 10.1). Configuration shared by @pishangujeniya worked.
+
+CUDA Toolkit 10.0 (Sept 2018)
+Download cuDNN v7.6.0 (May 20, 2019), for CUDA 10.0My configuration works with the following:
+
+tensorflow-gpu==1.14.0
+python 3.6.8
+CUDA v10.0
+cudnn 7.4.1.5I am running TensorFlow in Anaconda and also ran in to this issue. It's related to compatibility issues between versions of TensorFlow, CUDA, and cuDNN. Anaconda's latest cudatoolkit automatically downloads and installs the correct versions of CUDA and cuDNN for TF v1.13. You can use cudatoolkit rather than manually installing CUDA and cuDNN.
+
+I was able to resolve this issue by:
+1) Uninstalling Anaconda, then downloading and installing latest version of Anaconda
+2) Creating new virtual environment and use "conda install tensorflow-gpu" (automatically installs CUDA and cuDNN as well)
+3) Working within this environment for the projectThanks everyone. 10.1 toolkit kept failing with the same error, but 10.0 worked like a charm.  I fixed it by uninstall cuda10.1 and install cuda 10.0> I am running TensorFlow in Anaconda and also ran in to this issue. It's related to compatibility issues between versions of TensorFlow, CUDA, and cuDNN. Anaconda's latest cudatoolkit automatically downloads and installs the correct versions of CUDA and cuDNN for TF v1.13. You can use cudatoolkit rather than manually installing CUDA and cuDNN.
+> 
+> I was able to resolve this issue by:
+> 
+> 1. Uninstalling Anaconda, then downloading and installing latest version of Anaconda
+> 2. Creating new virtual environment and use "conda install tensorflow-gpu" (automatically installs CUDA and cuDNN as well)
+> 3. Working within this environment for the project
+
+After all the trials this answer made my day. 'conda install tensorflow-gpu' lock the tensorflow at 1.12 and solved all the dependency issues. 
+I have faced the same issue.....
+
+C:\Anaconda3>python
+Python 3.7.1 (default, Oct 28 2018, 08:39:03) [MSC v.1912 64 bit (AMD64)] :: Anaconda, Inc. on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import tensorflow as tf
+Traceback (most recent call last):
+  File "C:\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Anaconda3\lib\imp.py", line 242, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Anaconda3\lib\imp.py", line 342, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: A dynamic link library (DLL) initialization routine failed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "C:\Anaconda3\lib\site-packages\tensorflow\__init__.py", line 28, in <module>
+    from tensorflow.python import pywrap_tensorflow  # pylint: disable=unused-import
+  File "C:\Anaconda3\lib\site-packages\tensorflow\python\__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "C:\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "C:\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Anaconda3\lib\site-packages\tensorflow\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Anaconda3\lib\imp.py", line 242, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Anaconda3\lib\imp.py", line 342, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: A dynamic link library (DLL) initialization routine failed.
+
+
+Failed to load the native TensorFlow runtime.
+
+See https://www.tensorflow.org/install/errors
+
+for some common reasons and solutions.  Include the entire stack trace
+above this error message when asking for help.Found out something interesting which should help some of you who are using anaconda.
+
+System Spec:
+Widows 10
+Python 3.7.3
+Cuda 10.0
+cudnn and cupti installed with conda
+
+By adding anaconda to system path during the installation (the none recommended/default setting) I was unable to tf running. Reinstalling it without selecting the option solved this issue.I think this might be related to pointing out to cudnn64_7.dll file, after installation on windows it's needed to point out to cuDNN64_7.dll. Instruction to add it below:
+- Type path in windows 10 search box
+- Open settings: Edit the System environment variables from control panel
+- In the Advanced tab, click Environment Variables…
+- Select Path under User variables for your-user-name and click Edit...
+- In the new window Edit environment variable , click New and paste following path into the text box
+- (Your CUDNN64_7.dll location) (eg. mine - C:\cudnn-10.0-windows10-x64-v7.6.0.64\cuda\bin)
+- Click OK to close the window, and OK again to close the Environment Variables window and System - Properties window
+-Open a Anaconda Prompt and type echo %PATH% , you should be able to see the newly added path in the output.I doubt so. Or at least that's not the cause for me. I did add the path manually but the system hasn't been able to detect itI also get the same error.
+Somehow upgrading TensorFlow to version1.14.0 solves the problem :)installed in conda environment and works well on win10 + gtx1060 (nb version)
+tensorflow 1.13.1
+tensorflow-gpu 1.13.1
+tensorflow-datasets 1.0.1
+keras 2.2.3
+cudatoolkit 9.0
+cudnn 7.6.4
+python 3.6.7
+I am stuck on this issue all day today
+In the virtual environment I am able to successfully import Tensorflow 2 but within Visual Studio Jupyter notebook I am getting the below error
+
+`_mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)`
+`  File "C:\Users\IT\envs\tf1env\lib\imp.py", line 242, in load_module`
+ `   return load_dynamic(name, filename, file)`
+`  File "C:\Users\IT\envs\tf1env\lib\imp.py", line 342, in load_dynamic`
+`    return _load(spec)`
+`ImportError: DLL load failed: The specified module could not be found.`
+
+I am using Tensorflow 2, CUDA 10.1 and cuDNN 7.6.5This is not an easy issue to figure out or resolve on your own.
+
+The easy button is to follow the instructions in this  post:  
+https://www.pugetsystems.com/labs/hpc/How-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-UPDATED-1419
+
+or just use Google Colab - they take care of all of this for you.
+"ImportError: DLL load failed:" doesn't think to mention which DLL is missing? this will be funSame problem
+In the conda lsit, it said I already installed the package.
+But when I tried to run it, there are a lot of errors.
+
+I do't know what's wrongHad this issue with Tensorflow 2.1.0 (CPU version). Managed to fix it by downgrading to Tensorflow 2.0.0:
+```
+pip install tensorflow==2.0.0
+```If you are having this after 2.1.0, it is probably because it comes with GPU support by default. And it requires _Microsoft Visual C++ Redistributable for Visual Studio 2015_ as shown in the installation step #1 on the website.
+
+![image](https://user-images.githubusercontent.com/7988466/72201765-a39d1000-3457-11ea-897a-5694c742a4c8.png)
+---
+### From the release notes:
+![image](https://user-images.githubusercontent.com/7988466/72201808-08586a80-3458-11ea-8f51-0fa04d270bee.png)
+
+I found the release notes that @abdulrahman-khankan screenshot'd above: https://github.com/tensorflow/tensorflow/releases/tag/v2.1.0
+
+Here is the [Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019](https://support.microsoft.com/help/2977003/the-latest-supported-visual-c-downloads) link from that document. Remember, text in screenshots can't be clicked, copied, translated, read by screen readers, etc.!I assumed everyone knows how to go to the releases page or just google the MS installers. Thanks for sharing the links!Because of further issues with PyInstaller I ended up downgrading to `tensorflow == 1.14.0`.@ERDataDoc using your link 
+
+> The easy button is to follow the instructions in this post:
+> https://www.pugetsystems.com/labs/hpc/How-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-UPDATED-1419
+ 
+is helpful but sometimes it can upgrade the driver to CUDA 10.2 which is not supported yet
+(that happened in my case)Sorry I realize this isn't helpful but I've now given up trying to do anything serious with Python under Windows.  3 Weeks in and I'm still trying to install all the shit I need for the first tutorial (Maybe I set my sights too high but then I do remember punch cards and paper tape)https://github.com/tensorflow/tensorflow/issues/22512#issuecomment-572603142
+This solved it for me.
+(Downgrading to tensorflow 2.0.0)
+`pip install tensorflow==2.0.0`https://github.com/tensorflow/tensorflow/issues/22794#issuecomment-580329356
+
+I installed the redistributable and msvcp140.dll is available on my file system.
+
+However, I still get the error. Downgrading helps, but I need to upgrade my version, since there is an unfixed bug on 2.0.0 I can't get around.
+
+Is there any notice from the developers, that they are working on this?I fixed it.
+Spend days searching to fix them.
+
+Installed tensorflow with pip install tensorflow-cpu
+Updated visual c++ 2015-2019
+
+issue was because i didn't had nvidia graphics so that i should install with cpu version because i am using Raedon vega 8 graphics
+
+Hope it helps.In my case, I was using Python 3.6 and it was erroring. So I upgraded to 3.6.8 and it then worked with tensorflow 2.0.0It's work for me python: 3.7.6
+pip install tensorflow==2.0
+if you are using tensoflow-gpu
+pip install --upgrade tensorflow-gpu==2.0I installed
+- python 3.6.2 (<-- had to change my python version, and change to 64bit)
+- I already had the msvcp140.dll and msvcp140_1.dll in my System32/
+- Cuda 10.0 (not sure if that was necessary).
+- pip install tensorflow==2.0 (<-- 2.1.0 did not work!)
+and then it worked :)This is the final answer on this thread: https://github.com/tensorflow/tensorflow/issues/22794#issuecomment-573297027
+
+Please don't spam with "I solved it!" and custom solutions.Hi, @mihaimaruseac 
+1. Can you add new item with a description of the problems that may be cause by the lack of support for AVX command to the [instruction](https://www.tensorflow.org/install) on the site? 
+2. Сan you add this [link](https://github.com/tensorflow/tensorflow/issues/19584) to the [problem list](https://www.tensorflow.org/install/errors) where __Error message__ is equal _"ImportError: DLL load failed: The specified module could not be found."_
+3. Do you know how to create own binaries that will be without AVX support? 
+
+If some one need tensorflow whl without AVX support you can find it in this [repository](https://github.com/fo40225/tensorflow-windows-wheel), many thanks to the author. Or you can use [Intel Software Development Emulator](https://software.intel.com/en-us/articles/intel-software-development-emulator) to run original tensorflow with AVX support.
+
+To test AVX support use [Coreinfo](https://docs.microsoft.com/en-us/sysinternals/downloads/coreinfo). 
+ERROR:root:Internal Python error in the inspect module.
+Below is the traceback from this internal error.
+
+
+Traceback (most recent call last):
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 3331, in run_code
+    exec(code_obj, self.user_global_ns, self.user_ns)
+  File "<ipython-input-28-ac88d38a0633>", line 1, in <module>
+    flair_data, ot_data =load_dataset(PATH)
+  File "<ipython-input-23-dc2f310765f5>", line 64, in load_dataset
+    train_ot = np.vstack(train_ot)
+  File "<__array_function__ internals>", line 6, in vstack
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\numpy\core\shape_base.py", line 283, in vstack
+    return _nx.concatenate(arrs, 0)
+  File "<__array_function__ internals>", line 6, in concatenate
+ValueError: need at least one array to concatenate
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 2044, in showtraceback
+    stb = value._render_traceback_()
+AttributeError: 'ValueError' object has no attribute '_render_traceback_'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow_core\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow_core\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow_core\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Users\Pankaj\Anaconda3\lib\imp.py", line 242, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\Pankaj\Anaconda3\lib\imp.py", line 342, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\IPython\core\ultratb.py", line 1151, in get_records
+    return _fixed_getinnerframes(etb, number_of_lines_of_context, tb_offset)
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\IPython\core\ultratb.py", line 319, in wrapped
+    return f(*args, **kwargs)
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\IPython\core\ultratb.py", line 353, in _fixed_getinnerframes
+    records = fix_frame_records_filenames(inspect.getinnerframes(etb, context))
+  File "C:\Users\Pankaj\Anaconda3\lib\inspect.py", line 1502, in getinnerframes
+    frameinfo = (tb.tb_frame,) + getframeinfo(tb, context)
+  File "C:\Users\Pankaj\Anaconda3\lib\inspect.py", line 1460, in getframeinfo
+    filename = getsourcefile(frame) or getfile(frame)
+  File "C:\Users\Pankaj\Anaconda3\lib\inspect.py", line 696, in getsourcefile
+    if getattr(getmodule(object, filename), '__loader__', None) is not None:
+  File "C:\Users\Pankaj\Anaconda3\lib\inspect.py", line 733, in getmodule
+    if ismodule(module) and hasattr(module, '__file__'):
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow\__init__.py", line 50, in __getattr__
+    module = self._load()
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow\__init__.py", line 44, in _load
+    module = _importlib.import_module(self.__name__)
+  File "C:\Users\Pankaj\Anaconda3\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1006, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 983, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 953, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1006, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 983, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 967, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 677, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 728, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow_core\__init__.py", line 42, in <module>
+    from . _api.v2 import audio
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow_core\_api\v2\audio\__init__.py", line 10, in <module>
+    from tensorflow.python.ops.gen_audio_ops import decode_wav
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow_core\python\ops\gen_audio_ops.py", line 9, in <module>
+    from tensorflow.python import pywrap_tensorflow as _pywrap_tensorflow
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow\__init__.py", line 50, in __getattr__
+    module = self._load()
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow\__init__.py", line 44, in _load
+    module = _importlib.import_module(self.__name__)
+  File "C:\Users\Pankaj\Anaconda3\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow_core\python\__init__.py", line 49, in <module>
+    from tensorflow.python import pywrap_tensorflow
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow_core\python\pywrap_tensorflow.py", line 74, in <module>
+    raise ImportError(msg)
+ImportError: Traceback (most recent call last):
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 3331, in run_code
+    exec(code_obj, self.user_global_ns, self.user_ns)
+  File "<ipython-input-28-ac88d38a0633>", line 1, in <module>
+    flair_data, ot_data =load_dataset(PATH)
+  File "<ipython-input-23-dc2f310765f5>", line 64, in load_dataset
+    train_ot = np.vstack(train_ot)
+  File "<__array_function__ internals>", line 6, in vstack
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\numpy\core\shape_base.py", line 283, in vstack
+    return _nx.concatenate(arrs, 0)
+  File "<__array_function__ internals>", line 6, in concatenate
+ValueError: need at least one array to concatenate
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 2044, in showtraceback
+    stb = value._render_traceback_()
+AttributeError: 'ValueError' object has no attribute '_render_traceback_'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow_core\python\pywrap_tensorflow.py", line 58, in <module>
+    from tensorflow.python.pywrap_tensorflow_internal import *
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow_core\python\pywrap_tensorflow_internal.py", line 28, in <module>
+    _pywrap_tensorflow_internal = swig_import_helper()
+  File "C:\Users\Pankaj\Anaconda3\lib\site-packages\tensorflow_core\python\pywrap_tensorflow_internal.py", line 24, in swig_import_helper
+    _mod = imp.load_module('_pywrap_tensorflow_internal', fp, pathname, description)
+  File "C:\Users\Pankaj\Anaconda3\lib\imp.py", line 242, in load_module
+    return load_dynamic(name, filename, file)
+  File "C:\Users\Pankaj\Anaconda3\lib\imp.py", line 342, in load_dynamic
+    return _load(spec)
+ImportError: DLL load failed: The specified module could not be found.
+
+
+Failed to load the native TensorFlow runtime.
+
+See https://www.tensorflow.org/install/errors
+
+for some common reasons and solutions.  Include the entire stack trace
+above this error message when asking for help.please uninstall the latest Microsoft Visual C++ Redistributable for Visual Studio version if you install 2019 and before that
+
+download  Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019 depending on your system either x64 or x86 on this website
+
+https://support.microsoft.com/en-my/help/2977003/the-latest-supported-visual-c-downloads> please uninstall the latest Microsoft Visual C++ Redistributable for Visual Studio version if you install 2019 and before that
+> 
+> download Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019 depending on your system either x64 or x86 on this website
+> 
+> https://support.microsoft.com/en-my/help/2977003/the-latest-supported-visual-c-downloads
+
+Hi fitrialif,
+I did install that Micrsoft Visual C++. But the same error persists. After installing that, is there anything else I should do (moving files around,etc?)Seems to be a problem with TF2.1.
+
+Downgrading to TF2.0 worked for me: pip install tensorflow==2.0@pallyndr this is because you need to download the newest MSVC redistributable for 2.1 as mentioned in https://github.com/tensorflow/tensorflow/issues/22794#issuecomment-573297027
+
+Unfortunately as people keep piling on the thread with "it works for me"/"I'm having the same issue"/"solved it by doing this other thing", the actual solution in the above comment got burried.after I download MSVC and CUDA (I am with NVIDIA card) and cuDNN it worked. Locking conversation to not get more comments that mute the solution

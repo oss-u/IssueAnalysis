@@ -1,0 +1,5 @@
+but wait, as far as I am concerned this means I can't run anything tainted with asyncio in a notebook
+
+which will asymptotically amount to saying, I can't run anything in a notebook thumbs up 
+
+it that right, or am I missing something obvious?

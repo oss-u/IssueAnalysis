@@ -1,0 +1,263 @@
+We recently added a [Glossary](http://scikit-learn.org/dev/glossary.html) to our documentation, which describes common parameters among other things. We should now replace descriptions of `random_state` parameters to make them more concise and informative (see #10415). For example, instead of
+
+```
+    random_state : int, RandomState instance or None, optional, default: None
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
+```
+
+
+in both KMeans and MiniBatchKMeans, we might have:
+```
+KMeans:
+    random_state : int, RandomState instance, default=None
+        Determines random number generation for centroid initialization.
+        Pass an int for reproducible results across multiple function calls.
+        See :term:`Glossary <random_state>`.
+
+
+MiniBatchKMeans:
+    random_state : int, RandomState instance, default=None
+        Determines random number generation for centroid initialization and
+        random reassignment.
+        Pass an int for reproducible results across multiple function calls.
+        See :term:`Glossary <random_state>`.
+```
+
+**Therefore, the description should focus on what is the impact of `random_state` on the algorithm.**
+
+Contributors interested in contributing this change should take on one module at a time, initially.
+
+The list of estimators to be modified is the following:
+
+List of files to modify using [kwinata](https://github.com/kwinata) [script](https://github.com/scikit-learn/scikit-learn/issues/14228#issuecomment-534841015)
+
+- [x] [sklearn/dummy.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/dummy.py) - [59](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/dummy.py#L59)
+- [x] [sklearn/multioutput.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/multioutput.py) - [578](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/multioutput.py#L578), [738](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/multioutput.py#L738)
+- [ ] [sklearn/kernel_approximation.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/kernel_approximation.py) - [41](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/kernel_approximation.py#L41), [143](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/kernel_approximation.py#L143), [470](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/kernel_approximation.py#L470)
+- [ ] [sklearn/multiclass.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/multiclass.py) - [687](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/multiclass.py#L687)
+- [x] [sklearn/random_projection.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/random_projection.py) - [178](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/random_projection.py#L178), [245](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/random_projection.py#L245), [464](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/random_projection.py#L464), [586](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/random_projection.py#L586)
+- [x] [sklearn/feature_extraction/image.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/feature_extraction/image.py) - [368](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/feature_extraction/image.py#L368), [502](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/feature_extraction/image.py#L502)
+- [x] [sklearn/utils/random.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/random.py) - [39](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/random.py#L39) open [PR](https://github.com/scikit-learn/scikit-learn/pull/15576)
+- [x] [sklearn/utils/extmath.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/extmath.py) - [185](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/extmath.py#L185), [297](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/extmath.py#L297)
+- [x] [sklearn/ensemble/_hist_gradient_boosting/gradient_boosting.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/gradient_boosting.py) - [736](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/gradient_boosting.py#L736), [918](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/gradient_boosting.py#L918)
+- [x] [sklearn/ensemble/_hist_gradient_boosting/binning.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/binning.py) - [37](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/binning.py#L37), [112](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/binning.py#L112)
+
+
+- [x] [sklearn/ensemble/_bagging.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_bagging.py) - [503](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_bagging.py#L503), [902](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_bagging.py#L902)
+- [x] [sklearn/ensemble/_gb.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_gb.py) - [887](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_gb.py#L887), [1360](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_gb.py#L1360)
+- [x] [sklearn/ensemble/_forest.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_forest.py) - [965](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_forest.py#L965), [1282](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_forest.py#L1282), [1559](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_forest.py#L1559), [1868](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_forest.py#L1868), [2103](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_forest.py#L2103)
+- [x] [sklearn/ensemble/_iforest.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_iforest.py) - [109](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_iforest.py#L109)
+- [ ] [sklearn/ensemble/_base.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_base.py) - [52](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_base.py#L52)
+- [x] [sklearn/ensemble/_weight_boosting.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_weight_boosting.py) - [188](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_weight_boosting.py#L188), [324](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_weight_boosting.py#L324), [479](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_weight_boosting.py#L479), [900](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_weight_boosting.py#L900), [1022](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_weight_boosting.py#L1022)
+- [x] [sklearn/decomposition/_truncated_svd.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_truncated_svd.py) - [59](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_truncated_svd.py#L59) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11902)
+- [x] [sklearn/decomposition/_kernel_pca.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_kernel_pca.py) - [79](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_kernel_pca.py#L79) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11902)
+- [x] [sklearn/decomposition/_dict_learning.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_dict_learning.py) - [364](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_dict_learning.py#L364), [485](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_dict_learning.py#L485), [692](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_dict_learning.py#L692), [1135](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_dict_learning.py#L1135), [1325](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_dict_learning.py#L1325) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11902)
+- [x] [sklearn/decomposition/_fastica.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_fastica.py) - [205](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_fastica.py#L205), [344](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_fastica.py#L344) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11902)
+- [x] [sklearn/decomposition/_nmf.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_nmf.py) - [290](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_nmf.py#L290), [475](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_nmf.py#L475), [966](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_nmf.py#L966), [1159](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_nmf.py#L1159) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11902)
+- [x] [sklearn/decomposition/_pca.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_pca.py) - [192](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_pca.py#L192) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11902)
+- [x] [sklearn/decomposition/_sparse_pca.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_sparse_pca.py) - [82](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_sparse_pca.py#L82), [285](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_sparse_pca.py#L285) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11902)
+- [x] [sklearn/decomposition/_lda.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_lda.py) - [60](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_lda.py#L60), [79](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_lda.py#L79), [225](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_lda.py#L225) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11902)
+- [x] [sklearn/decomposition/_factor_analysis.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_factor_analysis.py) - [92](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/decomposition/_factor_analysis.py#L92) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11902)
+- [x] [sklearn/cluster/_kmeans.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_kmeans.py) - [56](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_kmeans.py#L56), [241](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_kmeans.py#L241), [380](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_kmeans.py#L380), [583](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_kmeans.py#L583), [700](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_kmeans.py#L700), [1150](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_kmeans.py#L1150), [1370](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_kmeans.py#L1370)
+- [x] [sklearn/cluster/_spectral.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_spectral.py) - [41](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_spectral.py#L41), [197](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_spectral.py#L197), [313](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_spectral.py#L313)
+- [x] [sklearn/cluster/_bicluster.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_bicluster.py) - [236](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_bicluster.py#L236), [383](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_bicluster.py#L383)
+- [x] [sklearn/cluster/_mean_shift.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_mean_shift.py) - [48](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_mean_shift.py#L48)
+- [x] [sklearn/preprocessing/_data.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/preprocessing/_data.py) - [2178](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/preprocessing/_data.py#L2178), [2607](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/preprocessing/_data.py#L2607)
+- [x] [sklearn/impute/_iterative.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/impute/_iterative.py) - [125](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/impute/_iterative.py#L125)
+- [x] [sklearn/linear_model/_ransac.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_ransac.py) - [152](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_ransac.py#L152) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11900)
+- [x] [sklearn/linear_model/_coordinate_descent.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_coordinate_descent.py) - [580](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_coordinate_descent.py#L580), [860](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_coordinate_descent.py#L860), [1313](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_coordinate_descent.py#L1313), [1487](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_coordinate_descent.py#L1487), [1665](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_coordinate_descent.py#L1665), [1851](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_coordinate_descent.py#L1851), [2016](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_coordinate_descent.py#L2016), [2192](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_coordinate_descent.py#L2192) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11900)
+- [x] [sklearn/linear_model/_sag.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_sag.py) - [154](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_sag.py#L154) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11900)
+- [x] [sklearn/linear_model/_perceptron.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_perceptron.py) - [55](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_perceptron.py#L55) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11900)
+- [x] [sklearn/linear_model/_passive_aggressive.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_passive_aggressive.py) - [76](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_passive_aggressive.py#L76), [322](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_passive_aggressive.py#L322) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11900)
+- [x] [sklearn/linear_model/_logistic.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_logistic.py) - [587](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_logistic.py#L587), [924](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_logistic.py#L924), [1100](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_logistic.py#L1100), [1658](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_logistic.py#L1658) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/15729)
+- [x] [sklearn/linear_model/_base.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_base.py) - [65](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_base.py#L65)
+- [x] [sklearn/linear_model/_stochastic_gradient.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_stochastic_gradient.py) - [369](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_stochastic_gradient.py#L369), [811](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_stochastic_gradient.py#L811), [1419](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_stochastic_gradient.py#L1419) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11900)
+- [x] [sklearn/linear_model/_theil_sen.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_theil_sen.py) - [243](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_theil_sen.py#L243) Open [PR](https://github.com/scikit-learn/scikit-learn/pull/11900)
+- [x] [sklearn/linear_model/_ridge.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_ridge.py) - [325](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_ridge.py#L325), [693](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_ridge.py#L693), [853](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_ridge.py#L853) Open [PR](#15728)
+- [x] [sklearn/tree/_classes.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_classes.py) - [653](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_classes.py#L653), [1033](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_classes.py#L1033), [1322](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_classes.py#L1322), [1552](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_classes.py#L1552)
+- [x] [sklearn/feature_selection/_mutual_info.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/feature_selection/_mutual_info.py) - [226](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/feature_selection/_mutual_info.py#L226), [335](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/feature_selection/_mutual_info.py#L335), [414](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/feature_selection/_mutual_info.py#L414)
+- [x] [sklearn/metrics/cluster/_unsupervised.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/metrics/cluster/_unsupervised.py) - [80](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/metrics/cluster/_unsupervised.py#L80)
+- [x] [sklearn/svm/_classes.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/svm/_classes.py) - [90](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/svm/_classes.py#L90), [312](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/svm/_classes.py#L312), [546](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/svm/_classes.py#L546), [752](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/svm/_classes.py#L752) Open [PR](#15300)
+- [x] [sklearn/svm/_base.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/svm/_base.py) - [853](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/svm/_base.py#L853) Open [PR](#15300)
+- [x] [sklearn/inspection/_permutation_importance.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/inspection/_permutation_importance.py) - [81](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/inspection/_permutation_importance.py#L81)
+- [x] [sklearn/gaussian_process/_gpr.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/gaussian_process/_gpr.py) - [109](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/gaussian_process/_gpr.py#L109), [382](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/gaussian_process/_gpr.py#L382)
+- [x] [sklearn/gaussian_process/_gpc.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/gaussian_process/_gpc.py) - [110](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/gaussian_process/_gpc.py#L110), [537](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/gaussian_process/_gpc.py#L537)
+- [x] [sklearn/manifold/_spectral_embedding.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_spectral_embedding.py) - [171](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_spectral_embedding.py#L171), [387](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_spectral_embedding.py#L387)
+- [x] [sklearn/manifold/_locally_linear.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_locally_linear.py) - [146](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_locally_linear.py#L146), [252](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_locally_linear.py#L252), [584](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_locally_linear.py#L584)
+- [x] [sklearn/manifold/_t_sne.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_t_sne.py) - [558](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_t_sne.py#L558)
+- [x] [sklearn/manifold/_mds.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_mds.py) - [51](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_mds.py#L51), [198](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_mds.py#L198), [314](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/manifold/_mds.py#L314)
+- [x] [sklearn/utils/_testing.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_testing.py) - [521](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_testing.py#L521)
+- [x] [sklearn/utils/__init__.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/__init__.py) - [478](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/__init__.py#L478), [623](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/__init__.py#L623)
+- [x] [sklearn/datasets/_kddcup99.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_kddcup99.py) - [79](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_kddcup99.py#L79)
+- [x] [sklearn/datasets/_covtype.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_covtype.py) - [69](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_covtype.py#L69)
+- [x] [sklearn/datasets/_rcv1.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_rcv1.py) - [114](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_rcv1.py#L114)
+- [x] [sklearn/datasets/_samples_generator.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py) - [127](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L127), [323](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L323), [440](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L440), [531](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L531), [618](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L618), [688](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L688), [767](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L767), [904](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L904), [965](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L965), [1030](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L1030), [1106](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L1106), [1159](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L1159), [1218](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L1218), [1258](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L1258), [1307](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L1307), [1368](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L1368), [1420](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L1420), [1483](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L1483), [1571](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L1571), [1662](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_samples_generator.py#L1662)
+- [x] [sklearn/datasets/_olivetti_faces.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_olivetti_faces.py) - [64](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_olivetti_faces.py#L64)
+- [x] [sklearn/datasets/_base.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_base.py) - [157](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_base.py#L157)
+- [x] [sklearn/datasets/_twenty_newsgroups.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_twenty_newsgroups.py) - [187](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/datasets/_twenty_newsgroups.py#L187)
+- [x] [sklearn/mixture/_bayesian_mixture.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/mixture/_bayesian_mixture.py) - [166](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/mixture/_bayesian_mixture.py#L166)
+- [x] [sklearn/mixture/_base.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/mixture/_base.py) - [139](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/mixture/_base.py#L139)
+- [x] [sklearn/mixture/_gaussian_mixture.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/mixture/_gaussian_mixture.py) - [504](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/mixture/_gaussian_mixture.py#L504)
+- [x] [sklearn/model_selection/_validation.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_validation.py) - [1006](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_validation.py#L1006), [1176](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_validation.py#L1176)
+- [x] [sklearn/model_selection/_split.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_split.py) - [382](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_split.py#L382), [588](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_split.py#L588), [1091](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_split.py#L1091), [1196](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_split.py#L1196), [1250](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_split.py#L1250), [1390](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_split.py#L1390), [1492](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_split.py#L1492), [1605](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_split.py#L1605), [2049](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_split.py#L2049) Open [PR](#15575)
+- [x] [sklearn/model_selection/_search.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_search.py) - [207](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_search.py#L207), [1299](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/model_selection/_search.py#L1299)
+- [x] [sklearn/neural_network/_multilayer_perceptron.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/neural_network/_multilayer_perceptron.py) - [782](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/neural_network/_multilayer_perceptron.py#L782), [1174](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/neural_network/_multilayer_perceptron.py#L1174)
+- [x] [sklearn/neural_network/_rbm.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/neural_network/_rbm.py) - [59](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/neural_network/_rbm.py#L59)
+- [x] [sklearn/neighbors/_kde.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/neighbors/_kde.py) - [233](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/neighbors/_kde.py#L233)
+- [x] [sklearn/neighbors/_nca.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/neighbors/_nca.py) - [112](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/neighbors/_nca.py#L112)
+- [x] [sklearn/covariance/_robust_covariance.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/covariance/_robust_covariance.py) - [63](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/covariance/_robust_covariance.py#L63), [233](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/covariance/_robust_covariance.py#L233), [328](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/covariance/_robust_covariance.py#L328), [545](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/covariance/_robust_covariance.py#L545)
+- [x] [sklearn/covariance/_elliptic_envelope.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/covariance/_elliptic_envelope.py) - [40](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/covariance/_elliptic_envelope.py#L40)Hi @jnothman, Can I take this issue? ThanksClaim a module/subpackage and have a go...
+
+On 30 January 2018 at 00:24, Somya Anand <notifications@github.com> wrote:
+
+> Hi @jnothman <https://github.com/jnothman>, Can I take this issue? Thanks
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/scikit-learn/scikit-learn/issues/10548#issuecomment-361243951>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AAEz62ie2pMFVg7uM6_MVnmWKRX-efgHks5tPcaHgaJpZM4Rwij3>
+> .
+>
+@jnothman I am sorry for being naive but can you elaborate about the module/submodule? I mean are you referring to a sub-package like Kmeans for instance?I think what @jnothman means is just start with one file, for example sklearn/cluster/k_means_.py, update the `random_state` docstring as in the top post and open a PR.a subpackage is something like sklearn.cluster
+Thanks. Will do that and open a PR.Hi! @jnothman  
+
+Would you also like to replace the following comments as seen in grid_search.py? They have an extra line as compared to the one shared by you.
+```
+random_state : int, RandomState instance or None, optional (default=None)
+        Pseudo random number generator state used for random uniform sampling
+        from lists of possible values instead of scipy.stats distributions.
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
+```
+I can take grid_search.py and k_means.py(KMeans).leave grid_search.py alone. it is deprecated. The idea is to minimise the
+content that is repeated, and available in the glossary, so that we can
+give the users to most informative description about random_state's role in
+the particular estimator.
+Thanks @jnothman. WIll I need to understand these algorithms before I can replace this random_state information?You will need to understand the algorithms broadly, but not every detail of
+their implementation. You will need to be able to find where random_state
+is used, if the randomisation in the algorithm is not completely obvious.
+In some cases, it may be appropriate to not even give much more detail than
+just linking to the glossary; we'll have to see how it goes.
+Okay, thank you. I will start going through the algorithms slowly. 
+
+Regards,
+Shivam RastogiI have opened a pull request #10614 Since @aby0 has not claimed the sklearn.cluster module yet.  I would like to claim the whole module. Please let me know if I can work on it or I should work on something else.
+
+Any update guys? It is a long holiday  for us  so let me know if I can pick this.I'll take the `datasets` module since I'm already poking around in the docstrings there for #10731.I'm claiming the `linear_model` module. ~~will raise a PR soon.~~ #11900 raised.
+
+Claiming `decomposition` module next.Checklist of modules where this needs to be done:
+ 
+- [ ] developers
+- [ ] covariance
+- [x] decomposition
+- [ ] dummy.py
+- [ ] ensemble
+- [ ] feature_extraction
+- [ ] feature_selection
+- [ ] gaussian_process
+- [ ] kernel_approximation.py
+- [x] linear_model via #11900 
+- [ ] manifold
+- [ ] metrics
+- [ ] mixture
+- [ ] model_selection
+- [ ] multiclass.py
+- [ ] multioutput.py
+- [ ] neighbors
+- [ ] neural_network
+- [ ] preprocessing
+- [ ] random_projection.py
+- [ ] svm
+- [ ] tree
+- [ ] utilsWe had some trouble reaching consensus on how to strike the right balance
+here, iirc
+So do pay attention to the prior PRs merged above@jnothman thanks! will update the PRs for to mention the reproducibility when passing an int.willing to take up all the other modules in another PR, once these have been reviewed...I'm claiming covariance.@BlackTeaAndCoffee please be aware, the doc string format is not yet finalised, discussions have been happening on the other PRs listed here. So you might wanna have a look too.I am claiming feature_extraction@jnothman , @NicolasHug, just discovered #15222 and a number of PR related to it that I haven't taken into account in summarizing this one... some of them are never been reviewed... :(
+In order to make things clear for sprints, I'm wondering  if we can close one of those two issues: if yes, which one? As I can avoid duplicated information. Thanks for your collaboration.I wasn't aware of this issue (should have checked better), I'm happy to close https://github.com/scikit-learn/scikit-learn/issues/15222 in favor of this oneFollowing @jnothman [comment](https://github.com/scikit-learn/scikit-learn/issues/10415#issuecomment-571567233) maybe this issue could deserve a 'Moderate' label?We want to work on ensemble/_hist_gradient_boosting/binning.
+@mojc and me.
+#wimlds @anaisabeldhero and me want to work on manifold/* 
+ #wimlds #SciKitLearnSprint @daphn3k  and I will work on  sklearn/gaussian_process/
+#wimlds #SciKitLearnSprintWe want to work on  sklearn/preprocessing/_data.py - 2178, 2607
+@rachelcjordan and @fabi-cast
+#wimlds #SciKitLearnSprintMe and @Malesche want to take the  sklearn/inspection/_permutation_importance.py 
+#WiMLDSclaiming sklearn/metrics/cluster/_unsupervised.py file! #wimlds@daphn3k and I take also the covariance/* and neighbors/* #wimldsclaim:
+sklearn/dummy.py - 59
+sklearn/multioutput.py - 578, 738
+sklearn/kernel_approximation.py - 41, 143, 470
+sklearn/multiclass.py - 687
+sklearn/random_projection.py - 178, 245, 464, 586PSA: please use the original sentence
+
+> Pass an int for reproducible results across multiple function calls.
+
+instead of what I'm seeing in PRs at the moment:
+
+> Use an int to make the randomness deterministic
+
+which isn't correct, since the RNG is always deterministic regardless of what is passed
+
+CC @adrinjalali since I think you're at the sprintworking on the neural network and mixture> PSA: please use the original sentence
+> 
+> > Pass an int for reproducible results across multiple function calls.
+> 
+> instead of what I'm seeing in PRs at the moment:
+> 
+> > Use an int to make the randomness deterministic
+> 
+> which isn't correct, since the RNG is always deterministic regardless of what is passed
+> 
+> CC @adrinjalali since I think you're at the sprint
+
+Hi @NicolasHug this was meant to comment a PR I suppose... which one? :)going to work on scikit-learn/sklearn/model_selection/_validation.py@cmarmo  That was a general comment for all PRs. I saw one and commented there, then saw a second one and figured out it was a pattern that would be better addressed at the source> @cmarmo That was a general comment for all PRs. I saw one and commented there, then saw a second one and figured out it was a pattern that would be better addressed at the source
+
+Sorry @NicolasHug, my bad, I haven't found the comment easy to trace.@NicolasHug Original sentence has been corrected in the commits from @anaisabeldhero and meMe and @Olks claim sklearn/utils/extmath.py - 185, 297Claim sklearn/ensemble/_iforest.py - 109Claim sklearn/neural_network/_multilayer_perceptron.py - 782, 1174 Claim sklearn/ensemble/_weight_boosting.py - 188, 324, 479, 900, 1022Claim sklearn/multioutput.py - 578, 738Claim : 
+sklearn/mixture/_bayesian_mixture.py - 166
+sklearn/mixture/_base.py - 139
+sklearn/mixture/_gaussian_mixture.py - 504Claim sklearn/ensemble/_gb.py - 887, 1360Claim sklearn/ensemble/_hist_gradient_boosting/gradient_boosting.py - 736, 918Claim sklearn/neural_network/_rbm.py - 59Claim : 
+
+sklearn/svm/_classes.py - 90, 312, 546, 752
+sklearn/svm/_base.py - 853Claim: 
+
+sklearn/feature_selection/_mutual_info.py - 226, 335, 414
+sklearn/metrics/cluster/_unsupervised.py - 80
+sklearn/utils/_testing.py - 521
+sklearn/utils/init.py - 478, 623Claim :
+
+sklearn/dummy.py - 59
+sklearn/random_projection.py - 178, 245, 464, 586@DatenBiene @GregoireMialon Thanks for all your contributions during last sprint. There are only 3 modules left unchecked !
+
+Would you be interested / have time / have motivation to tackle those (no pressure !) ?Hi Jérémie ! I'll try to have a look at it soon
+
+Le mer. 12 févr. 2020 à 15:53, Jérémie du Boisberranger <
+notifications@github.com> a écrit :
+
+> @DatenBiene <https://github.com/DatenBiene> @GregoireMialon
+> <https://github.com/GregoireMialon> Thanks for all your contributions
+> during last sprint. There are only 3 modules left unchecked !
+>
+> Would you be interested / have time / have motivation to tackle those (no
+> pressure !) ?
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/scikit-learn/scikit-learn/issues/10548?email_source=notifications&email_token=AFY4624NQL3EAFLBGPUNAE3RCQEO3A5CNFSM4EOCFD32YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOELRBT2A#issuecomment-585243112>,
+> or unsubscribe
+> <https://github.com/notifications/unsubscribe-auth/AFY4625457AU7OL4E4EUVOTRCQEO3ANCNFSM4EOCFD3Q>
+> .
+>
+Hi @jeremiedbb! I will try to finish the 3 remaining modules today 😃 
+
+Claim:
+
+sklearn/kernel_approximation.py - 41, 143, 470
+sklearn/multiclass.py - 687
+sklearn/ensemble/_base.py - 52
+Hi @jnothman and @jeremiedbb, looks like all the files where modified. I would be happy to help if you find any remaining issues. Thanks a lot @DatenBiene and all the contributors that worked to close this issue!
+I think we can close this huge one!
+Feel free to open new specific issues if something is still missing about `random_state` description.

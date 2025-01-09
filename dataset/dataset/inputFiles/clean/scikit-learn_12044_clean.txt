@@ -1,0 +1,314 @@
+Currently we have an interface for OPTICS with custom method CODESCODES. This is good for usability and visibility of the functionality, but means that a generic parameter search tool like CODESCODES can't use OPTICS to perform DBSCAN at various CODESCODES.
+
+This would involve adding an CODESCODES parameter which, when None, would use the default OPTICS clustering; when not None would use CODESCODES. But we would also need to retain the model across multiple fits. 
+
+Here are two alternative interfaces:
+ Add a CODESCODES parameter like many classifiers, regressors, but uncharted territory for clusterers. When True, and CODESCODES or CODESCODES is called, the current CODESCODES, CODESCODES and CODESCODES would be kept, but a different final clustering step would be used to output store CODESCODES.
+ Add a CODESCODES parameter, like in hierarchical clustering. This would cache the mapping from parameters to CODESCODES, CODESCODES and CODESCODES using a CODESCODES.
+
+I think the first option sounds more appropriate.Hey jnothman I would like to take up this, is there any basic requirement that is already there in the code base that I need to be acquainted with? jnothman, I think 12036 is kinda related to this one.Well, I wouldn't think of this as a good first issue, Sriharsha hatwar. Please try contribute to something more straightforward until you are familiar with our contribution process.
+
+ adrinjalali, yes it is. I'm yet to read that.I have worked on a documentation issue earlier. Can I take this issue? If yes, I will go through the issue and code to make sure that I can handle it. 
+
+Do you feel comfortable with what this issue is suggesting?I am not very comfortable yet but I am trying to read the background to understand it further. Meanwhile, if someone else pops up to fix this issue they can take it.Doesn't this apply to all extraction methods? The warm start would apply to the first stage CODESCODES, and the rest can use the calculated values independent of the extraction method.
+
+I guess what I'm asking, is that, should we then add all parameters related to extract methods to the CODESCODES method?To the class, not the fit method, but yes. I hope this is indeed an
+appropriate use of warm start
+I think we need to make decision here ASAP since we've promised OPTICS in 0.21.
+
+My main points for API design are as follows:
+ 1 Users don't need to calculate RD CD again if they want to extract clusters with different methods different parameters.
+ 2 If possible, provide users with a way to only calculate RD CD for example, method None. Actually, OPTICS itself only returns RD CD. 
+
+Regarding CODESCODES warm start CODESCODES, the problem is, if we reuse RD CD, we need to ensure that users pass in the same CODESCODES X CODESCODES. Is it possible for CODESCODES warm start CODESCODES?
+ 
+Maybe an alternative solution is not including CODESCODES fit predict CODESCODES and CODESCODES predict CODESCODES here, so we'll have CODESCODES fit CODESCODES calculates RD CD, CODESCODES extract dbscan CODESCODES, CODESCODES extract. CODESCODES. But the problem here is that it seems strange that a cluster algorithm doesn't have both CODESCODES fit predict CODESCODES and CODESCODES predict CODESCODES.I think we need to provide fit predict and labels for API consistency and
+just note that this is something we do poorly. I hope we are already aware
+that we have a problem of efficiently reusing sufficient statistics with
+different aggregates through a constant interface. We have seen similar API
+problems in scoring, feature importances, grid searches over transformation
+pipelines, etc. This is part of why a tool like dask frames computation in
+terms of a directed acyclic graph. 
+
+I think the strange thing about reusing warm start here is the notion that
+we often want warm start True for maximum usability. We could also consider
+providing the caching of X Rd cd without providing an option, but this
+would be a new design for scikit learn.
+
+Checking whether it's an identical X is something we could achieve
+approximately with a hash of the data if we really want. Hashing would be
+relatively slow but not nearly as slow as recomputing optics.
+I also think OPTICS as a class in CODESCODES should satisfy the usual API requirements.
+
+Once we have an CODESCODES function for the three extraction methods, users can use the calculated RD CD from OPTICS to extract clusters without having to run CODESCODES.
+
+We can add a public CODESCODES function or whatever and not run the clustering part of the algorithm. However, I wouldn't worry about this part since all the extract methods are of O n. We almost have that function already anyway.
+
+We can have a naive CODESCODES for now, which would basically ignore CODESCODES if RD CD are present already. I'm yet to read the other CODESCODES examples we have in the code base, but do they check for having the same X as the input as well?
+
+I'd see the hashing caching mechanism as a separate project, which would affect probably most classes we have. Since we already do have OPTICS pretty modular, I guess adopting the mechanism would be easy here.Caching would not affect most other classes, in part because they will
+often be run with all sorts of parameters changed. joblib. Memory can do the
+caching, but does unwanted things like actually writing the data to dish. 
+
+No, I don't think we have generally needed wanted to check for identical
+data in other warm start cases. But warm start has defaulted to false with
+the assumption that the user knows what they're doing if they switch it on.
+In particular, using warm start makes sense for varying some parameters and
+not others, but this tends to be very sparsely documented.
+
+I think providing both functions and a method parameter is a great start in
+terms of API. We can then memoise with or without warm start without
+breaking API.
+
+
+I have to admit that I can't understand the importance of such a strict API consistency now. Following Joel's decision, I think I'm fine with things like 12087 for example, provide a CODESCODES extract method CODESCODES parameter so that we can provide CODESCODES labels CODESCODES after CODESCODES fit CODESCODES CODESCODES fit predict CODESCODES, and provide function CODESCODES extract XXX CODESCODES to users so that they can easily try different methods without calculating RD again. 
+WDYT? jnothman And maybe we can provide CODESCODES extract method None CODESCODES for example, doesn't return labels after CODESCODES fit CODESCODES, raise an error for CODESCODES fit predict CODESCODES. This will enable users to get CD RD quickly and make it easier for us to benchmark the algorithm.I find having an CODESCODES function or something more elegant than CODESCODES and breaking the API.
+
+Why will CODESCODES extract method None CODESCODES break the API? I think it's acceptable that when certain param is set to certain value, certain attribute will not be available for example, store cv values in RidgeClassifierCV.
+
+
+
+How will you implement it?
+
+My solution is something like:
+ CODELCODEL To me, CODESCODES is a clustering algorithm, and I expect to be able to use any such model in a pipeline where using any clustering is apt. For instance, I would expect to be able to easily use it in a grid search, with a Silhouette score to optimize hyperparameters. That means I expect the object to be in a valid state after a call to CODESCODES, which for a clustering object means to have CODESCODES set.
+
+ CODESCODES in CODESCODES doesn't break the API, cause not many if any other modules depend on that variable to be set to function properly; in contrast, a scoring function would expect a clustering object to have a valid CODESCODES property, hence not having it breaks the API.
+
+That said, I personally find it odd that not all clusterings have CODESCODES function implemented. It feels odd to me to rely on CODESCODES rather than getting the results from a predict function. But as long as there's no such common functionality, I think enforcing some common interface CODESCODES in this case is a sensible option.
+
+My suggestion in the case of CODESCODES is the following:
+
+ CODELCODEL 
+
+I see, seems that both solutions are similar. I think they're all acceptable from my side.Honestly I'm not sure whether it's a good idea to and how to assign labels to each point in CODESCODES extraci xi CODESCODES and CODESCODES extract sqlnk CODESCODES. I think adrinjalali 's method for CODESCODES extract xi CODESCODES in 12077 is different from the method we already have in CODESCODES extract sqlnk CODESCODES and both methods ignore the hierarchical structure of the clusters.In 12077, the CODESCODES extracts the hierarchy of clusters, then CODESCODES extract the labels from the hierarchy. Right now it assigns labels according to what would be CODESCODES in LINKLINK. Implementing the equivalent of CODESCODES is almost trivial. Same goes for CODESCODES.
+
+Another aspect to assigning labels is trimming the tree at a certain level, which we can also easily implement.
+
+P. S. I'm waiting for 12087 to get in before I go over the code in 12077 for a cleanup code improvements.
+
+Thanks adrinjalali, I'll take some time to look at R, but I think we should use a same strategy to extract labels in extract xi and extract sqlnk.
+
+Regarding 12087, I'd like to see 12421 in first to avoid unnecessary conflicts.
+One thing bother me is the correctness of extract sqlnk See 12375, apart from some mysterious params, I also find a bug. I'm now considering whether we should revert extract sqlnk in 0.21.This may not have much bearing on sklearn's API, but I would point out that the OPTICS algorithm itself is defined to just produce Reachability and Ordering, not labels. of course, clustering modules in sklearn are expected to produce labels, hence why we default to an extraction
+
+This is why I don't like to provide labels in CODESCODES fit CODESCODES thumbs up But seems that Joel cares about API consistency, so maybe we'll still provide labels after CODESCODES fit CODESCODES.So let's provide an optics distances function that just produces RD CD. Or
+an optics function for same but rename the class to OpticsClustering or
+OPTICSClustering. The main point of the class interface for estimators is
+to provide API consistency around diverse underlying functional forms. It
+is appropriate to make the estimator API for OPTICS satisfy the clustering
+API by default.
+So that's actually adrinjalali 's solution, are you fine with it jnothman:
+ CODELCODEL 
+I'll vote thumbs up at this point. We can have a try if you approve.optics distances should be a function, not a method, by comparison to other
+APIs here.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+APIs here.
+
+Fine from my side, though I'm unable to figure out why you said we should.
+
+Where did I say we should?
+
+Apologies, I mean I can't understand why optics distances should be a function. So we'll have CODESCODES cluster. OPTICS CODESCODES, CODESCODES cluster. optics CODESCODES and CODESCODES cluster. optics distances CODESCODES, right? qinhanmin2014, in 12087, we first had CODESCODES as methods, then moved them out as functions. So the API with the latest version of that PR would then more or less look like:
+
+ CODELCODEL 
+
+For the sake of consistency, it makes sense to have all those functions either in, or outside the class, all together. I suppose that's what jnothman means.What is cluster. optics? I don't think we need a function to do distance
+calculation plus clustering.
+
+Why not a method? Well your proposed method changes the state of the
+estimator and is not called fit, so that's a problem in my eyes.
+Secondly, it doesn't help to separate out the functional structure of the
+components here, while module level functions make clear what is
+input output to what. Thirdly, these methods are probably not applicable
+elsewhere, so we don't benefit from them for polymorphism as we do with
+standard estimator verbs; nor are they likely to be used or beneficial for
+inheritance.
+Regarding the verbs. CODESCODES sounds like CODESCODES.
+I might rather CODESCODES or CODESCODES or CODESCODES or
+something. I'm also not sure that CODESCODES is better than CODESCODES.
+I should note that I only really have a strong opinion on not having a
+public method other than fit on OPTICS to calculate distances. I don't mind
+having both functions and methods for extraction.
+1 so you'd be fine with having both CODESCODES and CODESCODES methods?
+2 I agree in principle with having both functions and methods for extract methods, although you didn't seem to like the part of the code checking for given CODESCODES parameters and replace them with the values in CODESCODES, that's why we removed the methods in the first place. I know it has nothing to do with the actual code, but I don't love the code when it has huge pieces of mostly copy pasted docstrings, that's why I'd lean towards having only one of the function and method options. But no strong preference here.
+3 I vaguely remember somebody mentioning it was amueller who added the CODESCODES function. I'm not sure why he'd like to have the function though. Does it have specific usecases?
+calculation plus clustering.
+
+ thumbs up 
+
+
+
+I'll vote thumbs down for your solution adrinjalali, at least now, because I don't think it's good to introduce 5 functions for a single algorithm.
+
+ jnothman adrinjalali Is it possible to let CODESCODES cluster. optics CODESCODES return CD RD order predecessor so we'll only have CODESCODES cluster. optics CODESCODES calculate RD and CODESCODES cluster. OPTICS CODESCODES calculate RD and provide clusters based on extraction methods?
+I think it would be confusing to offer a function named optics that did not
+do the clustering if OPTICS does
+Can we agree on one of these options? I guess jnothman and I prefer option 1 with some variation on the names, and qinhanmin2014 prefers option 2, am I right?
+
+1 
+ CODELCODEL 
+2 
+ CODELCODEL 
+
+We should also think about handling the hierarchy of clusters and the helper functions we'll come up with for that. I guess depending on the option we go for, they'd be either methods or functions.I guess we have solution 3:
+ CODELCODEL 
+
+I'll vote thumbs up for 2 and I'll vote thumbs down for solution 1, because I don't want to introduce 5 functions for a single algorithm but if Joel strongly agree with it or someone else agree with it, then let's do it.
+
+Another thing is to decide whether we need CODESCODES cluster. optics CODESCODES. Maybe we can remove that, because in OPTICS, we actually wants to try multiple extraction methods without calculating RD again.
+
+And I'm not sure whether sqlnk is a good name, need to think about it. qinhanmin2014 please note that something close to option 2 is what I initially had in 12087, and then we changed it to what you see now. It'll be nice if you could put your counter arguments beside the arguments which resulted in the change in that PR. adrinjalali I think the core issue here is whether extract XXX should be public functions or public methods. I'll vote thumbs down for functions because It will be difficult for users to use these functions, for example, users will need to extract RD CD ordering predecessor from the fitted model and pass them into the function along with other parameters. Instead, if extract XXX are methods, users will only need to pass the parameters and the method can get RD CD ordering predecessor from the fitted model.
+And I still think it's awkward to introduce 5 functions in classes. rst for a single algorithm.
+
+ jnothman why do you think extract XXX should be public functions, not public methods in LINKLINK?Sorry this is not a high priority for me yet.
+
+I think they could be available as methods, but that is not consistent with
+other estimators for example we don't have similar extract methods for
+hierarchical clustering that would get different numbers of clusters from
+the same hierarchy; we don't have a method to use a different global
+clusterer or number of clusters in BIRCH; and the extract methods would be
+custom to this clusterer. I think they should be coded as functions,
+whether or not public, to make their input output explicit and
+encapsulated.
+Maybe we need someone to break the tie here. The question here is that whether the extraction methods of OPTICS should be methods or functions.
+
+methods:
+ CODELCODEL 
+
+functions:
+ CODELCODEL 
+
+Reasons for methods from qinhanmin2014:
+ 1 Easy to use, for example, don't need to extract RD CD order predecessor from the estimator manually I guess it will be strange to pass the estimator into the function.
+ 2 it's awkward to introduce 5 classes functions in classes. rst for a single algorithm.
+
+Reasons for functions from jnothman 
+API consistency, see LINKLINK 
+
+ping GaelVaroquaux TomDLT maybe? Or if jnothman strongly agree with functions, I'll review accordingly, since it's not so serious.Rather than making a big deal about this decision, let's make the core interface, and then consider whether we want to extend it.
+
+That is, we need a way to select with some CODESCODES parameter. We do not need any public API to perform each extraction method beyond that.
+
+It is good code design to have a separation of concerns across different functions, but they can be private at least initially.
+
+ After we have changed the private interface, and added a CODESCODES parameter, we can worry about what else users will find useful as a public API and how consistent that is with the rest of the library.So jnothman your comment above means that we can start with private functions for example, cluster. extract XXX? I'll vote thumbs up +0 for it and I think it can be an initial solution for the next release.
+
+The problem is that our example will be awkward, see LINKLINK, we actually tries different extraction methods there. If we start with private functions, we'll have to use these private functions there seems that it's not recommended in examples? 
+
+I still persist that we might slightly break our API consistency here, to make our implementation easier to use. thumbs up 
+
+⁣Sent from my phone. Please forgive typos and briefness.​
+
+
+
+
+
+
+
+
+
+
+Yes, I have been trying to say similar for a while, but haven't had the
+time to be explicit.
+Hmm, actually I've edited my previous comment from thumbs up to +0.
+But we now have +2 from both of you and no thumbs down, so it's an acceptable solution.Can someone kindly summarize the discussion? ping jnothman adrinjalali GaelVaroquaux Yes, just finishing up. I'll write up what we've resolved so you can review it, qinhanmin2014. Just a moment.
+
+ assiaben is going to be working on implementing some of the changes during the sprint.
+
+Thanks and sorry for not taking part in the discussion and sorry for not replying your email in time.
+I'm heading to bed and I'm busy tomorrow morning. Please start working directly if there's enough consensus.Very sorry, got sidetracked.
+
+This is what we have resolved: OPTICS class will default to using the 'xi' method when CODESCODES or CODESCODES is called. The method will be selected with a CODESCODES parameter. The parameters of all available CODESCODES s will be available in OPTICS The cluster methods 'xi' and 'dbscan' will be available, 'sqlnk' will be removed as not certainly meeting our inclusion criteria, while adding excessive complexity for many ordinary use cases. Public functions will be created which take reachability distances, optics ordering and output cluster labels and other details such as hierarchical clusterings. These will be named CODESCODES  Public function CODESCODES this name is not set in stone will calculate reachability distance and OPTICS order For a hierarchical clustering like 'xi' we should just report the smallest leaf node cluster labels. All samples not in a leaf cluster will be labelled thumbs down. The hierarchy of clusters will be exposed with a public attribute giving start and stop indices in a 2d array or 2 1d arrays, not as a LINKLINK. An example or other documentation should illustrate how to adjust parameters to make larger leaf node clusters.
+
+I hope that is everything!
+
+I'm going to review 12087 shortly.great, I’m also considering removing sqlnk these days
+I’m worring about 7, do you have any reference to assign labels in this way? jnothman I think that API summary looks good. For item 6, I'd recommend CODESCODES 
+
+Who's going to finish it? adrinjalali or someone else?
+Do we need a branch to hold the OPTICS changes?
+
+
+
+E. g. if there's a big cluster and a small cluster for example, 1, 10, 4, 5, then all the points not in the small cluster for example, 1 3, 6 thumbs down 0 will be tagged as noise?Adrin is focusing on NOCATS, but Assia will get his my mentorship on
+ 12087. I have found it hard to concentrate on any one thing at the sprint
+so far. But I was very sleep deprived yesterday!
+
+With small clusters and noise the idea is that the user needs to be guided
+in how parameters control minimal cluster size.
+
+
+Is it possible? This seems magical thumbs up 
+And I guess you are not answering my question? My question is whether it's reasonable to assign labels in this way.
+
+
+
+I'm surprised when I saw you editing the wiki in the late night. Wish you a good night's sleep!I think that the one I mean to review is actually 12077 extract xi. 12087 needs to be reshaped to match the above parameter names, functional design, etc.
+
+
+Should we rename 'xi' to 'xi steep'?
+
+
+Ahh. You see too much. I was awake a couple of hours in the night. Read a short story. Updated a wiki. Etc thumbs up 
+
+Maybe we should settle the API first?
+
+And another question jnothman I guess we don't need the CODESCODES optics CODESCODES function since we're going to provide CODESCODES compute optics order CODESCODES + CODESCODES cluster optics METHOD CODESCODES right？
+
+Both solutions are OK from my side. qinhanmin2014 12087 resolves a bunch of these issues. Could you check that PR and let us know what you think in terms of API design?Yes, no need for the optics function.
+I guess we can close?We do not yet have it working with fit predict, nor did we yet land on a solution for that afaik, so essentially this issue is not resolved.
+
+ jnothman We support fit predict through ClusterMixin now?The point is to easily be able to get multiple clusterings without recomputing optics.
+
+Hmm, I guess we're going to rely on CODESCODES compute optics graph CODESCODES + CODESCODES cluster optics XXX CODESCODES?
+
+That's one way, the other way is to have fit + warm start.
+
+Seems that I wrongly assume that you've decided to rely on CODESCODES compute optics graph CODESCODES + CODESCODES cluster optics XXX CODESCODES. I'm OK to support warm start with examples to demonstrate its usage.The point of this issue is that there should be a class based approach.
+
+
+What's the application scenario? jnothman adrinjalali While the xi method considers variable density in extraction, optics allows
+the user to do multiple dbscan extractions, for example fixed density. The goal
+would be to allow the user to efficiently evaluate many different eps, as
+they would in grid search for supervised learning.
+This is admittedly quite low priority as long as parameter search for
+clustering remains on the backburner.
+
+
+But CODESCODES GridSearchCV CODESCODES will still recompute RD CD multiple times? I'm still unable to understand why a warm start parameter will make CODESCODES GridSearchCV CODESCODES more efficient.
+
+Untagging this from 0.21. Retag if you disagree.
+Definitely fine to clear milestone
+For hierarchical clustering where computing the tree is much more
+expensive than cutting it for a given number of clusters, my lab has
+been successfully using joblib memory to answer such needs.
+
+Yes, adding a memory parameter is one of the options here, and perhaps
+the simplest and most consistent with other clustering, for example 
+hierarchical.

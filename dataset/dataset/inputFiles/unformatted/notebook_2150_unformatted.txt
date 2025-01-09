@@ -1,0 +1,275 @@
+I wanted to open an issue to track and discuss the planned release schedule for 5.0. Here is what I would propose:
+
+* [x] Cut a beta release once all PRs associated with open 5.0 milestone issues are merged. There is talk about that being roughly a week from now and I think that sounds about right.
+* [x] Finish any UI/UX design review (see #2142) during the alpha cycle. The only caveat is that experience shows that these UI/UX design reviews take more time that initially expected. Because of that, I think we need to plan to have a longer alpha cycle that may involve non-trivial fixes to the new UI/UX. I don't *know* this is needed, but in the past it always has been needed for new UI/UX.
+* [x] Cut an additional alpha release once the UI/UX design stuff is done.
+* [x] Wait at least a few days.
+* [x] Release candidate: ~~5.0.0-rc.1~~ `5.0.0rc1`
+* [x] Final release.
+  * [x] Push 5.0.0 commits and tags to Github, run CI tests
+  * [x] Switch from pre-release to official release tag on Github: https://github.com/jupyter/notebook/releases/tag/5.0.0
+  * [x] Publish to PyPI
+  * [x] Publish to conda?
+  * [x] Publish to blog
+  * [x] Publish to mailing listI think this sounds good, though I would probably call it a beta instead of alpha. I think we can do notebook 5.0.0b1 (or a1) after conferring at the meeting today.+1 - I was already planning to release a beta today. I'll be busy after the meeting though, so if we do it after that, hopefully someone else can cut it.
+
+I think that 'beta' signals our intent more clearly than 'alpha'.@parente want to look at compatibility with kernel-gateway.Sounds good! I should be able to work on the UI/UX testing stuff later this
+week...
+
+On Tue, Feb 14, 2017 at 9:09 AM, Matthias Bussonnier <
+notifications@github.com> wrote:
+
+> @parente <https://github.com/parente> want to look at compatibility with
+> kernel-gateway.
+>
+> —
+> You are receiving this because you authored the thread.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/2150#issuecomment-279770659>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AABr0KJPJpdY4zBY-yRF20qDl7Lvbc51ks5rcd_agaJpZM4L5yd_>
+> .
+>
+
+
+
+-- 
+Brian E. Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+@ellisonbg on Twitter and GitHub
+bgranger@calpoly.edu and ellisonbg@gmail.com
+Thanks @Carreau. I don't expect anything major. I'll test against alpha/beta releases as they come out.cc @JamiesHQ I started poking at kernel gateway with with notebook 5.0.0b1 installed. A good portion of the unit test suite and some manual requests to the server both fail because of the exception:
+
+```
+ERROR:tornado.general:Uncaught exception, closing connection.
+Traceback (most recent call last):
+  File "/Users/parente/miniconda3/envs/kernel-gateway-dev/lib/python3.5/site-packages/zmq/eventloop/zmqstream.py", line 440, in _handle_events
+    self._handle_recv()
+  File "/Users/parente/miniconda3/envs/kernel-gateway-dev/lib/python3.5/site-packages/zmq/eventloop/zmqstream.py", line 472, in _handle_recv
+    self._run_callback(callback, msg)
+  File "/Users/parente/miniconda3/envs/kernel-gateway-dev/lib/python3.5/site-packages/zmq/eventloop/zmqstream.py", line 414, in _run_callback
+    callback(*args, **kwargs)
+  File "/Users/parente/miniconda3/envs/kernel-gateway-dev/lib/python3.5/site-packages/tornado/stack_context.py", line 275, in null_wrapper
+    return fn(*args, **kwargs)
+  File "/Users/parente/miniconda3/envs/kernel-gateway-dev/lib/python3.5/site-packages/notebook/services/kernels/kernelmanager.py", line 220, in record_activity
+    msg = kernel.session.deserialize(fed_msg_list)
+  File "/Users/parente/miniconda3/envs/kernel-gateway-dev/lib/python3.5/site-packages/jupyter_client/session.py", line 853, in deserialize
+    raise ValueError("Duplicate Signature: %r" % signature)
+ValueError: Duplicate Signature: b'50ee6f93c211428d751309f08f8795fce0028eeae09b82bb5cd82881278b0e73'
+```
+
+It's not immediately clear if this is a problem with the kernel gateway or not. Figured I'd raise it up for awareness.That's curious. The error is coming from code that's meant to prevent against replay attacks by blocking messages with the same signature as a previous message.
+
+I'm guessing a bit, but I think the issue is with the new activity monitoring; previously, messages from the kernel were only deserialised once (to be reserialised as JSON to go to the browser). Now iopub messages are deserialised a second time to update the kernel's state. If that happens with the same session object, then it will attempt to parse the same message twice, leading to the error you see.
+
+What I don't understand is why we don't run into that when using the notebook server normally. @minrk ?HI all, I opened a few PRs to fix some last minor issues for 5.0. We now know what to do to fix #2209, just need someone to do a quick PR (@jorisvandenbossche may end up doing that). I have been using 5.0 and things are looking really good.
+
+There are a few other minor issues targeted for 5.0, some related to documentation/release notes:
+
+https://github.com/jupyter/notebook/issues?q=is%3Aopen+is%3Aissue+milestone%3A5.0
+
+Anyone know of any other major things that need to be taken care of that isn't being tracked here?
+
+Thanks everyone for helping get this release out!We're closing in on this. #2204/#2234 is the last outstanding change to the code itself. I'd like to make an RC1 or beta2 in the next couple of days.notebook 5.0.0b2 is published to PyPI: https://pypi.python.org/pypi?:action=display&name=notebook&version=5.0.0b2re-cc @JamiesHQ I just published 5.0.0-rc.1. Please install it from PyPI and use it for the next 5 days. We can discuss official release schedule in the weekly dev meeting.i should have paid attention, but `5.0.0-rc.1` is not a valid Python version number. It may break how pip interprete wether a file is more recent than another. 
+
+It's better to confort to [pep440](https://www.python.org/dev/peps/pep-0440/), but now that it's done don't unpublish. 
+
+We should enforce version formatting at build time. 
+
+Also you miss the wheels, but same things, don't push the wheels now. Great job otherwise ! Thanks ! You should make an announce on the ML.Also I realise this is because the issue at the top request to release `5.0.0-rc.1`, (which is not correct). Rereading pep440, it's not even better to follow it, but it's mandatory:
+
+> The canonical public version identifiers MUST comply with the following scheme:
+> [N!]N(.N)*[{a|b|rc}N][.postN][.devN]
+
+I think it was `SHOULD` a couple of years ago.  It's sad that this is not enforced by default with a flag to overwrite, that requires too much implicit knowledge from developers. @Carreau Thanks for uploading a valid version and fixing this with https://github.com/jupyter/notebook/pull/2302. I will post a message to the mailing list now...> @Carreau Thanks for uploading a valid version and fixing this with #2302. I will post a message to the mailing list now...
+
+It's ok, the version you uploaded is fine, (and it wasn't me who uploaded the right one). 
+The problem with version number not conforming is that soom tools get confused and could see rc2 (if we do one) as older than rc1. Other tools will see tar.gz are more recent than .whl, leading to some useless extra install step, like forcing user to have node locally while they should not need it. Usually it does not matter, but it can lead to some headache especially during beta/rc period.Sort-by in the dashboard is not in the changelog. I can't find how to set tags, the changelog say you can't, it does not says how. I suppose it is a cell toolbar, but I can't see it. Style of tags UI is different from the other celltoolbar elements. In particular it has a drop-shadow (which is inconsistent) and the drop shadow is inside the button, not outside (strangely).
+
+Suggestion: remove the drop shadow.
+
+It should be in the cell toolbar menu. I'll add it to the release notes.
+
+I don't mind about the style, so if you want to remove the shadow, go for it.> It should be in the cell toolbar menu. I'll add it to the release notes.
+
+Hum, I don't get it in dev, but I get it if I install the PyPI wheel. Hmm. Have you carefully rebuilt the JS? I wonder if there could be a race condition between registering the cell toolbar and adding it to the menu.> Hmm. Have you carefully rebuilt the JS? I wonder if there could be a race condition between registering the cell toolbar and adding it to the menu.
+
+Yes, I did twice, and nuked my main.min.js files to be sure. it's ok it it works on the whl. I'm a bit concerned that it might be a race condition, but it appears to work enough of the time that I suggest we put it out and see if it's a problem.A 5.1 PR (#2293) was accidentally merged - we may need to revert that or make a branch from before it landed to make the next RC.#2326 reverted that, so the new RC can be made from master.😊 @gnestor you wanted to do an rc2, right? I think there are no open issues or PRs marked 5.0 at present.I was just about to cut a new release 👍 and then I spilled coffee on my laptop 👎. Fortunately I have another one here.RC is for release candidate, not release coffee.
+
+On Mar 23, 2017 09:01, "Grant Nestor" <notifications@github.com> wrote:
+
+> I was just about to cut a new release 👍 and then I spilled coffee on my
+> laptop 👎. Fortunately I have another one here.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/2150#issuecomment-288768000>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AAUez7xOb4ulIR3l3Ma_2tHRrR47D5Maks5ropdYgaJpZM4L5yd_>
+> .
+>
+hopefully that is a reimbursable cost and won't ruin Christmas.🥁 (punchline sound)That's really cruel.
+
+On Mar 23, 2017 09:14, "Grant Nestor" <notifications@github.com> wrote:
+
+> 🥁 (punchline sound)
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/2150#issuecomment-288772601>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AAUez2R9TEsfCSTbFgoSc4y_9Qpdy6FAks5roppugaJpZM4L5yd_>
+> .
+>
+That's definitely some risible comedy.I will survive 👍 
+
+5.0.0rc2 is up on PyPI. The relevant change since rc1 is that the last of the npm dependencies (preact, preact-compat, proptypes) were moved to bower in hopes of resolving https://github.com/jupyter/notebook/issues/2056> I will survive
+
+🎶  First I was afraid, I was petrified 🎶 
+🎶  Kept thinking I could never live without an RC on PyPI. 🎶 You know we all want to see [Alien song](https://www.youtube.com/watch?v=eim5jLlEPYI) dubbed with you singing about Python packaging. :-P> You know we all want to see Alien song dubbed with you singing about Python packaging. :-P
+
+Hahahah that brings back some memories !Update: I got my laptop back from the repair shop and I didn't fry my logic board!!Resolution Confirmed.In other news, it's time to check off that last to do item at the top. And to do that, I am going to create another to do list (please add to this if necessary):
+
+* [x] Review changelog: https://github.com/jupyter/notebook/blob/master/docs/source/changelog.rst (thanks @takluyver for putting most of thing together!)
+* [x] Blog post: @Carreau The Paper doc that you created is archived now.Where should we collaborate on this?@gnestor @Carreau : I've restored the 5.0 paper doc if you'd like to continue working there: https://paper.dropbox.com/doc/Jupyter-Notebook-5.0-onj98NSvrkQ1eVeT8KTFvThe blog post is ready for a final review: https://paper.dropbox.com/doc/Jupyter-Notebook-5.0-onj98NSvrkQ1eVeT8KTFv
+
+Can someone give me access to the blog? 
+
+EDIT: Should we mention anything about transitioning to JupyterLab in the blost post? The changelog reads:
+
+> We encourage users to start trying JupyterLab in preparation for a future transition.
+
+The changelog is also ready for a final review: https://github.com/jupyter/notebook/blob/master/docs/source/changelog.rst
+
+We have 2 small bug fixes related to traitlets compatibility that we could include in 5.0.0:
+
+* https://github.com/jupyter/notebook/pull/2348
+* https://github.com/jupyter/notebook/pull/2347
+
+Other than that, I'm ready to publish 5.0.0 as soon as the blog post is ready to publish.Invitation to the Ghost blog sent!
+
+On Wed, Mar 29, 2017 at 2:47 PM, Grant Nestor <notifications@github.com>
+wrote:
+
+> The blog post is ready for a final review: https://paper.dropbox.com/doc/
+> Jupyter-Notebook-5.0-onj98NSvrkQ1eVeT8KTFv
+>
+> Can someone give me access to the blog?
+>
+> The changelog is also ready for a final review:
+> https://github.com/jupyter/notebook/blob/master/docs/source/changelog.rst
+>
+> We have 2 small bug fixes related to traitlets compatibility that we could
+> include in 5.0.0:
+>
+>    - #2348 <https://github.com/jupyter/notebook/pull/2348>
+>    - #2347 <https://github.com/jupyter/notebook/pull/2347>
+>
+> Other than that, I'm ready to publish 5.0.0 as soon as the blog post is
+> ready to publish.
+>
+> —
+> You are receiving this because you were mentioned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/2150#issuecomment-290236474>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AABr0AjMfPA0SJXpHbt6tUGtp5Y-D_bKks5rqtFigaJpZM4L5yd_>
+> .
+>
+
+
+
+-- 
+Brian E. Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+@ellisonbg on Twitter and GitHub
+bgranger@calpoly.edu and ellisonbg@gmail.com
+Just read through the blog post. Some comments:
+
+* I think the style of the cell tags has been changed so we should update
+that screenshot
+* For the file sorting screenshot, we should show a screenshot that has
+files with different timestamps and show how those are sorted. Right now
+all files shown in the screenshot have the same timestamp so the feature
+isn't really shown
+* For the table screenshots, it is difficult to see them side, but side. I
+would show those like this:
+
+Before:
+
+<screenshot of before, showing the full table>
+
+After:
+
+<screenshot of after, showing the full table>
+
+
+
+On Wed, Mar 29, 2017 at 6:26 PM, Brian Granger <ellisonbg@gmail.com> wrote:
+
+> Invitation to the Ghost blog sent!
+>
+> On Wed, Mar 29, 2017 at 2:47 PM, Grant Nestor <notifications@github.com>
+> wrote:
+>
+>> The blog post is ready for a final review: https://paper.dropbox.com/doc/
+>> Jupyter-Notebook-5.0-onj98NSvrkQ1eVeT8KTFv
+>>
+>> Can someone give me access to the blog?
+>>
+>> The changelog is also ready for a final review:
+>> https://github.com/jupyter/notebook/blob/master/docs/source/changelog.rst
+>>
+>> We have 2 small bug fixes related to traitlets compatibility that we
+>> could include in 5.0.0:
+>>
+>>    - #2348 <https://github.com/jupyter/notebook/pull/2348>
+>>    - #2347 <https://github.com/jupyter/notebook/pull/2347>
+>>
+>> Other than that, I'm ready to publish 5.0.0 as soon as the blog post is
+>> ready to publish.
+>>
+>> —
+>> You are receiving this because you were mentioned.
+>> Reply to this email directly, view it on GitHub
+>> <https://github.com/jupyter/notebook/issues/2150#issuecomment-290236474>,
+>> or mute the thread
+>> <https://github.com/notifications/unsubscribe-auth/AABr0AjMfPA0SJXpHbt6tUGtp5Y-D_bKks5rqtFigaJpZM4L5yd_>
+>> .
+>>
+>
+>
+>
+> --
+> Brian E. Granger
+> Associate Professor of Physics and Data Science
+> Cal Poly State University, San Luis Obispo
+> @ellisonbg on Twitter and GitHub
+> bgranger@calpoly.edu and ellisonbg@gmail.com
+>
+
+
+
+-- 
+Brian E. Granger
+Associate Professor of Physics and Data Science
+Cal Poly State University, San Luis Obispo
+@ellisonbg on Twitter and GitHub
+bgranger@calpoly.edu and ellisonbg@gmail.com
+Thanks for the feedback @ellisonbg! I updated the Paper doc and loaded the post in Ghost, so it's ready to publish. I also updated the changelog with new screenshots and some revisions to make it more consistent with the blog post (https://github.com/jupyter/notebook/pull/2351). This is ready to merge!
+
+I also added credits to the blog post. Here is the notebook that I used to generate the credits (https://gist.github.com/gnestor/b3c83b499573f864cd5399b06fab439e).
+
+I am standing by to publish. @Carreau I'm not sure how to publish to conda, so I could use your help with that. With the newsletter (https://paper.dropbox.com/doc/Jupyter-Notebook-5.0-onj98NSvrkQ1eVeT8KTFv) the table examples at the end are the wrong way round it seems.Good catch @SimonBiggs! It's updated in the drafts of the blog post and mailing list post.I just pushed the 5.0.0 commit to master to run CI tests and verify that everything is passing. Since Friday is not the best day to do a release, I will hold off until Monday or Tuesday.I'd generally suggest we avoid doing half a release like this, because if people see a '5.0 release' on Github, they might get confused why they can't install it. Hopefully not too many people will notice it, though.Sorry I was offline until today. Catching up. Was busy with swimming with  this:
+![dscf0218](https://cloud.githubusercontent.com/assets/335567/24632471/11b0e13c-1879-11e7-84fb-aa91122376bd.JPG)
+
+Making a conda-forge release should not be too hard, do the Pypi one, then update the first two lines of [this file](https://github.com/conda-forge/notebook-feedstock/blob/master/recipe/meta.yaml) via a PR. 
+
+
+> Since Friday is not the best day to do a release, I will hold off until Monday or Tuesday.
+
+I disagree, on friday you release and go on week-end, then you deal with bug reports on monday. At least people will have +1 so you know what to prioritize :-) Since the tag is made, 👍 to publishing the release from it now.![](https://media.giphy.com/media/7yojoQtevjOCI/giphy.gif)

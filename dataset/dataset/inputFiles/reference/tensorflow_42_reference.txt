@@ -1,0 +1,6 @@
+You can run it inside docker that is what worked for me. Here are the steps: Download and install LINKLINK Run the folowing command to create a docker virtual machine:
+ CODESCODES In a cmd window type the following:
+ CODESCODES 
+ CODESCODES 
+
+After a short while, you will get a linux shell. Type CODESCODES and have fun thumbs up 

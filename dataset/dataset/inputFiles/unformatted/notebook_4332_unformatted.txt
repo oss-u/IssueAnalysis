@@ -1,0 +1,391 @@
+Hi everyone
+
+I've just downloaded and installed "Anaconda3-2018.12-Windows-x86_64" to my PC running windows 10. When I start Anaconda prompt and type;
+
+(base) C:\Users\...>jupyter notebook
+Traceback (most recent call last):
+  File "C:\Users...\Continuum\anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 10, in <module>
+    import sqlite3
+  File "C:\Users\...\Continuum\anaconda3\lib\sqlite3\__init__.py", line 23, in <module>
+    from sqlite3.dbapi2 import *
+  File "C:\Users\...\Continuum\anaconda3\lib\sqlite3\dbapi2.py", line 27, in <module>
+    from _sqlite3 import *
+ImportError: DLL load failed: The specified procedure could not be found.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\...\Continuum\anaconda3\Scripts\jupyter-notebook-script.py", line 6, in <module>
+    from notebook.notebookapp import main
+  File "C:\Users\...\Continuum\anaconda3\lib\site-packages\notebook\notebookapp.py", line 86, in <module>
+    from .services.sessions.sessionmanager import SessionManager
+  File "C:\Users\...\Continuum\anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 13, in <module>
+    from pysqlite2 import dbapi2 as sqlite3
+ModuleNotFoundError: No module named 'pysqlite2'
+
+I've already check sqlite is list on Anaconda's installed packages, and also search web but notting found.
+
+I think Its not about jupyter notebook itself, because when I try to import sqllite;
+
+(base) C:\Users\...>python
+Python 3.7.1 (default, Dec 10 2018, 22:54:23) [MSC v.1915 64 bit (AMD64)] :: Anaconda, Inc. on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from _sqlite3 import *
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ImportError: DLL load failed: The specified procedure could not be found.
+>>>
+
+getting same error
+
+thanks
+İbrahimMe too having same errorIf this is still a problem, you probably want to ask the Anaconda team about it: https://github.com/ContinuumIO/anaconda-issues/I've just installed previous version, it's working now...
+
+On Wed, Jan 16, 2019, 13:27 Thomas Kluyver <notifications@github.com wrote:
+
+> If this is still a problem, you probably want to ask the Anaconda team
+> about it: https://github.com/ContinuumIO/anaconda-issues/
+>
+> —
+> You are receiving this because you authored the thread.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/jupyter/notebook/issues/4332#issuecomment-454729265>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AsXRnVQq-4HyDLwhANHbKhugxKzfVeKcks5vDv6jgaJpZM4Z2-41>
+> .
+>
+I'm having this exact problem too.UPDATE w/ FIX: I fixed this problem by adding `*anaconda root*/Library/bin` to my PATH.
+
+I am also having this issue with version 2018.12
+
+$ Traceback (most recent call last):                                                                                    
+File "H:\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 10, in                 import sqlite3                                                                                                      
+File "H:\Anaconda3\lib\sqlite3\__init__.py", line 23, in                                                        
+from sqlite3.dbapi2 import *                                                                                        
+File "H:\Anaconda3\lib\sqlite3\dbapi2.py", line 27, in                                                          
+from _sqlite3 import *                                                                                           
+ImportError: DLL load failed: The specified module could not be found.                                                                                                                                                                      During handling of the above exception, another exception occurred:                                                                                                                                                                         Traceback (most recent call last):                                                                                      
+File "H:\Anaconda3\Scripts\jupyter-notebook-script.py", line 6, in                                              
+from notebook.notebookapp import main                                                                               
+File "H:\Anaconda3\lib\site-packages\notebook\notebookapp.py", line 86, in                                      
+from .services.sessions.sessionmanager import SessionManager                                                        
+File "H:\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 13, in                 from pysqlite2 import dbapi2 as sqlite3                                                                           ModuleNotFoundError: No module named 'pysqlite2'
+
+
+
+
+@kyledmiller Thanks a ton. There are lots of seemingly convoluted threads going on about this issue and your fix corrected the issue for me.Fixed it! Even though it doesn't really make sense (or perhaps I have the wrong understanding of how jupyter notebook works), this is what I did:
+
+I just activated my environment before starting the notebook. So I did "activate [env]" first, before typing in "jupyter notebook" from my Anaconda command prompt@johntiger1 I wasn't using an environment when this error occurred as I had everything installed to root. If you only had python/jupyter installed to an environment, then it would make sense that you could only use it within that environment but otherwise I'm a bit confused by your comment. > Fixed it! Even though it doesn't really make sense (or perhaps I have the wrong understanding of how jupyter notebook works), this is what I did:
+> 
+> I just activated my environment before starting the notebook. So I did "activate [env]" first, before typing in "jupyter notebook" from my Anaconda command prompt
+
+My issue got resolved by this. Thank you very much :)After a successful installation of Anaconda 2019.03 (for Windows Installer) on Windows 10 64 bit(Python 3.7 already installed at different path), I passed the command to invoke "Jupyter notebook" and got this error "loading dll". I tried uninstalling and reinstalling it on the default path too, but still met the same fate. I have tried out the various workarounds provided but could not resolve this issue, please help me resolve this.
+
+Traceback (most recent call last):
+  File "d:\Anaconda3\Scripts\jupyter-notebook-script.py", line 6, in <module>
+    from notebook.notebookapp import main
+  File "d:\Anaconda3\lib\site-packages\notebook\notebookapp.py", line 62, in <module>
+    from tornado import httpserver
+  File "d:\Anaconda3\lib\site-packages\tornado\httpserver.py", line 29, in <module>
+    import ssl
+  File "d:\Anaconda3\lib\ssl.py", line 98, in <module>
+    import _ssl             # if we can't import it, let the error propagate
+ImportError: DLL load failed: The specified procedure could not be found.There is an issue with the 64 Bit version of Anaconda. Try these steps:
+1. Install Anaconda 32 Bit for windows.
+2. Add <Directory>\Anaconda3 and <Directory>\Anaconda3\Script to Path in Environment variables.
+3. Open Anaconda Prompt and Create an Environment and activate it.
+4. Once you activate the Environment, you will into it. Then write the command JUPYTER NOTEBOOK, it should run on your Browser.Thanks Deborshi1993, the solution /workaround has worked.Thanks! it works! :)> UPDATE w/ FIX: I fixed this problem by adding `*anaconda root*/Library/bin` to my PATH.
+> 
+> I am also having this issue with version 2018.12
+> 
+> $ Traceback (most recent call last):
+> File "H:\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 10, in import sqlite3
+> File "H:\Anaconda3\lib\sqlite3__init__.py", line 23, in
+> from sqlite3.dbapi2 import *
+> File "H:\Anaconda3\lib\sqlite3\dbapi2.py", line 27, in
+> from _sqlite3 import *
+> ImportError: DLL load failed: The specified module could not be found. During handling of the above exception, another exception occurred: Traceback (most recent call last):
+> File "H:\Anaconda3\Scripts\jupyter-notebook-script.py", line 6, in
+> from notebook.notebookapp import main
+> File "H:\Anaconda3\lib\site-packages\notebook\notebookapp.py", line 86, in
+> from .services.sessions.sessionmanager import SessionManager
+> File "H:\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 13, in from pysqlite2 import dbapi2 as sqlite3 ModuleNotFoundError: No module named 'pysqlite2'
+
+how did you add `*anaconda root*/Library/bin`  in your path ?https://www.java.com/en/download/help/path.xml> There is an issue with the 64 Bit version of Anaconda. Try these steps:
+> 
+> 1. Install Anaconda 32 Bit for windows.
+> 2. Add \Anaconda3 and \Anaconda3\Script to Path in Environment variables.
+> 3. Open Anaconda Prompt and Create an Environment and activate it.
+> 4. Once you activate the Environment, you will into it. Then write the command JUPYTER NOTEBOOK, it should run on your Browser.
+
+@Deborshi1993 do you have a link to that issue?> > There is an issue with the 64 Bit version of Anaconda. Try these steps:
+> > 
+> > 1. Install Anaconda 32 Bit for windows.
+> > 2. Add \Anaconda3 and \Anaconda3\Script to Path in Environment variables.
+> > 3. Open Anaconda Prompt and Create an Environment and activate it.
+> > 4. Once you activate the Environment, you will into it. Then write the command JUPYTER NOTEBOOK, it should run on your Browser.
+> 
+> @Deborshi1993 do you have a link to that issue?
+
+@GiorgioBalestrieri  What kind of link are you referring to?> > > There is an issue with the 64 Bit version of Anaconda. Try these steps:
+> > > 
+> > > 1. Install Anaconda 32 Bit for windows.
+> > > 2. Add \Anaconda3 and \Anaconda3\Script to Path in Environment variables.
+> > > 3. Open Anaconda Prompt and Create an Environment and activate it.
+> > > 4. Once you activate the Environment, you will into it. Then write the command JUPYTER NOTEBOOK, it should run on your Browser.
+> > 
+> > 
+> > @Deborshi1993 do you have a link to that issue?
+> 
+> @GiorgioBalestrieri What kind of link are you referring to?
+
+@Deborshi1993 you mentioned there is an issue with the 64 Bit version of Anaconda. Do you have a source for that?> > > > There is an issue with the 64 Bit version of Anaconda. Try these steps:
+> > > > 
+> > > > 1. Install Anaconda 32 Bit for windows.
+> > > > 2. Add \Anaconda3 and \Anaconda3\Script to Path in Environment variables.
+> > > > 3. Open Anaconda Prompt and Create an Environment and activate it.
+> > > > 4. Once you activate the Environment, you will into it. Then write the command JUPYTER NOTEBOOK, it should run on your Browser.
+> > > 
+> > > 
+> > > @Deborshi1993 do you have a link to that issue?
+> > 
+> > 
+> > @GiorgioBalestrieri What kind of link are you referring to?
+> 
+> @Deborshi1993 you mentioned there is an issue with the 64 Bit version of Anaconda. Do you have a source for that?
+
+@GiorgioBalestrieri It's with 64Bit Windows version of Anaconda, and this is just a common issue with a lot of Windows users including me and few of my colleagues. Please feel free to share your views if for you it is working. :)
+
+best regards,
+Deborshi> > > > > There is an issue with the 64 Bit version of Anaconda. Try these steps:
+> > > > > 
+> > > > > 1. Install Anaconda 32 Bit for windows.
+> > > > > 2. Add \Anaconda3 and \Anaconda3\Script to Path in Environment variables.
+> > > > > 3. Open Anaconda Prompt and Create an Environment and activate it.
+> > > > > 4. Once you activate the Environment, you will into it. Then write the command JUPYTER NOTEBOOK, it should run on your Browser.
+> > > > 
+> > > > 
+> > > > @Deborshi1993 do you have a link to that issue?
+> > > 
+> > > 
+> > > @GiorgioBalestrieri What kind of link are you referring to?
+> > 
+> > 
+> > @Deborshi1993 you mentioned there is an issue with the 64 Bit version of Anaconda. Do you have a source for that?
+> 
+> @GiorgioBalestrieri It's with 64Bit Windows version of Anaconda, and this is just a common issue with a lot of Windows users including me and few of my colleagues. Please feel free to share your views if for you it is working. :)
+> 
+> best regards,
+> Deborshi
+
+@Deborshi1993 I think I wasn't clear, I was not questioning whether it's an issue with Anaconda, I was trying to get visibility on the issue/thread where this is being tracked. 
+I faced the exact the same problem (also on Windows, also Anaconda 64bit, but for some reason only for some environments, specifically some using Python 3.7) . 
+I was asking for a source because if there is a known issue it should be tracked somewhere, and I'm quite sure Continuum would have someone actively working on it. It would be useful for people reading this thread being able to check the status of that issue and for people working on that issue to know it's cascading into things like this one.> > > > > > There is an issue with the 64 Bit version of Anaconda. Try these steps:
+> > > > > > 
+> > > > > > 1. Install Anaconda 32 Bit for windows.
+> > > > > > 2. Add \Anaconda3 and \Anaconda3\Script to Path in Environment variables.
+> > > > > > 3. Open Anaconda Prompt and Create an Environment and activate it.
+> > > > > > 4. Once you activate the Environment, you will into it. Then write the command JUPYTER NOTEBOOK, it should run on your Browser.
+> > > > > 
+> > > > > 
+> > > > > @Deborshi1993 do you have a link to that issue?
+> > > > 
+> > > > 
+> > > > @GiorgioBalestrieri What kind of link are you referring to?
+> > > 
+> > > 
+> > > @Deborshi1993 you mentioned there is an issue with the 64 Bit version of Anaconda. Do you have a source for that?
+> > 
+> > 
+> > @GiorgioBalestrieri It's with 64Bit Windows version of Anaconda, and this is just a common issue with a lot of Windows users including me and few of my colleagues. Please feel free to share your views if for you it is working. :)
+> > best regards,
+> > Deborshi
+> 
+> @Deborshi1993 I think I wasn't clear, I was not questioning whether it's an issue with Anaconda, I was trying to get visibility on the issue/thread where this is being tracked.
+> I faced the exact the same problem (also on Windows, also Anaconda 64bit, but for some reason only for some environments, specifically some using Python 3.7) .
+> I was asking for a source because if there is a known issue it should be tracked somewhere, and I'm quite sure Continuum would have someone actively working on it. It would be useful for people reading this thread being able to check the status of that issue and for people working on that issue to know it's cascading into things like this one.
+
+@GiorgioBalestrieri Yes, you are right. But also for me, I had to go through the threads to find an exact approach to solve this issue. Hence, I wrote the exact process I followed to bring up Jupyter Notebook and this worked with some. I am sorry to say, there is no other source I can refer you at this moment. :) I fixed this issue by replace file  C:\Windows\System32\sqlite3.dll by C:\Users\Rvor\Anaconda3\Library\bin\sqlite3.dll :)i sovled this issue by copy file C:\Anaconda3\Libary\bin\sqlite3.dll to C:\Anaconda3\Dllsfor me, since i used anaconda64 i activate the env and installed,
+`conda install -c anaconda pywin32 `
+and it solved> for me, since i used anaconda64 i activate the env and installed,
+> `conda install -c anaconda pywin32 `
+> and it solved
+
+I tried your solution but get the error message below
+
+C:\Users\11063>conda install -c anaconda pywin32
+
+# >>>>>>>>>>>>>>>>>>>>>> ERROR REPORT <<<<<<<<<<<<<<<<<<<<<<
+
+    Traceback (most recent call last):
+      File "D:\Anaconda\lib\site-packages\conda\exceptions.py", line 1062, in __call__
+        return func(*args, **kwargs)
+      File "D:\Anaconda\lib\site-packages\conda\cli\main.py", line 84, in _main
+        exit_code = do_call(args, p)
+      File "D:\Anaconda\lib\site-packages\conda\cli\conda_argparse.py", line 82, in do_call
+        exit_code = getattr(module, func_name)(args, parser)
+      File "D:\Anaconda\lib\site-packages\conda\cli\main_install.py", line 20, in execute
+        install(args, parser, 'install')
+      File "D:\Anaconda\lib\site-packages\conda\cli\install.py", line 116, in install
+        if context.use_only_tar_bz2:
+      File "D:\Anaconda\lib\site-packages\conda\base\context.py", line 664, in use_only_tar_bz2
+        import conda_package_handling.api
+      File "D:\Anaconda\lib\site-packages\conda_package_handling\api.py", line 3, in <module>
+        from libarchive.exception import ArchiveError as _LibarchiveArchiveError
+      File "D:\Anaconda\lib\site-packages\libarchive\__init__.py", line 1, in <module>
+        from .entry import ArchiveEntry
+      File "D:\Anaconda\lib\site-packages\libarchive\entry.py", line 6, in <module>
+        from . import ffi
+      File "D:\Anaconda\lib\site-packages\libarchive\ffi.py", line 27, in <module>
+        libarchive = ctypes.cdll.LoadLibrary(libarchive_path)
+      File "D:\Anaconda\lib\ctypes\__init__.py", line 434, in LoadLibrary
+        return self._dlltype(name)
+      File "D:\Anaconda\lib\ctypes\__init__.py", line 356, in __init__
+        self._handle = _dlopen(self._name, mode)
+    TypeError: LoadLibrary() argument 1 must be str, not None
+
+`$ D:\Anaconda\Scripts\conda-script.py install -c anaconda pywin32`
+
+  environment variables:
+                 CIO_TEST=<not set>
+               CONDA_ROOT=D:\Anaconda
+                 HOMEPATH=\Users\11063
+                     PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\Sys
+                          tem32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program
+                          Files\Intel\WiFi\bin\;C:\Program Files\Common
+                          Files\Intel\WirelessCommon\;C:\Program Files\NVIDIA Corporation\NVIDIA
+                          NGX;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program
+                          Files\NVIDIA Corporation\NVIDIA
+                          NvDLISR;D:\Matlab2019\bin;D:\Anaconda;C:\Program
+                          Files\CMake\bin;C:\Program Files\dotnet\;C:\Users\11063\AppData\Local\
+                          Programs\Python\Python37\Scripts\;C:\Users\11063\AppData\Local\Program
+                          s\Python\Python37\;C:\Users\11063\AppData\Local\Microsoft\WindowsApps;
+                          C:\Users\11063\AppData\Local\GitHubDesktop\bin;C:\Users\11063\AppData\
+                          Local\Programs\Microsoft VS Code\bin;D:\Database Systems\DataGrip
+                          2019.2.4\bin;;D:\Anaconda;D:\Anaconda\Scripts;
+             PSMODULEPATH=C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\Windows
+                          PowerShell\v1.0\Modules
+       REQUESTS_CA_BUNDLE=<not set>
+            SSL_CERT_FILE=<not set>
+
+     active environment : None
+       user config file : C:\Users\11063\.condarc
+ populated config files : C:\Users\11063\.condarc
+          conda version : 4.7.11
+    conda-build version : 3.17.8
+         python version : 3.7.1.final.0
+       virtual packages : __cuda=10.1
+       base environment : D:\Anaconda  (writable)
+           channel URLs : https://conda.anaconda.org/anaconda/win-64
+                          https://conda.anaconda.org/anaconda/noarch
+                          https://repo.anaconda.com/pkgs/main/win-64
+                          https://repo.anaconda.com/pkgs/main/noarch
+                          https://repo.anaconda.com/pkgs/r/win-64
+                          https://repo.anaconda.com/pkgs/r/noarch
+                          https://repo.anaconda.com/pkgs/msys2/win-64
+                          https://repo.anaconda.com/pkgs/msys2/noarch
+          package cache : D:\Anaconda\pkgs
+                          C:\Users\11063\.conda\pkgs
+                          C:\Users\11063\AppData\Local\conda\conda\pkgs
+       envs directories : D:\Anaconda\envs
+                          C:\Users\11063\.conda\envs
+                          C:\Users\11063\AppData\Local\conda\conda\envs
+               platform : win-64
+             user-agent : conda/4.7.11 requests/2.21.0 CPython/3.7.1 Windows/10 Windows/10.0.17763
+          administrator : False
+             netrc file : None
+           offline mode : False
+
+
+An unexpected error has occurred. Conda has prepared the above report.
+
+If submitted, this report will be used by core maintainers to improve
+future releases of conda.
+Would you like conda to send this report to the core maintainers?
+
+[y/N]: y
+Upload successful.
+
+Thank you for helping to improve conda.
+Opt-in to always sending reports (and not see this message again)
+by running
+
+    $ conda config --set report_errors true> for me, since i used anaconda64 i activate the env and installed,
+> `conda install -c anaconda pywin32 `
+> and it solved
+
+Thanks. It worked for me, even in a R environment.> I fixed this issue by replace file C:\Windows\System32\sqlite3.dll by C:\Users\Rvor\Anaconda3\Library\bin\sqlite3.dll :)
+
+It works for me! thanks!I was trying to open the notebook in a separate virtual environment where anaconda is not set up. Make sure that you open the notebook in the same _base_ environment.> for me, since i used anaconda64 i activate the env and installed,
+> `conda install -c anaconda pywin32 `
+> and it solved
+
+didn't work for me!the solution is to write in CMD:
+`activate root`
+then 
+`jupyter notebook`> UPDATE w/ FIX: I fixed this problem by adding `*anaconda root*/Library/bin` to my PATH.
+> 
+> I am also having this issue with version 2018.12
+> 
+> $ Traceback (most recent call last):
+> File "H:\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 10, in import sqlite3
+> File "H:\Anaconda3\lib\sqlite3__init__.py", line 23, in
+> from sqlite3.dbapi2 import *
+> File "H:\Anaconda3\lib\sqlite3\dbapi2.py", line 27, in
+> from _sqlite3 import *
+> ImportError: DLL load failed: The specified module could not be found. During handling of the above exception, another exception occurred: Traceback (most recent call last):
+> File "H:\Anaconda3\Scripts\jupyter-notebook-script.py", line 6, in
+> from notebook.notebookapp import main
+> File "H:\Anaconda3\lib\site-packages\notebook\notebookapp.py", line 86, in
+> from .services.sessions.sessionmanager import SessionManager
+> File "H:\Anaconda3\lib\site-packages\notebook\services\sessions\sessionmanager.py", line 13, in from pysqlite2 import dbapi2 as sqlite3 ModuleNotFoundError: No module named 'pysqlite2'
+
+
+I tried it and it works for me
+`conda activate base`
+`jupyter notebook`neither of these solutions worked for me. please suggest.> I fixed this issue by replace file C:\Windows\System32\sqlite3.dll by C:\Users\Rvor\Anaconda3\Library\bin\sqlite3.dll :)
+
+This worked for me as well. I copied the sqlite3.dll into the system32 folder.  I was getting error messages trying to install the google cloud SDK.  This fixed it. https://stackoverflow.com/a/53779060/12958312
+
+This one worked for me.> > I fixed this issue by replace file C:\Windows\System32\sqlite3.dll by C:\Users\Rvor\Anaconda3\Library\bin\sqlite3.dll :)
+> 
+> It works for me! thanks!
+
+This also worked for me. Excellent suggestion@kyledmiller Thanks a lot. > the solution is to write in CMD:
+> `activate root`
+> then
+> `jupyter notebook`
+
+It worked, Thanks.> Fixed it! Even though it doesn't really make sense (or perhaps I have the wrong understanding of how jupyter notebook works), this is what I did:
+> 
+> I just activated my environment before starting the notebook. So I did "activate [env]" first, before typing in "jupyter notebook" from my Anaconda command prompt
+
+thankshttps://stackoverflow.com/questions/54224969/import-error-while-trying-to-run-jupyter-notebook/54225033#54225033
+
+This helped mehttps://stackoverflow.com/questions/54224969/import-error-while-trying-to-run-jupyter-notebook/54225033#54225033
+
+Worked for me!
+
+Have a good one> the solution is to write in CMD:
+> `activate root`
+> then
+> `jupyter notebook`
+
+Best solution so far. The problem is that the root environment was not properly loaded. Worked for me like a charm.> I fixed this issue by replace file C:\Windows\System32\sqlite3.dll by C:\Users\Rvor\Anaconda3\Library\bin\sqlite3.dll :)
+
+Than kyou very much Bruh!!> I fixed this issue by replace file C:\Windows\System32\sqlite3.dll by C:\Users\Rvor\Anaconda3\Library\bin\sqlite3.dll :)
+
+Awesome, this fixed my issue. thanks for posting it. saved time
+I tried all above solutions but didn't work for me until I install latest version of Microsft Visual C++It seems that Anaconda python 3.7.x has the problem, we can fix it as
+
+> I fixed this issue by replace file C:\Windows\System32\sqlite3.dll by C:\Users\Rvor\Anaconda3\Library\bin\sqlite3.dll :)
+
+or download the file 'sqlite3.dll' from https://www.sqlite.org/download.html,  and put it in '\Anaconda3\DLLs\sqlite3.dll'.
+@Deborshi1993 thank you Simpler Solution would be just to activate base
+Open CMD
+and type "activate base"> Fixed it! Even though it doesn't really make sense (or perhaps I have the wrong understanding of how jupyter notebook works), this is what I did:
+> 
+> I just activated my environment before starting the notebook. So I did "activate [env]" first, before typing in "jupyter notebook" from my Anaconda command prompt
+
+Thank you 

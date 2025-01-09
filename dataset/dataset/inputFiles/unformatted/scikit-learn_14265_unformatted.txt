@@ -1,0 +1,326 @@
+Before adding OpenMP based parallelism we need to decide how to control the number of threads and how to expose it in the public API.
+
+I've seen several proposition from different people:
+
+&nbsp;&nbsp;**(1)** Use the existing `n_jobs` public parameter with `None` means 1 (same a for joblib parallelism)
+
+&nbsp;&nbsp;**(2)** Use the existing `n_jobs` public parameter with `None` means -1 (like numpy lets BLAS use as many threads as possible)
+
+&nbsp;&nbsp;**(3)** Add a new public parameter `n_omp_threads` when underlying parallelism is handled by OpenMP, with `None` means 1.
+
+&nbsp;&nbsp;**(4)** Add a new public parameter `n_omp_threads` when underlying parallelism is handled by OpenMP, with `None` means -1.
+
+&nbsp;&nbsp;**(5)** Do not expose that in the public API. Use as many threads as possible. The user can still have some control with `OMP_NUM_THREADS` before runtime or using threadpoolctl at runtime.
+
+(1) or (2) will require improving documentation of `n_jobs` for each estimator: what's the default, what kind of parallelism, what is done in parallel... (see #14228)
+
+@scikit-learn/core-devs, which solution do you prefer ?
+If it's none of the previous ones, what's your solution ?My preference is (2). I opened #14196 in that directionThanks for opening the issue.
+
+I have a preference towards (4). The default for `n_omp_threads` could be 'auto', which would mean "use as many threads as possible, avoiding over-subscription"
+
+I don't like (2) because:
+- the same parameter is used for different things (OpenMP vs joblib).
+- the default does something different depending on the underlying implementation. If we're going to expose the implementation to the user, I prefer (4) because it is more explicit.
+- it is going to be hard to explain to users (the glossary for n_jobs is already intense), especially for estimators that would use both joblib *and* openmp (if any).
+
+That being said, I wouldn't vote -1.I'm leaning towards 3 or 4. I'm not sure which one's better, but as @NicolasHug says, I too rather have it different than `n_jobs`.> I too rather have it different than n_jobs.
+
+I think that naming openMP parallelism differently from Python-level
+parallelism is a very technical nuance that we be lost to most of our
+users. We need to be able to give a simple message in terms of how to
+control parallelism.
+
+With regards to the default, I would also love to have the right default
+that prevents oversubscription. Do we have the technical tool needed for
+that? I know that Jeremie and Olivier have been struggling with
+oversubscription.
+
+I have reviewed what is done in some other ML libraries that use OpenMP,
+ - xbgoost has nthread but deprecated it in favor of `n_jobs` in their scikit-learn API.
+ - lighgbm uses `n_jobs`
+ - in recsys lightfm and implicit use `num_threads`
+
+I guess `num_threads` would be semantically more correct, however my main concern for it are,
+ - additional parameters to a lot of models
+ - how we handle parallelism change. Say that now we have a pure python code that uses multiprocessing, we re-write it to Cython + OpenMP, if we go with (4) that would require a deprecation warning, with a change of parameter name, and I don't think that asking that from the user would be justified (or that we should spend efforts on deprecations for this).
+ - similarly, joblib with threading (assuming that it operates on functions that release GIL) is fairly similar to using OpenMP. Having a different parameter name in those case is then not very logical, but at the same time we don't want to rename parameter names in lots of estimators either.
+
+So I don't there is a perfect solution here, but I would be also more in favor of 2.
+
+> (1) or (2) will require improving documentation of n_jobs for each estimator: [...] what kind of parallelism, what is done in parallel...
+
+I don't think that should be documented. It's an implementation detail that can change at any moment, mostly people only care that when one increases n_jobs it makes their code faster (and are disappointed if it doesn't). > I don't think that should be documented. 
+
+To be more precise, I think we should have a documentation section / glossary discussing different possible levels of parallelism, but that it shouldn't be specified in each estimator.I know they can be changed and we don't give users a guarantee that they'll stay the same, but in terms of distributing jobs on a cluster, or to use dask's backend sometimes for instance, it's much easier for the user and developers to know which parts are on MPI and which parts on processes.> In terms of distributing jobs on a cluster, or to use dask's backend sometimes for instance, it's much easier for the user and developers to know which parts are on MPI and which parts on processes.
+
+If one leaves, `n_jobs=None` sets `OMP_NUM_THREADS` in the dask worker and uses `with joblib.parallel_backend('dask')` to let dask handle the number or processes / nodes shouldn't that work independently of the implementation?
+
+We already have BLAS parallelism happening a bit everywhere, so when one adds OpenMP and processes on top, in such complex systems the easiest is just to benchmark and see what works best in terms of number of threads / processes. Say we add OpenMP somewhere, that may or may not be noteworthy depending on the amount of linalg operations happening before in BLAS (that ratio may also scale in some unknown power with the data size).>  I would also love to have the right default that prevents oversubscription. Do we have the technical tool needed for that? 
+
+the idea is to call `openmp_effective_n_threads` on the estimator attribute `n_jobs` or `n_threads`, just before the prange. It will return a value which depends on `omp_get_max_threads`. We can influence that at the python level with threadpoolctl to prevent oversubscription (for instance we could use it in grid search).
+
+>  I know that Jeremie and Olivier have been struggling with oversubscription.
+
+It works fine for all sklearn use cases :)I would like to understand the oversubscription more. @jeremiedbb why does it work fine and what does that mean?
+If I run ``GridSearchCV`` with ``n_jobs=-1`` and inside I have an estimator that uses OpenMP and I set ``n_jobs=-1``, what happens?Grid Search was not a good example because joblib should already handle this case. It does it by setting the number of threads to 1 for openmp.@jeremiedbb Why is that not a good example? And if the user sets ``n_job=2`` in ``GridSearchCV`` and ``n_jobs=-1`` in and OpenMP estimator? Or ``n_jobs=4`` in both with only 4 cores?
+Sorry I'm not familiar with how joblib changes the openmp threads.Assuming that we can ensure a good protection against subscription in joblib (which I believe will soon be the case), I would be in favor setting the defaults to let our OpenMP loops use the currently maximum number of threads (as OpenBLAS and MKL do for numpy / scipy).
+
++1 for letting the user pass an explicit number of threads using the `n_jobs` argument if they want. It's just that for `n_jobs=None` (the default) I would let OpenMP what it wants to do.
+
+For process based parallelism (e.g. with the loky backend of joblib) I think keeping the default `n_jobs=None` mean sequential by default is safer as there can be a non-trivial communication and memory overhead.
+
+For joblib with the threading backend I would be in favor of keeping the current behavior but reexploring this choice later if necessary.For reference the over-subscription protection in joblib will be tracked by https://github.com/joblib/joblib/issues/880 .My pocket sent this before i finished :D 
+
+It was not a good example for threadpoolctl. But it is for joblib. Alrhough we found that it doesn't work in previous joblib versions but it should be fixes on next  release.
+
+Threadpoolctl would be use when doing nested parallelism openmp/blas. It allows to prevent oversubscription by limiting the number of threads for blas. This situation only happens for kmeans right now.
+
+Overall we prevent oversubscription by disabling parallelism for non top level parallelism.
+
+In summary, any default is fine for n_jobs since it would be forced to one when already in a parallel call > In summary, any default is fine for n_jobs since it would be forced to one when already in a parallel call
+
+Just for me to get this straight: If I'm running a grid-search over HistGradientBoosting or something with OpenMP, we would probably want to default it to use all available cores. Now the user sets ``n_jobs=2`` in ``GridSearchCV`` to make things run faster, but say they have more than 2 cores. ``GridSearchCV`` would use joblib to parallelize, but joblib would prevent OpenMP parallelism inside the parallel call, so less threads would be active and things will likely be slower.
+
+Separate scenario:
+Someone set's ``n_jobs`` in both ``GridSearchCV`` and ``HistGradientBoosting``. No matter what, the ``HistGradientBoosting`` one that the user explicitly set would be ignored, right?> Now the user sets n_jobs=2 in GridSearchCV to make things run faster, but say they have more than 2 cores. GridSearchCV would use joblib to parallelize, but joblib would prevent OpenMP parallelism inside the parallel call, so less threads would be active and things will likely be slower.
+
+That's right. In that case, he should set n_jobs=-1 for the grid search to benefit from all cores. In many situations (personal observations) it's better to enable parallelism in the most outer loop.
+
+Note that it's the case with BLAS. If you set n_jobs=2 for an estimator, joblib parallelized, BLAS will be limited to use only 1 core.
+
+I think that behavior is ok if we document it properly.> In that case, he should set n_jobs=-1 for the grid search to benefit from all cores. 
+
+OK, but if they go from n_jobs=1 to 2, they will get worse results which may be a bit unexpected. 
+
+> Note that it's the case with BLAS. If you set n_jobs=2 for an estimator, joblib parallelized, BLAS will be limited to use only 1 core.
+
+Isn't that set via `OMP_NUM_THREADS` in the created processes? Which means that potentially it could be anything, including `available_cpu_cores // n_jobs`?
+
+Note that slight oversubscription may not be bad (at least last time I looked into it in HPC). e.g. if you have 4 CPU cores, 2 processes with 4 threads each is not necessarily worse than 2 process with 2 threads each if the task use heterogeneous compute units; the problem is really on 40 core CPU with 40² threads.    
+
+> Someone set's n_jobs in both GridSearchCV and HistGradientBoosting. No matter what, the HistGradientBoosting one that the user explicitly set would be ignored, right?
+
+So basically, it's about priority between `OMP_NUM_THREADS` and  user provided `num_threads` (or `n_jobs` that corresponds to threading). If one provided a `num_threads` that is not `None`, maybe it should have higher priority than `OMP_NUM_THREADS`? 
+
+> OK, but if they go from n_jobs=1 to 2, they will get worse results which may be a bit unexpected.
+
+I agree. That's a drawback of having default None means -1. But I think it's also a matter of documentation, because if I know my estimator already uses all cores, why would I increase the number of workers for my grid search ? Or maybe I'd like to disable parallelism of my estimator and use all cores for the grid search (which is your next point).
+
+> Isn't that set via OMP_NUM_THREADS in the created processes? 
+
+Yes.
+
+>Which means that potentially it could be anything, including available_cpu_cores // n_jobs?
+
+I guess it's possible.
+
+> Note that slight oversubscription may not be bad (at least last time I looked into it in HPC). e.g. if you have 4 CPU cores, 2 processes with 4 threads each is not necessarily worse than 2 process with 2 threads each if the task use heterogeneous compute units; the problem is really on 40 core CPU with 40² threads.
+
+Indeed, but it's not good either (at least I've never experienced getting better performance with oversubcription).
+
+>  If one provided a num_threads that is not None, maybe it should have higher priority than OMP_NUM_THREADS?
+
+In the implementation I propose, n_jobs/num_threads has priority over environment variables. Only the default (None) would be influenced by the environment variables. If you have a grid search with n_jobs=2 and you set n_jobs/n_threads=(n_cores // 2), you'll get full saturation of your cores.
+
+I'll add that having good default is important, but it shouldn't prevent users from thinking about what are those default, why are they good, and when are they good.> I agree. That's a drawback of having default None means -1. But I think it's also a matter of documentation, because if I know my estimator already uses all cores, why would I increase the number of workers for my grid search ?
+
+The case of multiprocessing where each process starts some number of threads makes me think of hybrid MPI/OpenMP programming in HPC (cf e.g. [this presentation](https://pdfs.semanticscholar.org/bbc8/766b0fc664396b948a21a7da1ce897dcf9a8.pdf)). The analogy is maybe a bit partial as we don't use MPI nor run on multiple nodes, but the data serialization cost when starting new processes (for now) does have a somewhat similar effect to communication cost with MPI.
+The conclusion in the HPC field, as far as I am aware, is that the optimal number of processes/nested threads is application and hardware dependent. 
+
+So my point is that is might be useful to be able to control both the number or parallel processes and the number of nested threads separately, but to control the latter it's preferable to have some global mechanism such as `OMP_NUM_THREADS` (e.g. set via joblib) that would also apply to BLAS, as opposed to a `num_threads` parameters, that would only apply to scikit-learn specific OpenMP loops.> That's a drawback of having default None means -1.
+
+I don't think that "None" should mean "-1" or "1". It should mean "best
+guess to be efficient given the global constraint", and the semantics of
+that can evolve and depend on the context.
+
+What I am saying is that when users specify "None", we should, as time
+goes add dynamic scheduling logic to be more efficient, and we should
+tell the user explicitly that the details implementation of the job
+scheduling will evolve.
+
+>     Note that slight oversubscription may not be bad (at least last time I
+>     looked into it in HPC). e.g. if you have 4 CPU cores, 2 processes with 4
+>     threads each is not necessarily worse than 2 process with 2 threads each if
+>     the task use heterogeneous compute units; the problem is really on 40 core
+>     CPU with 40² threads.
+
+Yes, it matches my experience, as long as we don't blow the memory.
+
+> Note that it's the case with BLAS. If you set n_jobs=2 for an estimator, joblib parallelized, BLAS will be limited to use only 1 core.
+
+I was not aware of that! That is... an interesting side-effect. Was that always the case? Is that documented anywhere?It has been introduced in joblib 0.12, [see change log](https://github.com/joblib/joblib/blob/master/CHANGES.rst)
+It is documented [here](https://joblib.readthedocs.io/en/latest/parallel.html#parallel), under "Avoiding over-subscription of CPU ressources"
+
+However, it was bugged until now and should be fixed in the next joblib release.So that was a change introduced in scikit-learn 0.20 but not documented in the changelog? Did we communicate this change to scikit-learn users in some way?
+
+Anyway, it sounds like we want a different strategy by default,  like ``available_cpu_cores // n_jobs`` right?> So that was a change introduced in scikit-learn 0.20 but not documented in the changelog? Did we communicate this change to scikit-learn users in some way?
+
+~~Well now that we unvendored joblib, I'm not sure where to communicate about joblib parallelism changes in scikit-learn release notes.~~
+
+Nevermind, as discussed above this feature was added but actually had no effect due to a bug, so there is nothing to worry about.
+
+> Anyway, it sounds like we want a different strategy by default, like available_cpu_cores // n_jobs right?
+
+Change proposed in https://github.com/joblib/joblib/pull/913
+
+Also I think we should still merge https://github.com/scikit-learn/scikit-learn/pull/14196: it's a private function to be able to use `n_jobs or n_threads=-1` safely and is a bit orthogonal to the present discussion.
+
+> Anyway, it sounds like we want a different strategy by default, like available_cpu_cores // n_jobs right?
+
+It does not work because you can have nested `joblib.Parallel` calls.
+
+Besides I don't think it's such a bad behavior. Currently `n_jobs` does not match the number of cores you're actually using because it does not affect BLAS. Users are often surprised because you ask for 4 jobs and your htop is full on your 40 cores machine.The discussion has derived to oversubscription questions in sklearn which is not exactly the initial purpose and which I think can be treated separately, assuming that we have the right tools to deal with oversubscription independently of the default. Thus I propose to refocus the discussion on the initial question.
+
+Let me try to summarize the discussion.
+We are currently divided, almost evenly between *use n_jobs with default = let OpenMP use as many as possible* and *add a new parameter `n_openmp_threads` with same default*.
+
+One good thing is we seem to agree on the default :)
+
+Comments about the choice for the defaults:
+- This choice for the default is supported by the fact that there are ways to tell OpenMP what *use as many as possible* means. Through `OMP_MAX_THREADS` env var or through `threadpoolctl`, which we can use in nested parallelism situations in sklearn.
+
+- The fact that joblib sets openmp max threads to 1, isn't entirely satisfactory. We could make it possible to pass the max number of threads as a parameter to `joblib.Parallel`.
+
+Comments about the name of the parameter:
+- pros to keeping `n_jobs`:
+    - keep a single parameter for parallelism
+    - changing the underlying implementation moving from joblib to OpenMP based parallelism causes change of parameter name and deprecation cycle.
+- pros to change name:
+    - the same parameter name having different defaults depending on the estimator is confusing.
+    - use different names for different things
+
+I propose to try to discuss a little bit more see if one side manage to convince the other side :)
+Then if we still don't agree I guess I'll have to make a slep ?> The fact that joblib sets openmp max threads to 1, isn't entirely satisfactory.
+
+I would argue that this is a bug that was introduced in joblib when I wasn't looking. It has horrifyingly terrible performance consequences for anything using BLAS, and not also for gradient boosting.
+Also, it was a backward-incompatible change made at some point without even a mention in whatsnew, i.e. many people's code got drastically slower.
+
+I find your "name of parameter" summary hard to understand having not followed this thread entirely. Do you mean using the ``n_jobs`` name for setting the number of threads? That seems terrible. And having different defaults also seems terrible. There is estimators (I assume kmeans?) that do both, multiprocessing and multithreading. What would the parameter do there?
+
+I don't see why we would have the user handle the threadpool via a parameter.
+Why should the user care whether we use multithreading via Cython or BLAS? We don't have a parameter to set ``OMP_MAX_THREADS`` every time we call ``np.dot``. So why should we have it in other places?> I would argue that this is a bug that was introduced in joblib when I wasn't looking. It has horrifyingly terrible performance consequences for anything using BLAS, and not also for gradient boosting. 
+
+We thought that we had implemented oversubscription protection in joblib 0.12 (in the case of Python worker processes with nested OpenMP/BLAS) but it's actually not the case because of the way the worker processes are started and their runtime initialized (more details in joblib/joblib#880).
+
+@tomMoral has recently been working in improving the way loky starts its worker processes to have more control (tomMoral/loky#217) and this was released yesterday in loky 2.6.0. The next step is to make joblib use this infrastructure to set the default number of threads allowed in each worker process to cpu_count / number_of_worker processes: joblib/joblib#913 . This default behavior will be overrideable by the user with something such as:
+
+```python
+from joblib import parallel_backend
+
+with parallel_backend("loky", inner_max_num_threads=2):
+    # sklearn code using joblib and OpenMP/BLAS goes here
+```
+
+> Also, it was a backward-incompatible change made at some point without even a mention in whatsnew, i.e. many people's code got drastically slower.
+
+It's actually mentioned in joblib's changelog https://github.com/joblib/joblib/blob/master/CHANGES.rst#release-012 but I agree it's not explicit enough. We will make sure to be more explicit in the changelog for the next joblib release.
+
+> I don't see why we would have the user handle the threadpool via a parameter.
+Why should the user care whether we use multithreading via Cython or BLAS? We don't have a parameter to set OMP_MAX_THREADS every time we call np.dot. So why should we have it in other places?
+
+I would be fine in not exposing any parameter in the scikt-learn API to control OpenMP/BLAS threads instead of overloading the meaning of n_jobs.> I don't see why we would have the user handle the threadpool via a parameter.
+Why should the user care whether we use multithreading via Cython or BLAS? We don't have a parameter to set OMP_MAX_THREADS every time we call np.dot. So why should we have it in other places?
+
+That was exactly the 5th solution proposed at the top of this thread, but no one seemed to prefer it so I did not mention it in the summary. I agree that it's a legit solution which maybe deserved more attention :)@jeremiedbb sorry I should have started from the top ;)
+
+Option 5) is the only one that seems consistent with current behavior. I still don't understand your summary, though...@ogrisel the point is that sklearn behavior drastically changed, so that should be documented in the sklearn changelog, right? At least as long as we were vendoring joblib?I guess my question for 1-4 would be what "when underlying parallelism is handled by OpenMP" means. Are we inspecting whether the blas we use was built with OpenMP and if so check if there's any call to the blas in the function?> I guess my question for 1-4 would be what "when underlying parallelism is handled by OpenMP" means. Are we inspecting whether the blas we use was built with OpenMP and if so check if there's any call to the blas in the function?
+
+No it means our OpenMP based cython code. Let's say you have an estimator with a parallel implementation (based on OpenMP), e.g. HGBT. The question is which one of the following solutions do we want ?
+- HGBT should have a `n_jobs` parameter, which defaults to use as many cores as possible
+- HGBT should have a `n_jobs` parameter, which defaults to single threaded
+- HGBT should have a `n_threads` parameter, which defaults to use as many cores as possible
+- HGBT should have a `n_threads` parameter, which defaults to single threaded
+- HGBT should not have any parameter, it uses as many cores as possible and that's all
+
+We all agree that single threaded by default is not a good choice. So we must decide between 1, 3 and 5. I hope this summary is more clear :)> No it means our OpenMP based cython code
+
+But why does the user need to care if we wrote cython code or we're calling blas? How is that relevant to the user?
+
+If we replaced a call to ``dot`` with an OpenMP based implementation of our own the behavior in terms of multithreading wouldn't change (or I might be missing something?) but because we wrote the code we would provide a different interface?I agree that the 5th solution is the more consistent. We let BLAS do what it wants, we should do the same for OpenMP based multithreading.
+
+But having the possibility to get some control on the number of threads is nice, especially for estimators for which the OpenMP parallelism is not in a small part of the algo but at the outermost loop like in my KMeans PR.> We let BLAS do what it wants, we should do the same for OpenMP based multithreading
+
+Again, you looked at this way more than I did so I might be missing something. But OpenBLAS (optionally?) uses OpenMP under the hood, right?the OpenBLAS shipped with numpy and scipy does not (but you can build it to use OpenMP and link numpy against that). MKL uses OpenMP.> But why does the user need to care if we wrote cython code or we're calling blas? How is that relevant to the user?
+
+I totally agree with that. For small bits of code using OpenMP it's what makes the most sense.
+
+My motivation is for estimators like KMeans for which the parallelism happens at the outermost loop.Ok. So that's why I find the phrase "OpenMP based multithreading" quite confusing. Because what you really mean is "OpenMP base multithreading where we wrote the call into OpenMP in Cython".
+
+And maybe there's a qualitative difference in how you use OpenMP in KMeans vs how it might be used in Nystroem but at least to me that is not obvious (sorry if that has been discussed above).Can you maybe say a bit more about that difference?I can't I don't know how it would be used in Nystroem :/
+
+the idea is if it's a bit of code that is parallel (with OpenMP in our cython code), we'd like it to behave as BLAS, i.e use as many cores as possible. On the other hand if it's the whole algorithm which is parallel (still OpenMP in our cython code), at the outermost loop, maybe we'd like to provide some control.Nystroem is just a call to SVD which I assume is handled entirely by blas ;)I also think that `with parallel_backend("loky", inner_max_num_threads=2):` without exposing thread control in scikit-learn would be a good idea. That would sidestep this whole `n_jobs` / `n_threads` discussion, and leave us the possibility to change it later if needed, while still exposing a mechanism for controlling n_threads for advanced users.
+
+> We don't have a parameter to set OMP_MAX_THREADS every time we call np.dot. So why should we have it in other places?
+
+As a side note, about using all threads by default e.g. in BLAS that logic probably originated 10-20 years ago when computers had 2-4 cores. Now you can get a desktop with 10-20 CPU cores and servers with up to 100. In that context using all cores by default kind of assumes that our library is alone in the world and can use all resources with no cost. There is a lot of cases where using all CPU cores is not ideal (shared servers, even desktops/laptops with other resource intensive applications running e.g. rendering all that JS in a browser). On a server under load spanning all threads will actually slow down both the running applications and other applications due to oversubsription.
+
+Besides, not that many applications have a good scaling beyond 10 CPU cores (or use big enough data where it makes sense) Yes, using threads is almost always faster, but also at the cost of significantly higher CPU time and electricity consumption. Maybe we don't care so much for the scikit-learn use-cases, but it could still be something worth considering. Not saying we should change anything in the proposed approach now, but to leave things flexible enough so we can change this default later if needed.The decorator seems reasonable.
+Though if that doesn't apply to BLAS, I'm sure we'll get questions by confused users, and it'll basically mean there's two ways to control the number of threads, right?> As a side note, about using all threads by default e.g. in BLAS that logic probably originated 10-20 years ago when computers had 2-4 cores [...] not that many applications have a good scaling beyond 10 CPU cores
+
+I agree. In our experience, the default scaling to all CPUs is a bad idea on large computers for multiple reasons:
+
+* When multiple processes runs like this (which often happens in Python), it leads to huge oversubscription, which can even freeze the box. One examples is n_job=-1 + openMP using all the threads, on a box with n CPU, it uses n**2 CPUs, which leads to disasters if n is largish
+
+* Those boxes are often multi-tenants.
+
+I would be in favor that inner number of threads shouldn't by default exceed 10.
+
+The big-picture problem is a hard one: in a real user codebase, these days, we end up with multiple parallel-computing systems that are nested: Python's multiprocessing, Python's threads, openMP's parallel computing (and several can coexists if eg scikit-learn was compiled with GCC and MKL compiled with ICC).
+
+What we would really need is dynamic scheduling of resources. Intel's TBB offers that by the way (though I'm not suggesting that we use it :D). It's a hard problem, and we won't tackle it here and now. However, it would be good to think about possible evolutions in this directions in the contract that we give to the user in terms of parallel computing.
+
+With the next release of `joblib` (which should happened soon), the over-subscription problem should be reduced. It will provides two improvements:
+
+- By default, `max_num_threads` for the BLAS in child processes will be set to `cpu_count() // n_jobs`, which is a sensible value to avoid over-subscription. This should tackle the main problem which is that when `numpy` is used in an estimator with `n_jobs=-1` on a big cluster, this leads to catastrophic oversubscription, while remaining performant for smaller number of `n_job`. We had set the limit to 1 before because it was safer due to the re-usability of the workers.
+
+- It will be possible to parametrize this number using the `parallel_backend` context manager to set different value if it is needed for advance users. This will provide a better control for the user than the usage of global environment variables like `OMP_NUM_THREADS` that were also reducing the performances in the main process.
+
+```python
+with parallel_backend('loky', inner_max_num_threads=2):
+    # do stuff, the BLAS in child processes will use 2 threads.
+```
+> Though if that doesn't apply to BLAS, I'm sure we'll get questions by confused users, and it'll basically mean there's two ways to control the number of threads, right?
+
+That will also apply to BLAS. Currently we plan to set MKL_NUM_THREADS, BLIS_NUM_THREADS, OPENBLAS_NUM_THREADS and OMP_NUM_THREADS.@ogrisel sorry, I'm not sure I understand your statement.
+What will apply to what?
+You're saying that loky will set these environment variables, right? But what if the user already set those variables in a script or on the command line or however they launched a job on their cluster?
+
+And so will the default of, say, 10 be enforced in loky or in sklearn?@amueller @NicolasHug We just merged this over-subscription mitigation feature in `joblib:master`, could you give it a try and see if it matches what you would expect? You can find some explanation about this new feature in [joblib documentation](https://joblib.readthedocs.io/en/latest/parallel.html#avoiding-over-subscription-of-cpu-ressources).> @ogrisel sorry, I'm not sure I understand your statement.
+> What will apply to what?
+> You're saying that loky will set these environment variables, right? But what if the user already set those variables in a script or on the command line or however they launched a job on their cluster?
+> 
+> And so will the default of, say, 10 be enforced in loky or in sklearn?
+
+The current implemented behavior gives:
+- If the user do nothing and uses `n_jobs` parallel processes for computation, the call to native libraries with inner threadpools (OpenBLAS, MKL, OpenMP, ..) will be restricted to `cpu_count // n_jobs` (**default**).
+- If the user set an environment variable such as `*_NUM_THREADS=n_thread`, this limit is passed in the child process and we do not change the behavior. This is mainly intended for cases where the user disable parallel processing for BLAS calls in the whole program, so with `n_thread=1`.
+- For more advance usage, the user can programatically override this with the context `with parallel_backend('loky', inner_max_num_threads=n_thread):`, which will take precedence over the other behavior and can be used to set locally the resource allocation.
+> You can find some explanation about this new feature in joblib documentation.
+
+@tomMoral Looks great! Just a question, say I want to restrict the number of BLAS threads without using any other parallelism. Could something like `with joblib.parallel_backend(None, inner_max_num_threads=n_thread)` be made to work, or should I use directly  the vendored threadpoolctl in that case? It would be nice if there was a single API for it.
+
+Also I guess if you explicitly create thread based parallelism say with joblib, those are not going to be constrained? Or will they be?If you want to restrict the number of thread in a process, you need to either set the env var `*_NUM_THREADS` before starting your process or use `threadpoolctl`. For now, we only rely on the former as we still have some major issues with `threadpoolctl`. In particular, it is quite unreliable. We found multiple ways to create deadlock by using it because of bad interaction between multiple native libraries with threadpools.
+
+And indeed for thread based parallelism, we don't have a solution to set the number of inner threads in each threads, except a global limit with env variables.> For now, we only rely on the former as we still have some major issues with threadpoolctl. In particular, it is quite unreliable. We found multiple ways to create deadlock by using it because of bad interaction between multiple native libraries with threadpools.
+
+To be more specific it seems that introspecting or changing the size of the threadpools dynamically can be problematic in some case for programs linked with multiple openmp runtimes at the same time. For instance there is a case under investigation here: https://github.com/joblib/threadpoolctl/issues/40
+
+So for now I would rather use threadpoolctl as little as possible until we understand better the cause of this aforementioned deadlock. It could very-well be the case that we found thread-safety bugs in those openmp runtimes and if it's the case we will report time so that they can be fixed upstream.
+
+In the mean time the safe way to control the number of threads :
+
+- Setting the environment variable prior to the launch of the main process or prior to the launch of the worker processes (as we now do in joblib master for the child processes).
+
+- The other option would be to have our (scikit-learn) Cython parallel loops explicitly pass an explicit int value to the  "num_threads" parameter.  scikit-learn could maintain a global variable (shall it be threadlocal?) that would be used by default and could be set globally. Alternatively we could expose `n_jobs`-style parameters on a per-estimator basis or both.FYI: joblib 0.14.0 (with the fixed version of overscription for the case Python process vs native threadpools) is out: https://pypi.org/project/joblib/0.14.0/OK so my current understanding is the following:
+
+- `joblib.Parallel` will set the `OMP_NUM_THREADS` env variable of the spawned child processes to a value that avoids over-subscription by default
+- Users can still control the number of openMP threads by either setting `OMP_NUM_THREADS` (which will take precedence), or by using `joblib.Parallel` as a context manager and passing `inner_max_num_threads`
+
+Is that correct?
+
+If it is, I'm all in for option 5 (not expose anything), and of course properly document this somewhere in the user guide.There's one limitation. It does not include the threading backend. This is why we are working on threadpoolctl.
+
+Based on last meeting, option 5 sees to be the preferred option for most places where we want to introduce `pranges`.
+
+So I think I can close this discussion and we can open new ones for specific estimators like hgbt or kmeans. Feel free to re-open if you disagree.I'll open a PR soon for documentation

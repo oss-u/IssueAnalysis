@@ -1,0 +1,575 @@
+as discussed in #13385 we need to ensure all attributes are documented.
+
+if you want to work on this, you should pick a specific submodule and fix all the attribute documentation mismatches in that submodule.
+
+Here's a script to find remaining ones (there might be some false positives):
+
+```python
+import numpy as np
+from sklearn.base import clone
+from sklearn.utils.testing import all_estimators
+from sklearn.utils.estimator_checks import pairwise_estimator_convert_X, enforce_estimator_tags_y
+from numpydoc import docscrape
+
+ests = all_estimators()
+
+for name, Est in ests:
+    try:
+        estimator_orig = Est()
+    except:
+        continue
+    rng = np.random.RandomState(0)
+    X = pairwise_estimator_convert_X(rng.rand(40, 10), estimator_orig)
+    X = X.astype(object)
+    y = (X[:, 0] * 4).astype(np.int)
+    est = clone(estimator_orig)
+    y = enforce_estimator_tags_y(est, y)
+    try:
+        est.fit(X, y)
+    except:
+        continue
+    fitted_attrs = [(x, getattr(est, x, None))
+                    for x in est.__dict__.keys() if x.endswith("_")
+                    and not x.startswith("_")]
+    doc = docscrape.ClassDoc(type(est))
+    doc_attributes = []
+    incorrect = []
+    for att_name, type_definition, param_doc in doc['Attributes']:
+        if not type_definition.strip():
+            if ':' in att_name and att_name[:att_name.index(':')][-1:].strip():
+                incorrect += [name +
+                              ' There was no space between the param name and '
+                              'colon (%r)' % att_name]
+            elif name.rstrip().endswith(':'):
+                incorrect += [name +
+                              ' Parameter %r has an empty type spec. '
+                              'Remove the colon' % (att_name.lstrip())]
+
+        if '*' not in att_name:
+            doc_attributes.append(att_name.split(':')[0].strip('` '))
+    assert incorrect == []
+    fitted_attrs_names = [x[0] for x in fitted_attrs]
+
+    bad = sorted(list(set(fitted_attrs_names) ^ set(doc_attributes)))
+    if len(bad) > 0:
+        msg = '{}\n'.format(name) + '\n'.join(bad)
+        print("Docstring Error: Attribute mismatch in " + msg)
+
+
+```I have already found at least one mismatch in attribute documentation in NMF class description. I think I can take some of this work. I am almost ready to propose some changes within `decomposition` and `random_projection` submodules.# Missing attribute docstrings for each estimator
+
+## Reference this issue in your PR
+
+- [x] ARDRegression, [intercept_]
+- [x] AdaBoostClassifier, [base_estimator_]
+- [x] AdaBoostRegressor, [base_estimator_]
+- [x] AdditiveChi2Sampler, [sample_interval_]
+- [x] AgglomerativeClustering, [n_components_] (deprecated)
+- [x] BaggingClassifier, [n_features_]
+- [x] BaggingRegressor, [base_estimator_, n_features_]
+- [x] BayesianGaussianMixture, [mean_precision_prior, mean_precision_prior_]
+- [x] BayesianRidge, [X_offset_, X_scale_]
+- [x] BernoulliNB, [coef_, intercept_]
+- [x] BernoulliRBM, [h_samples_]
+- [x] Birch, [fit_, partial_fit_]
+- [ ] CCA, [coef_, x_mean_, x_std_, y_mean_, y_std_]
+- [x] CheckingClassifier, [classes_]
+- [x] ComplementNB, [coef_, intercept_]
+- [x] CountVectorizer, [stop_words_, vocabulary_]
+- [ ] DecisionTreeRegressor, [classes_, n_classes_]
+- [x] DictVectorizer, [feature_names_, vocabulary_]
+- [ ] DummyClassifier, [output_2d_]
+- [ ] DummyRegressor, [output_2d_]
+- [x] ElasticNet, [dual_gap_]
+- [x] ElasticNetCV, [dual_gap_]
+- [x] EllipticEnvelope, [dist_, raw_covariance_, raw_location_, raw_support_]
+- [x] ExtraTreeClassifier, [feature_importances_]
+- [ ] ExtraTreeRegressor, [classes_, feature_importances_, n_classes_]
+- [x] ExtraTreesClassifier, [base_estimator_]
+- [x] ExtraTreesRegressor, [base_estimator_]
+- [x] FactorAnalysis, [mean_]
+- [ ] FeatureAgglomeration, [n_components_]
+- [x] GaussianProcessClassifier, [base_estimator_]
+- [x] GaussianRandomProjection, [components_]
+- [x] GradientBoostingClassifier, [max_features_, n_classes_, n_features_, oob_improvement_]
+- [x] GradientBoostingRegressor, [max_features_, n_classes_, n_estimators_, n_features_, oob_improvement_]
+- [x] HistGradientBoostingClassifier, [bin_mapper_, classes_, do_early_stopping_, loss_, n_features_, scorer_]
+- [x] HistGradientBoostingRegressor, [bin_mapper_, do_early_stopping_, loss_, n_features_, scorer_]
+- [x] IncrementalPCA, [batch_size_]
+- [x] IsolationForest, [base_estimator_, estimators_features_, n_features_]
+- [x] IsotonicRegression, [X_max_, X_min_, f_]
+- [x] IterativeImputer, [random_state_]
+- [x] KNeighborsClassifier, [classes_, effective_metric_, effective_metric_params_, outputs_2d_]
+- [x] KNeighborsRegressor, [effective_metric_, effective_metric_params_]
+- [x] KernelCenterer, [K_fit_all_, K_fit_rows_]
+- [x] KernelDensity, [tree_]
+- [x] KernelPCA, [X_transformed_fit_, dual_coef_]
+- [x] LabelBinarizer, [classes_, sparse_input_, y_type_]
+- [x] LabelEncoder, [classes_]
+- [x] LarsCV, [active_]
+- [x] Lasso, [dual_gap_]
+- [x] LassoLarsCV, [active_]
+- [x] LassoLarsIC, [alphas_]
+- [x] LatentDirichletAllocation, [bound_, doc_topic_prior_, exp_dirichlet_component_, random_state_, topic_word_prior_]
+- [x] LinearDiscriminantAnalysis, [covariance_]
+- [x] LinearRegression, [rank_, singular_]
+- [x] LinearSVC, [classes_]
+- [x] LocalOutlierFactor, [effective_metric_, effective_metric_params_]
+- [x] MDS, [dissimilarity_matrix_, n_iter_]
+- [x] MLPClassifier, [best_loss_, loss_curve_, t_]
+- [x] MLPRegressor, [best_loss_, loss_curve_, t_]
+- [x] MinMaxScaler, [n_samples_seen_]
+- [x] MiniBatchDictionaryLearning, [iter_offset_]
+- [x] MiniBatchKMeans, [counts_, init_size_, n_iter_]
+- [x] MultiLabelBinarizer, [classes_]
+- [x] MultiTaskElasticNet, [dual_gap_, eps_, sparse_coef_]
+- [x] MultiTaskElasticNetCV, [dual_gap_]
+- [x] MultiTaskLasso, [dual_gap_, eps_, sparse_coef_]
+- [x] MultiTaskLassoCV, [dual_gap_]
+- [x] NearestCentroid, [classes_]
+- [x] NearestNeighbors, [effective_metric_, effective_metric_params_]
+- [x] NeighborhoodComponentsAnalysis, [random_state_]
+- [x] NuSVC, [class_weight_, fit_status_, probA_, probB_, shape_fit_]
+- [ ] NuSVR, [class_weight_, fit_status_, n_support_, probA_, probB_, shape_fit_]
+- [x] OAS, [location_]
+- [ ] OneClassSVM, [class_weight_, fit_status_, n_support_, probA_, probB_, shape_fit_]
+- [x] OneVsOneClassifier, [n_classes_]
+- [x] OneVsRestClassifier, [coef_, intercept_, n_classes_]
+- [x] OrthogonalMatchingPursuit, [n_nonzero_coefs_]
+- [ ] PLSCanonical, [coef_, x_mean_, x_std_, y_mean_, y_std_]
+- [x] PLSRegression, [x_mean_, x_std_, y_mean_, y_std_]
+- [ ] PLSSVD, [x_mean_, x_std_, y_mean_, y_std_]
+- [x] PassiveAggressiveClassifier, [loss_function_, t_]
+- [x] PassiveAggressiveRegressor, [t_]
+- [x] Perceptron, [loss_function_]
+- [x] QuadraticDiscriminantAnalysis, [classes_, covariance_]
+- [x] RBFSampler, [random_offset_, random_weights_]
+- [ ] RFE, [classes_]
+- [ ] RFECV, [classes_]
+- [x] RadiusNeighborsClassifier, [classes_, effective_metric_, effective_metric_params_, outputs_2d_]
+- [x] RadiusNeighborsRegressor, [effective_metric_, effective_metric_params_]
+- [x] RandomForestClassifier, [oob_decision_function_, oob_score_]
+- [x] RandomForestRegressor, [oob_prediction_, oob_score_]
+- [x] RandomTreesEmbedding, [base_estimator_, feature_importances_, n_features_, n_outputs_, one_hot_encoder_]
+- [x] RidgeCV, [cv_values_]
+- [x] RidgeClassifier, [classes_]
+- [x] RidgeClassifierCV, [cv_values_]
+- [x] SGDClassifier, [classes_, t_]
+- [x] SGDRegressor, [average_coef_, average_intercept_]
+- [x] SVC, [class_weight_, shape_fit_]
+- [ ] SVR, [class_weight_, fit_status_, n_support_, probA_, probB_, shape_fit_]
+- [x] SelectKBest, [pvalues_, scores_]
+- [x] ShrunkCovariance, [shrinkage]
+- [x] SkewedChi2Sampler, [random_offset_, random_weights_]
+- [x] SparseRandomProjection, [components_, density_]
+- [x] SpectralEmbedding, [n_neighbors_]
+- [x] TfidfVectorizer, [stop_words_, vocabulary_]I can take up the `tree` submodule attribute documentation mismatches, which includes:
+- DecisionTreeRegressor, [classes_, n_classes_]
+- ExtraTreeClassifier, [classes_, max_features_, n_classes_, n_features_, n_outputs_, tree_]
+- ExtraTreeRegressor, [classes_, max_features_, n_classes_, n_features_, n_outputs_, tree_]I'm working on LinearRegression, [rank_, singular_].I'm working on LinearSVC, [n_iter_] and LinearSVR, [n_iter_]I'll take up `Gradient boosting` i.e.
++ GradientBoostingClassifier [base_estimator_, max_features_, n_classes_, n_features_]
+ + GradientBoostingRegressor [base_estimator_, classes_, max_features_, n_estimators_, n_features_]nevermind, misread where attributes are missing and where notIt's looking like there is also `classes_` attribute undocumented for classifiers of `naive_bayes` submodule. I have started to fix it.I will work on  TfidfVectorizer, [fixed_vocabulary_]I will work on:
+- RandomForestClassifier, [base_estimator_]
+- RandomForestRegressor, [base_estimator_, n_classes_]
+- ExtraTreesClassifier, [base_estimator_]
+- ExtraTreesRegressor, [base_estimator_, n_classes_]I'm working on:
+- SGDClassifier, [average_coef_, average_intercept_, standard_coef_, standard_intercept_]
+- SGDRegressor, [standard_coef_, standard_intercept_]
+
+EDIT: opened an issue to change these attributes from public to private (reference: #14364)I am working on:
+KernelCenterer, [K_fit_all_, K_fit_rows_]
+MinMaxScaler, [n_samples_seen_]I will work on:
+- RandomTreesEmbedding, [base_estimator_, classes_, feature_importances_, n_classes_, n_features_, n_outputs_, one_hot_encoder_]I also have discovered the `KNeighborsClassifier`, `KNeighborsRegressor` and possibly other classes of `neighbors` module have no attribute documentation at all. Currently working on `KNeighborsRegressor` that has 2 attributes:
+
+* `effective_metric_`
+* `effective_metric_params_`
+
+The `KNeighborsClassifier` class has four attributes:
+
+* `classes_`
+* `effective_metric_`
+* `effective_metric_params_`
+* `outputs_2d_`@alexitkes good catch. Thanks!Working on QuadraticDiscriminantAnalysis, [classes_, covariance_] Working on KNeighborsClassifier, [classes_, effective_metric_, effective_metric_params_, outputs_2d_]
+RadiusNeighborsClassifier, [classes_, effective_metric_, effective_metric_params_, outputs_2d_]Working on:
+LinearSVC, [classes_]
+NuSVC, [class_weight_, classes_, fit_status_, probA_, probB_, shape_fit_]
+SVC, [class_weight_, classes_, shape_fit_]Working on:
+
+- [ ] BaggingClassifier, [n_features_, oob_decision_function_, oob_score_]
+- [ ] BaggingRegressor, [base_estimator_, n_features_, oob_prediction_, oob_score_]
+- [ ] AdaBoostClassifier, [base_estimator_]
+- [ ] AdaBoostRegressor, [base_estimator_]
+Working on:
+
+ CountVectorizer, [stop_words_, vocabulary_]
+ DictVectorizer, [feature_names_, vocabulary_]Hii!! I'd like to help out with this one.. Can anyone plz tell me where should I start??We are working on the functions in `dict_learning.py` @spbail Working on LinearDiscriminantAnalysis with @olgadk7Working on Attribute mismatch in RidgeClassifierCV @npatta01Working on DecisionTreeRegressor with @ingrid88 + @npatta01> Working on LinearDiscriminantAnalysis with @olgadk7
+
+False positive for the attribute script above. This has been documented.Working on AdditiveChi2Sampler with @olgadk7Working on LabelEncoder with @eugeniaftwill try to work on randomtreeclassifier! working on 
+
+Perceptron
+working on BernoulliRBMWorking on ExtraTreeClassifer
+> Working on LabelEncoder with @eugeniaft
+
+LabelEncoder looks like it has no mismatch, we're working on OneClassSVMI think the tree regressors should deprecate their classes instead.working on SVRWorking on:
+- OneVsOneClassifier, [n_classes_]
+- OneVsRestClassifier, [coef_, intercept_, n_classes_]working on LinearRegression, [rank_, singular_]working on LatentDirichletAllocation, [bound_, doc_topic_prior_, exp_dirichlet_component_, random_state_, topic_word_prior_]working on 
+BaggingClassifier, [n_features_, oob_decision_function_, oob_score_]
+  BaggingRegressor, [base_estimator_, n_features_, oob_prediction_, oob_score_]BaggingClassifier, [n_features_, oob_decision_function_, oob_score_]
+  BaggingRegressor, [base_estimator_, n_features_, oob_prediction_, oob_score_]
+oob_ attributes are address in PR #14779, n_features_ & base_estimator_ are false positives.working on 
+AdaBoostClassifier, [base_estimator_]
+
+Update: was already fixed in https://github.com/scikit-learn/scikit-learn/pull/14477I think we should not recommend this issue for the next sprints, or use a much more curated version.
+
+Based on my experience on the previous sprint, there are still a lot of false positives, and we end up asking contributors to actually deprecate public attributes to make them private, which is arguably much harder (and can be frustrating since contributors feel they worked for nothing). 
+
+Ping @amueller @thomasjpfan 	WDYT?> I think we should not recommend this issue for the next sprints, or use a much more curated version.
+
+Maybe if we had a general validation tool for docstring such as proposed in https://github.com/numpy/numpydoc/issues/213 things would be a bit easier for contributors. Although I agree that it doesn't fully address the fact that some attributes are public while they shouldn't be. `TfidfVectorizer, SpectralEmbedding, SparseRandomProjection` are updated. I was wondering about taking that issue as my first one, but after some random picking of submodules listed by script, the only classes I found as uncorrectly documented are PLS* classes. But they live in \_pls\_.py file, which seems to be non-public. Should I work on them or find another good first issue?As long as the actual classes are public, they qualify. The public classes are listed in `doc/modules/classes.rst`. The PLS* classes are there so feel free to document themDoes it make sense to alphabetize all of the attributes as well? I think it would provide structure to the section and make the section easier to read.@pwalchessen I agree, sounds like a good idea. As mentioned in person, I would also add that to the test.These seem still open and kinda obvious:
+```
+Docstring Error: Attribute mismatch in RidgeCV
+cv_values_
+Docstring Error: Attribute mismatch in RidgeClassifier
+classes_
+Docstring Error: Attribute mismatch in RidgeClassifierCV
+classes_
+cv_values_
+Docstring Error: Attribute mismatch in SkewedChi2Sampler
+random_offset_
+random_weights_
+Docstring Error: Attribute mismatch in PLSCanonical
+coef_
+x_mean_
+x_std_
+y_mean_
+y_std_
+Docstring Error: Attribute mismatch in PLSRegression
+x_mean_
+x_std_
+y_mean_
+y_std_
+Docstring Error: Attribute mismatch in PLSSVD
+x_mean_
+x_std_
+y_mean_
+y_std_
+Docstring Error: Attribute mismatch in PassiveAggressiveClassifier
+loss_function_
+Docstring Error: Attribute mismatch in Perceptron
+loss_function_
+Docstring Error: Attribute mismatch in PolynomialFeatures
+powers_
+Docstring Error: Attribute mismatch in QuadraticDiscriminantAnalysis
+covariance_
+Docstring Error: Attribute mismatch in RBFSampler
+random_offset_
+random_weights_
+Docstring Error: Attribute mismatch in RadiusNeighborsClassifier
+n_samples_fit_
+outlier_label_
+Docstring Error: Attribute mismatch in RadiusNeighborsRegressor
+n_samples_fit_
+Docstring Error: Attribute mismatch in RadiusNeighborsTransformer
+effective_metric_
+effective_metric_params_
+n_samples_fit_
+Docstring Error: Attribute mismatch in ElasticNet
+dual_gap_
+sparse_coef_
+Docstring Error: Attribute mismatch in ElasticNetCV
+dual_gap_
+Docstring Error: Attribute mismatch in EllipticEnvelope
+dist_
+raw_covariance_
+raw_location_
+raw_support_
+```
+and a bunch more...Updated list of outstanding attributes that need to be added. 
+
+- [ ] BayesianGaussianMixture
+    - [x] mean_precision_prior
+    - [ ] mean_precision_prior_
+- [ ] BayesianRidge 
+    - [ ] X_offset_
+    - [ ] X_scale_
+- [ ] BernoulliNB
+    - [ ] coef_ array
+    - [ ] intercept_
+- [ ] Birch
+    - [ ] fit_
+    - [ ] partial_fit_
+- [ ] CCA 
+    - [ ] coef_ array, shape (1, n_features) or (n_classes, n_features); Coefficient of the features in the decision function.
+    - [ ] x_mean_ :  array, shape (n_features, ) The mean over features.
+    - [ ] x_std_
+    - [ ] y_mean_
+    - [ ] y_std_
+- [x] CategoricalNB
+    - [x] classes_ (classes_ : array, shape (n_classes, )
+A list of class labels known to the classifier.
+- [ ] ComplementNB
+    - [ ] coef_: array, shape (1, n_features) or (n_classes, n_features); Coefficient of the features in the decision function.
+    - [ ] intercept_
+- [x] CountVectorizer
+    - [x] stop_words_ 
+    - [x] vocabulary_
+- [x] DecisionTreeClassifier
+    - [x] feature_importances_
+- [ ] DecisionTreeRegressor 
+    - [ ] classes_ : array-like, shape (n_classes,); Unique class labels
+    - [ ] n_classes_ : int; Number of unique class labels
+    - [x] feature_importances_
+- [ ] DictVectorizer
+    - [ ] feature_names_
+    - [ ] vocabulary_
+- [ ] DummyClassifier
+    - [ ] output_2d_
+- [ ] DummyRegressor
+    - [ ] output_2d_
+- [ ] ElasticNet
+    - [ ] dual_gap_
+    - [ ] sparse_coef_
+- [ ] ElasticNetCV
+    - [ ] dual_gap_
+- [ ] EllipticEnvelope
+    - [ ] dist_
+    - [ ] raw_covariance_
+    - [ ] raw_location_
+    - [ ] raw_support_
+- [ ] ExtraTreeClassifier
+    - [ ] feature_importances_
+- [ ] ExtraTreeRegressor
+    - [ ] classes_ : array-like, shape (n_classes,); Unique class labels
+    - [ ] feature_importances_
+    - [ ] n_classes_ : int; Number of unique class labels
+- [ ] FeatureAgglomeration
+    - [ ] n_components_
+    - [x] distances_
+- [ ] GaussianProcessClassifier
+    - [ ] base_estimator_
+    - [x] kernel_
+- [x] GaussianRandomProjection
+    - [x] components_
+- [ ] GradientBoostingClassifier
+    - [ ] max_features_
+    - [ ] n_classes_ : int; Number of unique classes.
+    - [ ] n_features_ : int; Number of features used.
+    - [x] oob_improvement_
+    - [x] feature_importances_
+- [ ] GradientBoostingRegressor
+    - [ ] max_features_
+    - [ ] n_classes_ : int; Number of unique classes.
+    - [ ] n_estimators_
+    - [ ] n_features_ : int; Number of features used.
+    - [x] oob_improvement_
+    - [x] feature_importances_
+- [ ] HistGradientBoostingClassifier
+    - [ ] bin_mapper_
+    - [ ] classes_
+    - [ ] do_early_stopping_
+    - [ ] loss_
+    - [ ] n_features_ : int; The number of selected features.
+    - [x] n_iter_
+    - [ ] scorer_
+- [ ] HistGradientBoostingRegressor
+    - [ ] bin_mapper_
+    - [ ] do_early_stopping_
+    - [ ] loss_
+    - [ ] n_features_ : int; The number of selected features.
+    - [ ] 
+    - [ ] scorer_
+- [ ] IncrementalPCA
+    - [ ] batch_size_
+- [ ] IsolationForest
+    - [ ] base_estimator_
+    - [ ] estimators_features_
+    - [x] estimators_samples_
+    - [ ] n_features_ : int; The number of selected features.
+- [ ] KernelCenterer
+    - [ ] K_fit_all_
+    - [ ] K_fit_rows_
+- [ ] KernelDensity
+    - [ ] tree_
+- [ ] LarsCV
+    - [ ] active_
+- [ ] Lasso
+    - [ ] dual_gap_
+    - [x] sparse_coef_
+- [ ] LassoLarsCV
+    - [ ] active_
+- [ ] LassoLarsIC
+    - [ ] alphas_
+- [ ] LatentDirichletAllocation
+    - [x] bound_
+    - [x] doc_topic_prior_
+    - [ ] exp_dirichlet_component_
+    - [ ] random_state_
+- [ ] LocalOutlierFactor
+    - [ ] effective_metric_
+    - [ ] effective_metric_params_
+    - [ ] n_samples_fit_ : int; Number of samples in the fitted data.
+- [ ] MDS
+    - [ ] dissimilarity_matrix_
+    - [ ] n_iter_ : int; Number of iterations. 
+- [ ] MLPClassifier
+    - [ ] best_loss_
+    - [ ] loss_curve_
+    - [ ] t_
+- [ ] MLPRegressor
+    - [ ] best_loss_
+    - [ ] loss_curve_
+    - [ ] t_
+- [ ] MiniBatchKMeans
+    - [ ] counts_
+    - [ ] init_size_
+    - [ ] n_iter_: int; Number of iterations. 
+- [ ] MultiTaskElasticNet
+    - [ ] dual_gap_
+    - [ ] eps_
+    - [ ] sparse_coef_
+- [ ] MultiTaskElasticNetCV
+    - [ ] dual_gap_
+- [ ] MultiTaskLasso
+    - [ ] dual_gap_
+    - [ ] eps_
+    - [ ] sparse_coef_
+- [ ] MultiTaskLassoCV
+    - [ ] dual_gap_
+- [ ] OAS
+    - [ ] location_
+- [ ] OneVsRestClassifier
+    - [ ] coef_ : array, shape (1, n_features) or (n_classes, n_features); Coefficient of the features in the decision function.
+    - [ ] intercept_
+    - [ ] n_classes_ : int; Number of unique classes.
+- [ ] OrthogonalMatchingPursuit
+    - [ ] n_nonzero_coefs_
+- [ ] PLSCanonical
+    - [ ] coef_ : array, shape (1, n_features) or (n_classes, n_features); Coefficient of the features in the decision function.
+    - [ ] x_mean_ : float???; Mean of 
+    - [ ] x_std_
+    - [ ] y_mean_
+    - [ ] y_std_
+- [ ] PLSRegression
+    - [ ] x_mean_
+    - [ ] x_std_
+    - [ ] y_mean_
+    - [ ] y_std_
+- [ ] PLSSVD
+    - [ ] x_mean_
+    - [ ] x_std_
+    - [ ] y_mean_
+    - [ ] y_std_
+- [ ] PassiveAggressiveClassifier
+    - [ ] loss_function_
+- [ ] RBFSampler
+    - [ ] random_offset_
+    - [ ] random_weights_
+- [ ] ShrunkCovariance
+    - [ ] shrinkage
+- [ ] SkewedChi2Sampler
+    - [ ] random_offset_
+    - [ ] random_weights_
+- [ ] _BaseRidgeCV
+    - [ ] alpha_
+    - [ ] coef_
+    - [ ] intercept_
+- [ ] _ConstantPredictor
+    - [ ] y_
+- [ ] _RidgeGCV
+    - [ ] alpha_
+    - [ ] coef_
+    - [ ] dual_coef_
+    - [ ] intercept_
+I am going to add `feature_importances_` to the documentation for `ExtraTreeRegressor` A group of data science majors and I will begin working on the BayesianRidge, [X_offset_, X_scale_] attribute documentation. Hi, our group of contributors will be working on:
+
+- PLSSVD
+- CCA
+- Incremental PCA
+- MiniBatchKMeans
+- LassoPotential fixes in #16826The test was added in #16286.
+There are currently still a couple of classes that are skipped:
+https://github.com/scikit-learn/scikit-learn/blob/753da1de06a764f264c3f5f4817c9190dbe5e021/sklearn/tests/test_docstring_parameters.py#L180
+
+Some of these already have PRs, so make sure to check that before starting to work on it.> Some of these already have PRs, so make sure to check that before starting to work on it.
+
+A good option would also be to try to look at open PRs that have not been merged and try to finish them.
+
+As a rule of thumb, if a PR hasn't got some activity for more than 2-3 weeks, it is fine to try to take it over and try to finish it.In case your are interested in such solution, there is a way to implement an extension for sphinx which checks that parameters are all documented or not mispelled (you can see an example here: https://github.com/sdpython/pyquickhelper/blob/master/src/pyquickhelper/sphinxext/sphinx_docassert_extension.py). Maybe it can be useful to add a custom one to scikit-learn documentation.@sdpython, that would be wonderful! If you are not working on something else, perhaps you could propose a draft PR? Thanks!Interesting!
+
+IIRC we have a common tests that check that all attributes are documented. It was added in https://github.com/scikit-learn/scikit-learn/pull/16286. Also I seem to remember that mne-python had something similar.
+
+I don't have an informed opinion on which approach is preferable but I would say that documenting the missing parameters is probably higher priority than deciding how we want to do the checking.The issue with doing that in sphinx that in our case building a documentation takes a long time (due to generating all the examples) so a unit test or standalone tool would be easier to use. Note that we have previously used [numpydoc validation](https://numpydoc.readthedocs.io/en/latest/validation.html) in https://github.com/scikit-learn/scikit-learn/issues/15440 and some validation of the docstring with type annotations could be done with https://github.com/terrencepreilly/darglint. So we probably should avoid a situation of using 5 different validation tools for docstrings as well  :) I like the ability to use pytest to check the results, for instance:
+
+```
+pytest -v  --runxfail -k IsolationForest sklearn/tests/test_docstring_parameters.py
+```
+
+so maybe it's not necessary to change our sphinx build for this.I checked which attribute docstrings are still missing (the list above is out of date). These are the ones I found: 
+
+BayesianGaussianMixture, [mean_precision_prior]
+BayesianRidge, [X_offset_, X_scale_]
+BernoulliNB, [coef_, intercept_]
+Birch, [fit_, partial_fit_]
+CCA, [x_mean_, x_std_, y_mean_, y_std_]
+DecisionTreeRegressor, [classes_, n_classes_]
+DummyClassifier, [output_2d_]
+DummyRegressor, [output_2d_]
+ElasticNet, [dual_gap_]
+ElasticNetCV, [dual_gap_]
+ExtraTreeRegressor, [classes_, n_classes_]
+FeatureAgglomeration, [n_components_]
+LarsCV, [active_]
+Lasso, [dual_gap_]
+LassoLarsCV, [active_]
+LassoLarsIC, [alphas_]
+MiniBatchKMeans, [counts_, init_size_, n_iter_]
+MultiTaskElasticNet, [dual_gap_, eps_, sparse_coef_]
+MultiTaskElasticNetCV, [dual_gap_]
+MultiTaskLasso, [dual_gap_, eps_, sparse_coef_]
+MultiTaskLassoCV, [dual_gap_]
+NuSVR, [probA_, probB_]
+OneClassSVM, [probA_, probB_]
+OneVsRestClassifier, [coef_, intercept_]
+OrthogonalMatchingPursuit, [n_nonzero_coefs_]
+PLSCanonical, [x_mean_, x_std_, y_mean_, y_std_]
+PLSSVD, [x_mean_, x_std_, y_mean_, y_std_]
+SVR, [probA_, probB_]Thanks @marenwestermann!I'm working on MiniBatchKMeansI'm working on Lasso.I'm now working on adding the attribute `sparse_coef_` to MultiTaskElasticNet and MultiTaskLasso. I'm working on LarsCV.@thomasjpfan it is said in the classes `SVR` and `OneClassSVM`:
+"The probA_ attribute is deprecated in version 0.23 and will be removed in version 0.25." and
+"The probB_ attribute is deprecated in version 0.23 and will be removed in version 0.25."
+
+Therefore, these attributes probably don't need documentation anymore, right? 
+Going from here, will these two attributes also be deprecated in the class `NuSVR`? The attributes `classes_` and `n_classes_` for ExtraTreeRegressor are false positives.> Therefore, these attributes probably don't need documentation anymore, right?
+Going from here, will these two attributes also be deprecated in the class NuSVR?
+
+Since we are deprecating them I would say we would not need document them.
+
+> The attributes classes_ and n_classes_ for ExtraTreeRegressor are false positives.
+
+Yup those should be deprecated then removed if they are not already.The ```DecisionTreeRegressor``` class says:
+"the n_classes_ attribute is to be deprecated from version  0.22 and will be removed in 0.24."
+"the classes_ attribute is to be deprecated from version 0.22 and will be removed in 0.24."
+
+So these attributes also don't need documentation right?> So these attributes also don't need documentation right?
+
+Right @Abilityguy, thanks for pointing out that.I can see below mismatch in _RidgeGCV :
+Docstring Error: Attribute mismatch in _RidgeGCV
+alpha_
+best_score_
+coef_
+dual_coef_
+intercept_
+n_features_in_
+
+and in _BaseRidgeCV:
+Docstring Error: Attribute mismatch in _BaseRidgeCV
+alpha_
+best_score_
+coef_
+intercept_
+n_features_in_
+
+Can I take it up? I am first timer and wants to contribute.
+@marenwestermann in the class FeatureAgglomeration, it is said that, in version 0.21, n_connected_components_ was added to replace n_components_, then n_components_ would be false positive right..?@srivathsa729 from my understanding yes. However, it would be good if one of the core developers could double check.I will take up ElasticNet
+Documentation of the attributes X_offset_ and X_scale_ for BayesianRidge has been added with #18607 .The attribute output_2d_ is deprecated in DummyClassifier and DummyRegressor (see #14933).I ran the script provided by @amueller at the top of this PR (the code needs to be slightly modified because things have moved around). I couldn't find any more attributes that need to be documented with the exception of `n_features_in_` which I see has been introduced in #16112. This attribute is undocumented in I think all classes it was introduced to. Should it be documented?
+ping @NicolasHug Hello. I wanted to take this on as a first issue, but it seems that all attributes have already been documented?Thanks @marenwestermann for checking! This is very helpful.
+`n_features_in_` documentation is now tracked in #19333. It turns out that all detections from the script in the descriptions are false positives, I'm closing this one. Thanks to all the contributors for their helpful work!

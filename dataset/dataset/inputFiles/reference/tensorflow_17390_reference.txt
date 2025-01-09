@@ -1,0 +1,5 @@
+Thanks saudet, but AFAIK, that shouldn't be required in our case, the CODESCODES protos are just used to define a standard format to a binary file and are not used for transportation, the data is passed as a simple byte array to CODESCODES. 
+
+As of serializing deserializing those messages in the Java client, I think we can opt for simplicity over performances here. The way I see it that we should use as much as possible vanilla Java code in our solution and rely on JavaCPP only when required, what do you guys think?
+
+ Just FYI, I talked ewilderj and there is a possibility for us to have a official community platform regarding Java development in TF for discussions like these, if you are interested! 

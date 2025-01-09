@@ -1,0 +1,491 @@
+Python2 kernel died when I ran `jupyter-notebook` from [Ubuntu on Windows](https://blogs.windows.com/buildingapps/2016/03/30/run-bash-on-ubuntu-on-windows/) .
+
+How can I help fix this ?
+If there is something that I should report (dependent package versions, etc...), please tell me.
+
+```
+C:\Users\knishida>bash
+root@localhost:/mnt/c/Users/knishida# which jupyter-notebook
+/usr/local/bin/jupyter-notebook
+root@localhost:/mnt/c/Users/knishida# jupyter-notebook --no-browser
+[I 12:13:45.094 NotebookApp] Serving notebooks from local directory: /mnt/c/Users/knishida
+[I 12:13:45.094 NotebookApp] 0 active kernels
+[I 12:13:45.095 NotebookApp] The Jupyter Notebook is running at: http://localhost:8888/
+[I 12:13:45.095 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[I 12:13:52.589 NotebookApp] 302 GET / (127.0.0.1) 1.00ms
+[W 12:13:53.318 NotebookApp] /mnt/c/Users/knishida/Application Data doesn't exist
+[W 12:13:53.324 NotebookApp] /mnt/c/Users/knishida/Cookies doesn't exist
+[W 12:13:53.358 NotebookApp] /mnt/c/Users/knishida/Local Settings doesn't exist
+[W 12:13:53.362 NotebookApp] /mnt/c/Users/knishida/My Documents doesn't exist
+[W 12:13:53.364 NotebookApp] /mnt/c/Users/knishida/NetHood doesn't exist
+[W 12:13:53.381 NotebookApp] /mnt/c/Users/knishida/PrintHood doesn't exist
+[W 12:13:53.382 NotebookApp] /mnt/c/Users/knishida/Recent doesn't exist
+[W 12:13:53.385 NotebookApp] /mnt/c/Users/knishida/SendTo doesn't exist
+[W 12:13:53.386 NotebookApp] /mnt/c/Users/knishida/Templates doesn't exist
+[W 12:13:53.394 NotebookApp] /mnt/c/Users/knishida/スタート メニュー doesn't exist
+[I 12:13:56.609 NotebookApp] Creating new notebook in
+[I 12:13:57.586 NotebookApp] Kernel started: 21494d4d-34f6-4290-86a4-361d9142232c
+Invalid argument (bundled/zeromq/src/tcp_address.cpp:171)
+[I 12:14:00.585 NotebookApp] KernelRestarter: restarting kernel (1/5)
+Invalid argument (bundled/zeromq/src/tcp_address.cpp:171)
+[I 12:14:03.612 NotebookApp] KernelRestarter: restarting kernel (2/5)
+Invalid argument (bundled/zeromq/src/tcp_address.cpp:171)
+[I 12:14:06.638 NotebookApp] KernelRestarter: restarting kernel (3/5)
+Invalid argument (bundled/zeromq/src/tcp_address.cpp:171)
+[W 12:14:07.921 NotebookApp] Timeout waiting for kernel_info reply from 21494d4d-34f6-4290-86a4-361d9142232c
+[I 12:14:09.661 NotebookApp] KernelRestarter: restarting kernel (4/5)
+WARNING:root:kernel 21494d4d-34f6-4290-86a4-361d9142232c restarted
+Invalid argument (bundled/zeromq/src/tcp_address.cpp:171)
+[W 12:14:12.695 NotebookApp] KernelRestarter: restart failed
+[W 12:14:12.696 NotebookApp] Kernel 21494d4d-34f6-4290-86a4-361d9142232c died, removing from map.
+ERROR:root:kernel 21494d4d-34f6-4290-86a4-361d9142232c restarted failed!
+[W 12:14:12.716 NotebookApp] Kernel deleted before session
+[W 12:14:12.717 NotebookApp] 410 DELETE /api/sessions/66d44973-6230-4ed3-bcb0-761b2af4c503 (127.0.0.1) 5.00ms referer=http://localhost:8888/notebooks/Untitled3.ipynb?kernel_name=python2
+
+```
+This is the key:
+
+> Invalid argument (bundled/zeromq/src/tcp_address.cpp:171)
+
+which is a C-level error in zeromq when starting the kernel, possibly related to funkiness in the Ubuntu+Windows environment. How did you install your Python packages, specifically pyzmq?
+I installed the jupyter dependent packages (including pyzmq) with the following commands.
+
+```
+wget https://bootstrap.pypa.io/get-pip.py
+python get-pip.py
+apt install g++ python-dev
+pip2 install jupyter
+```
+@minrk I wonder if unicode/characters are getting in the way as well here with Python:
+
+`[W 12:13:53.394 NotebookApp] /mnt/c/Users/knishida/スタート メニュー doesn't exist`
+@kozo2 can you install zeromq with apt, and then reinstall pyzmq:
+
+```
+apt-get install libzmq3-dev
+pip uninstall pyzmq
+pip install --no-use-wheel -v pyzmq
+```
+@minrk I installed zeromq with apt, and reinstalled pyzmq with pip `--no-use-wheel` option, but still fails like this
+
+```
+root@localhost:~# jupyter notebook --no-browser
+/usr/local/lib/python2.7/dist-packages/widgetsnbextension/__init__.py:30: UserWarning: To use the jupyter-js-widgets nbe
+xtension, you'll need to update
+    the Jupyter notebook to version 4.2 or later.
+  the Jupyter notebook to version 4.2 or later.""")
+[I 17:01:05.360 NotebookApp] Serving notebooks from local directory: /root
+[I 17:01:05.361 NotebookApp] 0 active kernels
+[I 17:01:05.361 NotebookApp] The Jupyter Notebook is running at: http://localhost:8888/
+[I 17:01:05.362 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[W 17:01:22.026 NotebookApp] 404 GET /nbextensions/widgets/notebook/js/extension.js?v=20160420170105 (127.0.0.1) 19.00ms
+ referer=http://localhost:8888/notebooks/Untitled.ipynb
+[I 17:01:22.474 NotebookApp] Kernel started: facafdda-93a2-4286-abb5-490274d63739
+Invalid argument (tcp_address.cpp:161)
+[I 17:01:25.469 NotebookApp] KernelRestarter: restarting kernel (1/5)
+Invalid argument (tcp_address.cpp:161)
+[I 17:01:28.495 NotebookApp] KernelRestarter: restarting kernel (2/5)
+Invalid argument (tcp_address.cpp:161)
+[I 17:01:31.519 NotebookApp] KernelRestarter: restarting kernel (3/5)
+Invalid argument (tcp_address.cpp:161)
+[W 17:01:32.804 NotebookApp] Timeout waiting for kernel_info reply from facafdda-93a2-4286-abb5-490274d63739
+[I 17:01:34.544 NotebookApp] KernelRestarter: restarting kernel (4/5)
+WARNING:root:kernel facafdda-93a2-4286-abb5-490274d63739 restarted
+Invalid argument (tcp_address.cpp:161)
+[W 17:01:37.579 NotebookApp] KernelRestarter: restart failed
+[W 17:01:37.580 NotebookApp] Kernel facafdda-93a2-4286-abb5-490274d63739 died, removing from map.
+ERROR:root:kernel facafdda-93a2-4286-abb5-490274d63739 restarted failed!
+[W 17:01:37.597 NotebookApp] Kernel deleted before session
+[W 17:01:37.601 NotebookApp] 410 DELETE /api/sessions/1937b7bf-1c9c-49d4-b4fd-eff419172f84 (127.0.0.1) 7.00ms referer=ht
+tp://localhost:8888/notebooks/Untitled.ipynb
+
+```
+I suspect that libzmq has some issues in the pseudo-linux context. Getting to the bottom of that is probably the key. For instance, can you run the pyzmq tests:
+
+```
+nosetests -vsx zmq.tests
+```
+
+and see what you get?
+
+It's possible that you will need to build libzmq from source to get it to properly detect its environment, and also possible that it will need patches to run.
+I got
+
+```
+root@localhost:~# nosetests -vsx zmq.tests
+Test timer expired, indicates test failure ... SKIP: security requires libzmq to be linked against libsodium
+Test timer expired, indicates test success ... SKIP: security requires libzmq to be linked against libsodium
+test_blacklist (zmq.tests.test_auth.TestIOLoopAuthentication) ... SKIP: security requires libzmq to be linked against libsodium
+test_curve_allow_any (zmq.tests.test_auth.TestIOLoopAuthentication) ... SKIP: security requires libzmq to be linked against libsodium
+test_curve_configured_server (zmq.tests.test_auth.TestIOLoopAuthentication) ... SKIP: security requires libzmq to be linked against libsodium
+test_curve_unconfigured_server (zmq.tests.test_auth.TestIOLoopAuthentication) ... SKIP: security requires libzmq to be linked against libsodium
+test_none (zmq.tests.test_auth.TestIOLoopAuthentication) ... SKIP: security requires libzmq to be linked against libsodium
+test_null (zmq.tests.test_auth.TestIOLoopAuthentication) ... SKIP: security requires libzmq to be linked against libsodium
+test_plain_bogus_credentials (zmq.tests.test_auth.TestIOLoopAuthentication) ... SKIP: security requires libzmq to be linked against libsodium
+test_plain_configured_server (zmq.tests.test_auth.TestIOLoopAuthentication) ... SKIP: security requires libzmq to be linked against libsodium
+test_plain_unconfigured_server (zmq.tests.test_auth.TestIOLoopAuthentication) ... SKIP: security requires libzmq to be linked against libsodium
+test_whitelist (zmq.tests.test_auth.TestIOLoopAuthentication) ... SKIP: security requires libzmq to be linked against libsodium
+threaded auth - Blacklist ... SKIP: security requires libzmq to be linked against libsodium
+threaded auth - CURVE ... SKIP: security requires libzmq to be linked against libsodium
+threaded auth - NULL ... SKIP: security requires libzmq to be linked against libsodium
+threaded auth - PLAIN ... SKIP: security requires libzmq to be linked against libsodium
+threaded auth - Whitelist ... SKIP: security requires libzmq to be linked against libsodium
+test_zmq_bind (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_bind_connect (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_ctx_new_destroy (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_getsockopt (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_msg_data (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_msg_init_close (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_msg_init_data (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_msg_init_size (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_poll (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_recv (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_send (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_setsockopt (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_sleep (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_socket_open_close (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_stopwatch_functions (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_zmq_version_info (zmq.tests.test_cffi_backend.TestCFFIBackend) ... SKIP: CFFI not available
+test_changed_in_all (zmq.tests.test_constants.TestConstants) ... ok
+test_duplicate_all (zmq.tests.test_constants.TestConstants) ... ok
+test_duplicate_changed (zmq.tests.test_constants.TestConstants) ... ok
+test_new (zmq.tests.test_constants.TestConstants) ... ok
+test_no_negative_constants (zmq.tests.test_constants.TestConstants) ... ok
+test_removed (zmq.tests.test_constants.TestConstants) ... ok
+test_undefined_constants (zmq.tests.test_constants.TestConstants) ... ok
+test_context_manager (zmq.tests.test_context.TestContext) ... ok
+test_copy (zmq.tests.test_context.TestContext) ... ok
+test_ctx_opts (zmq.tests.test_context.TestContext) ... ok
+ctx.destroy should succeed when cyclic ref prevents gc ... ok
+Context.destroy should close sockets ... ok
+Context.destroy should set linger on closing sockets ... Invalid argument (tcp_address.cpp:161)
+Aborted (core dumped)
+```
+
+Next, I will try to build libzmq from source.
+Thanks.
+@minrk @kozo2 You may already be aware of this resource, but I'll pass it along as an FYI. There is an ["unofficial" binaries for Python Packages website](http://www.lfd.uci.edu/~gohlke/pythonlibs/) maintained by Christoph Gohlke, Laboratory for Fluorescence Dynamics, University of California, Irvine. I don't know if this resource will be helpful for Ubuntu on Windows, but may be helpful when working with Windows. There's a ZeroMQ binary towards the end of the home page.
+@willingc thanks, yes, that's useful for the Windows side, but here I think we want _linux_ binaries, which we are currently getting from `apt`. These are meant to Just Work™, but apparently don't, so I'm guessing that perhaps running the zeromq configure & build on the machine may detect something that the binary assumed incorrectly at build time.
+@minrk I agree. FYI. I did a quick scan of the Microsoft blog post comments and the [Microsoft issue tracker](https://github.com/Microsoft/BashOnWindows/issues/134). It looks like socket support is a known issue/area that needs improvement.
+Thanks for finding that, @willingc!
+Hi all. I just built Libzmq in this context to get to the meat of the error. I've attached my test-suite log:
+[test-suite.txt](https://github.com/jupyter/notebook/files/243913/test-suite.txt)
+
+It appears that line 186 of /src/tcp_address.cpp is causing the error. 
+In particular, this is the code which is causing an invalid argument error. See **[getifaddrs](https://github.com/Microsoft/BashOnWindows/issues/308)**.
+
+```
+#elif ((defined ZMQ_HAVE_LINUX || defined ZMQ_HAVE_FREEBSD ||\
+    defined ZMQ_HAVE_OSX || defined ZMQ_HAVE_OPENBSD ||\
+    defined ZMQ_HAVE_QNXNTO || defined ZMQ_HAVE_NETBSD ||\
+    defined ZMQ_HAVE_DRAGONFLY || defined ZMQ_HAVE_GNU)\
+    && defined ZMQ_HAVE_IFADDRS)
+
+#include <ifaddrs.h>
+
+//  On these platforms, network interface name can be queried
+//  using getifaddrs function.
+int zmq::tcp_address_t::resolve_nic_name (const char *nic_, bool ipv6_, bool is_src_)
+{
+    //  Get the addresses.
+    ifaddrs *ifa = NULL;
+    const int rc = getifaddrs (&ifa);
+    errno_assert (rc == 0);
+    zmq_assert (ifa != NULL);
+
+    //  Find the corresponding network interface.
+    bool found = false;
+    for (ifaddrs *ifp = ifa; ifp != NULL; ifp = ifp->ifa_next) {
+        if (ifp->ifa_addr == NULL)
+            continue;
+
+        const int family = ifp->ifa_addr->sa_family;
+        if ((family == AF_INET || (ipv6_ && family == AF_INET6))
+        && !strcmp (nic_, ifp->ifa_name)) {
+            if (is_src_)
+                memcpy (&source_address, ifp->ifa_addr,
+                        (family == AF_INET) ? sizeof (struct sockaddr_in)
+                                            : sizeof (struct sockaddr_in6));
+            else
+                memcpy (&address, ifp->ifa_addr,
+                        (family == AF_INET) ? sizeof (struct sockaddr_in)
+                                            : sizeof (struct sockaddr_in6));
+            found = true;
+            break;
+        }
+    }
+
+    //  Clean-up;
+    freeifaddrs (ifa);
+
+    if (!found) {
+        errno = ENODEV;
+        return -1;
+    }
+    return 0;
+}
+```
+@MadcowD Great job tracking the error down.
+For what it's worth, Bash on Windows does not currently expose any network interfaces.  Networking is available, but no information is exposed about the underlying physical (or virtual) hardware; not even a loopback device.
+@willingc How do I get Bash to recognize pyzmq?
+
+I've the same problem. Have any one of you solved it yet?
+@adonese If you could provide a bit more detail, it will assist us in helping you.
+- What is your operating system? 
+- How have you tried to install pyzmq?
+- What version of the notebook are you trying to install?
+- Any additional information that you think we may find useful.
+
+Thanks!
+Sorry I thought this issue is in Bash on Ubuntu on Windows page :) 
+I'm using Bash on Ubuntu on Windows.
+I've tried:
+`apt-get install libzmq3-dev`
+`pip uninstall pyzmq`
+`pip install --no-use-wheel -v pyzmq`
+
+None of them have actually helped me. Regarding the unofficial Python packages, I just didn't how do I get Bash to recognize Windows' `pyzmq`. I'm using Jupyter notebook 4.2.1, the latest version I believe.
+Hi @adonese, Hmm...I've checked around a bit since I actually don't have access to a Bash on Ubuntu on Windows system. It looks like this issue on the Bash on Windows issue tracker has some promise https://github.com/Microsoft/BashOnWindows/issues/185
+
+If you find one of those work for you, please drop us a note here. Good luck!
+@adonese -- take a look at the link @willingc posted; a bunch of us have worked out the fix there.
+
+@willingc FYI: If you're interested in trying out Bash on Ubuntu on Windows (aka "WSL"), I believe you can get a free VM from modern.ie:
+
+https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/
+
+Download the latest "Preview" VM; older ones don't support WSL yet.  Its license expires after a month or a few months or so, but you're allowed to download a new VM when your current one expires.  It doesn't come with WSL preinstalled; you have to run through its install process.  Maybe not worth it, but FYI it's an option.
+@aseering Thanks for passing along the info and for finding the solution :cake:
+
+Closing issue.
+
+### Resolution
+
+See Bash on Windows issue tracker https://github.com/Microsoft/BashOnWindows/issues/185
+In case people are wondering how to get it working using `jupyter` installed via `pip`, here's a fix (crossposted from
+https://github.com/Microsoft/BashOnWindows/issues/185#issuecomment-238470680)
+
+``` sh
+pip uninstall pyzmq
+sudo add-apt-repository ppa:aseering/wsl
+sudo apt-get update
+sudo apt-get install libzmq3 libzmq3-dev
+export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu
+pip install --no-use-wheel -v pyzmq
+pip install jupyter
+```
+@gglanzani Thanks for telling me that information, but it core-dumped like
+
+```
+root@DESKTOP-6KMUMSV:~/notebooks# jupyter-notebook
+[I 00:57:37.620 NotebookApp] Serving notebooks from local directory: /root/notebooks
+[I 00:57:37.621 NotebookApp] 0 active kernels
+[I 00:57:37.621 NotebookApp] The Jupyter Notebook is running at: http://localhost:8888/
+[I 00:57:37.621 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[I 00:57:53.602 NotebookApp] 302 GET / (127.0.0.1) 0.69ms
+[W 00:57:58.778 NotebookApp] 404 GET /nbextensions/widgets/notebook/js/extension.js?v=20160811005737 (127.0.0.1) 8.52ms
+referer=http://localhost:8888/notebooks/Untitled.ipynb
+Segmentation fault (core dumped)
+root@DESKTOP-6KMUMSV:~/notebooks#
+```
+@kozo2 Are you sure it has nothing to do with the missing `nbextension`? (the 404 at the end?)
+
+It's working properly for me + 2 other that commented on the BOW repo (see link above)
+I don't think there's any way that a missing nbextension could lead to a segfault. I won't say it's impossible, but it would be a really bizarre cause.
+@takluyver I can't argue with you :)
+@kozo2 How did you install `jupyter`? Simply `pip install jupyter`? I'm running off a virtual env and as an unpriviled user (you are running under `/root/notebooks`, probably as `root`), so that might contribute
+@gglanzani 
+Thanks for telling me that (virtualenv).
+By following your (virtualenv) advice (after adding a user),  I succeeded running Jupyter (in Ubuntu on Windows) from Windows.
+
+It seems `nbextension` is irrelevant to the segmentation fault .
+@gglanzani  @aseering , I am also having problems with running Jupyter notebook from my bash shell on WSL. I'd prefer to get it working in WSL/bash rather than trying to use virtualbox/vagrant, etc. Please help!!
+
+I am able to bring up my Jupyter notebook, but as soon as I tried to run even the most basic notebook, my connection fails. Looks like something to do with zeromq or the Python versions.
+
+**Error message from the Jupyter console:**
+[I 19:58:32.647 NotebookApp] KernelRestarter: restarting kernel (1/5)
+WARNING:root:kernel 5c0f6900-1bcc-40bd-bcd6-a60efd458664 restarted
+Invalid argument (bundled/zeromq/src/tcp_address.cpp:190)
+[I 19:58:38.748 NotebookApp] KernelRestarter: restarting kernel (1/5)
+WARNING:root:kernel 5c0f6900-1bcc-40bd-bcd6-a60efd458664 restarted
+Invalid argument (bundled/zeromq/src/tcp_address.cpp:190)
+
+Surface Pro 3. Using Windows Subsystem for Linux (WSL). Windows 10
+
+root@mypc:/mnt/c/Users/myid/mylinux# python --version   Python 2.7.6
+root@mypc:/mnt/c/Users/myid/mylinux# pip --version  pip 1.5.4 from /usr/lib/python2.7/dist-packages (python 2.7)
+root@mypc:/mnt/c/Users/myid/mylinux# jupyter --version   4.2.0
+root@mypc:/mnt/c/Users/myid/mylinux# python
+Python 2.7.6 (default, Jun 22 2015, 17:58:13)
+[GCC 4.8.2] on linux2
+
+> > > import sys
+> > > print sys.version_info
+> > > sys.version_info(major=2, minor=7, micro=6, releaselevel='final', serial=0)
+
+I did execute the below code, but even after that I am getting the same issues:
+pip uninstall pyzmq  ## didn't find this
+sudo add-apt-repository ppa:aseering/wsl
+sudo apt-get update
+sudo apt-get install libzmq3 libzmq3-dev
+export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu
+pip install --no-use-wheel -v pyzmq
+pip install jupyter
+
+Note:  *\* This is the way I originally installed Python/pip/ Jupyter**
+sudo apt-get install python-pip python-dev python-matplotlib
+export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.10.0-cp27-none-linux_x86_64.whl
+sudo pip install --upgrade $TF_BINARY_URL
+sudo pip install jupyter Pillow
+
+Thanks!
+Hi @HemanK -- it sounds like the `pyzmq` Python library must be using a version of `libzmq` other than the one in my PPA.  I'm not on an Ubuntu or WSL machine right at the moment, but in order to track down what's going wrong the first step would be to find where pyzmq got installed on your computer's filesystem (usually in a Python `site-packages` directory somewhere).  Then, look in that directory for all `.so` files.  Then run `ldd` on each of the `.so` files; that will print out the list of libraries that the specified file is linking against.  One or more of them will be linking against some version of libzmq; the question is, what version of libzmq?  My assumption is that it's not the version of libzmq that's in the PPA, but, why not?  (The answer to that should become apparent given the location of the libzmq library that is actually being used by pyzmq on your machine.)
+Hio @aseeing, Thanks for your quick response. For some reason I was having problems posting to GitHub yesterday. Not sure what was going on. It doesn't look like I have pyzmq Python library, at least not that I can locate. In fact here are all the files of the pattern _mq._, and there are very few  of those:
+<img width="421" asrc="https://cloud.githubusercontent.com/assets/4811866/19627020/0b22eadc-990c-11e6-83e2-6d0a0fb2e2fb.png">
+Hi @aseering ,  root@mypc:/mnt/c/Users/myid/mylinux/tf-tutorial# find /usr $HOME -name _mq._
+/usr/include/zmq.h
+/usr/include/zmq.hpp
+/usr/lib/x86_64-linux-gnu/libzmq.a
+/usr/lib/x86_64-linux-gnu/libzmq.so
+/usr/lib/x86_64-linux-gnu/libzmq.so.3
+/usr/lib/x86_64-linux-gnu/libzmq.so.3.1.0
+/usr/lib/x86_64-linux-gnu/pkgconfig/libzmq.pc
+/usr/local/lib/python2.7/dist-packages/zmq/backend/cython/libzmq.pxd
+/usr/local/lib/python2.7/dist-packages/zmq/include/zmq.h
+/usr/local/lib/python2.7/dist-packages/zmq/libzmq.so
+/usr/share/man/man7/zmq.7.gz. 
+root@mypc:/mnt/c/Users/myid/mylinux/tf-tutorial#ou
+root@mypc:/mnt/c/Users/myid/mylinux/tf-tutorial# find /usr $HOME -name *mq.so
+/usr/lib/x86_64-linux-gnu/libzmq.so
+/usr/local/lib/python2.7/dist-packages/zmq/libzmq.so
+root@mypc:/mnt/c/Users/myid/mylinux/tf-tutorial#
+
+and here is the result of ldd  
+root@mypc:/mnt/c/Users/myid/mylinux/tf-tutorial# ldd /usr/local/lib/python2.7/dist-packages/zmq/libzmq.so
+        linux-vdso.so.1 =>  (0x00007fffdf564000)
+        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f87108d0000)
+        libstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f87105c0000)
+        libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f8710390000)
+        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f8710170000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f870fda0000)
+        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f870fa80
+        /lib64/ld-linux-x86-64.so.2 (0x00007f8710e00000)
+root@mypc:/mnt/c/Users/myid/mylinux/tf-tutorial#
+root@mypc:/mnt/c/Users/myid/mylinux/tf-tutorial# ldd /usr/lib/x86_64-linux-gnu/libzmq.so
+        linux-vdso.so.1 =>  (0x00007fffc5c4e000)
+        libpgm-5.1.so.0 => /usr/lib/x86_64-linux-gnu/libpgm-5.1.so.0 (0x00007faff62b0000)
+        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007faff60a0000)  
+        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007faff5e70000)
+        libstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007faff5b60000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007faff5790000)
+        libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007faff5560000)
+        libm.so.6 
+=> /lib/x86_64-linux-gnu/libm.so.6 (0x00007faff5250000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007faff6800000)
+
+So the libzmq.so files are in /usr/lib/x86_64-linux-gnu and /usr/local/python2.7/deist-packages/zmq. I wonder if I am missing some packages and whether I should try to reinstall bash  on Windows
+and Tensorflow. Also, when I installed Windows Subsystem for Linux (WSL), I used default user (root), rather than creating a userid. Not sure if that would have installed some python packages in some  path that is not visible from within Jupyter.
+
+Any suggestions?
+
+Thanks!
+Hi @HemanK -- you said that you ran `pip install --no-use-wheel -v pyzmq`.  That installs `pyzmq`.  So you do have it somewhere.  I assume it's the `zmq` directory inside `dist-packages` that you've located above -- Python packages sometimes omit the "py" prefix when they install on disk because, well, it's in the Python packages directory; labeling it as "py"-something is somewhat redundant...
+
+Anyway, I do see something interesting in the list of files above:  There's a `libzmq.so` in the system library directory (`/usr/lib/x86_64-linux-gnu/libzmq.so`); that's the one that my package is supposed to override.  However, there's also one inside the Python "zmq" package (`/usr/local/lib/python2.7/dist-packages/zmq/libzmq.so`).  I don't know exactly where that version of the file is coming from but I bet it still has this bug.
+
+Perhaps someone from the Jupyter project ( @minrk @willingc ? ) could comment -- are y'all now bundling your own version of libzmq?  If so, would you consider pulling in a newer version from the libzmq project that contains the fix to this issue?  Or, if you don't want to upgrade, you could backport [the patch](https://github.com/zeromq/libzmq/commit/b1e2b87f0f6d507b9af7221e06d9dcc9dbab55a8); as patches go, this one is very simple.
+Hi @aseering , I can see only object that starts with pyz_. It is the pyzmq_ egg-info: I am not very familiar with how that works... Will wait for feedback from you or @minrk or @willingc 
+
+root@mypc:/mnt/c/Users/myid/mylinux/tf-tutorial# find /usr $HOME -name pyz*
+
+/usr/local/lib/python2.7/dist-packages/pyzmq-16.0.0-py2.7.egg-info
+
+root@mypc:/mnt/c/Users/myid/mylinux/tf-tutorial# cd /usr/local/lib/python2.7/dist-packages/pyzmq-*
+
+root@mypc:/usr/local/lib/python2.7/dist-packages/pyzmq-16.0.0-py2.7.egg-info# ls -ltr
+total 20
+-rw-r--r-- 1 root staff  1196 Oct 20 19:18 PKG-INFO
+-rw-r--r-- 1 root staff     4 Oct 20 19:18 top_level.txt
+-rw-r--r-- 1 root staff     1 Oct 20 19:18 not-zip-safe
+-rw-r--r-- 1 root staff     1 Oct 20 19:18 dependency_links.txt
+-rw-r--r-- 1 root staff 14265 Oct 20 19:18 SOURCES.txt
+
+root@mypc:/usr/local/lib/python2.7/dist-packages/pyzmq-16.0.0-py2.7.egg-info# view SOURCES.txt
+
+Thanks!
+Same issue described; error is as follows:
+
+```
+[W 02:58:06.950 NotebookApp] Notebook demo.ipynb is not trusted
+[I 02:58:12.352 NotebookApp] Kernel started: 33e41df4-6c89-4d5e-aefb-00b5f8fe742d
+Invalid argument (src/tcp_address.cpp:172)
+[I 02:58:15.352 NotebookApp] KernelRestarter: restarting kernel (1/5)
+Invalid argument (src/tcp_address.cpp:172)
+[I 02:58:18.421 NotebookApp] KernelRestarter: restarting kernel (2/5)
+Invalid argument (src/tcp_address.cpp:172)
+[I 02:58:21.476 NotebookApp] KernelRestarter: restarting kernel (3/5)
+Invalid argument (src/tcp_address.cpp:172)
+[W 02:58:22.372 NotebookApp] Timeout waiting for kernel_info reply from 33e41df4-6c89-4d5e-aefb-00b5f8fe742d
+[I 02:58:24.536 NotebookApp] KernelRestarter: restarting kernel (4/5)
+WARNING:root:kernel 33e41df4-6c89-4d5e-aefb-00b5f8fe742d restarted
+Invalid argument (src/tcp_address.cpp:172)
+[W 02:58:27.597 NotebookApp] KernelRestarter: restart failed
+[W 02:58:27.599 NotebookApp] Kernel 33e41df4-6c89-4d5e-aefb-00b5f8fe742d died, removing from map.
+ERROR:root:kernel 33e41df4-6c89-4d5e-aefb-00b5f8fe742d restarted failed!
+[W 02:58:27.764 NotebookApp] Kernel deleted before session
+[W 02:58:27.765 NotebookApp] 410 DELETE /api/sessions/7a6490bf-e8eb-4427-96c3-124867ee503e (127.0.0.1) 2.50ms referer=http://localhost:8888/notebooks/demo.ipynb
+```
+
+System Information:
+
+```
+$ uname -a
+Linux DESKTOP-AKK2IRO 3.4.0+ #1 PREEMPT Thu Aug 1 17:06:05 CST 2013 x86_64 x86_64 x86_64 GNU/Linux
+$ cat /etc/lsb-release
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=14.04
+DISTRIB_CODENAME=trusty
+DISTRIB_DESCRIPTION="Ubuntu 14.04.5 LTS"
+```
+
+I am running jupyter notebook on Ubuntu on Windows. Python installation is the default from Anaconda2-4.2.0-Linux-x86_64.sh, and I am using the jupyter-notebook app that comes preinstalled with anaconda2. 
+Hi @aseering @HemanK @ebridge2,
+
+I'm traveling at the moment so I don't have access to a Windows system. I will have access over the weekend and will try to replicate or troubleshoot. 
+
+Thanks.
+
+cc @minrk @takluyver
+Can you try a manual download and install of pyzmq:
+
+``` bash
+wget https://pypi.io/packages/source/p/pyzmq/pyzmq-16.0.0.tar.gz
+tar -xzf pyzmq-16.0.0.tar.gz
+cd pyzmq-16.0.0
+python setup.py install --zmq=/usr/lib
+```
+
+and share the complete output?
+Hi @minrk , I had some issues with my laptop and have to get a replacement laptop from my office this week, so I it may take me sometime to get everything setup again and to resume my testing. In the meanwhile I installed CNTK (Microsoft Cognitive Toolkit for Deep Learning, which is similar to Tensorflow) and got it working quickly on my Windows laptop. That installation was using Anaconda, Python 3.4  and Jupyter. Hope to compare Tensorflow and CNTK once I get Tensor flow also working later. So look forward to getting Tensor Flow installed and working within the next couple of weeks.
+
+Thanks!
+@aseering @HemanK : FWIW, RE:
+
+> However, there's also one inside the Python "zmq" package (/usr/local/lib/python2.7/dist-packages/zmq/libzmq.so)
+
+This will happen if `pip` can't find the _system_ `libzmq.so` -- it will build it's own.
+@tildebyte -- what you describe would be correct for a source package, but pyzmq is distributed on PyPI as a binary package by default.
+@aseering I hear you, but `pip` built it's own lib when I ran `pip install --no-use-wheel -v pyzmq` ... Maybe something wierd on my system?
+@minrk - I followed your instructions from https://github.com/jupyter/notebook/issues/1331#issuecomment-256923422 and I'm seeing the exact same result as the OP (although with the slightly different line number of ``Invalid argument (bundled/zeromq/src/tcp_address.cpp:190)``, so it *is* using the installed pyzmq, I presume).  Or did you want the output of the pyzmq build process?
+
+EDIT: I eventually got this to work by manually building a patched version of pyzmq with a fix from Microsoft/BashOnWindows#185For what it's worth, I'm guessing (haven't checked recently) that WSL has worked around this issue in the latest [Insider build](https://insider.windows.com/).@aseering Do you have confirmation that this is the case?  My situation is identical to @HemanK 's and I've thought about switching over to the Insider channel to see if the updates to WSL resolve issues like this, but value the reliability of a more stable build for my main machine. A quick verification that this works better on the latest Insider Build would be all the push I need to switch.  Thanks for all the support that you've been providing on this issue!@TheNathanielWatkins -- glad I could help!  I can confirm that Ubuntu's stock Notebook package now works properly without my patch.  I tested on what is currently the latest Insider build (14986).
+
+We're told that the relevant change will be released to stable Windows as part of the Creators release in a few months.
+
+I haven't tested with other Jupyter Notebook versions, but I would expect them to work as well.  If you want to test yourself, you could download the "Preview" VM [from Microsoft](https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/) and test there.  The VM is based on a slightly older Insider build; you might need to update it.  (Which you can probably do through Windows Update, but I haven't actually tried...)Wow!  Thank you @aseering.  You're definitely my internet hero of 01/05/17. Took a while to get switched over to the Insider Preview (why do they make us wait 24 hours to switch?) and re-setup, but now that it's up, everything seems to be working perfectly now.  Combined with a BROWSER hack (detailed [here](http://stackoverflow.com/questions/41404536/why-is-bash-wsl-acting-like-a-webbrowser/41452614#41452614), I can now seemlessly run Jupyter in my Windows native Chrome.Hi,
+Does anybody know how we can use matplotlib (inline) on Jupyter? My kernel dies when I am using this package. I am using WSL. I know it does not support graphical applications officially. But I was able to use Xming. Now, my problem is I can have anaconda and Jupyter on my chrome to run my codes, but when I am trying to plot something, my python kernel dies.
+
+NimaHi @nimasasa -- for what it's worth, matplotlib works fine for me.  That said, I'm using a recent [Insider Build](http://insider.windows.com) of Windows despite its potential bugs, because its support for Linux features is so much better.@nimasasa Check that your versions are up to date too.
+
+`jupyter notebook --debug` will give additional output. @aseering and @willingc thanks for your responses. I am currently using the updated windows (but not the insider build -- unfortunately cant use it on my work PC) and my notebook is 4.2.3.If you haven't already done this, try running `%matplotlib inline` in a cell before plotting.

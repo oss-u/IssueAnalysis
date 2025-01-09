@@ -1,0 +1,167 @@
+Recently we made liblinear report convergence failures.
+Now this is reported in lots of places. I expect our users will start to see it everywhere. Should we change something? It's weird if most uses of LinearSVC result in a failure now.Also, it's pretty weird that SVC has CODESCODES max iter thumbs down CODESCODES and LinearSVC has CODESCODES max iter 1000 CODESCODES. Is there a reason for that?good question. Looking at liblinear code it appears we don't expose the different stopping criteria they have and we added a max iter parameter they don't seem to have.
+
+I have no idea why it was set to 1000. Was there any benchmark done?Not that I can remember. No strong opinion. Too many warnings means that users don't look at warnings.
+
+The only thing that I can suggest is adding an option to control this behavior. I don't really like adding options the danger is to have too many, but it seems here that there is no one size suits all choice.we could also increase the tol? ogrisel asked if we have this warning for logistic regression as well or if we ignore it there.Does this issue also happen with the LogisticRegression class?I am thumbs down on increasing the tol: it will mean that many users will wait longer.
+
+I think that there should be an option to control convergence warnings.increasing the tol meaning a larger tol. So if anything people will wait shorter.
+
+OK, I had understood you the wrong way.
+
+ thumbs up for that option.
+Working on this. ogrisel indeed CODESCODES is also potentially affected.As discussed with agramfort I am a bit skeptical regarding bumping the CODESCODES as there are a lot of different defaults around:
+ LogisticRegression: max iter 100, tol 0.0001
+ LinearSV C, R: max iter 1000, tol 0.0001
+ SV C, R: max iter thumbs down, tol 0.001This is only about liblinear, so where the tol is 0.0001 right now. So it would be making it more consistent. We should probably run some benchmarks, though?Ah indeed, so maybe this is not as complex as I first thought. 
+Should the tol be 0.001 by default for all these liblinear calls?
+I agree regarding benchmarks! samronsin yeah that would be good I think. This seems one of the last release blockers?btw the change that prompted all this is 10881 which basically was just a change in verbosity thumbs down btw using the default solver, tol is 0. in liblinear by default. LINKLINK Wow. So many nice surprises in Liblinear. ​
+ jnothman this is mostly our wrapper that has the surprises, I think?tbh I've not looked into it. 
+The liblinear command line actually has various LINKLINK, depending on the sub solver that is used.
+
+Do we want to use those? That would probably require switching the default to CODESCODES.
+I want us to think about this after release thumbs up 
+I think different tolerance defaults and iterations based on solver makes sense in general! There seems to be consensus here on increasing liblinear tolerance.So should we make it the same as in liblinear? Or how would you pick new defaults? With deprecation cycle?The deprecation cycle here is a nuisance. Can we call it a bug fix?
+Using liblinear defaults has the benefit of not needing to justify our own!
+I agree with both of these thumbs up Resolution from meeting at sprint:
+
+ Change the max iter and the tol to be solver specific, the reason is that an iteration means something for different solvers, and also tol. The idea would be to set tol and max iter to auto by default default and to switch based on parameters.
+
+The choices requires benchmarks the PR adding sag or saga probably had one, it may be in the benchmarks folder.
+
+Most likely, we will use max iter equal 100 and 1000 eg 100 for quasi Newton methods and 1000 for first order coordinate descent solvers.
+
+Break down of the work:
+
+ Investigate changing the type of tol of lbfgs to ftol rather than pgtol
+ Investigate what value of tol leads to good prediction on different data and with different solvers for liblinear, we should investigate the defaults of liblinear 
+ Investigate what value of max iter leads to converging most often to the above tolThe other thing to note here is that at some point, we exposed max iter in liblinear after the addition of other solvers and thus changed the default number of iterations from 1000 to 100 there without telling users.
+
+We are willing to change defaults here as a bug fix, without maintaining backwards compatibility, if it provides more reasonable rates of convergence.
+
+ GaelVaroquaux is someone assigned to this, or should we be labelling it Help Wanted?  FollowKenny: I thought that you might have time with that once you're done optimizing two lines of code.I'm starting to work on this as I could not figure what was wrong with those 2 lines. btw, what I just realized is that with current settings, it's pretty hard to make logistic regression converge on mnist in finite time without playing with tol and max iter. for any of the solvers. That's not so great. by converge I mean stop fitting Note that on windows platforms, liblinear is known to have strong convergence issues because of the way random numbers are generated: max random number in Windows is 15 bits even on 64 bit windows, which is 32767, while max random number in linux+GCC is 31 bits resp. 63 bits in 64 bits systems I guess so that's 2147483647 resp 9223372036854775807. 
+
+This is a known bug documented in liblinear FAQ but the LINKLINK was wrong I made a patch for this years ago, that was approved by several users yet never merged: LINKLINK. in addition to my post above I am currently using libsvm and liblinear on another project and the convergence bug reported above for windows platforms also seems to be present in libsvm. Another user LINKLINK.
+
+I saw that the original sources are actually copied into scikit learn. So I will propose a pull request.
+In parallel I will try to motivate the author s by linking to this post and PR.
+Any feedback thoughts ideas welcome thumbs up 
+I could be mistaken, but I think we had not reported
+ConvergenceWarnings in liblinear until 0.20. Do you get the same fit
+in 0.19 and 0.20, hermidalc?
+
+
+Oh I didn’t know that, I’ll check with a couple of datasets to see and report back 
+Should we hotfix setting liblinear max iter back to what it was before creating max iter in LogisticRegression?
+
+Indeed and apparently it really also depends on the solver:
+
+ for SAG SAGA, the LINKLINK is based on the maximum absolute value of changes in the coefficients and indeed with default regularization it did not stop after several thousands of iterations on MNIST: the CODESCODES value does not seem to monotonically decrease across iterations as monitored with verbose 1. I had to kill my python program to make it stop. ctrl c does not even work becase it's in a pure Cython loop but this is a different problem. 
+
+ for l BFGS, there are several LINKLINK, on based on the norm of the gradient controlled by CODESCODES and one based on the change into objective value controlled by CODESCODES. When running LogisticRegression on MNIST with verbose 1, I observed that the loops stopped after a couple tens or hundreds iterations depending on regularization by always because of the objective based stopping criterion. When changing the tol parameter in scikit learn, one changes the CODESCODES parameter of l BFGS which has no effect on the CODESCODES parameter and the objective based stopping criterion. One have to increase tol by a lot for example 1e thumbs down or 1e 2 to have the gradient based stopping criterion stop first.
+
+For reference here is the exact meaning of the two l BFGS stopping parameters:
+
+ CODELCODEL 
+
+ for newton cg: only the norm of the gradient seems to be used as LINKLINK. I have not yet run extensive experiments on mnist with that solver to check whether or not the lack of objective based stopping criterion can cause issues.
+
+
+ TomDLT fabianp arthurmensch do you know if it's a good practice to only rely on parameter change as a stopping criterion for SAG SAGA? For weakly regularized logistic regression models it seems to be problematic. We might want to add a second stopping criterion based on objective function as in l BFGS. The problem is that we do not want to re scan the full dataset at the end of an epoch just to compute the objective value. One could accumulate a lagged average of the minibatch loss values and compare at the end of each epoch this lagged average to its previous epoch value but this no longer exactly related to the exact end of epoch objective value. I am not familiar enough with the convergence theory of SAG and SAGA to know whether what I propose makes sense or not.
+
+Second question: more generally shall we make a change in the CODESCODES parameter impact the objective value based stopping criterion for all solvers in a consistent manner? I believe so but then how to trade off with the parameter change based stopping criterion? Shall we introduce a second tolerance parameter?Because SAG SAGA keeps old gradients, it provides an accurate estimate of the gradient. I would use that as stopping criterion. For L1 regularized problems you cannot use it, since the gradient is no longer zero at optimum, but the gradient mapping can be used instead, which is 1 step size x prox x step size grad estimate Thanks, that sounds like a good suggestion. Is this the strategy you use in your own implementations of SAGA? Do you combine this with a second criterion based on some lagged average loss change between two iterations? Or maybe the stochasticity in the order of the samples that change across iterations is likely to cause the solver to stop too early with a naive stopping criterion based on such approximations of the objective value.I don't do it but should. 
+
+Hi jnothman et al and sorry for the delay. I've checked it now on 0.20 and 0.21 and yes I get the same fits as I did for 0.19. I can also confirm that when using SVC with kernel linear I get similar fits.
+
+What's also strange is that even if I set LinearSVC max iter 5000 it still fails to converge with all the warnings even on problems that have quite good fits for example ROC AUC 0.85 do we should we have an issue for logisticregression for setting tolerances correctly? 13317 is a related pr
+I've tried for now to suppress the Liblinear convergence warnings but see that when running CODELCODEL the default joblib loky backend ignores CODELCODEL settings:
+ CODELCODEL 
+With the joblib multiprocessing backend this works and suppresses such warnings from worker processes. 
+
+Does anyone know how to get CODELCODEL settings to propagate to loky worker processes?
+
+Also, does everyone recommend loky over multiprocess for most scikit learn workflows? They each have their pros cons.
+I see now this issue with loky and filterwarnings is discussed in issue 12939.
+
+Though still would like to now if loky or multiprocessing backend is recommended for most sklearn workflows?
+I don't think these warnings should be filtered, we should find a better default tolerance.Ok so this is pretty bad:
+ CODELCODEL 
+If the data is not scaled, the dual solver which is the default will never converge on the digits dataset.
+
+This can't really be solved with tol and max iter, I think thumbs down Did we warn about scaling in SVR?
+I don't think we warn about scaling anywhere?
+Also, this is a linear model. It should really converge without scaling.So do you think dual should be False by default in LinearSVC?
+ jnothman I think we need to benchmark but possibly?
+
+
+ CODESCODES for example libsvm will also not converge and actually even worse hang with 100 CPU since CODESCODES for many datasets I have if you don't scale data prior. So I'm in disagreement here. if you have features with wildly different scales to others fitting the optimal hyperplane at a reasonable tolerance will get difficult.
+
+
+
+
+
+
+
+
+
+Everywhere in the sklearn docs you specifically warn users that they need to scale data before use with many classifiers, etc. If one sets CODESCODES and CODESCODES to the correct defaults for liblinear L2 penalized dual solver then CODESCODES converges:
+
+ CODELCODEL  hermidalc just to be sure, are you running Windows or an Unix like? Indeed there is a known issue with windows 13511 but it happens only when the number of features or samples is very large, so I guess this is not the issue you're facing.
+
+Linux. The only issue I've faced is the CODESCODES convergence warnings because the default CODESCODES in sklearn is not what liblinear states should be the default CODESCODES for the default L2 dual solver. When you set CODESCODES and standardize your data prior which is a must for SVM and many other classifiers then these convergence issues go away.
+Don't want to add more to the pot. but is the convergence warning also OS specific because it should behave differently on each OS? I assumed not, but based on my findings it seems to be. I've tested on macOS 10.15.2 Catalina vs Linux Fedora 30.
+
+I ran the snap code from LINKLINK by amueller and as you can see below for macOS that error does not show, but on linux it does show that error same code! I am not sure as the why? Is it because there might be different versions of CODESCODES on mac than linux?
+
+Tested in both python major versions with old and recent libs and the results were the same.
+
+ macos CODESCODES with libs CODESCODES 
+ fedora CODESCODES with libs CODESCODES 
+ fedora CODESCODES with libs CODESCODES 
+
+mac result
+ CODELCODEL 
+
+fedora result
+ CODELCODEL 
+
+
+Any thoughts?
+
+It depends a bit on what you mean by difficult. You could probably do something like 15583 and solve the original optimization problem quite well. I'm not saying it's a good idea to not scale your data, I'm just saying it's totally possible to solve the optimization problem well despite the user giving you badly scaled data if your optimization algorithm is robust enough.
+
+
+
+Sorry, what I was implying by difficult is relevant to this thread’s topic, meaning solving the optimization problem below a specific tolerance at or before a maximum number of iterations. Features that aren’t scaled make this harder to do with SVM unless, as you said, you use a very robust algorithm to solve the optimization problem. I thought LIBLINEAR uses coordinate descent isn’t this pretty robust?yes coordinate descent is pretty robust to data scaling.
+
+
+Liblinear has several solvers. I think they use their own TRON trust region newton by default.Also: we just changed our default away from liblinear. 
+
+The question which kind of problems are hard is likely to depend on the solver, I think, or how you formulate the problem.
+
+ amueller could you please point me to the corresponding issue pr? I did not see that in the master codebase. Thanks! smarie I was referring to logisticregression:
+ LINKLINK 
+Ah ok I mistakenly thought that this was about SVC. Thanks!
+
+
+
+To come back to this here’s some additional evidence challenging this belief when it comes to practical usage:
+
+From the creators of LIBSVM and LIBLINEAR:
+ LINKLINK 
+
+Section 2.2 Scaling
+Scaling before applying SVM is very important. Part 2 of Sarle’s Neural Networks FAQ Sarle 1997 explains the importance of this and most of considerations also ap ply to SVM. The main advantage of scaling is to avoid attributes in greater numeric ranges dominating those in smaller numeric ranges. Another advantage is to avoid numerical difficulties during the calculation. Because kernel values usually depend on the inner products of feature vectors, for example the linear kernel and the polynomial ker nel, large attribute values might cause numerical problems. We recommend linearly scaling each attribute to the range or.
+Of course we have to use the same method to scale both training and testing data. For example, suppose that we scaled the first attribute of training data from to. If the first attribute of testing data lies in the range, we must scale the testing data to. See Appendix B for some real examples. hermidalc I observed it to be a bit more stable than lbfgs in some settings I tried, see the preconditioning issue & pr.
+
+I'm not entirely sure how we can make the user experience better here thumbs down I've seen plenty of convergence issues even after scaling, but I haven't had the time to compose them.I'm trying to remove issues which have been around for more than 2 releases from the milestones. But this one seems to be pressing and you really care about it amueller. Leaving it in the milestone for 0.24, but we really should be better at following up on these.
+
+
+
+I have to say amueller I do agree with you more now. With various high dimensional datasets I've been working with these last few months, I've been seeing frequent convergence issues with CODESCODES after properly transforming and scaling the data beforehand, even after setting the CODESCODES which is what LIBLINEAR has and setting CODESCODES or greater. The optimization algorithm appears to particularly have convergence issues when performing model selection over a range of CODESCODES when higher values of like 1e2 or greater
+
+The exact same workflows with CODESCODES generally do not have any convergence problems. While the scores from both models are usually somehwhat similar, even with CODESCODES not being able to converge, they aren't the same and for some datasets it's really different. So for L2 penalized linear classification where I previously used CODESCODES I'm now going back to CODESCODES and CODESCODES.
+
+The problem is that only CODESCODES can solve CODESCODES and CODESCODES problems for for example CODESCODES feature selection, so it would be important for scikit learn to fix the issue with the implementation. Possibly CODESCODES with CODESCODES can be used instead?
+
+Maybe the latest LINKLINK has updates fixes that have corrected what is the underlying problem? Looks like the main liblinear code in sklearn is from back in 2014.

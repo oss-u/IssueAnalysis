@@ -1,0 +1,1269 @@
+I am not sure if I am the first who met the following error:
+
+ValueError: Attempt to reuse RNNCell with a different variable scope than its first use. First use of cell was with scope 'rnn multi rnn cell cell 0 basic lstm cell', this attempt is with scope 'rnn multi rnn cell cell 1 basic lstm cell'. Please create a new instance of the cell if you would like it to use a different set of weights. If before you were using: MultiRNNCell num layers, change to: MultiRNNCell. If before you were using the same cell instance as both the forward and reverse cell of a bidirectional RNN, simply create two instances one for forward, one for reverse. In May 2017, we will start transitioning this cell's behavior to use existing stored weights, if any, when it is called with scope None which can lead to silent model degradation, so this error will remain until then. 
+
+with the code fragment:
+
+ import tensorflow as tf
+ from tensorflow. contrib import rnn
+
+ hidden size 100
+ batch size 100
+ num steps 100
+ num layers 100
+ is training True
+ keep prob 0.4
+
+ input data tf. placeholder tf. float32, 
+ lstm cell rnn. BasicLSTMCell hidden size, forget bias 0. state is tuple True 
+
+ if is training and keep prob 1:
+ lstm cell rnn. DropoutWrapper lstm cell 
+ cell rnn. MultiRNNCell, state is tuple True 
+
+ initial state cell. zero state batch size, tf. float32 
+
+ iw tf. get variable input w, 
+ ib tf. get variable input b, 
+ inputs 
+
+ if is training and keep prob 1:
+ inputs 
+ 
+ outputs, states rnn. static rnn cell, inputs, initial state initial state 
+
+I had googled around with no luck, can anyone show me a way out?I am getting the same error when trying to run the translate example even when doing the small self test which can be found here: LINKLINK I met the same issue. If you are all using compiled version on master branch, I believe that we are the same issue caused by the LINKLINK. As the commit message says:
+
+
+w:
+
+
+
+
+
+
+From my case, which is running the LINKLINK, the solution is just to add a parameter named with CODESCODES like this at line 112:
+
+
+ return tf. contrib. rnn. BasicLSTMCell 
+
+
+Then it works. ebrevdo Could you please take a look at this?The issue replicates for me when using the Windows GPU build 105 on the LINKLINK.
+
+When running the code with the Win 1.0 GPU Release, there is no issue.That repo looks like it's targeted at tf 1. not intermediate releases.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ tongda, I am using the Release Version of Tensorflow 1. working on MacOS in cpu mode. I will switch to the master branch to see if it work by adding the reuse parameter, thanks.doncat99: if you do, please ensure your code queries the tensorflow version
+and raises a flag if the version is lower than the master branch version.
+ you may need to check against:
+
+from tensorflow. core import versions
+versions. GIT VERSION
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ebrevdo So what would be the suggested changes to the Shakepeare RNN to allow it to work with the intermediate stable release?
+
+Here is the key architectural section of the code, which now fails with build 105:
+ CODELCODEL 
+I do not seem to find any documentation regarding a CODESCODES flag?
+
+Thanks in advance.Use:
+
+multicell rnn. MultiRNNCell rnn. DropoutWrapper rnn. GRUCell INTERNALSIZE,
+input keep prob pkeep for in range NLAYERS, state is tuple False 
+
+
+Which creates a separate grucell object for each layer.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I don't understand why I am getting this error with the LINKLINK:
+ CODELCODEL 
+ LINKLINK 
+
+where the cell is created with
+ CODELCODEL 
+
+ ebrevdo Thanks for getting back to this issue. Unfortunately, the suggested change leaves matters as they are, with the aforementioned error. Given the above comment regarding the seq2seq tutorial, I suspect we are all in the same boat?Are you sure it's the exact same error? Please copy and paste it here.My bad, I just went through the change process to the relevant code again from scratch and re ran it as proposed. The error has indeed been removed and the Old Bard is hallucinating just fine now thumbs up 
+
+So, thx, not sure where I went wrong yesterday, but it was clearly on me.I met the same problem when using the Release Version of Tensorflow 1.0 and working on MacOS in cpu mode. Even if add the reuse parameter
+ CODELCODEL 
+range. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I was trying to run the translate example: python2.7 translate. py data dir data train dir train size 256 num layers 2 steps per checkpoint 50
+
+It seems the way to use MultiRNNCell is correct:
+cell tf. contrib. rnn. MultiRNNCell 
+
+But I got the same error:
+ValueError: Attempt to reuse RNNCell with a different variable scope than its first use. First use of cell was with scope 'embedding attention seq2seq embedding attention decoder attention decoder multi rnn cell cell 0 gru cell', this attempt is with scope 'embedding attention seq2seq rnn multi rnn cell cell 0 gru cell'. Please create a new instance of the cell if you would like it to use a different set of weights. If before you were using: MultiRNNCell num layers, change to: MultiRNNCell. If before you were using the same cell instance as both the forward and reverse cell of a bidirectional RNN, simply create two instances one for forward, one for reverse. In May 2017, we will start transitioning this cell's behavior to use existing stored weights, if any, when it is called with scope None which can lead to silent model degradation, so this error will remain until then.  bowu did you have any luck with this? if you haven't tried it yet, reinstall tensorflow from the latest source. there were some changes to some of the core rnn files, among a few others. works for me now. robmsylvester I reinstall tensorflow from the latest source, still the same error. I was on branch master and the latest commit is CODESCODES. What's the latest commit when you build your repo?Hi, I am using Tensorflow r1.0 using GPU built using source. I am trying to follow the unmodified Seq2Seq translation tutorial, but I'm getting the same error. for example 
+
+
+
+The relevant portion of the code in my seq2seq model. py is:
+ CODELCODEL 
+
+What can I do to solve the problem?
+
+
+
+Thanks a ton! prashantserai see what happens if you remove the MultiRNNCell line from above, effectively making your network just one layer. Does it work then? It might be a bug somewhere in MultiRNNCell. I've read about that somewhere recently, probably on stack overflow.
+
+If you implement the stacked lstm gru yourself, you don't get this error, and you can implement the same functionality actually more, because you're free to do whatever you want with bidirectional architectures, weird residual and skip connections, etc.  robmsylvester The same error persisted even when I tried with num layers 1 which should effectively skip that line. Any other ideas? Thanks for the input.Hmmm. One thing that stands out to me is in the referenced legacy seq2seq file:
+
+ CODESCODES 
+
+This line appears to be used because the same architecture is used on both the encoder and decoder side. They make a copy of the cell, then pass the cell argument along to the attention decoder embedding function, then to the attention decoder itself. 
+
+What happens if you explicitly create the encoder cell AND the decoder cell in your seq2seq model file and pass both along to the legacy library file, making the small adjustments to the functions and their arguments?
+ robmsylvester shouldn't making changes in the scopes of the cells work? It's working for the other two examples as well. In my opinion, this would be a very ugly workaround; a cleaner solution must exist; maybe we are missing something? I got the same error on the seq2seq tutorial as well, tried all of the above solutions. iamgroot42 Yeah, that 'solution' is admittedly very ugly, but more so just trying to hunt down where an issue might be. I'll play with it in a few hours and see if I can track something down.In fact, the copy. deepcopy is there because these are legacy functions and
+we don't have the resources to maintain update them. If you'd like to
+introduce a backwards compatible change that allows the user to provide a
+second cell for the decoding step, and if it's None then to fallback on the
+deepcopy, then I would be happy to review the PR. Keep in mind it would
+have to be a backwards compatible change.
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ebrevdo I'll think about it. I do have a translator that works pretty similar to this one but creates cells through a separate class that allows for inserting bidirectional layers where you want, residuals where you want, merging inputs with concat vs. sum, and a few other things. I think I could migrate my class over to this tutorial pretty easily by using static RNN's. I'll let you know. ebrevdo i am running Tensorflow r1.0 tensorflow thumbs down.1 cp36 cp36m linux x86 64 on Red Hat and have the latest version of the translation tutorial from Github. is there a way you know to make this work currently?It's unfortunate that the translation tutorial does not work with TF 1. We should fix that. lukaszkaiser can you take a look? We're working on a new tutorial but it's still a few weeks off and will require a nightly version of TensorFlow or TF 1.1 or 1.2 to work. lukasz; it's hard for me to identify from the various comments which part of the tutorial is faulty in TF 1. any chance you could identify the line and i can help get it working?  ebrevdo It's LINKLINK tutorial. The error is in LINKLINK cluster of lines. The cells passed here are used for both the backward and forward phase of the legacy seq2seq model, which throws an error because of same cells being used with different scopes. iamgroot42 do you want to make a PR with the needed changes? That would be great, I currently don't have the cycles to do that myself. Thanks!I noticed that the TF 1.0 works fine with the newest version of translation tutorial if compiled from the source on branch remotes origin r1.0
+ CODELCODEL 
+then build and install TensorFlow, it works fine.
+
+On branch remotes origin r1.1 it has the different variable scope error. 
+I modified the code as robmsylvester suggested
+
+
+and it works for me now. oxwsds the Tensorflow I'm using is 1.1 so maybe that's having an error.
+
+I had tried what robmsylvester suggested then actually. and the training had begun 2 days 13 hours done now. it fails during decoding though with the error:
+ CODELCODEL 
+Did you try decoding? prashantserai Don't exactly know, but what you met seems to be another issue.  prashantserai If it fails only when you decode, perhaps it has something to do with using a batch size of one? Does the model still train if you lower the batch size to one during training? bowu Same error here. Mac OX Sierra, TensorFlow 1.0 rc1, Python 2.10 & Python 3.1. robmsylvester it did train successfully with a batch size of one too, but failed during decoding in the same way or similar way. here's a full traceback. the reason I was thinking of this as a connected error was because of the reference to seq2seq f which was one of the modified functions the prashant comment from my code to signify a modified line is part of the trace 
+
+ CODELCODEL 
+
+ oxwsds does your opinion change on the basis of the full trace above? prashantserai I tried decoding and it works fine. I just simply add a CODESCODES arg to function CODESCODES and in CODESCODES create the cell and pass it to the function, which were called in function CODESCODES. How did you change your code? oxwsds robmsylvester ebrevdo 
+I finally have something that's working now I mean, results for my single layer 256 unit network are kind of appalling, but that's probably just because the network is ultra light weight and I didn't tune params AT ALL 
+Thank you so much everyone.
+
+ Here's my thoughts at the end of this: 
+
+ oxwsds comment that the tutorial in it's current form works without any need for modification when Tensorflow is compiled from the branch remotes origin r1.0 was TRUE. Although, the sad bit was that the version of Tensorflow I had for which modifications within Tensorflow code were needed, and the version in remotes origin r1.0 were both identically labelled.
+
+ robmsylvester 's fix in the comment copied below DID WORK for my version of Tensorflow where the Tutorial didn't work out of the box and should work for TF 1.1 too I guess. It is slightly messy to implement, but I could do it, which is saying something: P
+The error in my last two comments before this was due to my mistake. Like a dummy, I was specifying the layers and hidden units parameters only during training, I was leaving the code to use defaults during decoding. this portion of the tutorial could be slightly more dummy proof: LINKLINK 
+
+
+
+
+
+
+
+Thanks for the feedback! Seems there's something different between the TF
+on pypi and at that tag? Gunhan, is that possible?
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+For information I had this issue while trying to stack LSTM cells:
+My orginial code was:
+ CODELCODEL 
+
+Then, with the following code, creating the model was ok, but I couldn't share the variable with another model. for instance if you create a train model and a valid model supposed to share tensors, it will fail 
+ CODELCODEL 
+
+So finally I used CODESCODES to be the function like CODESCODES in LINKLINK. I now have:
+ CODELCODEL 
+
+It is now fully workingtrying to get this thing running, which results in the same error: 
+
+ LINKLINK 
+
+
+ pltrdy 's solution didn't do it for me oddly. I'm getting
+
+ CODELCODEL 
+
+
+ aep did you use the function of LINKLINK I mention at the end of my post now edited to be more clear  cells 
+ for in range 15:
+ cell create lstm cell config 
+ cells. append cell 
+ lsmt layers rnn. MultiRNNCell cells 
+it solved my problemManaged to fix this issue by installing older version of Tensorflow:
+ CODESCODES 
+
+I was receiving the error when executing the seq2seq tutorial
+In regards to what ebrevdo said, I think the solution is not to fix the legacy seq2seq code, but to update the tutorial to use the CODESCODES package instead, which is actively maintained. It is quite demoralizing when the first tensorflow program you ever run spits out a bunch of errors. If I have some time this week, I'll submit a PR.
+We're working on a new seq2seq tutorial. We had hoped to release by end of
+last month but are getting delayed. It will use the new API.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ebrevdo I meet the same error when running the sequence to sequence model on the tensorflow1.1 website. And I have try to use 'reuse' parameter but failed. Could you tell me when the new seq2seq tutorial will be released?Looks like at the same time as tf 1. since we will rely on some new
+features of that release.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ebrevdo I am as well facing the same issue and unable to progress with seq2seq. It will be really helpful if you could let us me know what is a probable date for a new tutorial.
+Thanks a lot for your help.
+
+Installing using CODESCODES Tensorflow 1.0 is working for me translate tutorial.I have version 1.0 rc2.TF1.2 will solve this problem? Please help me how to continue training the model. TF 1.0 works but doesn't have devicewrapper api for multiple GPUs.Having the same problem with tensor flow 1. Still working on a solution I tried several things, at the end I was able to use tensorflow 1.1 but had to make these changes: based on Tshzzz above 
+
+Remove this:
+ CODESCODES 
+
+And add this:
+cells 
+for in range NLAYERS:
+ cell rnn. DropoutWrapper tf. contrib. rnn. GRUCell INTERNALSIZE, input keep prob pkeep 
+ cells. append cell 
+multicell rnn. MultiRNNCell cells, state is tuple False  ebrevdo Congratulations, TF 1.2 just got released was the new tutorial also released somewhere or is it being released anytime soon?
+
+ThanksWe'll plan to have an announcement when it's released. Working on it.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+For anyone using tensorflow gpu 1.0 and getting this error, switching to 1.0 via pip install tensorflow gpu 1.0 is not going to fix the problem, at least didn't work for me.
+
+I ran into this issue on both mac and ubuntu and compiling from source worked both times. So:
+pip install LINKLINK  ajaanbaahu Still waiting for tf1.2 new seq2seq tutorial.It worked for me using CODESCODES.For tf r1. got deepcopy error. As listed in LINKLINK As the rookie, I raise some of my opinion.
+The following code will make this similar mistake occure:
+ Piece of my code 
+ CODELCODEL 
+The error dump as the following:
+ CODELCODEL 
+
+But after I do the revision, It can work.
+ CODELCODEL None of those workarounds worked for me with Tensorflow 1.1
+
+I'm using CODESCODES model with CODESCODES cells.
+
+I had to reverse back to 1.1: CODESCODES  oxwsds As you said, I change input args cell of tf. contrib. legacy seq2seq. embedding attention seq2seq to two different cell encoder cells, decoder cells. Finally, I get seq2seq model worked. After 73200 setps, I get perplexity 5.54.
+Then I run decode part, 
+ Who is the president of the United States?
+Qui est le président des États Unis?
+
+Problem solved. Thanks. doncat99 
+It seems that CODESCODES in CODESCODES doesn't make effect.
+So I change the related part in CODESCODES to 
+
+ CODELCODEL  supermeatboy82, Could you share your code?
+
+Upgrading to Tensorflow 1.0 and generating the cells in a loop instead of list multiplication fixed this for me.Got the error with TF1.2 when running translate. py, details:
+name: GeForce GTX 1080 Ti
+major: 6 minor: 1 memoryClockRate GHz 1.582
+pciBusID 0000:02:00.0
+Total memory: 10.91GiB
+Free memory: 10.76GiB
+2017 06 22 09:15:04.485252: I tensorflow core common runtime gpu gpu device. cc:961 DMA: 0 
+2017 06 22 09:15:04.485256: I tensorflow core common runtime gpu gpu device. cc:971 0: Y 
+2017 06 22 09:15:04.485265: I tensorflow core common runtime gpu gpu device. cc:1030 Creating TensorFlow device gpu:0 device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:02:00.0 
+Creating 3 layers of 1024 units.
+Traceback most recent call last:
+ File translate. py, line 322, in 
+
+ File home lscm opt anaconda2 lib python2.7 site packages tensorflow python platform app. py, line 48, in run
+ sys. exit main sys. argv + flags passthrough 
+ File translate. py, line 319, in main
+
+ File translate. py, line 178, in train
+ model create model sess, False 
+ File translate. py, line 136, in create model
+ dtype dtype 
+ File data research github dl tensorflow tensorflow models tutorials rnn translate seq2seq model. py, line 179, in init 
+ softmax loss function softmax loss function 
+ File home lscm opt anaconda2 lib python2.7 site packages tensorflow contrib legacy seq2seq python ops seq2seq. py, line 1206, in model with buckets
+ decoder inputs 
+ File data research github dl tensorflow tensorflow models tutorials rnn translate seq2seq model. py, line 178, in 
+ lambda x, y: seq2seq f x, y, False,
+ File data research github dl tensorflow tensorflow models tutorials rnn translate seq2seq model. py, line 142, in seq2seq f
+ dtype dtype 
+ File home lscm opt anaconda2 lib python2.7 site packages tensorflow contrib legacy seq2seq python ops seq2seq. py, line 848, in embedding attention seq2seq
+ encoder cell copy. deepcopy cell 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 174, in deepcopy
+ y copier memo 
+ File home lscm opt anaconda2 lib python2.7 site packages tensorflow python layers base. py, line 476, in deepcopy 
+ setattr result, k, copy. deepcopy v, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 230, in deepcopy list
+ y. append deepcopy a, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 190, in deepcopy
+ y reconstruct x, rv, 1, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 334, in reconstruct
+ state deepcopy state, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 257, in deepcopy dict
+ y deepcopy value, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 190, in deepcopy
+ y reconstruct x, rv, 1, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 334, in reconstruct
+ state deepcopy state, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 257, in deepcopy dict
+ y deepcopy value, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 190, in deepcopy
+ y reconstruct x, rv, 1, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 334, in reconstruct
+ state deepcopy state, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 257, in deepcopy dict
+ y deepcopy value, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 190, in deepcopy
+ y reconstruct x, rv, 1, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 334, in reconstruct
+ state deepcopy state, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 257, in deepcopy dict
+ y deepcopy value, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 257, in deepcopy dict
+ y deepcopy value, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 230, in deepcopy list
+ y. append deepcopy a, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 190, in deepcopy
+ y reconstruct x, rv, 1, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 334, in reconstruct
+ state deepcopy state, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 257, in deepcopy dict
+ y deepcopy value, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 190, in deepcopy
+ y reconstruct x, rv, 1, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 334, in reconstruct
+ state deepcopy state, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 257, in deepcopy dict
+ y deepcopy value, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 190, in deepcopy
+ y reconstruct x, rv, 1, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 334, in reconstruct
+ state deepcopy state, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 257, in deepcopy dict
+ y deepcopy value, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 230, in deepcopy list
+ y. append deepcopy a, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 237, in deepcopy tuple
+ y. append deepcopy a, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 257, in deepcopy dict
+ y deepcopy value, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 190, in deepcopy
+ y reconstruct x, rv, 1, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 334, in reconstruct
+ state deepcopy state, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 163, in deepcopy
+ y copier x, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 257, in deepcopy dict
+ y deepcopy value, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 190, in deepcopy
+ y reconstruct x, rv, 1, memo 
+ File home lscm opt anaconda2 lib python2.7 copy. py, line 343, in reconstruct
+ y. dict. update state 
+AttributeError: 'NoneType' object has no attribute 'update'
+I also met the error caused by CODESCODES in CODESCODES when running CODESCODES in the translate model in tutorial. 
+I tried to change the codes in CODESCODES in CODESCODES as follows:
+
+ CODELCODEL 
+Then there is no error now.
+BUT as a rookie I don't know whether the codes here work as before and it seems the changes make the model run slower.
+I would like to update everyone that I downgraded the tensorflow to 1.0 tensorflow GPU and it is working for me. The models are performing as expected. I assume that the CPU version of 1.0 should function as expected? Or?
+Thanks thumbs up 
+Hi guys, I don't know if you're still interested on it, but I found that the problem is related to the operation of copying the cell passed as params to the CODESCODES function. This is because the same cell definition is used both for encoder and decoder. I think the tutorial is deprecated since it uses a seq2seq model with bucketing in contrast to a dynamic seq2seq. But, I'm pasting a modified function that works. The function is updated in the file CODESCODES.
+
+thanks,
+Fabio
+
+ CODELCODEL  fabiofumarola Thank you for the function. Looks really helpful. I also saw that the tutorial is deprecated. I am still waiting for an official tutorial release. Looks like you have used the new api. Do you have any code that can be looked up to start coding on the new api?
+Any help is well appreciated. Thank you once again thumbs up  syw2014 Did you fix your issue? w268wang not yet, still waiting for other solutions, but comments of Miopas may have a try, and I am trying the solution of fabiofumarola it says CODESCODES 
+after using the update that fabiofumarola posted. Can you guys please help me?
+Yes because the update I have proposed require you to change the
+embedding attention seq2seq Function. If you go to the source file in you
+tensorflow release you can change the method definition you re self.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sent from Gmail Mobile
+Yes i did the same thing. I changed the function in seq2seq. py file in the tensorflow release. Still i am getting the same error. Is there one more argument to the function?Yes, now in you code you need to specify to rnn cells. One for the encoder
+and another for the decoder.
+
+On Sun, 2 Jul 2017 at 20:54, fabio fumarola wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sent from Gmail Mobile
+I am totally new to this. Maybe this a pretty basic question but could you tell what argument to be passed as the decoder cell in this code? I am trying to develop the seq2seq as shown in the tensorflow tutorial using own dataset. 
+
+ 
+from future import absolute import
+from future import division
+from future import print function
+
+import random
+
+import numpy as np
+from six. moves import xrange pylint: disable redefined builtin
+import tensorflow as tf
+
+import data utils
+
+
+class Seq2SeqModel object:
+ def init self,
+ source vocab size,
+ target vocab size,
+ buckets,
+ size,
+ num layers,
+ max gradient norm,
+ batch size,
+ learning rate,
+ learning rate decay factor,
+ use lstm False,
+ num samples 512,
+ forward only False,
+ dtype tf. float32:
+ 
+ self. source vocab size source vocab size
+ self. target vocab size target vocab size
+ self. buckets buckets
+ self. batch size batch size
+ self. learning rate tf. Variable 
+ float learning rate, trainable False, dtype dtype 
+ self. learning rate decay op self. learning rate. assign 
+ self. learning rate learning rate decay factor 
+ self. global step tf. Variable 0, trainable False 
+
+ 
+ output projection None
+ softmax loss function None
+ 
+ if num samples 0 and num samples self. target vocab size:
+ w t tf. get variable proj w, dtype dtype 
+ w tf. transpose w t 
+ b tf. get variable proj b, dtype dtype 
+ output projection w, b 
+
+ def sampled loss labels, inputs:
+ labels tf. reshape labels, 
+ 
+ local w t tf. cast w t, tf. float32 
+ local b tf. cast b, tf. float32 
+ local inputs tf. cast inputs, tf. float32 
+ return tf. cast 
+ tf. nn. sampled softmax loss local w t, local b, local inputs, labels,
+ num samples, self. target vocab size,
+ dtype 
+ softmax loss function sampled loss
+
+ 
+
+ return tf. nn. rnn cell. GRUCell size 
+ if use lstm:
+
+ return tf. nn. rnn cell. BasicLSTMCell size 
+
+ if num layers 1:
+ cell tf. nn. rnn cell. MultiRNNCell 
+
+ 
+ def seq2seq f encoder inputs, decoder inputs, do decode:
+ return tf. contrib. legacy seq2seq. embedding attention seq2seq 
+ encoder inputs,
+ decoder inputs,
+ cell,
+ num encoder symbols source vocab size,
+ num decoder symbols target vocab size,
+ embedding size size,
+ output projection output projection,
+ feed previous do decode,
+ dtype dtype 
+
+ 
+ self. encoder inputs 
+ self. decoder inputs 
+ self. target weights 
+ for i in xrange buckets: Last bucket is the biggest one.
+ self. encoder inputs. append tf. placeholder tf. int32, shape,
+ name encoder 0. format i 
+ for i in xrange buckets + 1:
+ self. decoder inputs. append tf. placeholder tf. int32, shape,
+ name decoder 0. format i 
+ self. target weights. append tf. placeholder dtype, shape,
+ name weight 0. format i 
+
+ Our targets are decoder inputs shifted by one.
+ targets 
+ for i in xrange len self. decoder inputs 1 
+
+ Training outputs and losses.
+ if forward only:
+ self. outputs, self. losses tf. contrib. legacy seq2seq. model with buckets 
+ self. encoder inputs, self. decoder inputs, targets,
+ self. target weights, buckets, lambda x, y: seq2seq f x, y, True,
+ softmax loss function softmax loss function 
+ If we use output projection, we need to project outputs for decoding.
+ if output projection is not None:
+ for b in xrange len buckets:
+ self. outputs 
+ tf. matmul output, output projection + output projection 
+ for output in self. outputs 
+ 
+ else:
+ self. outputs, self. losses tf. contrib. legacy seq2seq. model with buckets 
+ self. encoder inputs, self. decoder inputs, targets,
+ self. target weights, buckets,
+ lambda x, y: seq2seq f x, y, False,
+ softmax loss function softmax loss function 
+
+ Gradients and SGD update operation for training the model.
+
+ if not forward only:
+ self. gradient norms 
+ self. updates 
+ opt tf. train. GradientDescentOptimizer self. learning rate 
+ for b in xrange len buckets:
+ gradients tf. gradients self. losses, params 
+ clipped gradients, norm tf. clip by global norm gradients,
+ max gradient norm 
+ self. gradient norms. append norm 
+ self. updates. append opt. apply gradients 
+ zip clipped gradients, params, global step self. global step 
+
+
+
+ def step self, session, encoder inputs, decoder inputs, target weights,
+ bucket id, forward only:
+ 
+ Check if the sizes match.
+ encoder size, decoder size self. buckets 
+ if len encoder inputs! encoder size:
+ raise ValueError Encoder length must be equal to the one in bucket, 
+ d! d. len encoder inputs, encoder size 
+ if len decoder inputs! decoder size:
+ raise ValueError Decoder length must be equal to the one in bucket, 
+ d! d. len decoder inputs, decoder size 
+ if len target weights! decoder size:
+ raise ValueError Weights length must be equal to the one in bucket, 
+ d! d. len target weights, decoder size 
+
+ Input feed: encoder inputs, decoder inputs, target weights, as provided.
+ input feed 
+ for l in xrange encoder size:
+ input feed. name encoder inputs 
+ for l in xrange decoder size:
+ input feed. name decoder inputs 
+ input feed. name target weights 
+
+ Since our targets are decoder inputs shifted by one, we need one more.
+ last target self. decoder inputs. name
+ input feed np. zeros, dtype np. int32 
+
+ Output feed: depends on whether we do a backward step or not.
+ if not forward only:
+ output feed, Update Op that does SGD.
+ self. gradient norms, Gradient norm.
+ self. losses Loss for this batch.
+ else:
+ output feed Loss for this batch.
+ for l in xrange decoder size: Output logits.
+ output feed. append self. outputs 
+
+ outputs session. run output feed, input feed 
+ if not forward only:
+ return outputs, outputs, None Gradient norm, loss, no outputs.
+ else:
+ return None, outputs, outputs No gradient norm, loss, outputs.
+
+ def get batch self, data, bucket id:
+ 
+ encoder size, decoder size self. buckets 
+ encoder inputs, decoder inputs, 
+
+ Get a random batch of encoder and decoder inputs from data,
+ pad them if needed, reverse encoder inputs and add GO to decoder.
+ for in xrange self. batch size:
+ encoder input, decoder input random. choice data 
+
+ Encoder inputs are padded and then reversed.
+ encoder pad encoder size len encoder input 
+ encoder inputs. append list reversed encoder input + encoder pad 
+
+ Decoder inputs get an extra GO symbol, and are padded then.
+ decoder pad size decoder size len decoder input 1
+ decoder inputs. append + decoder input +
+ decoder pad size 
+
+ Now we create batch major vectors from the data selected above.
+ batch encoder inputs, batch decoder inputs, batch weights, 
+
+ Batch encoder inputs are just re indexed encoder inputs.
+ for length idx in xrange encoder size:
+ batch encoder inputs. append 
+ np. array 
+ for batch idx in xrange self. batch size, dtype np. int32 
+
+ Batch decoder inputs are re indexed decoder inputs, we create weights.
+ for length idx in xrange decoder size:
+ batch decoder inputs. append 
+ np. array 
+ for batch idx in xrange self. batch size, dtype np. int32 
+
+ Create target weights to be 0 for targets that are padding.
+ batch weight np. ones self. batch size, dtype np. float32 
+ for batch idx in xrange self. batch size:
+ We set weight to 0 if the corresponding target is a PAD symbol.
+ The corresponding target is decoder input shifted by 1 forward.
+ if length idx decoder size 1:
+ target decoder inputs 
+ if length idx decoder size 1 or target data utils. PAD ID:
+ batch weight 0.0
+ batch weights. append batch weight 
+ return batch encoder inputs, batch decoder inputs, batch weights This is a good question for stack overflow.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Okay! thanks though! thumbs up  ebrevdo is there any update on when the new tutorial of seq2seq using new api will come out?
+Thank you. Amazing work!
+yeah waiting for the new tutorial. would be great to know if it's planned to be released anytime soon. ebrevdo 
+
+tried to take code in the kernel tests and retrofit the beam search with the legacy seq2seq, but it was challenging. We're hoping for this coming week!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hi guys,
+
+Any update to this issue, I'm experiencing the same on tensorflow 1.1 gpu for mac os x tshi1983 
+I got the same problem with tensorflow 1.1 gpu for ubuntu. 
+I upgrade to tf 1. It still doesn't work. 
+Then I change the function embedding attention seq2seq in file 
+tensorflow contrib legacy seq2seq python ops seq2seq. py
+to the one as fabiofumarola suggested above. 
+Now it starts training. I haven't tested decoding yet. 
+Move the code on cell definition into seq2seq f:
+
+ CODELCODEL 
+Then python translate. py data dir data train dir checkpoint size 256 num layers 2 steps per checkpoint 50 can work.
+
+ huxuanlai it works! At least it's training now, thx! huxuanlai Works for me as well. I am receiving the same CODESCODES but with CODESCODES. I am running tf 1.1 GPU on ubuntu 16.04 lts.
+
+This only seems to occur when I have more than 1 bucket.
+
+full traceback:
+ CODELCODEL  Tshzzz jtubert 
+thx, your solution worked for me. My tf verstion is 1.0.
+
+I changed from:
+ CODELCODEL 
+to:
+ CODELCODEL 
+This is still not fixed, tried all possible solutions, ones mentioned in this thread and stackoverflow, it doesn't work with tensorflow 1.3 or 1.2 or 1.1 I'm facing this error:
+ CODELCODEL 
+
+The error points to this function in seq2seq model. py which is line 142 in seq2seq model. py:
+
+ CODELCODEL 
+
+
+Anyone who came across with this error and managed to solve this, please help me correct this issue.ValueError: Attempt to reuse RNNCell with a different variable scope than its first use. First use of cell was with scope 'rnn multi rnn cell cell 0 gru cell', this attempt is with scope 'rnn multi rnn cell cell 1 gru cell'. Please create a new instance of the cell if you would like it to use a different set of weights. If before you were using: MultiRNNCell num layers, change to: MultiRNNCell. If before you were using the same cell instance as both the forward and reverse cell of a bidirectional RNN, simply create two instances one for forward, one for reverse. In May 2017, we will start transitioning this cell's behavior to use existing stored weights, if any, when it is called with scope None which can lead to silent model degradation, so this error will remain until then. 
+
+the origin code:
+from tensorflow. contrib import rnn
+inputs tf. placeholder dtype tf. int32, shape, name inputs 
+keep prob tf. placeholder dtype tf. float32, name keep prob 
+cell rnn. GRUCell 10 
+cell rnn. DropoutWrapper cell cell, input keep prob keep prob 
+cell rnn. MultiRNNCell, state is tuple True 
+
+ outs, states tf. nn. dynamic rnn cell cell, inputs look up, dtype tf. float32 
+solution:
+inputs tf. placeholder dtype tf. int32, shape, name inputs 
+keep prob tf. placeholder dtype tf. float32, name keep prob 
+cell rnn. MultiRNNCell, state is tuple True Do you have this issue with the tf nightlies?
+
+
+
+
+
+
+
+
+
+
+
+
+
+AttributeError: 'NoneType' object has no attribute 'update'
+ 
+in tf 1.3  ValueError: Attempt to reuse RNNCell with a different variable scope than its first use. First use of cell was with scope 'embedding attention seq2seq rnn multi rnn cell cell 0 gru cell', this attempt is with scope 'embedding attention seq2seq rnn multi rnn cell cell 1 gru cell'. Please create a new instance of the cell if you would like it to use a different set of weights. If before you were using: MultiRNNCell num layers, change to: MultiRNNCell. If before you were using the same cell instance as both the forward and reverse cell of a bidirectional RNN, simply create two instances one for forward, one for reverse. In May 2017, we will start transitioning this cell's behavior to use existing stored weights, if any, when it is called with scope None which can lead to silent model degradation, so this error will remain until then. 
+It has been 14 days with no activity and the CODESCODES label was assigned. Please update the label and or status accordingly.Nagging Awaiting TensorFlower: It has been 14 days with no activityand the CODESCODES label was assigned. Please update the label and or status accordingly.The solution is to move to a newer version of TF. This thread has drastically diverged from its original issue. Closing.If you want instant solution you can try what i tried: 
+
+ pip install tensorflow 1.0
+ 
+The issue is with tenorflow 1.1 version, it worked for me.
+

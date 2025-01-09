@@ -1,0 +1,911 @@
+I noticed that tensorflow always takes about 2min before it actually starts to compute. I've been trying to find out, why this happens, and nothing really worked so far. 
+
+
+
+CUDA works, since it prints the 'Hello, TensorFlow! when I use the official test example, but before that it takes like 2minutes every time! 
+
+When I tested this with LINKLINK LINKLINK, I did not compile it myself. on cuda 9.1 cudnn7.5, I had the same issues. A NVIDIA employee LINKLINK suggested, I may be hitting a lengthy JIT compile step, because the GTX 1080 has compute capability of 6. which the wheel I used may not be compiled for. 
+
+So I tried to find wheels for tensorflow with compute capability 6.1 for windows, but LINKLINK and tested produced the same problem.
+
+Am I doing something wrong here, or do I just have to accept the 2min delay everytime I start my tensorflow keras scripts?
+
+
+ System information
+ Have I written custom code as opposed to using a stock example script provided in TensorFlow:
+Code:
+ CODELCODEL 
+Output:
+ CODELCODEL 
+
+ OS Platform and Distribution:
+Windows 10 Education Version 10.16299 Build 16299 
+Intel R Core TM i5 7500 CPU 3.40GHz, 3408 MHz, 4 Cores
+
+ TensorFlow installed from source or binary:
+binary
+
+ TensorFlow version:
+tensorflow gpu 1.0, 1.0
+
+ Python version: 
+3.5 & 3.6 via anaconda, conda 4.1. 
+
+ Bazel Version:
+N A
+
+ CUDA cuDNN version:
+Tested combinations: 
+ CUDA 9.0 and CuDNN 7.2 tested on tensorflow 1.0, 1.0 and 1.0 dev20180329 
+ CUDA 9.1 and CuDNN 7.5 tested on tensorflow 1.0 and 1.0 
+
+ GPU model and memory:
+NVIDIA GeForce GTX 1080 GP104 400, 8192 MBytes of GDDR5X SDRAM 
+
+ Exact command to reproduce:
+See: Have I written custom code. 
+
+ 
+EDIT:
+
+Threadstarter here, hello.
+
+
+
+
+
+ This works! I checked with that wheel, and then with CODESCODES on PYPI, which also worked.
+I initially wanted to use the anaconda cudatoolkit and cudnn packages, but currently, cudnn is only available up to version 7.1 on anaconda cloud. Tensorflow 2.0 however, is compiled with 7.1, so I had to do this the oldschool way, and download the setups from Nvidia.
+Soon, though. LINKLINK.
+
+For everyone, here's what I did, as a guide:
+
+ How to install Tensorflow Nightly 2.0 GPU in Anaconda on Windows 10 x64
+
+• I installed these CUDA CuDnn Versions:
+ – cuda 10.130 win10 network Nvidia CUDA Download: LINKLINK 
+ – cuDNN v7.1 Nov 8, 2018, for CUDA 10.0 Nvidia CuDnn Download: LINKLINK 
+ – Don't forget to check, whether the Cuda setup has correctly written itself to the PATH system variable.
+ – Reboot.
+• Now make a new environment in Anaconda and activate it:
+ – CODESCODES 
+ – CODESCODES 
+• Now, with the new env still activated, install the latest Tensorflow 2.0 nightly GPU build from PYPI:
+ – CODESCODES 
+• For machine learning in Jupyter notebook or Jupyter Lab, you need these as well:
+ – CODESCODES 
+• Check, if your GPU is recognized by Tensorflow. Open the Anaconda prompt, activate the new environment and type CODESCODES, then press Enter. Now type:
+ CODESCODES 
+ CODESCODES 
+• Output should be something like this:
+
+ CODELCODEL 
+
+• Done.Thank you for your post. We noticed you have not filled out the following field in the issue template. Could you update them if they are relevant in your case, or leave them as N A? Thanks.
+Bazel version
+Exact command to reproduce
+
+done reedwm do you have any idea what could cause this? gunan this sounds like an issue of JIT caching. What compute capabilities do the prebuilt wheels use? Are there plans to compile with CC 6.I think prebuilt wheels have every compute capability starting from 3.5 or 3.I have the same issue: a timeout of exactly 2 minutes before computation starts.
+Is it perhaps related to Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA?
+I'm using 
+host: ubuntu 18.04
+container: tensorflow tensorflow: latest gpu
+
+ 
+ 
+ usr local lib python2.7 dist packages h5py init. py:36: FutureWarning: Conversion of the second argument of issubdtype from CODESCODES to CODESCODES is deprecated. In future, it will be treated as np. flo
+at64 np. dtype float. type.
+ from. conv import register converters as register converters
+2018 06 thumbs down 8 10:15:12.462431: I tensorflow core platform cpu feature guard. cc:140 Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2018 06 thumbs down 8 10:15:12.672108: I tensorflow stream executor cuda cuda gpu executor. cc:898 successful NUMA node read from SysFS had negative value thumbs down, but there must be at least one NUMA node, so returning NUMA node zero
+2018 06 thumbs down 8 10:15:12.672988: I tensorflow core common runtime gpu gpu device. cc:1356 Found device 0 with properties: 
+name: GeForce 940MX major: 5 minor: 0 memoryClockRate GHz: 1.189
+pciBusID: 0000:02:00.0
+totalMemory: 1.96GiB freeMemory: 1.93GiB
+2018 06 thumbs down 8 10:15:12.673024: I tensorflow core common runtime gpu gpu device. cc:1435 Adding visible gpu devices: 0
+2018 06 thumbs down 8 10:17:11.465729: I tensorflow core common runtime gpu gpu device. cc:923 Device interconnect StreamExecutor with strength 1 edge matrix:
+2018 06 thumbs down 8 10:17:11.465769: I tensorflow core common runtime gpu gpu device. cc:929 0 
+2018 06 thumbs down 8 10:17:11.465778: I tensorflow core common runtime gpu gpu device. cc:942 0: N 
+2018 06 thumbs down 8 10:17:11.466050: I tensorflow core common runtime gpu gpu device. cc:1053 Created TensorFlow device job: localhost replica:0 task:0 device: GPU:0 with 1695 MB memory physical GPU device: 0, name: GeForce 940MX, pci bus id: 0000:02:00. compute capability: 5.0 
+Hello, TensorFlow!
+ 
+
+the script I used to install nvidia docker after a fresh installation of ubuntu 18.04:
+ 
+ Install packages to allow apt to use a repository over HTTPS:
+
+
+
+
+ software properties common
+
+curl fsSL LINKLINK sudo apt key add 
+sudo apt key fingerprint 0EBFCD88
+
+
+
+
+ stable 
+
+sudo apt get update
+
+ docker ce not yet ready docker. io
+ 
+apt y install docker. io
+
+
+echo blacklist nouveau etc modprobe. d blacklist nouveau. conf
+echo options nouveau modeset 0 etc modprobe. d blacklist nouveau. conf
+
+sudo update initramfs u
+ reboot
+
+
+sudo apt get install dkms build essential make
+
+sudo dpkg add architecture i386
+sudo apt update
+sudo apt y install libc6: i386
+
+sudo bash NVIDIA Linux x86 64 390.67. run dkms install libglvnd
+
+ LINKLINK 
+
+
+ sudo apt key add 
+distribution. etc os release;echo ID VERSION ID 
+
+ sudo tee etc apt sources. list. d nvidia docker. list
+sudo apt get update
+
+sudo apt y install nvidia docker2
+
+apt y install nvidia utils
+  
+I lied. It only took a long time on the first run. After that it starts up instantly, even after a reboot.
+
+ ludwigprager The AVX2 warning is irrelevant. I used to get the same thing on my cpu only installation in the past.
+
+My startup is about 2 seconds:
+
+ CODELCODEL 
+
+
+ 
+ reedwm I have the exact same issue on 1050ti. Takes forever to start session. Can we get an update on this, please?
+
+ CODELCODEL Has anything been discovered yet? I have the same problem with 'Adding visible gpu devices: 0' taking about 2 3 minutes, even after reboot and multiple runs. I'm using CUDA 9.0 and cuDNN 7.2
+System: Red Hat Linux
+GPU: GTX 750Ti
+
+A ha, I think I may have an idea.
+In our bazel builds, we have all the cuda compute capabilities built into the binaries we distribute.
+However, it is possible we are not doing that with cmake!
+I will take another look.Nice! 
+How do I get this on my machine now? Do I have to wait for the next release? I can't build.Yes, we will cherrypick this into 1.10 and you should be able to see the
+improvement in 1.10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hi all,
+I'm having the same problem. waiting time of about 2 minutes before running what I actually wants to run. The text below is what I get and what I see for two minutes:
+
+Python 3.6 Anaconda, Inc. default, Jun 28 2018, 17:14:51 
+ on linux
+Type help, copyright, credits or license for more information.
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ 2018 09 05 09:54:50.375571: I tensorflow core common runtime gpu gpu device. cc:1405 Found device 0 with properties: 
+name: GeForce 940M major: 5 minor: 0 memoryClockRate GHz: 1.176
+pciBusID: 0000:01:00.0
+totalMemory: 1.96GiB freeMemory: 1.93GiB 
+ CODESCODES 
+
+After the waiting time is finally over I get the rest of the execution:
+
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+ Device mapping:
+ job: localhost replica:0 task:0 device: GPU:0 device: 0, name: GeForce 940M, pci bus id: 0000:01:00. compute capability: 5.0 
+ CODESCODES 
+ CODESCODES 
+
+ CODESCODES 
+
+I'm using Ubuntu 18.04, Nvidia Driver 396.54, andrunning the script under an anaconda environment with Python 3.6, cuda 9.2 and tensorflow gpu 1.10.0
+
+How do I solve this?
+Thanks,
+Boris apolo74 Our official packages are not built to use cuda 9.2
+You will need to reach out to the maintainers of the package you installed.
+
+ gunan I've been trying cuda 9.0 and cuda 9.1 with Tensorflow 1.8 and 1.9 but the results are the same. the first time I run CODESCODES it stops around 3 minutes at CODESCODES and after that I can work normally. If I'm working within a Python shell and I close that session and WITHOUT exiting Python shell I open a new session CODESCODES there is no problem, the GPU is added immediately.
+My problem is that I don't work within a python shell but I run Python scripts and every time I run a new script I have to wait 3 minutes for it to add the GPU.We noticed that the builds started failing with LINKLINK,
+Therefore, it turns out this issue is blocked right now until we can fix that problem.Still blocked by LINKLINK, which is blocked by some internal issues we are having with eigen.
+Will update when we have a resolution.I experience exactly the same problem on GTX 1080Ti, Tensorflow 1.10.0 both python and c++, CUDA 9. CUDNN 7.1 on Windows 10.I experience exactly the same problem on GTX 1080Ti, Tensorflow 1.11. CUDA 9. CUDNN 7 on Windows 10.The same problem GeForce GTX 1050 Ti, Tensorflow 1.11. CUDA 9. CUDNN 7, Windows 10You will experience this on any graphics card that is GeForce GTX9xx or newer.
+And unfortunately, our status is we are still blocked upgrading eigen, due to some backwards incompatible changes that are happening in eigen.
+
+Still blocked by 19198Why does it happen on my windows install but not my linux? 
+ Same hardware 
+
+EDIT: nevermind, because windows is built via cmake, and linux via bazel.
+
+Is it possible to set our specific compute capability while building from source? Would that solve the problem?The issue is because windows build uses MSVC, and other builds use clang or gcc.
+The eigen bug surfaces with nvcc+msvc.
+You can build from sources and set compute capability, but you will run into 19198.
+
+Have the same issue on GeForce GTX970Can confirm the results gunan reports. Manually built to bypass 2min delay on start up, ran into LINKLINK 
+
+ MacZel Just so you don't think your crazy, also seeing the issue on a few of the GTX970 series boards with Win 10Same issue here and same build as rs0h. 1050ti, Win 10, CUDA 9. CUDNN 7
+Mine seems to actually hang for a long time on Adding visible gpu devices: 0 The JIT cache does seem to hang around for the entire Python process scope. 
+
+For those going in through Jupyter, on reset you hit the delay. But, subsequent part re runs hit the existing JIT values. Just don't reset your notebook after init and it is pretty fast.Hi all, I'm having the same issue did anybody find a workaround?
+It takes a very long time on the first run but is very quick on subsequent runs. If I relaunch the container then it goes back to being very slow for one run. I get very similar output behaviour if I run the same code using the Anaconda distribution of tensorflow.
+
+System information
+
+ CODELCODEL  tf1 λ python
+
+
+
+
+
+name: GeForce 840M major: 5 minor: 0 memoryClockRate GHz: 1.124
+pciBusID: 0000:03:00.0
+totalMemory: 2.00GiB freeMemory: 1.65GiB
+
+
+ LINKLINK 
+when cancelling the script when gets frozen, my gpu spikes a bit, dont know if its related. 
+With the method described here it worked super fast! 
+ url 
+
+
+Now, we can do the CUDA and cuDNN dependencies,
+
+
+
+
+ CODELCODEL 
+it did it in a blink
+Hi all,
+I've been away for a time from this problem but I decided to give a new try. and I succeeded! thumbs up 
+In short, it seems the best solution is to compile Tensorflow from sources.
+The info of my system:
+Ubuntu 18.04
+Nvidia GeForce 940M
+Driver version 396.54
+Cuda 9.176
+CuDNN 7.1
+Tensorflow 1.12.0
+
+First be sure that your path includes the right libraries:
+ CODESCODES 
+
+Install Java first:
+ CODESCODES 
+
+And assuming you already have python3 dev, pip3, numpy and wheel installed then install also the following packages:
+ CODESCODES 
+
+The main idea is download and compile Bazel. I went for Bazel 0.15.2
+ LINKLINK 
+ unzip path to downloaded bazel 0.15.2 dist. zip d bazel 0.15.2 dist
+ cd bazel 0.15.2 dist
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+
+Next is to download and compile Tensorflow:
+ LINKLINK 
+ CODESCODES 
+ CODESCODES 
+ CODESCODES 
+
+Be careful about the right location of your CUDA, CuDNN and other libraries depending on your needs. After the configuration you'll start the building process:
+ CODESCODES 
+
+If everything goes well you are now ready to create the PIP wheel package:
+ CODESCODES 
+
+And finally install the package:
+ CODESCODES 
+
+Enjoy!I have the exact same problem. It take around 5 minutes to add gpu. Is there a solution avaible on windows side?
+I have, win 8. CUDA 9. cuDNN 7.1, python 3.0 and with gtx 1060 6gb.It looks like compiling Tensorflow from the source on WIndows 10 with latest CUDA drivers solves the problem. In my case, I followed the step by step instructions described in this article: url. It seems to be working properly now.
+Hope this helps someone!I have the exact same problem. It take around 5 minutes at:
+Adding visible gpu devices: 0
+
+My environment is Win10, CUDA 9. cuDNN 7.15, python 3.0 and with MX150.
+
+i added below codes refer to LINKLINK, this phenomenon seems disappeared, i do not know the reason
+import os
+os. environ '2'
+ LINKLINK I have a similar problem with this hardware software:
+
+GTXGeForce 1070
+CUDA 9.0
+cuDNN 7.0
+TensorFlow 1.12
+
+When I try to run the code from the python prompt it takes forever to start like 5 minutes 
+
+ LINKLINK 
+
+The successive runs work just fine.
+
+While if I run the python. exe with the script it's fine like 5 seconds to run the session 
+
+ LINKLINK 
+
+
+
+
+
+RTX 2070 
+CUDA 9.0
+cuDNN 7.0
+tensorflow gpu 1.50
+遇到了相同的问题，在CMD会话框中运行需要1分钟similar issue, adding device takes a few minutes.
+GPU 840M, python 3. CUDA 9. CUDNN 7.2, tensorflow 1.12.0which makes the following sentence, os. environ '2' I understand that it is like a jump.Any updates? Compiling tensorflow from source yield so many errors on my system, so I rely on the latest gpu container and updating the log level only has the effect of not displaying anything, the waiting time is the same, hangs after Adding visible gpu devices: 0 
+Any other docker container that I can use that would solve the problem? gunan Kindly asking for an update since 19198 is resolved. Is it official workaround to recompile tf? 
+We are having the problem with Tesla K80The same problem GeForce RTX 2080, Tensorflow 1.13.0 RC, CUDA 10. CUDNN 7, Windows 8.Let me take another look at this, if all the issues are resolved, hopefully with a single change we can include all necessary compute capabilities.I am having the same issue with long start time though I don't know if this has hung or if it has started and is just taking forever. I guess I will give it some time. There is no load spike on the CPU or GPU. Nothing seems to be happening but the process hangs. 
+
+The same problem GeForce GTX1080TI, Tensorflow 1.12.0 RC, CUDA 10. CUDNN 7, Windows 10
+
+ CODELCODEL Could you try with the latest nightly?
+ LINKLINK 
+
+
+Any release for Linux? Or even better, a docker build? I've tried the latest version of CODESCODES but the problem remains. I got the same problem and it took about 1 min to startFacing the same issue with Cuda 9. tensorflow 1.12. cuDNN 7. windows 10, Two Nvidia RTX 2080 TisI have the same problem using tensorflow 1.13. CUDA 10. cuDNN 7. Windows 10, nVidia 960m.
+ CODELCODEL Pardon, how long should one expect the matmul code of the topicstarter to execute on a well configured system? On my Win with tensorflow gpu 1.13 it takes 3.5 s which seems to be huge just to multiply 12 numbers.I have the same problem when using Google Colab. I installed keras contrib library to train modelHaving the exact same problem with TF 1.13.1 built from sources that was working perfectly before, the only thing I changed was nvidia drivers from nvidia 415 to 418. Could it have something to do with this?
+
+I just confirmed that this was exactly the problem, it was not about the TF version, the problem persisted across all build versions including the latest nightly. I'm using arch, so the latest upgrade installed the linux kernel 5.0 and the latest nvidia drivers 418.
+
+ What I did was downgrade both the drivers to nvidia 415.27 9 and the kernel headers to linux 4.20.11 
+
+
+
+A list of driver versions compatible with cuda can be found in the CUDA release notes:
+ LINKLINK Threadstarter here, hello.
+
+
+
+
+
+ This works! I checked with that wheel, and then with CODESCODES on PYPI, which also worked. No more JIT Compiles.
+I initially wanted to use the anaconda cudatoolkit and cudnn packages, but currently, cudnn is only available up to version 7.1 on anaconda cloud. Tensorflow 2.0 however, is compiled with 7.1, so I had to do this the oldschool way, and download the setups from Nvidia.
+Soon, though. LINKLINK.
+
+For everyone, here's what I did, as a guide:
+
+ How to install Tensorflow Nightly 2.0 GPU in Anaconda on Windows 10 x64
+
+• I installed these CUDA CuDnn Versions:
+ – cuda 10.130 win10 network Nvidia CUDA Download: LINKLINK 
+ – cuDNN v7.1 Nov 8, 2018, for CUDA 10.0 Nvidia CuDnn Download: LINKLINK 
+ – Don't forget to check, whether the Cuda setup has correctly written itself to the PATH system variable.
+ – Reboot.
+• Now make a new environment in Anaconda and activate it:
+ – CODESCODES 
+ – CODESCODES 
+• Now, with the new env still activated, install the latest Tensorflow 2.0 nightly GPU build from PYPI:
+ – CODESCODES 
+• For machine learning in Jupyter notebook or Jupyter Lab, you need these as well:
+ – CODESCODES 
+• Check, if your GPU is recognized by Tensorflow. Open the Anaconda prompt, activate the new environment and type CODESCODES, then press Enter. Now type:
+ CODESCODES 
+ CODESCODES 
+• Output should be something like this:
+
+ CODELCODEL 
+
+• Done.Reproducible with TF1.13, Nvidia Quadra1000M, Driver 419.67 Win10x64, CUDA10. Takes 6 minutes for starting compute.
+
+2019 03 31 07:24:03.216999: I tensorflow core common runtime gpu gpu device. cc:1512 Adding visible gpu devices: 0
+ Stuck here for 6 minutes 
+2019 03 31 07:34:07.713831: I tensorflow core common runtime gpu gpu device. cc:984 Device interconnect StreamExecutor with strength 1 edge matrix:Same here with Dell Precision + Quadro M1200. using nvidia docker and tensorflow tensorflow: latest gpu
+w some benchmark script:
+ CODELCODEL 
+
+First run:
+
+ 'Shape: 10000, 10000, 'Device: ' gpu:0' 
+ 'Time taken: '0:04:35.820064' 
+
+after:
+ 'Shape: 10000, 10000, 'Device: ' gpu:0' 
+ 'Time taken: '0:00:03.075177' 
+
+as CPU instead of gpu its always the same:
+ 'Shape: 10000, 10000, 'Device: ' cpu:0' 
+ 'Time taken: '0:00:15.496725' 
+
+
+Full Log:
+ CODELCODEL 
+
+started by:
+nvidia docker run tensorflow tensorflow: latest gpu
+
+
+thanks ahead
+
+This works for me as well.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Doesn't work for me it still frozeen on 
+
+This should be fixed with 1.13.1it fixed but i have other error gunan is there a workaround to fix this issue for tensorflow 1.12. 
+ we are still on cuda 9 and 1.13.1 is compiled for cuda 10. Unfortunately, it will be complicated to port the change back to 1.12.2 as it uses an old eigen version which causes compilation issues when built for newer cuda compute capabilities.
+
+Only option I see for your case is to build 1.13.1 from sources for cuda You can follow our guide at LINKLINK to build TF from sources.
+
+I will close this issue, as it should be fixed at head. Please feel free to open a new issue with further issues you see.Very embarrassed. I use nvidia cuda:0 cudnn7 devel ubuntu16.04 as the base when building my docker image. I try many methods to avoid the problem I try with Python3.3.3.7，install tensorflow gpu thumbs down.12.2 through pip or build tensorflow thumbs down.13.0 by myself but failed. 
+
+Finally, I install tensorflow gpu thumbs down.12.0 through pip and succeed.
+
+It seems that the newest version incurs the error, may be helpful for you.Hey guys.
+
+I am super new to tensorflow and programming in python. Initializing my current programme takes forever aswell. 
+
+It seems like you guys handled the issue in 1.12. 
+
+I am using PyCharm and installed Tensorflow through PyCharm, version 1.13. using python 3.
+It seems like that the version 1.13.1 does not incur the error, at least for me. 
+Honestly, I do not know what base I am using If even I am using a base. 
+
+Do you have any tips for me? Should I try to build tensorflow from source or something like that?I have the exact same problem. It take around 5 minutes at:
+Adding visible gpu devices: 0
+
+My environment is Win10, tensorflow gpu 2.0 beta1， CUDA 10. cuDNN 7. python 3.6 and with GTX 850M
+
+When the problem will be fixed？Same problem here:
+Ubuntu 16.04 tensorflow gpu thumbs down.14 CUDA 10.0 cuDNN 7.4 Python 3.7 GTX 950M
+
+But just like steel3d, it happened ONLY on the very first run stuck for around 3min here. After that, it becomes instant.Exactly the same problem with even 15 minutes of waiting for Ubuntu 16.04 tensorflow gpu 2.0beta1 CUDA 10.0 cuDNN 7.5 python 3.6 8 x Tesla P40. Btw for the same code this initialization time is much better with 1 GPU.in P100, the same problem with 10 minutes. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ from usr lib python2.7 site packages tensorflow python. libtensorflow framework. so
+
+ from usr lib python2.7 site packages tensorflow python. libtensorflow framework. so
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ chengdianxuezi OMG, unbelievable！My GPU is GTX 850M, they told me that the problem is there because my gpu is not good enough. I can't image that the P100 still has the same problem. So many people have the problem, but the official or the community seem to have no idea how to fix it. 
+So If you can't stand it, just use Pytorch or MXnet! Mxnet is great. It has something to do with. nv ComputeCache directory compiling kernels? Probably persisting it between container invocations can speed up things at least in second and further times.Hi gunan, can we support compute capabilities 7.5 in the official build? It seems tensorflow are still using CODESCODES as default. And we are facing slow start on NV 2080Ti. chsigg For questions about 7.5I would have thought that CUBINs for 7.0 would also work for sm 7. But I guess the runtime prefers to JIT the PTX for 7.0 instead?
+
+The list of CUDA kernel binaries that we include is already plenty long. Maybe it would be a good time to clean it up.
+
+Here is a short list of compute capabilities we currently support. Full list is at LINKLINK 
+
+sm 3.5 Kepler: Tesla K20 K40
+sm 3.7 Kepler: Tesla K80
+sm 5.2 Maxwell: Tesla M4, GeForce 9xx
+sm 6.0 Pascal: Tesla P100
+sm 6.1 Pascal: Titan X, Titan Xp, Tesla P4
+sm 7.0 Volta: Titan V, Tesla V100
+sm 7.5 Turing: Titan RTX, Tesla T4
+
+Looking at this list, I would probably go with 5. 6. 7. 7. I'm suspecting though that we added 6.1 for the same reason that you want to add 7. the CUBIN is compatible, but the runtime decides to JIT the PTX. This is in contrast to the following from LINKLINK:
+
+
+
+In theory, the long startup could also be from patching the CUBIN to work with a newer minor revision even though the documentation says it's compatible, the SASS code usually does need some massaging. We could try whether CUDA ​FORCE ​PTX ​JIT 1 makes the startup even slower, but probably it doesn't really matter what the actual cause is.
+
+What do you think?Actually, we probably have some more options playing with combinations of PTX and CUBINs. We can prevent the runtime to JIT from PTX 7.0 to SASS 7.5 and PTX 6.0 to SASS 6.1 and force it to use CUBIN 7.0 and 6.0 by stripping the corresponding PTX.
+
+Could you try nvprune'ing the sm 7.0 PTX to see if that improves your startup time? 
+
+If that works, maybe we should build the following:
+CUBIN for 5. 6. 7. 7.5
+PTX for 3.5 keep basic support for sm 3.5 5.0 with expected slow startup time 
+Hi chsigg, do you mean CODESCODES?A binary with just sm 35 is only going to work on sm 35 and sm 37 GPUs. 
+
+For the experiment whether forcing TF to use sm 70 CUBIN for your sm 75 GPU improves startup time, use CODESCODES.
+
+Hi chsigg, I can not nvprune the tf library: CODESCODES.
+
+BTW, the slow start occurs when I restore the SavedModel through tensorflow c api not tensorflow python at CODESCODES as other people mentioned before. It takes 5 minutes to reload our model on the first start or after clearing CODESCODES, but only 2 seconds on the subsequent runs.
+
+ CODELCODEL 
+If I compile tensorflow by CODESCODES, the start time is also around 2s.
+
+ CODELCODEL Sorry about that, I didn't know about that nvprune restriction. 
+
+Could you please try to change LINKLINK lines to:
+
+ CODESCODES 
+
+And try again with just CODESCODES for example without 7.
+
+You will need to use nvcc for the compiler for this to work you can check that. bazelrc. user specifies CODESCODES and not CODESCODES.
+
+Thanks for you help.
+That works.
+
+ CODELCODEL Thanks a lot Liwen for trying it out. I will update the list of compute capabilities we build for, and add a warning message when we need to JIT from PTX to make it more obvious what's going on.I'm having the same issue now.
+TF 1.15, Cuda 10. Cudnn 7, 
+TF was custom compiled with AVX2, XLA, TRT, CC 3.5 3.7 7.0 7.5
+
+I tried to debug it with strace, and found that there's a futex that locks the execution thread:
+18:38:00.532805 futex 0x7f852818fa78, FUTEX WAIT BITSET PRIVATE FUTEX CLOCK REALTIME, 0, NULL, ffffffff 0 
+
+Another thread starts to work heavily with huge batch of mprotect:
+18:38:00.534906 mprotect 0x7f84f98ac000, 4096, PROT READ PROT WRITE 0 
+
+During this process I see 2 messages in main thread:
+2019 thumbs down 2 03 18:38:16.642624: I tensorflow stream executor platform default dso loader. cc:44 Successfully opened dynamic library libcublas. so.10.0
+2019 thumbs down 2 03 18:38:26.258193: I tensorflow stream executor platform default dso loader. cc:44 Successfully opened dynamic library libcudnn. so.7
+
+The futex is the released and returns the result.
+
+My test run was like this:
+1 Run new aws p2 instance A from ami, trying to run the code 1 minute delay
+2 Trying to run the code on A once more no delay
+3 A is rebooted, trying to run the code no delay
+4 Run new aws p2 instance B from ami, trying to run the code 1 minute delay
+
+Seems like something is calculated once, then cached.
+The cache is preserved upon system restart, but is missing on the first run.
+It's also not part of my AMI.
+
+I also tried to rerun the test with official TF 1.15 wheel, but faced the same problem. 
+
+May somebody clarify several things?
+1 What is cached?
+2 Where?
+3 Is there any workaround to make this cache part of my ami?
+
+My. nv ComputeCache is empty.
+
+Maybe it's related to LINKLINK, not sure.
+
+Thanks in advance!
+I think if the cache can be made persistent is a more nvidia question?
+To make it a part of your AMI, you can rebuild TF with all the compute capabilities that your AMI will potentially need. AWS P2 uses k80 GPUs, which needs compute capability 3.
+You may need other compute capabilities based on other GPUs available to you.
+
+I am closing this issue, as this is all known, and documented.
+To sum up: If you see this error, that means your GPU has a Cuda compute capability TF binary you are using does not have packaged in.
+To work through the problem, you will need to first check which compute capability your GPU needs here: LINKLINK 
+Then rebuild TF from sources with that compute capability enabled which you select during configure 
+
+
+
+
+
+
+
+
+
+
+
+Hi gunan chsigg, is the change mentioned in this comment merged into tensorflow? OS Platform and Distribution:
+ OS: Ubuntu 18.04.4
+ Docker: 19.03.12, build 48a66213fe
+ CPU: Intel R Core TM i7 7700 CPU 3.60GHz
+ GPU: GeForce RTX 2080 440.100 compute capability: 7.5 
+ CODESCODES is installed too
+
+ Problem:
+When using CODESCODES, running the image always takes around 5 minutes. However, older CODESCODES versions run instantly. I have tested CODESCODES and CODESCODES.
+
+While waiting for the container to run, one CPU core is active and some directories are created in the container's writable layer, most notably CODESCODES 250 MB.
+
+ What I have tried: Persist all changes by committing the container as a new image. Persist changes by using Docker volumes. Build a new Docker image from source. Not sure if CODESCODES is the right place to use CODESCODES.
+
+ CODELCODEL 
+
+ CODELCODEL 
+
+No luck, each CODESCODES still takes 5 minutes. Do you have any suggestions how to speed up running the container?You are probably seeing the driver JITing PTX code. See LINKLINK for details.
+
+You can use CODESCODES to determine what GPUs you have, and you can use CODESCODES on CODESCODES to determine what GPUs you built for. chsigg Should we print a warning if we detect we're running on a GPU we don't have SASS for?
+
+The output of CODESCODES from running container CODESCODES:
+
+ CODELCODEL 
+
+The output of CODESCODES from running container CODESCODES:
+
+ CODELCODEL 
+
+It seems that the devel container was not built with compute capability 7. Can you advise where should the CODESCODES argument go? I have used it as a CODESCODES which apparently has no effect:
+
+ CODELCODEL 
+
+ sanjoy I agree that a warning would be a good idea. I was used to run CODESCODES and immediately be able to make gRPC calls against it. With CODESCODES, the client was returning CODESCODES and I spent a fair amount of time blaming the connection my CODESCODES file, to be specific. I completely overlooked the fact that the message CODESCODES was not printed yet.See LINKLINK for instructions how to build TF inside a docker. Specify CODESCODES when asked for the compute capabilities during CODESCODES.
+
+I think we have tried before to issue a warning when JITing from PTX but couldn't find a clean way to do so. With the build metadata available this should be possible now, but maybe not until after the kernels have been JITed.add this line to your code:
+import os
+os. environ '2'
+
+this worked for me. SujanSharma07 worked for what? What is that accomplishing?
+
+AFTER THAT, my tensorflow model starts quickly  SujanSharma07 can you be more specific? You did nothing else, didn't recompile, you just added os. environ '2'? 
+Note that in my case, my first run was very slow, but subsequent runs were fast. Are you sure you'd get slow startup over and over without your change? 
+If it works, what's the justification? Where did you get the idea?my code stop at the following point:
+ CODELCODEL 
+it stucks for over 20 minutes, could anybody help me solve this or know the reason of this?export CUDA CACHE MAXSIZE 2147483648 
+export CUDA CACHE DISABLE 0 RayerXie what version of TF are you using? CODESCODES should not need to block for JIT compilation on compute capability 6.
+
+
+
+
+
+The same issue. Did you have any effective solution? RayerXieHi everyone, we found a solution that worked for us.
+Add the following to your code:
+ CODELCODEL 
+
+We found the solution on this other issue solves this issue as well:
+ LINKLINK  steel3d Any updates workarounds you managed to find? Running into a similar situation as you, with a Tesla T4, Ubuntu 18.04.5 LTS, on AWS.
+Built tensorflow from scratch for CODESCODES, which helped, but it still takes more time on the first run compared to the successive ones. If it's any help, the process in question that the time difference is for involves loading some saved model protobufs as well.After upgrading to 2.0 I experience this on one of my machines.
+
+All machines on Ubuntu 16.04, which use GeForce 1080 GTX cards, the trainings starts immediately.
+
+However, on Ubuntu 18.04 which uses two Titan RTX cards I have to wait a few minutes after the last line:
+
+ CODELCODEL 
+
+I did not experience this with 2.1
+
+ Versions
+
+ Python: 3.5
+ Tensorflow: 2.0
+ CUDA: 11.2
+ NVIDIA driver: 465.19.01My solution is, build from source, and set the same compute capabilities as the target GPU devices when you exec. configure. For me, I set 6.0 for p100 and 7.5 for t4,
+ capabilities 3. 6.7.5
+Then use the. so for c++ infer or. whl for py, and you will not stuck at Adding visible gpu devices: 0.
+
+
+
+
+I recompiled tensorflow 1.14 with 7.5 CUDA compute camabilities for tesla T4, it still can't not work.
+BTW, I use C++ api for inference.
+
+
+what's sm means?
+
+
+
+Did you solve it? I got the same situation as yours.
+The first computation is very slow, and the subsequent process work fine.

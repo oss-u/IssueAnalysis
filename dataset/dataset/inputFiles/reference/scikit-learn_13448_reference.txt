@@ -1,0 +1,8 @@
+Here is an overview of the work done so far relating to plotting:
+
+ LINKLINK Decision Regions of Classifiers
+ LINKLINK Confusion matrix and grid search
+ LINKLINK Calibration curve
+ LINKLINK Partial Dependence
+
+To help control the scope of CODESCODES, I propose we only do plotting on the axes level and not the figure level. The user would pass in the axes as a keyword. As a convenience, the default of CODESCODES will be CODESCODES. Only in this case, will the plotting function generate a axes figure to plot on.

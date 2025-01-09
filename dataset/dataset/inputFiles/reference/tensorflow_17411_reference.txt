@@ -1,0 +1,28 @@
+ System information
+ Have I written custom code as opposed to using a stock example script provided in TensorFlow: No
+ OS Platform and Distribution for example, Linux Ubuntu 16.04: Linux Ubuntu 16.04
+ TensorFlow installed from source or binary: binary
+ TensorFlow version use command below: 
+1.0 cp27 cp27mu manylinux1 x86 64 can only guess since CODESCODES gives me an error already 
+ Python version: Python 2.12
+ Exact command to reproduce: CODESCODES 
+
+I created a fresh virtual environment: CODESCODES 
+And installed tensorflow: CODESCODES 
+ CODESCODES gives me CODESCODES 
+
+Please help me understand what's going on and how I can fix it. Thank you.
+
+CPU information:
+ CODELCODEL 
+ EDIT 
+Stacktrace obtained with gdb:
+
+ CODELCODEL 
+
+ EDIT 2 
+Bazel version: N A
+CUDA cuDNN version: N A
+GPU model and memory: N A
+
+After downgrading to an older version of tensorflow the error goes away. I've been advised that my CPU see information above might not work with some improvements in the new API. If this is the case, I suppose there's no solution for my problem. Therefore, I will close this thread. Feel free to correct me though. Thank you for your support

@@ -1,0 +1,430 @@
+Some data transformations including over under sampling 1454, outlier removal, instance reduction, and other forms of dataset compression, like that used in BIRCH 3802 entail altering a dataset at training time, but leaving it unaltered at prediction time. In some cases, such as outlier removal, it makes sense to reapply a fitted model to new data, while in others model reuse after fitting seems less applicable. 
+
+As noted LINKLINK, transformers that change the number of samples are not currently supported, certainly in the context of CODESCODES s where a transformation is applied both at CODESCODES and CODESCODES time although a hack might abuse CODESCODES to make this not so. CODESCODES s of CODESCODES s also would not cope with changes in the sample size at fit time for supervised problems because CODESCODES s do not return a modified CODESCODES, only CODESCODES.
+
+To handle this class of problems, I propose introducing a new category of estimator, called a CODESCODES. It must define at least a CODESCODES method, which CODESCODES will call at CODESCODES time, passing the data unchanged at other times. For this reason, a CODESCODES cannot also be a CODESCODES, or else we need to define their precedence. 
+
+For many models, CODESCODES needs only return CODESCODES. For sample compression approaches for example that in BIRCH, this is not sufficient as the representative centroids are modified from the input samples. Hence I think CODESCODES should return altered data directly, in the form of a dict with keys CODESCODES, CODESCODES, CODESCODES as required. It still might be appropriate for many CODESCODES s to only modify CODESCODES ; if necessary, another CODESCODES can be chained that realises the weights as replicated or deleted entries in CODESCODES and CODESCODES. 
+I hear this positively after discussing this very same pb with MechCoder
+
+can you write a few lines of code the way you would like to pipe something
+like Birch with an estimator that supports sample weights?
+I'm not sure about piping birch with sample weights, but BIRCH could be implemented as
+
+ CODELCODEL 
+
+Not that it's so neat, but it gives an example of the power of the approach. CODESCODES simply takes the predictions of a method and returns it as the CODESCODES for the input CODESCODES. 
+I think we should list a few use cases to come up with an API that does the
+job. The code seems a bit too generic for a single use case, which again I
+acknowledge the relevance given our work on birch.
+I think that this issue is a core API issue, and a blocker for 1.
+Thanks for bringing the debate.
+
+
+
+
+
+
+
+Why conflating fit and resample? I can see usecases for a separate fit
+and resample.
+
+Also, IMHO, the fact that transform does not modify y is a design failure
+ mine. I would be happier to define a new method, similar to transform,
+that modifies y I am looking for a good name, and to progressively out
+phase 'transform'.
+
+That way we avoid introducing a new class of object, and a new concept.
+The more concepts and classes of objects there are in a library, the
+harder it is to understand.
+
+Finally, I don't really like the name 'resample'. I find that it is too
+specific, and that their are other usecases to the method than resample
+ semi supervised learning to propagate labels to unlabelled data, for
+instance.
+
+Here are suggestions of names:
+ apply
+ change
+ modify
+ mutate
+ convert
+
+The name transform is just too good, IMHO. In the long run, we could come
+back to it, after a couple of years of deprecation of the old behavior.
+The new behavior would be that it always return the same number of arrays
+than it is given and raises an error if only X is given for a supervised
+method that needs y.
+Modifying CODESCODES is not the fundamental issue here. Yes, that's something else that needs to be handled. The issue here is that the set of samples passed out of resample is not necessarily the set passed in. This sort of operation of which resampling is emblematic, but I am happy to find it a better name is frequently required for training, and is rarely the right thing to do at test time when you want the predictions to correspond to the inputs.
+
+Not just the mostly happens at fit time and yes, as above, there are cases where a fit model will be reapplied, especially outlier detection sets this apart from transformers that must equally apply at fit and runtime, but the idea that the sample size can change.
+
+So never mind modifying CODESCODES. A transformer that allows the sample size to change cannot be used in a CODESCODES. A transformer that allows the sample size to change cannot be used in a CODESCODES unless it modifies CODESCODES also because CODESCODES will break, but even so it seems a strange definition of scoring a dataset if it is modified as such.
+
+So as much as redesigning the transformer API may be desirable, there is value IMO in a distinct type of estimator that: a has effect in a CODESCODES during training and none otherwise; b is allowed to change the sample size, where CODESCODES s or their successors should continue not to.
+
+The idea of the name resample is that the most important job of this class of estimators is to change the sample size in some way, by oversampling, otherwise re weighting, compressing, or incorporating unlabelled instances from elsewhere.
+
+
+
+That's the argument that I was missing. Thanks! Are there other cases?
+
+
+
+
+
+
+Based on your arguments justifying the need of the new class, I've been
+thinking about the name. And indeed, it should revolve around the notion
+of sample, and maybe even the term sample, as this is what we use in
+scikit learn. The most explicit term would be transform samples, but I
+think that this is too long we might need things like
+ fit transform samples.
+
+One thing that I am worried about, however, is that if we introduce a
+ resample and keep the old transform method, it will be ambiguous what
+a pipeline means. Of course, we can introduce an argument to the
+pipeline, or create a new pipeline variant. However, I am worried that
+the added complexity for users and developers does not justify creating
+the extra object compared to the Transformers. In other tmers, I think
+that we would be better off saying that some transformers change the
+number of samples and we can create an extra sub class for that.
+And would this subclass of transformers also only operate at fit time? I think this is different enough to motivate a different family of estimators, but I might be wrong.
+
+This type of estimator pipelining can also be easily modelled as meta estimators. The only real problem there is the uncomfortable nesting of param names although I did once play with some magic that allows a nested structure to be wrapped so that LINKLINK, and that flat is better than nested.
+
+
+Is there a reason why a fit transform wouldn't solve that problem?
+ CODESCODES solves that component if CODESCODES and CODESCODES are allowed to have different results. I think transformers are confusing enough to many users even while more or less promising the functional equivalence of CODESCODES and CODESCODES.
+
+
+
+
+
+
+Quite clearly I agree with you that breaking this equivalence would be a
+very bad idea.
+
+But I am not sure why it would be necessary although I am starting to
+get your point, I am not yet convinced that it is not possible to
+implement a transform method that has the logic necessary to have the
+
+I'm preparing some examples so that we have something to point at in
+discussion, but it takes longer than writing quick responses!
+
+On 17 November 2014 20:45, Gael Varoquaux wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Thank you. This is very useful!
+Thanks for restarting the discussion on this.
+So with implementing something that, say, resamples the classes to equal sizes during training, there are three distinct problems:
+
+1 It changes 2 It resamples during training, but we want to have predictions for all samples during test time.
+3 This estimator could not be CODESCODES 'ed with anything else.
+
+The first one might be solved by changing the behavior of transformers, for the other two it is not as obvious as to what to do.
+I think we might still get away with the transformer interface, though.
+I would not worry too much about 3. I think raising a sensible error when someone tries that would be fine. This should be pretty easy to detect.
+
+3 is maybe the most tricky one as it will definitely require some new mechanism and we should be careful if it is worth adding this complexity.
+How about adding CODESCODES or CODESCODES or something keyword, that controlls whether dropping samples is allowed or not.
+In a pipeline the option could then depend on whether someone called fit or not.
+
+That makes me think: what are the cases when we want different behavior during fitting and predicting? Do we always want to resample during learning, but not during prediction? What if we want to do some visualization and want to filter out outliers for both?
+ jnothman 
+
+As far as I understand this discussion, sorry if I missed something, I just quickly skimmed through, especially just the parts that say Birch: P, you mean to subclass Birch and other instance reduction methods from a new class of estimators, called Resamples, and whose CODESCODES method we call during the CODESCODES of Pipeline, right? Some naive questions for starters. In a way like in Birch, one can view the centroids obtained from MBKMeans and some other clusterers, as instance reduction, especially when CODESCODES is large enough, how do we draw a line between whether a CODESCODES or a CODESCODES should be called? What are the transform methods of transformers typically used for in a pipeline? It seems to me that using CODESCODES might be much more useful than transforming the input data in the CODESCODES space, especially when piped with CODESCODES et. al which is what is being done internally.
+ MechCoder 
+
+Firstly, I'm not sure that reimplementing BIRCH is what I intend here. It's more that this type of algorithm can be framed as a pipeline of reduction, clustering, etc. There should be a right way to cobble together estimators into these sorts of things in scikit learn, to whatever extent it is facilitated by the API. As for reimplementing BIRCH itself, the resampler could be pulled out as a separate component, and the full clusterer can be offered as well.
+
+Yes, using MBKmeans for the instance reduction is equally applicable; the fact that it happens to define CODESCODES with some different semantics means that however it is wrapped as a resampler needs to appear as a separate class somewhat like how CODESCODES and CODESCODES are distinct classes.
+
+Classifiers or clusterers or regressors that happen to implement CODESCODES are a little problematic in general because, as you suggest, the semantics of the associated transformation are not necessarily inherent to the predictor, are not necessarily described in the same reference texts as the predictor, etc. For instance, despite in 2160 suggesting that for consistency all estimators with CODESCODES or CODESCODES should also have CODESCODES to act as a feature selector, I later thought the approach of the now stale 3011 would be more appropriate, where we replace this mixin with a way to wrap a classifier regressor so that it acts as a feature selector; alternatively, a method of a classifier regressor like CODESCODES could perform the same magic. The idea is to more clearly separate model and function.
+
+ amueller 
+
+
+
+Did you mean 2?
+
+
+
+I think this is a key question. Certainly there must be a way to reapply the fitted resampling where appropriate; visualisation is a good example of such. Yet perhaps this is no big deal to expect users to do without the pipeline magic.
+ jnothman yes, I meant 2.
+Sorry, I'm not sure I understand your reply.
+What do you mean by without the pipeline magic? That users should not be able to use pipline in this case? Or that the heuristic of not applying resampling for CODESCODES, CODESCODES or CODESCODES should be the default but there should be an option to not use this heuristic?
+
+Btw, this heuristic gives me no option to compute the score on the training set that was used, which is a bit odd.
+I'm not entirely happy with it, but I've mocked up some examples not plots, just usage code at LINKLINK 
+
+
+
+I mean that currently there are cases where Pipeline can't reasonably be used. It's particularly useful for grid searches, etc. where cloning and parameter setting is involved, while requiring the visualisation of inliers to not use a Pipeline object probably doesn't hurt the user that much.
+
+I agree it's a bit upsetting that this model would not provide a way to compute the training score.
+To summarize a discussion with GaelVaroquaux, we both thought that breaking the equivalence of CODESCODES and CODESCODES might be a viable way forward. CODESCODES would subsample, but CODESCODES would not.
+I think it's time to resolve this. We are already breaking fit transform and transform equivalence elsewhere.
+
+But are you sure we want to allow fit transform to return X, y, props sometimes and only X at others? Do we then require transform to return only X or is it also allowed to change y I think we should not allow it to change y; it is a bad idea for evaluation. 
+
+We also have a small problem in pipeline's handling of fit params: any fit params downstream of a resampler cannot be used and should raise an error. Any props returned by the resampler need to be interpreted with the pipeline's routing strategy. Indeed maybe it is a design fault in pipeline, but the handling of sample props and y there assumes that fit transform's output is aligned with the input, sample for sample.
+
+I find these arguments together compelling to suggest that this deserves a separate method, for example fit resample, not just an option for a transformer to return a tuple that results in very different handling. I do not, however, think we should have a corresponding sample method and find imblearn's Pipeline. sample method quite problematic. At test time, transform should be called, or else we could consider all resamplers to perform the identity transform at test time. On objects supporting fit resample, fit transform should be forbidden. 
+
+Let's make this happen.I think for now we should forbid resamplers from implementing transform, as the common use cases are identity transforms, and allowing transform is then possible in the future without breaking backwards compatibility.Proposal of work on this and 9630:
+
+Implementation
+ Create an CODESCODES as a concrete example of an estimator with CODESCODES. CODESCODES is defined to return CODESCODES corresponding to only the inliers. This way outlier detectors will act as outlier removers in a Pipeline once the rest of the work is complete see 9630. They are here only as a tangible example of a resampler. CODESCODES is merely a dict of params that would be passed to fit. CODESCODES or CODESCODES most often. Inherit from CODESCODES where appropriate. Test it. Extend common tests to cover resamplers. It should:
+ check the output of CODESCODES is of correct structure
+ check the output of CODESCODES has consistent lengths
+ check the output of CODESCODES is consistent for repeated calls
+ assert that having CODESCODES means no CODESCODES or CODESCODES  handle CODESCODES in CODESCODES, making sure that props are handled correctly no props should already be set for downstream pipeline steps; returned props should be interpreted as CODESCODES 's CODESCODES are  perform identity transform for resamplers in Pipeline. transform, predict, ? add CODESCODES method to Pipelines whose last step has CODESCODES  perhaps implement other resamplers for example oversample, perhaps based on 1454
+
+Documentation
+ add modify example of outlier removal discuss outlier removal in outlier detection docs
+10. discuss resamplers in Pipeline docs
+11. add OutlierDetectorMixin to classes. rst
+12. mention OutlierDetectorMixin in glossary under outlier detector
+13. entry for resampler in glossary
+14. describe resamplers in developer docs
+
+I'm happy to open this to a contributor or a GSoC if others think this is the right way to go.Ping glemaitre
+
+Do you think that CODESCODES will be a good naming for resamplers?
+An outlier detector is a kind of resampler that removes outliers. Not all resamplers are outlier detectors.The idea is to start by implementing something tangible, rather than an abstract API or Pipeline that cannot be tested.
+I've clarified above.OK. Could you link to the props PR or issue. Otherwise the plan seems good.
+Maybe we should add that the different methods need to pass the common test of the estimators checks.By props I just mean a dict of params that would be passed to fit. CODESCODES or CODESCODES most often.This looks like a very interesting project. I would like to explore more and ask for help if there's a doubt. I've marked this help wanted and would really like to see someone pursuing LINKLINK, if only so that we have a concrete implementation to reach consensus on.I would name the Mixin as CODESCODES or CODESCODES. Also, I would name the method CODESCODES to be inline with imbalanced learn. I think doing this in line with imbalance learn would be good and we should just adopt their stuff. cc NicolasHug also thumbs up I could work on thatgo for it, I'd say!I would be happy to see this moving forward. Ping me if I can help thumbs up I recall some weird behaviours in imblearn that I don't want to replicate
+here. Generative estimators support a sample method so fit sample sounds
+like something else. It also sounds to me like the naive user would expect
+it to mean fit on a sample, for example partial fit. So I'm against fit sample
+I recall CODESCODES from your hand if I am not wrong?I don't mind what else, i just don't like fit sample
+
+
+
+ thumbs up 
+It's a bit of a kludge, but this was my implementation for an sklearn pipeline that can resample:
+
+ LINKLINK I don't think we can reuse the transform verb. And I don't think we can
+transform y at test time. Why did you think it was appropriate to do so in
+seglearn?
+I agree with you Joel that most use cases will not need or even prohibit resampling during test. 
+
+seglearn deals with time series sequences and resampling is still required at test for segmenting the data. I am not sure if any other applications would also require resampling at test. None come to mind at the moment. 
+
+In any case, you could use the transform verb for the resampler as I have and call it only during fit transform. However, the implementation you proposed also makes sense. I just posted my implementation as a working example.
+
+Happy to help out if needed. 
+
+ David
+
+
+
+ dmbee, you're welcome to help out with a contribution here. We need someone capable and dedicated to push this through with mentoring from the core dev team. jnothman ok I'll get started and aim to complete it over the winter holidays.  jnothman I have a one question about your proposed implementation: 
+
+sample weight is passed to the pipeline during fit fit transform fit predict as part of fit params and has to be prefixed with the label for the final estimator eg 'logreg sample weight' 
+
+I think the cleanest solution is to have pipeline check if sample weight is in fit params and pass this as sample weight to the resampler. The resampler will then return X, y, sample weight, which can be used to overwrite sample weight for the final estimator. 
+
+I am not sure why you want a dictionary props to be returned by fit resample? Since each step in the pipeline only receives the fit params assigned to it using the prefixing api. 
+
+Cheers,
+David
+Roughly here is the template I was thinking could work well for resamplers: 
+
+
+ class ResamplerMixin object:
+ 
+ def fit resample self, X, y, fit params:
+ sample weight None
+ if 'sample weight' in fit params:
+ sample weight fit params. pop 'sample weight' 
+ 
+ return self. fit X, y, fit params. resample X, y, sample weight 
+ 
+ def fit self, X, y:
+ return self
+ 
+ def resample self, X, y, sample weight:
+ return X, y, sample weight
+You're asking the right questions, so this is very encouraging thumbs up 
+
+
+
+Well, we do have a problem that we've not really agreed on the design of a sample property routing mechanism, and Pipeline's one at the moment is simply not designed to work where the properties cannot be specified to each step when fit is called.
+
+But if we want CODESCODES to be able to modify or generate CODESCODES then it needs to be able to modify or generate other things unspecified that align to each sample; alignment to the original samples doesn't make sense. Hence a dict.
+
+However, the handling of this in a Pipeline is open for debate
+
+
+
+I think this must be the case.
+
+
+
+For now I would consider raising a NotImplementedError if in a pipeline and the dict is not empty, and we can work out what appropriate behaviour should be once we've worked out sample prop routing may I have the time to consider it! Thanks Joel. I'm pretty sure I understand what you are after. Essentially:
+
+Some fit params eg sample weight and perhaps others are tied to the samples and must be accordingly modified by the resamplers for any downstream estimators. Let's call these sample props. 
+
+A backwards compatible implementation that would involve the least changes to the API existing transformers, estimators, etc could be as follows. 
+
+Add an optional parameter to the pipeline fit routines called sample props. This is a list of strings which correspond to keys of the fit params that are sample props and need to be modified by the resamplers. The relevant parameters can then be passed and updated by the resamplers. The pipeline fit routine is modified to get the relevant fit params at each step as follows:
+
+ for step idx, name, transformer in enumerate self. steps:
+
+ fit params step key. split ' ', 1: fit params. pop key for key in fit params if name + in key ;
+
+ if isinstance transformer, ResamplerMixin:
+ props key: fit params for key in sample props 
+ X, y, props transformer. fit resample X, y, fit params step, props 
+ fit params. update props 
+
+
+ else: is a regular transfomer
+
+ 
+
+No rush on making this architecture decision, but I'd like to have a plan before moving forward with writing the code. 
+
+ edited to use pop to avoid recalculating sample props for upstream transformers 
+ 
+ 
+
+Don't worry about the Pipeline fit routine in particular. Worry about the
+fit resample API. In general, fit methods can take additional parameters
+beyond X, y that are aligned with X, for example sample props. I believe
+fit resample needs to be able to return such things as well as take them as
+input. How they are then handled in a Pipeline is an open question, and IMO
+we don't need to commit on that yet to create the resampling API.
+Fair enough. I suppose modifying the pipeline was part I found most interesting. In any case, you're ok with this as the rough outline for the API? 
+
+ class ResamplerMixin object:
+
+ def fit resample self, X, y, fit params, props None:
+ return self. fit X, y, fit params. resample X, y, props 
+
+ class TakeOneSample BaseEstimator, ResamplerMixin:
+
+ def init self:
+ pass 
+
+ def fit self, X, y None:
+ return self
+
+ def resample self, X, y, props:
+ return X, y, k: v for k in props 
+I don't know any use case that requires a resample method, really, and it
+certainly complicates things in Pipeline: why would we change the set of
+samples at test time, and how would that affect scoring a pipeline's
+predictions?
+That is, I propose supporting fit resample, but not resample.
+
+
+Yes, changing the number of samples at test time is a semantic that is
+unclear to me. I would rather frown away from it.
+
+ thumbs up for only having CODESCODES defined in the Mixin. I don't recall any use case having only CODESCODES.
+
+Regarding the CODESCODES implementation, I think that the changes done in LINKLINK should make the trick or at least a good start. It will remain the issue regarding the CODESCODES handling.
+
+Regarding the handling of the CODESCODES in the resampler itself, it looks like dmbee would go in the same direction than what we thought to handle CODESCODES:
+ LINKLINK 
+
+ dmbee do not hesitate to retake some of the code tests of CODESCODES. You can also ping me to review the PR. I'm going to become active again in CODESCODES from next week. 
+
+
+Above, it was not my intent to support resampling at test time. I understand that is out of scope here niche. 
+
+Allowing separate fit resample methods instead of just fit resample does not affect how the resampler is used in pipeline or the complexity of the pipeline in my view see my pipeline code above. It came to mind that it may be useful to separate the fit and resample methods for some potential use cases eg generative resampling. 
+
+However, if this capability is not desirable we can use a very similar API to imblearn adding handling of sample props which is straightforward if the resampler is just indexing the data. See rough example below.
+
+Let me know your thoughts?
+
+ import numpy as np
+ from sklearn. base import BaseEstimator
+ from abc import abstractmethod
+ 
+ class ResamplerMixin object:
+ 
+
+ self. check data X, y, props 
+ return self. fit resample X, y, props, fit params 
+ 
+ abstractmethod must be implemented in derived classes
+ def fit resample self, X, y, props None, fit params:
+ return X, y, props
+ 
+ def check data self, X, y, props: to be expanded upon
+ if props is not None:
+ if not np. all np. array for k in props len y:
+ raise ValueError
+ 
+ def resample from indices self, X, y, props, indices:
+ if props is not None:
+ return X, y, k: props for k in props 
+ else:
+ return X, y, None
+ 
+ 
+ class TakeOneSample BaseEstimator, ResamplerMixin:
+ 
+ def init self, index 0:
+ self. index index
+ 
+ def fit resample self, X, y, props None:
+ return self. resample from indices X, y, props, self. index 
+
+
+
+ glemaitre thank you. I certainly have no desire to replicate what has been done in CODESCODES imblearn CODESCODES I like and use that package by the way! It seems the main thing lacking atm from CODESCODES imblearn CODESCODES is the pipeline resampler changes required to support sample props. Otherwise, it seems very compatible with CODESCODES sklearn CODESCODES. 
+
+ David
+
+I don't really like that we're committing to a format for the sample props here in a sense, but I guess it's not that different from the handling of CODESCODES fit params CODESCODES in the cross validation code right now. So I think it should be good do go.
+
+Actually, you should take whatever works for scikit learn from imblearn. Our idea is to contribute whatever is good upstream and remove from our code base. We are at a stage that the API start to be more stable and we recently made some changes to reflect some discussions with jnothman.
+
+Bottom line, take whatever is beneficial for scikit learn thumbs up 
+
+Well, in theory, we would need to work on the SLEPs.
+
+However, it may be a good exercise to move this issue forward, in order
+to be able to write a concise SLEP.
+
+
+OK good to know thanks. I should have used re implement rather than replicate. It seems most things from CODESCODES imblearn CODESCODES can be readily ported. 
+
+
+
+Not sure what a SLEP is.
+A SLEP is an under used Scikit learn enhancement proposal. LINKLINK 
+
+Regarding the API proposal in LINKLINK, yes, that approach to resampling looks good. Not all estimators supporting CODESCODES can do so from indices, but I think you are aware of that; sample reduction techniques will not, for instance.
+
+OK good stuff. Yes I am aware that not all resamplers will sample from indices. Those that do not will have to either implement their own method of dealing with props if there is a sensible option hard to know for sure without knowing what will be in props or otherwise raise a notimplemented error if props is not none. Is anyone in Paris working on this? I'd be happy to help and the api would be useful for fitting semi supervised classifiers, as discussed in LINKLINK. Yep I started to port the imblearn implementation. Do you want to take other and I can help for the review instead?
+Sure, where can I find you?I started working on this I'm not in Paris, but got too busy over the last couple of months. I am happy to share what I have done already, and continue working on it.
+
+I'm starting work on this now for the sprint. If you have existing work that you think could be useful, I'd be more than happy to build on what you've done.here it is look at resample folder in sklearn
+ LINKLINK 

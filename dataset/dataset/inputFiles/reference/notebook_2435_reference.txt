@@ -1,0 +1,7 @@
+This is a different issue. It's essentially this issue: LINKLINK 
+
+As a temporary solution use:
+
+ CODELCODEL 
+
+As soon as IPython master is released, we're fine.

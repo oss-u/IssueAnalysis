@@ -1,0 +1,1401 @@
+I noticed that tensorflow always takes about ~2min before it actually starts to compute. I've been trying to find out, why this happens, and nothing really worked so far. 
+
+[Tensorflow site](https://www.tensorflow.org/install/install_windows) says, I should use CUDA® Toolkit 9.0 and cuDNN v7.0. I have CUDA 9.0, so I downloaded CuDNN 7.0.5 for CUDA 9.0 and pasted the files to *C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\*, overwriting the ones form cuDNN 7.1.2, which I tested earlier. To make sure, I pip-installed tensorflow-gpu into a fresh anaconda env. See install [here](https://pastebin.com/rjiV1s3b). The issue is still the same.
+
+CUDA works, since it prints the  *'Hello, TensorFlow!'*, when I use the official test example, but before that it takes like 2minutes every time! 
+
+When I tested this with [another wheel](https://drive.google.com/drive/folders/1lVK_ABvVHzVYKs7X5SUhcZFBgKpC41Qw) ([which is linked in this tutorial](http://www.python36.com/install-tensorflow-gpu-windows/), I did not compile it myself.) on cuda 9.1/cudnn7.0.5, I had the same issues. A NVIDIA employee [on stackoverflow](https://stackoverflow.com/questions/49770217/why-does-cuda-initialisation-take-so-long-python-vscode-anaconda-tensorflow) suggested, I may be hitting a lengthy JIT compile step, because the GTX 1080 has compute capability of 6.1, which the wheel I used may not be compiled for. 
+
+So I tried to find wheels for tensorflow with compute capability 6.1 for windows, but [the only one I found](https://github.com/fo40225/tensorflow-windows-wheel/tree/master/1.5.0/py36/GPU/cuda91cudnn7avx2) and tested produced the same problem.
+
+Am I doing something wrong here, or do I just have to accept the 2min delay everytime I start my tensorflow/keras scripts?
+
+
+### System information
+- **Have I written custom code (as opposed to using a stock example script provided in TensorFlow)**:
+Code:
+```
+import time
+start_time = time.time()
+import tensorflow as tf
+a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a')
+b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
+c = tf.matmul(a, b)
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+print(sess.run(c))
+timer = time.time()
+print(timer - start_time)
+```
+Output:
+```
+(tf_clean) C:\python_code\test>C:/anaconda/envs/tf_clean/python.exe c:/python_code/test/tf_test.py
+2018-04-18 14:36:04.376661: I T:\src\github\tensorflow\tensorflow\core\platform\cpu_feature_guard.cc:140] Your CPU supports instructions that this
+TensorFlow binary was not compiled to use: AVX2
+2018-04-18 14:36:04.689661: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1344] Found device 0 with properties:
+name: GeForce GTX 1080 major: 6 minor: 1 memoryClockRate(GHz): 1.7335
+pciBusID: 0000:01:00.0
+totalMemory: 8.00GiB freeMemory: 6.60GiB
+2018-04-18 14:36:04.699485: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1423] Adding visible gpu devices: 0
+2018-04-18 14:38:12.227561: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:911] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-04-18 14:38:12.234504: I T:\src\github\tens2018-04-18 14:38:12.237156: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:930] 0:   N
+2018-04-18 14:38:12.240997: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1041] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 6379 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080, pci bus id: 0000:01:00.0, compute capability: 6.1)
+Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 1080, pci bus id: 0000:01:00.0, compute capability: 6.1
+2018-04-18 14:38:12.548288: I T:\src\github\tensorflow\tensorflow\core\common_runtime\direct_session.cc:297] Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 1080, pci bus id: 0000:01:00.0, compute capability: 6.1
+MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-04-18 14:38:12.559262: I T:\src\github\tensorflow\tensorflow\core\common_runtime\placer.cc:884] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+b: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-04-18 14:38:12.564847: I T:\src\github\tensorflow\tensorflow\core\common_runtime\placer.cc:884] b: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+a: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-04-18 14:38:12.570545: I T:\src\github\tensorflow\tensorflow\core\common_runtime\placer.cc:884] a: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+[[22. 28.]
+ [49. 64.]]
+129.14624643325806
+```
+
+- **OS Platform and Distribution**:
+Windows 10 Education (Version 10.0.16299 Build 16299)
+Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz, 3408 MHz, 4 Cores
+
+- **TensorFlow installed from (source or binary)**:
+binary
+
+- **TensorFlow version**:
+tensorflow-gpu 1.5.0, 1.7.0
+
+- **Python version**: 
+3.5.5 & 3.6 (via anaconda, conda 4.5.1.)
+
+- **Bazel Version**:
+N/A
+
+- **CUDA/cuDNN version**:
+Tested combinations: 
+   CUDA 9.0 and CuDNN 7.1.2 (tested on tensorflow 1.5.0, 1.7.0 and 1.8.0-dev20180329)
+   CUDA 9.1 and CuDNN 7.0.5 (tested on tensorflow 1.5.0 and 1.7.0)
+
+- **GPU model and memory**:
+NVIDIA GeForce GTX 1080 (GP104-400) [Hewlett-Packard], 8192 MBytes of GDDR5X SDRAM [Micron]
+
+- **Exact command to reproduce**:
+See: *Have I written custom code...*
+
+=================================================================
+EDIT:
+
+Threadstarter here, hello.
+> 
+> 
+> Could you try with the latest nightly?
+> https://files.pythonhosted.org/packages/67/c0/e68a4f0400340b54c887703baa8eee188042c3d65a0cf535dda71abffbc2/tf_nightly_gpu-1.13.0.dev20190205-cp37-cp37m-win_amd64.whl
+
+**This works!** I checked with that wheel, and then with `tf-nightly-gpu-2.0-preview` on PYPI, which also worked.
+I initially wanted to use the anaconda cudatoolkit and cudnn packages, but currently, cudnn is only available up to version 7.3.1 on anaconda-cloud. Tensorflow 2.0 however, is compiled with 7.4.1, so I had to do this the oldschool way, and download the setups from Nvidia.
+Soon, though...[soon](https://imgur.com/a/A2jZizt).
+
+For everyone, here's what I did, as a guide:
+
+### How to install Tensorflow Nightly 2.0 GPU in Anaconda on Windows 10 x64
+
+• I installed these CUDA/CuDnn Versions:
+   – cuda_10.0.130_win10_network (Nvidia CUDA Download: https://developer.nvidia.com/cuda-toolkit)
+   – cuDNN v7.4.1 (Nov 8, 2018), for CUDA 10.0 (Nvidia CuDnn Download: https://developer.nvidia.com/cudnn)
+   – Don't forget to check, whether the Cuda setup has correctly written itself to the PATH system variable.
+   – Reboot.
+• Now make a new environment in Anaconda and activate it:
+   – `conda create --name tf2-nightly-gpu python=3.6`
+   – `activate tf2-nightly-gpu`
+• Now, with the new env still activated, install the latest Tensorflow 2.0 nightly GPU build from PYPI:
+   – `pip install tf-nightly-gpu-2.0-preview`
+• For machine learning in Jupyter notebook (or Jupyter Lab) , you need these as well:
+   – `conda install nb_conda matplotlib scipy Pillow pandas scikit-learn`
+• Check, if your GPU is recognized by Tensorflow. Open the Anaconda prompt, activate the new environment and type `python`, then press Enter. Now type:
+`import tensorflow as tf`
+`tf.test.is_gpu_available(cuda_only=False,min_cuda_compute_capability=None) `
+• Output should be something like this:
+
+```
+(tf2-nightly-gpu) C:\Users\___>python
+>>> import tensorflow as tf
+>>> tf.test.is_gpu_available(cuda_only=False,min_cuda_compute_capability=None)
+2019-03-19 17:46:25.722209: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2019-03-19 17:46:25.729724: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library nvcuda.dll
+2019-03-19 17:46:25.922934: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1551] Found device 0 with properties:
+name: GeForce GTX 1080 major: 6 minor: 1 memoryClockRate(GHz): 1.7335
+pciBusID: 0000:01:00.0
+totalMemory: 8.00GiB freeMemory: 6.61GiB
+2019-03-19 17:46:25.938231: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1674] Adding visible gpu devices: 0
+2019-03-19 17:46:26.539185: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1082] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-03-19 17:46:26.546009: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1088]      0
+2019-03-19 17:46:26.550123: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1101] 0:   N
+2019-03-19 17:46:26.554188: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1222] Created TensorFlow device (/device:GPU:0 with 6360 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080, pci bus id: 0000:01:00.0, compute capability: 6.1)
+True
+```
+
+• Done.Thank you for your post. We noticed you have not filled out the following field in the issue template. Could you update them if they are relevant in your case, or leave them as N/A? Thanks.
+Bazel version
+Exact command to reproduce> Could you update them if they are relevant in your case, or leave them as N/A? 
+
+done@reedwm do you have any idea what could cause this?@gunan this sounds like an issue of JIT caching. What compute capabilities do the prebuilt wheels use? Are there plans to compile with CC 6.1?I think prebuilt wheels have every compute capability starting from 3.5 or 3.7.I have the same issue: a timeout of exactly 2 minutes before computation starts.
+Is it perhaps related to "Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA" ?
+I'm using  
+host: ubuntu 18.04
+container: tensorflow/tensorflow:latest-gpu
+
+~~~
+root@76611d5f5dd1:/notebooks# python /usr/local/bin/validate_installation.py 
+/usr/local/lib/python2.7/dist-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.flo
+at64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+2018-06-18 10:15:12.462431: I tensorflow/core/platform/cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2018-06-18 10:15:12.672108: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:898] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-06-18 10:15:12.672988: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1356] Found device 0 with properties: 
+name: GeForce 940MX major: 5 minor: 0 memoryClockRate(GHz): 1.189
+pciBusID: 0000:02:00.0
+totalMemory: 1.96GiB freeMemory: 1.93GiB
+2018-06-18 10:15:12.673024: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1435] Adding visible gpu devices: 0
+2018-06-18 10:17:11.465729: I tensorflow/core/common_runtime/gpu/gpu_device.cc:923] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-06-18 10:17:11.465769: I tensorflow/core/common_runtime/gpu/gpu_device.cc:929]      0 
+2018-06-18 10:17:11.465778: I tensorflow/core/common_runtime/gpu/gpu_device.cc:942] 0:   N 
+2018-06-18 10:17:11.466050: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1053] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 1695 MB memory) -> physical GPU (device: 0, name: GeForce 940MX, pci bus id: 0000:02:00.0, compute capability: 5.0)
+Hello, TensorFlow!
+~~~
+
+the script I used to install nvidia-docker after a fresh installation of ubuntu 18.04:
+~~~
+# Install packages to allow apt to use a repository over HTTPS:
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+sudo apt-get update
+
+# docker-ce not yet ready -> docker.io
+#
+apt -y install docker.io
+
+
+echo blacklist nouveau >> /etc/modprobe.d/blacklist-nouveau.conf
+echo options nouveau modeset=0 >> /etc/modprobe.d/blacklist-nouveau.conf
+
+sudo update-initramfs -u
+# reboot
+
+
+sudo apt-get install dkms build-essential make
+
+sudo dpkg --add-architecture i386
+sudo apt update
+sudo apt -y install libc6:i386
+
+sudo bash NVIDIA-Linux-x86_64-390.67.run --dkms --install-libglvnd
+
+# https://nvidia.github.io/nvidia-docker/
+
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | \
+  sudo apt-key add -
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | \
+  sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+sudo apt-get update
+
+sudo apt -y install nvidia-docker2
+
+apt -y install nvidia-utils
+~~~[edit] 
+I lied. It only took a long time on the first run. After that it starts up instantly, even after a reboot.
+
+@ludwigprager The AVX2 warning is irrelevant. I used to get the same thing on my cpu-only installation in the past.
+
+My startup is about 2 seconds:
+
+```
+Python 3.6.5 (v3.6.5:f59c0932b4, Mar 28 2018, 17:00:18) [MSC v.1900 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import time
+>>> start_time = time.time()
+>>> import tensorflow as tf
+>>> a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a')
+>>> b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
+>>> c = tf.matmul(a, b)
+>>> sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+2018-06-22 00:55:38.144614: I T:\src\github\tensorflow\tensorflow\core\platform\cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2018-06-22 00:55:38.545745: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1356] Found device 0 with properties:
+name: GeForce GTX 1050 Ti major: 6 minor: 1 memoryClockRate(GHz): 1.392
+pciBusID: 0000:0a:00.0
+totalMemory: 4.00GiB freeMemory: 3.29GiB
+2018-06-22 00:55:38.550660: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1435] Adding visible gpu devices: 0
+2018-06-22 00:55:39.103765: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:923] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-06-22 00:55:39.107096: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:929]      0
+2018-06-22 00:55:39.109103: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:942] 0:   N
+2018-06-22 00:55:39.111204: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1053] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 3025 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1050 Ti, pci bus id: 0000:0a:00.0, compute capability: 6.1)
+Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 1050 Ti, pci bus id: 0000:0a:00.0, compute capability: 6.1
+2018-06-22 00:55:39.266408: I T:\src\github\tensorflow\tensorflow\core\common_runtime\direct_session.cc:284] Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 1050 Ti, pci bus id: 0000:0a:00.0, compute capability: 6.1
+
+>>> print(sess.run(c))
+MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-06-22 00:55:39.272426: I T:\src\github\tensorflow\tensorflow\core\common_runtime\placer.cc:886] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+b: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-06-22 00:55:39.275348: I T:\src\github\tensorflow\tensorflow\core\common_runtime\placer.cc:886] b: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+a: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-06-22 00:55:39.278082: I T:\src\github\tensorflow\tensorflow\core\common_runtime\placer.cc:886] a: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+[[22. 28.]
+ [49. 64.]]
+>>> timer = time.time()
+>>> print(timer - start_time)
+2.422179937362671
+```
+
+
+[old post]
+@reedwm I have the exact same issue on 1050ti. Takes forever to start session. Can we get an update on this, please?
+
+```
+Python 3.6.5 (v3.6.5:f59c0932b4, Mar 28 2018, 17:00:18) [MSC v.1900 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import tensorflow as tf
+>>> hello = tf.constant("hello")
+>>> sess = tf.Session()
+2018-06-22 00:36:50.032759: I T:\src\github\tensorflow\tensorflow\core\platform\cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2018-06-22 00:36:50.531921: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1356] Found device 0 with properties:
+name: GeForce GTX 1050 Ti major: 6 minor: 1 memoryClockRate(GHz): 1.392
+pciBusID: 0000:0a:00.0
+totalMemory: 4.00GiB freeMemory: 3.29GiB
+2018-06-22 00:36:50.537715: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1435] Adding visible gpu devices: 0
+2018-06-22 00:38:43.427679: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:923] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-06-22 00:38:43.430876: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:929]      0
+2018-06-22 00:38:43.433374: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:942] 0:   N
+2018-06-22 00:38:43.435677: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1053] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 3025 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1050 Ti, pci bus id: 0000:0a:00.0, compute capability: 6.1)
+>>> print(sess.run(hello))
+b'hello'
+>>>
+```Has anything been discovered yet? I have the same problem with 'Adding visible gpu devices: 0' taking about 2-3 minutes, even after reboot and multiple runs. I'm using CUDA 9.0 and cuDNN 7.1.2
+System: Red Hat Linux
+GPU: GTX 750Ti
+
+A-ha, I think I may have an idea.
+In our bazel builds, we have all the cuda compute capabilities built into the binaries we distribute.
+However, it is possible we are not doing that with cmake!
+I will take another look.Nice! 
+How do I get this on my machine now? Do I have to wait for the next release? I can't build.Yes, we will cherrypick this into 1.10 and you should be able to see the
+improvement in 1.10
+
+On Tue, Jul 24, 2018 at 11:49 AM philipp <notifications@github.com> wrote:
+
+> Nice!
+> How do I get this on my machine now? Do I have to wait for the next
+> release?
+>
+> —
+> You are receiving this because you were assigned.
+> Reply to this email directly, view it on GitHub
+> <https://github.com/tensorflow/tensorflow/issues/18652#issuecomment-407512287>,
+> or mute the thread
+> <https://github.com/notifications/unsubscribe-auth/AHlCOV7iJ6vr_t710UuoWO5n33IYkFSTks5uJ2wrgaJpZM4TaBRC>
+> .
+>
+Hi all,
+I'm having the same problem... waiting time of about 2 minutes before running what I actually wants to run. The text below is what I get and what I see for two minutes:
+
+Python 3.6.6 |Anaconda, Inc.| (default, Jun 28 2018, 17:14:51) 
+[GCC 7.2.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+`>>> import tensorflow as tf`
+`>>> tf.Session(config=tf.ConfigProto(log_device_placement=True))`
+`2018-09-05 09:54:50.130623: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA`
+`2018-09-05 09:54:50.374925: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:897] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero`
+`2018-09-05 09:54:50.375571: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1405] Found device 0 with properties: 
+name: GeForce 940M major: 5 minor: 0 memoryClockRate(GHz): 1.176
+pciBusID: 0000:01:00.0
+totalMemory: 1.96GiB freeMemory: 1.93GiB`
+`2018-09-05 09:54:50.375588: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1484] Adding visible gpu devices: 0`
+
+After the waiting time is finally over I get the rest of the execution:
+
+`2018-09-05 09:58:35.611421: I tensorflow/core/common_runtime/gpu/gpu_device.cc:965] Device interconnect StreamExecutor with strength 1 edge matrix:`
+`2018-09-05 09:58:35.611455: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971]      0 `
+`2018-09-05 09:58:35.611462: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] 0:   N `
+`2018-09-05 09:58:35.611629: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1097] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 1687 MB memory) -> physical GPU (device: 0, name: GeForce 940M, pci bus id: 0000:01:00.0, compute capability: 5.0)`
+`Device mapping:
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce 940M, pci bus id: 0000:01:00.0, compute capability: 5.0`
+`2018-09-05 09:58:35.623962: I tensorflow/core/common_runtime/direct_session.cc:288] Device mapping:`
+`/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce 940M, pci bus id: 0000:01:00.0, compute capability: 5.0`
+
+`<tensorflow.python.client.session.Session object at 0x7f0556917668>`
+
+I'm using Ubuntu 18.04, Nvidia Driver 396.54, andrunning the script under an anaconda environment with Python 3.6.6, cuda 9.2 and tensorflow-gpu 1.10.0
+
+How do I solve this?
+Thanks,
+Boris@apolo74 Our official packages are not built to use cuda 9.2
+You will need to reach out to the maintainers of the package you installed.
+
+@gunan I've been trying cuda 9.0 and cuda 9.1 with Tensorflow 1.8 and 1.9 but the results are the same... the first time I run `sess = tf.Session()` it stops around 3 minutes at `...Adding visible gpu devices: 0` and after that I can work normally. If I'm working within a Python shell and I close that session and WITHOUT exiting Python shell I open a new session `sess1 = tf.Session()` there is no problem, the GPU is added immediately.
+My problem is that I don't work within a python shell but I run Python scripts and every time I run a new script I have to wait 3 minutes for it to add the GPU.We noticed that the builds started failing with https://github.com/tensorflow/tensorflow/issues/19198,
+Therefore, it turns out this issue is blocked right now until we can fix that problem.Still blocked by https://github.com/tensorflow/tensorflow/issues/19198, which is blocked by some internal issues we are having with eigen.
+Will update when we have a resolution.I experience exactly the same problem on GTX 1080Ti , Tensorflow 1.10.0 (both python and c++), CUDA 9.0, CUDNN 7.2.1 on Windows 10.I experience exactly the same problem on GTX 1080Ti , Tensorflow 1.11.0 , CUDA 9.0, CUDNN 7 on Windows 10.The same problem GeForce GTX 1050 Ti, Tensorflow 1.11.0, CUDA 9.0, CUDNN 7, Windows 10You will experience this on any graphics card that is GeForce GTX9xx or newer.
+And unfortunately, our status is we are still blocked upgrading eigen, due to some backwards incompatible changes that are happening in eigen.
+
+Still blocked by #19198Why does it happen on my windows install but not my linux? 
+(Same hardware)
+
+EDIT: nevermind, because windows is built via cmake, and linux via bazel.
+
+Is it possible to set our specific compute capability while building from source? Would that solve the problem?The issue is because windows build uses MSVC, and other builds use clang or gcc.
+The eigen bug surfaces with nvcc+msvc.
+You can build from sources and set compute capability, but you will run into #19198.
+
+Have the same issue on GeForce GTX970Can confirm the results @gunan reports. Manually built to bypass 2min delay on start-up, ran into https://github.com/tensorflow/tensorflow/issues/19198
+
+@MacZel Just so you don't think your crazy, also seeing the issue on a few of the GTX970 series boards with Win 10Same issue here and same build as @rs0h .  1050ti, Win 10, CUDA 9.0, CUDNN 7
+Mine seems to actually hang for a long time on "Adding visible gpu devices: 0"The JIT cache does seem to hang around for the entire Python process scope. 
+
+For those going in through Jupyter, on reset you hit the delay. But, subsequent part re-runs hit the existing JIT values. Just don't reset your notebook after init and it is pretty fast.Hi all, I'm having the same issue - did anybody find a workaround?
+It takes a very long time on the first run but is very quick on subsequent runs. If I relaunch the container then it goes back to being very slow for one run. I get very similar output/behaviour if I run the same code using the Anaconda distribution of tensorflow.
+
+System information
+
+```
+    Code:
+import time
+start_time = time.time()
+import tensorflow as tf
+a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a')
+b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
+c = tf.matmul(a, b)
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+print(sess.run(c))
+timer = time.time()
+print(timer - start_time)
+
+Output:
+
+~$ docker run --runtime=nvidia -it -p 8888:8888 tensorflow/tensorflow:latest-gpu-py3 bash
+root@7ee18dae8673:/notebooks# python
+Python 3.5.2 (default, Nov 23 2017, 16:37:01) 
+[GCC 5.4.0 20160609] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import time
+>>> start_time = time.time()
+>>> import tensorflow as tf
+>>> a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a')
+>>> b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
+>>> c = tf.matmul(a, b)
+>>> sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+2018-11-22 14:52:07.974293: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2018-11-22 14:52:08.052892: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:964] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-11-22 14:52:08.053603: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 0 with properties: 
+name: Quadro M1000M major: 5 minor: 0 memoryClockRate(GHz): 1.0715
+pciBusID: 0000:01:00.0
+totalMemory: 1.96GiB freeMemory: 1.70GiB
+2018-11-22 14:52:08.053621: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0
+2018-11-22 14:56:17.618342: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-22 14:56:17.618385: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988]      0 
+2018-11-22 14:56:17.618395: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0:   N 
+2018-11-22 14:56:17.618726: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 1447 MB memory) -> physical GPU (device: 0, name: Quadro M1000M, pci bus id: 0000:01:00.0, compute capability: 5.0)
+Device mapping:
+/job:localhost/replica:0/task:0/device:XLA_GPU:0 -> device: XLA_GPU device
+/job:localhost/replica:0/task:0/device:XLA_CPU:0 -> device: XLA_CPU device
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: Quadro M1000M, pci bus id: 0000:01:00.0, compute capability: 5.0
+2018-11-22 14:56:17.619285: I tensorflow/core/common_runtime/direct_session.cc:307] Device mapping:
+/job:localhost/replica:0/task:0/device:XLA_GPU:0 -> device: XLA_GPU device
+/job:localhost/replica:0/task:0/device:XLA_CPU:0 -> device: XLA_CPU device
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: Quadro M1000M, pci bus id: 0000:01:00.0, compute capability: 5.0
+
+>>> print(sess.run(c))
+MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2018-11-22 14:56:17.620406: I tensorflow/core/common_runtime/placer.cc:927] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+a: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-11-22 14:56:17.620431: I tensorflow/core/common_runtime/placer.cc:927] a: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+b: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2018-11-22 14:56:17.620470: I tensorflow/core/common_runtime/placer.cc:927] b: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+[[22. 28.]
+ [49. 64.]]
+>>> timer = time.time()
+>>> print(timer - start_time)
+250.8216381072998
+
+
+    OS Platform and Distribution:
+docker on Ubuntu 16.04
+
+    TensorFlow installed from (source or binary):
+    binary / docker
+
+    TensorFlow version:
+    tensorflow-gpu 1.12
+
+    Python version:
+3.5
+
+    Bazel Version:
+    N/A
+
+    CUDA/cuDNN version:
+10.0
+
+    GPU model and memory:
+    NVIDIA Quadro M1000M with 2004MiB memory - 8GB system RAM
+
+    **Exact command to reproduce:**
+: docker run --runtime=nvidia -it -p 8888:8888 tensorflow/tensorflow:latest-gpu-py3 bash
+: python
+: <script above>
+```(tf1) λ python
+>>> import tensorflow as tf
+>>> hello = tf.constant('hello, tensor!')
+>>> sess = tf.Session()
+2018-11-26 00:22:25.377848: I T:\src\github\tensorflow\tensorflow\core\platform\cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2018-11-26 00:22:25.875887: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1405] Found device 0 with properties:
+name: GeForce 840M major: 5 minor: 0 memoryClockRate(GHz): 1.124
+pciBusID: 0000:03:00.0
+totalMemory: 2.00GiB freeMemory: 1.65GiB
+2018-11-26 00:22:25.906006: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1484] Adding visible gpu devices: 0
+
+![fafafaf](https://user-images.githubusercontent.com/17380530/48986175-daa84900-f111-11e8-9e26-9d6bac4ca0dd.PNG)
+when cancelling the script when gets frozen , my gpu spikes a bit , dont know if its related...
+With the method described here it worked super fast ! 
+[https://www.pugetsystems.com/labs/hpc/The-Best-Way-to-Install-TensorFlow-with-GPU-Support-on-Windows-10-Without-Installing-CUDA-1187/](url)
+
+> (tf-gpu) C:\Users\don> conda install -c aaronzs tensorflow-gpu
+Now, we can do the CUDA and cuDNN dependencies,
+
+(tf-gpu) C:\Users\don> conda install -c anaconda cudatoolkit
+(tf-gpu) C:\Users\don> conda install -c anaconda cudnn
+
+```
+`>>> sess = tf.Session()
+2018-11-26 00:30:08.575361: I T:\src\github\tensorflow\tensorflow\core\platform\cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2018-11-26 00:30:09.060813: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1405] Found device 0 with properties:
+name: GeForce 840M major: 5 minor: 0 memoryClockRate(GHz): 1.124
+pciBusID: 0000:03:00.0
+totalMemory: 2.00GiB freeMemory: 1.65GiB
+2018-11-26 00:30:09.091630: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1484] Adding visible gpu devices: 0
+2018-11-26 00:31:02.937801: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:965] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-11-26 00:31:02.959575: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:971]      0
+2018-11-26 00:31:02.974227: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:984] 0:   N
+2018-11-26 00:31:02.993921: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1097] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 1410 MB memory) -> physical GPU (device: 0, name: GeForce 840M, pci bus id: 0000:03:00.0, compute capability: 5.0)
+>>> print(sess.run(hello))
+b'hello ton '
+>>> print(sess.run(hello))
+b'hello ton '
+>>> quit()`
+``
+```
+it did it in a blink
+Hi all,
+I've been away for a time from this problem but I decided to give a new try... and I succeeded!!! :)
+In short, it seems the best solution is to compile Tensorflow from sources.
+The info of my system:
+Ubuntu 18.04
+Nvidia GeForce 940M
+Driver  version 396.54
+Cuda 9.0.176
+CuDNN 7.2.1
+Tensorflow 1.12.0
+
+First be sure that your path includes the right libraries:
+`LD_LIBRARY_PATH=/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH`
+
+Install Java first:
+`sudo apt-get install openjdk-8-jdk`
+
+And assuming you already have python3-dev, pip3, numpy and wheel installed then install also the following packages:
+`sudo pip3 install six mock h5py enum34`
+
+The main idea is download and compile Bazel... I went for Bazel 0.15.2
+https://github.com/bazelbuild/bazel/releases/download/0.15.2/bazel-0.15.2-dist.zip
+`unzip ~/path_to_downloaded/bazel-0.15.2-dist.zip -d bazel-0.15.2-dist
+`cd bazel-0.15.2-dist
+`./compile.sh`
+`sudo cp output/bazel /usr/local/bin`
+`bazel help`
+
+Next is to download and compile Tensorflow:
+https://github.com/tensorflow/tensorflow/archive/v1.12.0.tar.gz
+`tar xzvf ~/path_to_downloaded/tensorflow-1.12.0.tar.gz`
+`cd tensorflow-1.12.0`
+`./configure`
+
+Be careful about the right location of your CUDA, CuDNN and other libraries depending on your needs. After the configuration you'll start the building process:
+`build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package`
+
+If everything goes well you are now ready to create the PIP wheel package:
+`bazel-bin/tensorflow/tools/pip_package/build_pip_package wheel/tensorflow_pkg`
+
+And finally install the package:
+`sudo pip3 install ~/path_to_downloaded/tensorflow-1.12.0/wheel/tensorflow_pkg/tensorflow-1.12.0-cp36-cp36m-linux_x86_64.whl`
+
+Enjoy!I have the exact same problem. It take around 5 minutes to add gpu. Is there a solution avaible on windows side?
+I have, win 8.1, CUDA 9.0, cuDNN 7.3.1, python 3.6.0 and with gtx 1060 6gb.It looks like compiling Tensorflow from the source on WIndows 10 with latest CUDA drivers solves the problem. In my case, I followed the step-by-step instructions described in this article: [https://medium.com/@amsokol.com/update-1-how-to-build-and-install-tensorflow-gpu-cpu-for-windows-from-source-code-using-bazel-and-c2e86fec9ef2](url). It seems to be working properly now.
+Hope this helps someone!I have the exact same problem. It take around 5 minutes at:
+Adding visible gpu devices: 0
+
+My environment is Win10, CUDA 9.0, cuDNN 7.4.15, python 3.6.0 and with MX150.
+
+i added below codes(refer to https://docs.google.com/presentation/d/1iO_bBL_5REuDQ7RJ2F35vH2BxAiGMocLC6t_N-6eXaE/edit#slide=id.g1df700e686_0_13), this phenomenon seems disappeared, i do not know the reason
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'We debug this, and we find 'err = cudaFree(nullptr)' takes long time in CreateDevices() method.
+https://devtalk.nvidia.com/default/topic/1032126/cuda-programming-and-performance/cudafree-takes-approx-99-5-of-total-time-/I have a similar problem with this hardware/software:
+
+GTXGeForce 1070
+CUDA 9.0
+cuDNN 7.0
+TensorFlow 1.12
+
+When I try to run the code from the python prompt it takes forever to start (like 5 minutes)
+
+![image](https://user-images.githubusercontent.com/45622297/49882971-0295ed00-fe32-11e8-9c91-5af6a60a8269.png)
+
+The successive runs work just fine.
+
+While if I run the python.exe  with the script it's fine (like 5 seconds to run the session)
+
+![image](https://user-images.githubusercontent.com/45622297/49883349-d038bf80-fe32-11e8-84bf-e1f7413ab5b9.png)
+
+
+
+
+
+RTX 2070 
+CUDA 9.0
+cuDNN 7.0
+tensorflow-gpu 1.50
+遇到了相同的问题，在CMD会话框中运行需要1分钟similar issue, adding device takes a few minutes.
+GPU  840M, python 3.6, CUDA 9.0, CUDNN 7.4.2, tensorflow 1.12.0which makes the following sentence, os.environ['TF_CPP_MIN_LOG_LEVEL']='2' I understand that it is like a jump.Any updates? Compiling tensorflow from source yield so many errors on my system, so I rely on the latest gpu container and updating the log level only has the effect of not displaying anything, the waiting time is the same, hangs after "Adding visible gpu devices: 0"
+Any other docker container that I can use that would solve the problem?@gunan Kindly asking for an update since #19198 is resolved. Is it official workaround to recompile tf? 
+We are having the problem with Tesla K80The same problem GeForce RTX 2080, Tensorflow 1.13.0 RC, CUDA 10.0, CUDNN 7, Windows 8.1.Let me take another look at this, if all the issues are resolved, hopefully with a single change we can include all necessary compute capabilities.I am having the same issue with long start time - though I don't know if this has hung -- or if it has started and is just taking forever.  I guess I will give it some time.  There is no load spike on the CPU or GPU.  Nothing seems to be happening - but the process hangs. 
+
+The same problem GeForce GTX1080TI, Tensorflow 1.12.0 RC, CUDA 10.0, CUDNN 7, Windows 10
+
+```
+2019-02-05 16:26:22.781196: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2019-02-05 16:26:22.803267: I tensorflow/stream_executor/platform/default/dso_loader.cc:161] successfully opened CUDA library nvcuda.dll locally
+2019-02-05 16:26:23.086000: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1434] Found device 0 with properties:
+name: GeForce GTX 1080 Ti major: 6 minor: 1 memoryClockRate(GHz): 1.683
+pciBusID: 0000:01:00.0
+totalMemory: 11.00GiB freeMemory: 9.11GiB
+2019-02-05 16:26:23.090067: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1513] Adding visible gpu devices: 0
+```Could you try with the latest nightly?
+https://files.pythonhosted.org/packages/67/c0/e68a4f0400340b54c887703baa8eee188042c3d65a0cf535dda71abffbc2/tf_nightly_gpu-1.13.0.dev20190205-cp37-cp37m-win_amd64.whl> Could you try with the latest nightly?
+> https://files.pythonhosted.org/packages/67/c0/e68a4f0400340b54c887703baa8eee188042c3d65a0cf535dda71abffbc2/tf_nightly_gpu-1.13.0.dev20190205-cp37-cp37m-win_amd64.whl
+
+Any release for Linux? Or even better, a docker build? I've tried the latest version of `tensorflow/tensorflow:nightly-devel-gpu-py3` but the problem remains...I got the same problem and it  took about 1 min to startFacing the same issue with Cuda 9.0, tensorflow 1.12.0, cuDNN 7.4, windows 10, Two Nvidia RTX 2080 TisI have the same problem using tensorflow 1.13.1, CUDA 10.0, cuDNN 7.5, Windows 10, nVidia 960m.
+```
+>>> import tensorflow as tf
+>>> tf.enable_eager_execution()
+>>> tf.add(1, 2)
+2019-03-05 17:36:49.631611: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2019-03-05 17:36:49.923538: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1433] Found device 0 with properties:
+name: GeForce GTX 960M major: 5 minor: 0 memoryClockRate(GHz): 1.176
+pciBusID: 0000:01:00.0
+totalMemory: 4.00GiB freeMemory: 3.34GiB
+2019-03-05 17:36:49.930602: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1512] Adding visible gpu devices: 0
+2019-03-05 17:40:20.836194: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-03-05 17:40:20.840822: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990]      0
+2019-03-05 17:40:20.843478: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1003] 0:   N
+2019-03-05 17:40:20.855747: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 3050 MB memory) -> physical GPU (device: 0, name: GeForce GTX 960M, pci bus id: 0000:01:00.0, compute capability: 5.0)
+<tf.Tensor: id=2, shape=(), dtype=int32, numpy=3>
+```Pardon, how long should one expect the "matmul" code of the topicstarter to execute on a well-configured system? On my Win with tensorflow-gpu 1.13 it takes ~3.5 s which seems to be huge just to multiply 12 numbers.I have the same problem when using Google Colab. I installed keras_contrib library to train modelHaving the exact same problem with TF 1.13.1 built from sources that was working perfectly before, the only thing I changed was nvidia drivers from nvidia-415 to 418. Could it have something to do with this ?> Having the exact same problem with TF 1.13.1 built from sources that was working perfectly before, the only thing I changed was nvidia drivers from nvidia-415 to 418. Could it have something to do with this ?
+
+I just confirmed that this was exactly the problem,  it was not about the TF version, the problem persisted across all build versions including the latest nightly. I'm using arch, so the latest upgrade installed the linux kernel 5.0 and the latest nvidia drivers 418*.
+
+**What I did was downgrade both the drivers to nvidia 415.27-9 and the kernel/headers to linux 4.20.11** 
+
+TF no longer hangs on tf.Session()
+
+A list of driver versions compatible with cuda can be found in the CUDA release notes:
+https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.htmlThreadstarter here, hello.
+> 
+> 
+> Could you try with the latest nightly?
+> https://files.pythonhosted.org/packages/67/c0/e68a4f0400340b54c887703baa8eee188042c3d65a0cf535dda71abffbc2/tf_nightly_gpu-1.13.0.dev20190205-cp37-cp37m-win_amd64.whl
+
+**This works!** I checked with that wheel, and then with `tf-nightly-gpu-2.0-preview` on PYPI, which also worked. No more JIT-Compiles.
+I initially wanted to use the anaconda cudatoolkit and cudnn packages, but currently, cudnn is only available up to version 7.3.1 on anaconda-cloud. Tensorflow 2.0 however, is compiled with 7.4.1, so I had to do this the oldschool way, and download the setups from Nvidia.
+Soon, though...[soon](https://imgur.com/a/A2jZizt).
+
+For everyone, here's what I did, as a guide:
+
+### How to install Tensorflow Nightly 2.0 GPU in Anaconda on Windows 10 x64
+
+• I installed these CUDA/CuDnn Versions:
+   – cuda_10.0.130_win10_network (Nvidia CUDA Download: https://developer.nvidia.com/cuda-toolkit)
+   – cuDNN v7.4.1 (Nov 8, 2018), for CUDA 10.0 (Nvidia CuDnn Download: https://developer.nvidia.com/cudnn)
+   – Don't forget to check, whether the Cuda setup has correctly written itself to the PATH system variable.
+   – Reboot.
+• Now make a new environment in Anaconda and activate it:
+   – `conda create --name tf2-nightly-gpu python=3.6`
+   – `activate tf2-nightly-gpu`
+• Now, with the new env still activated, install the latest Tensorflow 2.0 nightly GPU build from PYPI:
+   – `pip install tf-nightly-gpu-2.0-preview`
+• For machine learning in Jupyter notebook (or Jupyter Lab) , you need these as well:
+   – `conda install nb_conda matplotlib scipy Pillow pandas scikit-learn`
+• Check, if your GPU is recognized by Tensorflow. Open the Anaconda prompt, activate the new environment and type `python`, then press Enter. Now type:
+`import tensorflow as tf`
+`tf.test.is_gpu_available(cuda_only=False,min_cuda_compute_capability=None) `
+• Output should be something like this:
+
+```
+(tf2-nightly-gpu) C:\Users\___>python
+>>> import tensorflow as tf
+>>> tf.test.is_gpu_available(cuda_only=False,min_cuda_compute_capability=None)
+2019-03-19 17:46:25.722209: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+2019-03-19 17:46:25.729724: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library nvcuda.dll
+2019-03-19 17:46:25.922934: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1551] Found device 0 with properties:
+name: GeForce GTX 1080 major: 6 minor: 1 memoryClockRate(GHz): 1.7335
+pciBusID: 0000:01:00.0
+totalMemory: 8.00GiB freeMemory: 6.61GiB
+2019-03-19 17:46:25.938231: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1674] Adding visible gpu devices: 0
+2019-03-19 17:46:26.539185: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1082] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-03-19 17:46:26.546009: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1088]      0
+2019-03-19 17:46:26.550123: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1101] 0:   N
+2019-03-19 17:46:26.554188: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1222] Created TensorFlow device (/device:GPU:0 with 6360 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080, pci bus id: 0000:01:00.0, compute capability: 6.1)
+True
+```
+
+• Done.Reproducible with TF1.13, Nvidia Quadra1000M, Driver 419.67 Win10x64, CUDA10.0. Takes 6 minutes for starting compute.
+
+2019-03-31 07:24:03.216999: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1512] Adding visible gpu devices: 0
+--> (Stuck here for 6 minutes)
+2019-03-31 07:34:07.713831: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] Device interconnect StreamExecutor with strength 1 edge matrix:Same here with Dell Precision + Quadro M1200... using nvidia-docker and tensorflow/tensorflow:latest-gpu
+w some benchmark script:
+```
+import sys
+import numpy as np
+import tensorflow as tf
+from datetime import datetime
+
+device_name = sys.argv[1]  # Choose device from cmd line. Options: gpu or cpu
+shape = (int(sys.argv[2]), int(sys.argv[2]))
+if device_name == "gpu":
+    device_name = "/gpu:0"
+else:
+    device_name = "/cpu:0"
+
+with tf.device(device_name):
+    random_matrix = tf.random_uniform(shape=shape, minval=0, maxval=1)
+    dot_operation = tf.matmul(random_matrix, tf.transpose(random_matrix))
+    sum_operation = tf.reduce_sum(dot_operation)
+
+startTime = datetime.now()
+with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as session:
+        result = session.run(sum_operation)
+        print(result)
+
+# It can be hard to see the results on the terminal with lots of output -- add some newlines to improve readability.
+print("\n" * 5)
+print("Shape:", shape, "Device:", device_name)
+print("Time taken:", str(datetime.now() - startTime))
+```
+
+First run:
+
+('Shape:', (10000, 10000), 'Device:', '/gpu:0')
+('Time taken:', '0:04:35.820064')
+
+after:
+('Shape:', (10000, 10000), 'Device:', '/gpu:0')
+('Time taken:', '0:00:03.075177')
+
+as CPU instead of gpu its always the same:
+('Shape:', (10000, 10000), 'Device:', '/cpu:0')
+('Time taken:', '0:00:15.496725')
+
+
+Full Log:
+```
+root@6ebfa19ce6e9:/data# python a.py gpu 10000
+2019-03-31 05:33:39.251397: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2019-03-31 05:33:39.298838: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:998] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2019-03-31 05:33:39.299426: I tensorflow/compiler/xla/service/service.cc:150] XLA service 0x44fdca0 executing computations on platform CUDA. Devices:
+2019-03-31 05:33:39.299444: I tensorflow/compiler/xla/service/service.cc:158]   StreamExecutor device (0): Quadro M1200, Compute Capability 5.0
+2019-03-31 05:33:39.319279: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 3000000000 Hz
+2019-03-31 05:33:39.320003: I tensorflow/compiler/xla/service/service.cc:150] XLA service 0x4566410 executing computations on platform Host. Devices:
+2019-03-31 05:33:39.320038: I tensorflow/compiler/xla/service/service.cc:158]   StreamExecutor device (0): <undefined>, <undefined>
+2019-03-31 05:33:39.320376: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1433] Found device 0 with properties: 
+name: Quadro M1200 major: 5 minor: 0 memoryClockRate(GHz): 1.148
+pciBusID: 0000:01:00.0
+totalMemory: 3.95GiB freeMemory: 1.94GiB
+2019-03-31 05:33:39.320405: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1512] Adding visible gpu devices: 0
+2019-03-31 05:33:39.321193: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-03-31 05:33:39.321218: I tensorflow/core/common_runtime/gpu/gpu_device.cc:990]      0 
+2019-03-31 05:33:39.321230: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1003] 0:   N 
+2019-03-31 05:33:39.321451: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 1759 MB memory) -> physical GPU (device: 0, name: Quadro M1200, pci bus id: 0000:01:00.0, compute capability: 5.0)
+Device mapping:
+/job:localhost/replica:0/task:0/device:XLA_GPU:0 -> device: XLA_GPU device
+/job:localhost/replica:0/task:0/device:XLA_CPU:0 -> device: XLA_CPU device
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: Quadro M1200, pci bus id: 0000:01:00.0, compute capability: 5.0
+2019-03-31 05:33:39.322533: I tensorflow/core/common_runtime/direct_session.cc:317] Device mapping:
+/job:localhost/replica:0/task:0/device:XLA_GPU:0 -> device: XLA_GPU device
+/job:localhost/replica:0/task:0/device:XLA_CPU:0 -> device: XLA_CPU device
+/job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: Quadro M1200, pci bus id: 0000:01:00.0, compute capability: 5.0
+
+random_uniform/RandomUniform: (RandomUniform): /job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.323990: I tensorflow/core/common_runtime/placer.cc:1059] random_uniform/RandomUniform: (RandomUniform)/job:localhost/replica:0/task:0/device:GPU:0
+random_uniform/sub: (Sub): /job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.324021: I tensorflow/core/common_runtime/placer.cc:1059] random_uniform/sub: (Sub)/job:localhost/replica:0/task:0/device:GPU:0
+random_uniform/mul: (Mul): /job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.324038: I tensorflow/core/common_runtime/placer.cc:1059] random_uniform/mul: (Mul)/job:localhost/replica:0/task:0/device:GPU:0
+random_uniform: (Add): /job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.324055: I tensorflow/core/common_runtime/placer.cc:1059] random_uniform: (Add)/job:localhost/replica:0/task:0/device:GPU:0
+transpose: (Transpose): /job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.324071: I tensorflow/core/common_runtime/placer.cc:1059] transpose: (Transpose)/job:localhost/replica:0/task:0/device:GPU:0
+MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.324088: I tensorflow/core/common_runtime/placer.cc:1059] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+Sum: (Sum): /job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.324104: I tensorflow/core/common_runtime/placer.cc:1059] Sum: (Sum)/job:localhost/replica:0/task:0/device:GPU:0
+random_uniform/shape: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.324122: I tensorflow/core/common_runtime/placer.cc:1059] random_uniform/shape: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+random_uniform/min: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.324138: I tensorflow/core/common_runtime/placer.cc:1059] random_uniform/min: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+random_uniform/max: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.324155: I tensorflow/core/common_runtime/placer.cc:1059] random_uniform/max: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+transpose/perm: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.324172: I tensorflow/core/common_runtime/placer.cc:1059] transpose/perm: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+Const: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.324188: I tensorflow/core/common_runtime/placer.cc:1059] Const: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+2019-03-31 05:33:39.331517: I tensorflow/stream_executor/dso_loader.cc:152] successfully opened CUDA library libcublas.so.10.0 locally
+250030770000.0
+
+
+
+
+
+
+('Shape:', (10000, 10000), 'Device:', '/gpu:0')
+('Time taken:', '0:04:35.820064')
+```
+
+started by:
+nvidia-docker run tensorflow/tensorflow:latest-gpu
+
+
+thanks ahead> os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+
+This works for me as well.
+
+> I noticed that tensorflow always takes about ~2min before it actually starts to compute. I've been trying to find out, why this happens, and nothing really worked so far.
+> 
+> [Tensorflow site](https://www.tensorflow.org/install/install_windows) says, I should use CUDA® Toolkit 9.0 and cuDNN v7.0. I have CUDA 9.0, so I downloaded CuDNN 7.0.5 for CUDA 9.0 and pasted the files to *C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0*, overwriting the ones form cuDNN 7.1.2, which I tested earlier. To make sure, I pip-installed tensorflow-gpu into a fresh anaconda env. See install [here](https://pastebin.com/rjiV1s3b). The issue is still the same.
+> 
+> CUDA works, since it prints the _'Hello, TensorFlow!'_, when I use the official test example, but before that it takes like 2minutes every time!
+> 
+> When I tested this with [another wheel](https://drive.google.com/drive/folders/1lVK_ABvVHzVYKs7X5SUhcZFBgKpC41Qw) ([which is linked in this tutorial](http://www.python36.com/install-tensorflow-gpu-windows/), I did not compile it myself.) on cuda 9.1/cudnn7.0.5, I had the same issues. A NVIDIA employee [on stackoverflow](https://stackoverflow.com/questions/49770217/why-does-cuda-initialisation-take-so-long-python-vscode-anaconda-tensorflow) suggested, I may be hitting a lengthy JIT compile step, because the GTX 1080 has compute capability of 6.1, which the wheel I used may not be compiled for.
+> 
+> So I tried to find wheels for tensorflow with compute capability 6.1 for windows, but [the only one I found](https://github.com/fo40225/tensorflow-windows-wheel/tree/master/1.5.0/py36/GPU/cuda91cudnn7avx2) and tested produced the same problem.
+> 
+> Am I doing something wrong here, or do I just have to accept the 2min delay everytime I start my tensorflow/keras scripts?
+> 
+> ### System information
+> * **Have I written custom code (as opposed to using a stock example script provided in TensorFlow)**:
+>   Code:
+> 
+> ```
+> import time
+> start_time = time.time()
+> import tensorflow as tf
+> a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a')
+> b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b')
+> c = tf.matmul(a, b)
+> sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+> print(sess.run(c))
+> timer = time.time()
+> print(timer - start_time)
+> ```
+> 
+> Output:
+> 
+> ```
+> (tf_clean) C:\python_code\test>C:/anaconda/envs/tf_clean/python.exe c:/python_code/test/tf_test.py
+> 2018-04-18 14:36:04.376661: I T:\src\github\tensorflow\tensorflow\core\platform\cpu_feature_guard.cc:140] Your CPU supports instructions that this
+> TensorFlow binary was not compiled to use: AVX2
+> 2018-04-18 14:36:04.689661: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1344] Found device 0 with properties:
+> name: GeForce GTX 1080 major: 6 minor: 1 memoryClockRate(GHz): 1.7335
+> pciBusID: 0000:01:00.0
+> totalMemory: 8.00GiB freeMemory: 6.60GiB
+> 2018-04-18 14:36:04.699485: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1423] Adding visible gpu devices: 0
+> 2018-04-18 14:38:12.227561: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:911] Device interconnect StreamExecutor with strength 1 edge matrix:
+> 2018-04-18 14:38:12.234504: I T:\src\github\tens2018-04-18 14:38:12.237156: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:930] 0:   N
+> 2018-04-18 14:38:12.240997: I T:\src\github\tensorflow\tensorflow\core\common_runtime\gpu\gpu_device.cc:1041] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 6379 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080, pci bus id: 0000:01:00.0, compute capability: 6.1)
+> Device mapping:
+> /job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 1080, pci bus id: 0000:01:00.0, compute capability: 6.1
+> 2018-04-18 14:38:12.548288: I T:\src\github\tensorflow\tensorflow\core\common_runtime\direct_session.cc:297] Device mapping:
+> /job:localhost/replica:0/task:0/device:GPU:0 -> device: 0, name: GeForce GTX 1080, pci bus id: 0000:01:00.0, compute capability: 6.1
+> MatMul: (MatMul): /job:localhost/replica:0/task:0/device:GPU:0
+> 2018-04-18 14:38:12.559262: I T:\src\github\tensorflow\tensorflow\core\common_runtime\placer.cc:884] MatMul: (MatMul)/job:localhost/replica:0/task:0/device:GPU:0
+> b: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+> 2018-04-18 14:38:12.564847: I T:\src\github\tensorflow\tensorflow\core\common_runtime\placer.cc:884] b: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+> a: (Const): /job:localhost/replica:0/task:0/device:GPU:0
+> 2018-04-18 14:38:12.570545: I T:\src\github\tensorflow\tensorflow\core\common_runtime\placer.cc:884] a: (Const)/job:localhost/replica:0/task:0/device:GPU:0
+> [[22. 28.]
+>  [49. 64.]]
+> 129.14624643325806
+> ```
+> 
+> * **OS Platform and Distribution**:
+>   Windows 10 Education (Version 10.0.16299 Build 16299)
+>   Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz, 3408 MHz, 4 Cores
+> * **TensorFlow installed from (source or binary)**:
+>   binary
+> * **TensorFlow version**:
+>   tensorflow-gpu 1.5.0, 1.7.0
+> * **Python version**:
+>   3.5.5 & 3.6 (via anaconda, conda 4.5.1.)
+> * **Bazel Version**:
+>   N/A
+> * **CUDA/cuDNN version**:
+>   Tested combinations:
+>   CUDA 9.0 and CuDNN 7.1.2 (tested on tensorflow 1.5.0, 1.7.0 and 1.8.0-dev20180329)
+>   CUDA 9.1 and CuDNN 7.0.5 (tested on tensorflow 1.5.0 and 1.7.0)
+> * **GPU model and memory**:
+>   NVIDIA GeForce GTX 1080 (GP104-400) [Hewlett-Packard], 8192 MBytes of GDDR5X SDRAM [Micron]
+> * **Exact command to reproduce**:
+>   See: _Have I written custom code..._
+> 
+> =================================================================
+> EDIT:
+> 
+> Threadstarter here, hello.
+> 
+> > Could you try with the latest nightly?
+> > https://files.pythonhosted.org/packages/67/c0/e68a4f0400340b54c887703baa8eee188042c3d65a0cf535dda71abffbc2/tf_nightly_gpu-1.13.0.dev20190205-cp37-cp37m-win_amd64.whl
+> 
+> **This works!** I checked with that wheel, and then with `tf-nightly-gpu-2.0-preview` on PYPI, which also worked.
+> I initially wanted to use the anaconda cudatoolkit and cudnn packages, but currently, cudnn is only available up to version 7.3.1 on anaconda-cloud. Tensorflow 2.0 however, is compiled with 7.4.1, so I had to do this the oldschool way, and download the setups from Nvidia.
+> Soon, though...[soon](https://imgur.com/a/A2jZizt).
+> 
+> For everyone, here's what I did, as a guide:
+> 
+> ### How to install Tensorflow Nightly 2.0 GPU in Anaconda on Windows 10 x64
+> • I installed these CUDA/CuDnn Versions:
+> – cuda_10.0.130_win10_network (Nvidia CUDA Download: https://developer.nvidia.com/cuda-toolkit)
+> – cuDNN v7.4.1 (Nov 8, 2018), for CUDA 10.0 (Nvidia CuDnn Download: https://developer.nvidia.com/cudnn)
+> – Don't forget to check, whether the Cuda setup has correctly written itself to the PATH system variable.
+> – Reboot.
+> • Now make a new environment in Anaconda and activate it:
+> – `conda create --name tf2-nightly-gpu python=3.6`
+> – `activate tf2-nightly-gpu`
+> • Now, with the new env still activated, install the latest Tensorflow 2.0 nightly GPU build from PYPI:
+> – `pip install tf-nightly-gpu-2.0-preview`
+> • For machine learning in Jupyter notebook (or Jupyter Lab) , you need these as well:
+> – `conda install nb_conda matplotlib scipy Pillow pandas scikit-learn`
+> • Check, if your GPU is recognized by Tensorflow. Open the Anaconda prompt, activate the new environment and type `python`, then press Enter. Now type:
+> `import tensorflow as tf`
+> `tf.test.is_gpu_available(cuda_only=False,min_cuda_compute_capability=None) `
+> • Output should be something like this:
+> 
+> ```
+> (tf2-nightly-gpu) C:\Users\___>python
+> >>> import tensorflow as tf
+> >>> tf.test.is_gpu_available(cuda_only=False,min_cuda_compute_capability=None)
+> 2019-03-19 17:46:25.722209: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+> 2019-03-19 17:46:25.729724: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library nvcuda.dll
+> 2019-03-19 17:46:25.922934: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1551] Found device 0 with properties:
+> name: GeForce GTX 1080 major: 6 minor: 1 memoryClockRate(GHz): 1.7335
+> pciBusID: 0000:01:00.0
+> totalMemory: 8.00GiB freeMemory: 6.61GiB
+> 2019-03-19 17:46:25.938231: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1674] Adding visible gpu devices: 0
+> 2019-03-19 17:46:26.539185: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1082] Device interconnect StreamExecutor with strength 1 edge matrix:
+> 2019-03-19 17:46:26.546009: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1088]      0
+> 2019-03-19 17:46:26.550123: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1101] 0:   N
+> 2019-03-19 17:46:26.554188: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1222] Created TensorFlow device (/device:GPU:0 with 6360 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080, pci bus id: 0000:01:00.0, compute capability: 6.1)
+> True
+> ```
+> 
+> • Done.
+
+Doesn't work for me it still frozeen on 
+
+>  I tensorflow/core/common_runtime/gpu/gpu_device.cc:1512] Adding visible gpu devices: 0This should be fixed with 1.13.1it fixed but i have other error@gunan is there a workaround to fix this issue for tensorflow 1.12.2? 
+(we are still on cuda 9 and 1.13.1 is compiled for cuda 10 -.-)Unfortunately, it will be complicated to port the change back to 1.12.2 as it uses an old eigen version which causes compilation issues when built for newer cuda compute capabilities.
+
+Only option I see for your case is to build 1.13.1 from sources for cuda 9. You can follow our guide at www.tensorflow.org to build TF from sources.
+
+I will close this issue, as it should be fixed at head. Please feel free to open a new issue with further issues you see.Very embarrassed. I use nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04 as the base when building my docker image. I try many methods to avoid the problem (I try with Python3.5,3.6,3.7，install tensorflow-gpu-1.12.2 through pip or build tensorflow-1.13.0 by myself) but failed...... 
+
+Finally, I install tensorflow-gpu-1.12.0 through pip and succeed.
+
+It seems that the newest version incurs the error, may be helpful for you.Hey guys.
+
+I am super new to tensorflow and programming in python. Initializing my current programme takes forever aswell. 
+
+It seems like you guys handled the issue in 1.12.0. 
+
+I am using PyCharm and installed Tensorflow through PyCharm, version 1.13.1. using python 3.6.
+It seems like that the version 1.13.1 does not incur the error, at least for me. 
+Honestly, I do not know what base I am using If even I am using a base.. :/
+
+Do you have any tips for me? Should I try to build tensorflow from source or something like that?I have the exact same problem. It take around 5 minutes at:
+Adding visible gpu devices: 0
+
+My environment is Win10,  tensorflow-gpu-2.0-beta1， CUDA 10.0, cuDNN 7.6, python 3.6 and with GTX 850M
+
+When the problem will be fixed？Same problem here:
+Ubuntu 16.04 / tensorflow-gpu-1.14 / CUDA 10.0 / cuDNN 7.4 / Python 3.7 / GTX 950M
+
+But just like @steel3d, it happened ONLY on the very first run (stuck for around 3min here). After that, it becomes instant.Exactly the same problem with even _15_ minutes of waiting for Ubuntu 16.04 / tensorflow-gpu==2.0.0beta1 / CUDA 10.0 / cuDNN 7.5 / python 3.6 / 8 x Tesla P40. Btw for the same code this initialization time is much better with 1 GPU.in P100, the same problem with 10 minutes .  
+
+#0  0x00007f14855ed15c in ?? () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#1  0x00007f14855ed3d9 in ?? () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#2  0x00007f14858588ea in ?? () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#3  0x00007f148585f344 in ?? () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#4  0x00007f14855bba7e in ?? () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#5  0x00007f1485865190 in ?? () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#6  0x00007f1485865e39 in ?? () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#7  0x00007f14854a158d in ?? () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#8  0x00007f14854a60e5 in ?? () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#9  0x00007f1485b41f7d in ?? () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#10 0x00007f14854a83e4 in ?? () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#11 0x00007f14854aaf58 in ?? () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#12 0x00007f14854a293c in __cuda_CallJitEntryPoint () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#13 0x00007f1485515486 in nvPTXCompilerCompile () from /usr/lib64/nvidia/libnvidia-ptxjitcompiler.so.1
+#14 0x00007f163234d7df in fatBinaryCtl_Compile () from /usr/lib64/nvidia/libnvidia-fatbinaryloader.so.396.26
+#15 0x00007f165368a824 in ?? () from /usr/lib64/nvidia/libcuda.so.1
+#16 0x00007f165368b303 in ?? () from /usr/lib64/nvidia/libcuda.so.1
+#17 0x00007f16535d36dd in ?? () from /usr/lib64/nvidia/libcuda.so.1
+#18 0x00007f16535d39f0 in ?? () from /usr/lib64/nvidia/libcuda.so.1
+#19 0x00007f1654b1360d in ?? () from /usr/local/cuda/lib64/libcudart.so.9.0
+#20 0x00007f1654b09dc0 in ?? () from /usr/local/cuda/lib64/libcudart.so.9.0
+#21 0x00007f1654b18596 in ?? () from /usr/local/cuda/lib64/libcudart.so.9.0
+#22 0x00007f1654b1bff1 in ?? () from /usr/local/cuda/lib64/libcudart.so.9.0
+#23 0x00007f1654b0e11e in ?? () from /usr/local/cuda/lib64/libcudart.so.9.0
+#24 0x00007f1654af993e in ?? () from /usr/local/cuda/lib64/libcudart.so.9.0
+#25 0x00007f1654b2e874 in cudaFree () from /usr/local/cuda/lib64/libcudart.so.9.0
+#26 0x00007f165d66d7d7 in tensorflow::BaseGPUDeviceFactory::CreateDevices(tensorflow::SessionOptions const&, std::string const&, std::vector<tensorflow::Device*, std::allocator<tensorflow::Device*> >*) ()
+   from /usr/lib/python2.7/site-packages/tensorflow/python/../libtensorflow_framework.so
+#27 0x00007f165d6a0921 in tensorflow::DeviceFactory::AddDevices(tensorflow::SessionOptions const&, std::string const&, std::vector<tensorflow::Device*, std::allocator<tensorflow::Device*> >*) ()
+   from /usr/lib/python2.7/site-packages/tensorflow/python/../libtensorflow_framework.so
+#28 0x00007f1661877428 in tensorflow::DirectSessionFactory::NewSession(tensorflow::SessionOptions const&) () from /usr/lib/python2.7/site-packages/tensorflow/python/_pywrap_tensorflow_internal.so
+#29 0x00007f165d6ee24f in tensorflow::NewSession(tensorflow::SessionOptions const&, tensorflow::Session**) () from /usr/lib/python2.7/site-packages/tensorflow/python/../libtensorflow_framework.so
+#30 0x00007f165fc15435 in TF_NewSession () from /usr/lib/python2.7/site-packages/tensorflow/python/_pywrap_tensorflow_internal.so
+#31 0x00007f165f858635 in _wrap_TF_NewSession () from /usr/lib/python2.7/site-packages/tensorflow/python/_pywrap_tensorflow_internal.so
+#32 0x00007f1725c672c0 in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#33 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#34 0x00007f1725c66b0c in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#35 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#36 0x00007f1725bf303d in function_call () from /lib64/libpython2.7.so.1.0
+#37 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#38 0x00007f1725bdd025 in instancemethod_call () from /lib64/libpython2.7.so.1.0
+#39 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#40 0x00007f1725c25057 in slot_tp_init () from /lib64/libpython2.7.so.1.0
+#41 0x00007f1725c23d6f in type_call () from /lib64/libpython2.7.so.1.0
+#42 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#43 0x00007f1725c62806 in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#44 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#45 0x00007f1725bf303d in function_call () from /lib64/libpython2.7.so.1.0
+#46 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#47 0x00007f1725bdd025 in instancemethod_call () from /lib64/libpython2.7.so.1.0
+#48 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#49 0x00007f1725c25057 in slot_tp_init () from /lib64/libpython2.7.so.1.0
+#50 0x00007f1725c23d6f in type_call () from /lib64/libpython2.7.so.1.0
+#51 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#52 0x00007f1725c62806 in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#53 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#54 0x00007f1725bf2f48 in function_call () from /lib64/libpython2.7.so.1.0
+#55 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#56 0x00007f1725bdd025 in instancemethod_call () from /lib64/libpython2.7.so.1.0
+#57 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#58 0x00007f1725c25057 in slot_tp_init () from /lib64/libpython2.7.so.1.0
+#59 0x00007f1725c23d6f in type_call () from /lib64/libpython2.7.so.1.0
+#60 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#61 0x00007f1725c5fec7 in PyEval_CallObjectWithKeywords () from /lib64/libpython2.7.so.1.0
+#62 0x00007f1725c5bf23 in builtin_map () from /lib64/libpython2.7.so.1.0
+#63 0x00007f1725c672c0 in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#64 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#65 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#66 0x00007f1725c66b0c in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#67 0x00007f1725be8888 in gen_send_ex.isra.0 () from /lib64/libpython2.7.so.1.0
+#68 0x00007f1725c62211 in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#69 0x00007f1725be8888 in gen_send_ex.isra.0 () from /lib64/libpython2.7.so.1.0
+#70 0x00007f1725c62211 in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#71 0x00007f1725be8888 in gen_send_ex.isra.0 () from /lib64/libpython2.7.so.1.0
+#72 0x00007f1725bf79a6 in listextend () from /lib64/libpython2.7.so.1.0
+#73 0x00007f1725bf7c30 in list_init () from /lib64/libpython2.7.so.1.0
+#74 0x00007f1725c23d6f in type_call () from /lib64/libpython2.7.so.1.0
+#75 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#76 0x00007f1725c62806 in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#77 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#78 0x00007f1725c66b0c in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#79 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#80 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#81 0x00007f1725c66b0c in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#82 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#83 0x00007f1725c66b0c in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#84 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#85 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#86 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#87 0x00007f1725bf303d in function_call () from /lib64/libpython2.7.so.1.0
+#88 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#89 0x00007f1725bdd025 in instancemethod_call () from /lib64/libpython2.7.so.1.0
+#90 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#91 0x00007f1725c25057 in slot_tp_init () from /lib64/libpython2.7.so.1.0
+#92 0x00007f1725c23d6f in type_call () from /lib64/libpython2.7.so.1.0
+#93 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#94 0x00007f1725c62806 in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#95 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#96 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#97 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#98 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#99 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#100 0x00007f1725bf303d in function_call () from /lib64/libpython2.7.so.1.0
+#101 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#102 0x00007f1725c61ccd in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#103 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#104 0x00007f1725c66b0c in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#105 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#106 0x00007f1725c69712 in PyEval_EvalCode () from /lib64/libpython2.7.so.1.0
+#107 0x00007f1725c794fc in PyImport_ExecCodeModuleEx () from /lib64/libpython2.7.so.1.0
+#108 0x00007f1725c79778 in load_source_module () from /lib64/libpython2.7.so.1.0
+#109 0x00007f1725c7a411 in import_submodule () from /lib64/libpython2.7.so.1.0
+#110 0x00007f1725c7a65d in load_next () from /lib64/libpython2.7.so.1.0
+#111 0x00007f1725c7b03e in PyImport_ImportModuleLevel () from /lib64/libpython2.7.so.1.0
+#112 0x00007f1725c5e2ef in builtin___import__ () from /lib64/libpython2.7.so.1.0
+#113 0x00007f1725c672c0 in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#114 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#115 0x00007f1725c66b0c in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#116 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#117 0x00007f1725c66b0c in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#118 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#119 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#120 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#121 0x00007f1725bf303d in function_call () from /lib64/libpython2.7.so.1.0
+#122 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#123 0x00007f1725bdd025 in instancemethod_call () from /lib64/libpython2.7.so.1.0
+#124 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#125 0x00007f1725c25057 in slot_tp_init () from /lib64/libpython2.7.so.1.0
+#126 0x00007f1725c23d6f in type_call () from /lib64/libpython2.7.so.1.0
+#127 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#128 0x00007f1725c62806 in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#129 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#130 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#131 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#132 0x00007f1725c66c8d in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#133 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#134 0x00007f1725bf303d in function_call () from /lib64/libpython2.7.so.1.0
+#135 0x00007f1725bce033 in PyObject_Call () from /lib64/libpython2.7.so.1.0
+#136 0x00007f1725c61ccd in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#137 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#138 0x00007f1725c66b0c in PyEval_EvalFrameEx () from /lib64/libpython2.7.so.1.0
+#139 0x00007f1725c6960d in PyEval_EvalCodeEx () from /lib64/libpython2.7.so.1.0
+#140 0x00007f1725c69712 in PyEval_EvalCode () from /lib64/libpython2.7.so.1.0
+#141 0x00007f1725c82b4f in run_mod () from /lib64/libpython2.7.so.1.0
+#142 0x00007f1725c83d0e in PyRun_FileExFlags () from /lib64/libpython2.7.so.1.0
+#143 0x00007f1725c84f99 in PyRun_SimpleFileExFlags () from /lib64/libpython2.7.so.1.0
+#144 0x00007f1725c9614f in Py_Main () from /lib64/libpython2.7.so.1.0
+#145 0x00007f1724eb1445 in __libc_start_main () from /lib64/libc.so.6
+#146 0x000000000040071e in _start ()
+
+
+@chengdianxuezi OMG, unbelievable！My GPU is GTX 850M , they told me that the problem is there because my gpu is not good enough. I can't image that the P100 still has the same problem. So many people have the problem, but the official or the community seem to have no idea how to fix it. 
+So If you can't stand it, just use Pytorch or MXnet!!! Mxnet is great. It has something to do with ~/.nv/ComputeCache directory (compiling kernels?). Probably persisting it between container invocations can speed up things at least in second and further times.Hi @gunan, can we support compute capabilities 7.5 in the official build? It seems tensorflow are still using `TF_CUDA_COMPUTE_CAPABILITIES=3.5,3.7,5.2,6.0,6.1,7.0` as default. And we are facing slow start on NV 2080Ti.@chsigg For questions about 7.5I would have thought that CUBINs for 7.0 would also work for sm 7.5. But I guess the runtime prefers to JIT the PTX for 7.0 instead?
+
+The list of CUDA kernel binaries that we include is already plenty long. Maybe it would be a good time to clean it up.
+
+Here is a short list of compute capabilities we currently support. Full list is at https://en.wikipedia.org/wiki/CUDA
+
+sm 3.5 (Kepler): Tesla K20/K40
+sm 3.7 (Kepler): Tesla K80
+sm 5.2 (Maxwell): Tesla M4, GeForce 9xx
+sm 6.0 (Pascal): Tesla P100
+sm 6.1 (Pascal): Titan X, Titan Xp, Tesla P4
+sm 7.0 (Volta): Titan V, Tesla V100
+sm 7.5 (Turing): Titan RTX, Tesla T4
+
+Looking at this list, I would probably go with 5.2, 6.0, 7.0, 7.5. I'm suspecting though that we added 6.1 for the same reason that you want to add 7.5: the CUBIN is compatible, but the runtime decides to JIT the PTX. This is in contrast to the following from https://docs.nvidia.com/cuda/volta-compatibility-guide/index.html:
+
+> If a cubin file supporting the architecture of the target GPU is available, it is used; otherwise, the CUDA Runtime will load the PTX and JIT-compile that PTX to the GPU's native cubin format before launching it.
+
+In theory, the long startup could also be from patching the CUBIN to work with a newer minor revision (even though the documentation says it's compatible, the SASS code usually does need some massaging). We could try whether CUDA_​FORCE_​PTX_​JIT=1 makes the startup even slower, but probably it doesn't really matter what the actual cause is.
+
+What do you think?Actually, we probably have some more options playing with combinations of PTX and CUBINs. We can prevent the runtime to JIT from PTX 7.0 to SASS 7.5 (and PTX 6.0 to SASS 6.1) and force it to use CUBIN 7.0 (and 6.0) by stripping the corresponding PTX.
+
+Could you try nvprune'ing the sm 7.0 PTX to see if that improves your startup time? 
+
+If that works, maybe we should build the following:
+CUBIN for 5.2, 6.0, 7.0, 7.5
+PTX for 3.5 (keep basic support for sm 3.5 - 5.0 with expected slow startup time)
+Hi @chsigg, do you mean `nvprune  -arch sm_35 libtensorflow_framework.so ...`?A binary with just sm_35 is only going to work on sm_35 and sm_37 GPUs. 
+
+For the experiment whether forcing TF to use sm_70 CUBIN for your sm_75 GPU improves startup time, use `nvprune -arch sm_70 libtensorflow_framework.so`.
+
+Hi @chsigg , I can not nvprune the tf library: `nvprune fatal   : Input file 'libtensorflow_framework.so' not relocatable`.
+
+BTW, the slow start occurs when I restore the SavedModel through tensorflow c api (not tensorflow python at `sess = tf.Session(...)` as other people mentioned before). It takes 5 minutes to reload our model on the first start or after clearing `~/.nv`, but only 2 seconds on the subsequent runs.
+
+```
+2019-12-02 09:48:42.596399: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10312 MB memory) -> physical GPU (device: 0, name: GeForce RTX 2080 Ti, pci bus id: 0000:b5:00.0, compute capability: 7.5)
+2019-12-02 09:48:42.646051: I tensorflow/cc/saved_model/loader.cc:182] Restoring SavedModel bundle.
+2019-12-02 09:53:46.398005: I tensorflow/cc/saved_model/loader.cc:285] SavedModel load for tags { serve }; Status: success. Took 304114966 microseconds.
+```
+If I compile tensorflow by `TF_CUDA_COMPUTE_CAPABILITIES=...,7.5`, the start time is also around 2s.
+
+```
+2019-12-02 10:22:00.665098: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10312 MB memory) -> physical GPU (device: 0, name: GeForce RTX 2080 Ti, pci bus id: 0000:b5:00.0, compute capability: 7.5)
+2019-12-02 10:22:00.727352: I tensorflow/cc/saved_model/loader.cc:182] Restoring SavedModel bundle.
+2019-12-02 10:22:02.507115: I tensorflow/cc/saved_model/loader.cc:285] SavedModel load for tags { serve }; Status: success. Took 2362567 microseconds.
+```Sorry about that, I didn't know about that nvprune restriction. 
+
+Could you please try to change [these](https://github.com/tensorflow/tensorflow/blob/456e027373d553ad10c15ceaeee1eb78041b79dc/third_party/gpus/crosstool/clang/bin/crosstool_wrapper_driver_is_not_gcc.tpl#L216) lines to:
+
+`nvccopts += r'-gencode=arch=compute_%s,\"code=sm_%s" ' % (capability, capability)`
+
+And try again with just `TF_CUDA_COMPUTE_CAPABILITIES=7.0` (i.e. without 7.5)?
+
+You will need to use nvcc for the compiler for this to work (you can check that .bazelrc.user specifies `--config=cuda` and not `--config=cuda_clang`).
+
+Thanks for you help.
+That works.
+
+```
+2019-12-03 03:48:46.492801: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10312 MB memory) -> physical GPU (device: 0, name: GeForce RTX 2080 Ti, pci bus id: 0000:b5:00.0, compute capability: 7.5)
+2019-12-03 03:48:46.538021: I tensorflow/cc/saved_model/loader.cc:182] Restoring SavedModel bundle.
+2019-12-03 03:48:48.441281: I tensorflow/cc/saved_model/loader.cc:285] SavedModel load for tags { serve }; Status: success. Took 2268220 microseconds.
+```Thanks a lot Liwen for trying it out. I will update the list of compute capabilities we build for, and add a warning message when we need to JIT from PTX to make it more obvious what's going on.I'm having the same issue now.
+TF 1.15, Cuda 10.0, Cudnn 7, 
+TF was custom compiled with AVX2, XLA, TRT, CC 3.5/3.7/7.0/7.5
+
+I tried to debug it with strace, and found that there's a futex that locks the execution thread:
+18:38:00.532805 futex(0x7f852818fa78, FUTEX_WAIT_BITSET_PRIVATE|FUTEX_CLOCK_REALTIME, 0, NULL, ffffffff) = 0 <47.742524>
+
+Another thread starts to work heavily with huge batch of mprotect:
+18:38:00.534906 mprotect(0x7f84f98ac000, 4096, PROT_READ|PROT_WRITE) = 0 <0.000030>
+
+During this process I see 2 messages in main thread:
+2019-12-03 18:38:16.642624: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcublas.so.10.0
+2019-12-03 18:38:26.258193: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudnn.so.7
+
+The futex is the released and returns the result.
+
+My test run was like this:
+1) Run new aws p2 instance A from ami, trying to run the code - 1 minute delay
+2) Trying to run the code on A once more - no delay
+3) A is rebooted, trying to run the code - no delay
+4) Run new aws p2 instance B from ami, trying to run the code - 1 minute delay
+
+Seems like something is calculated once, then cached.
+The cache is preserved upon system restart, but is missing on the first run.
+It's also not part of my AMI.
+
+I also tried to rerun the test with official TF 1.15 wheel, but faced the same problem. 
+
+May somebody clarify several things?
+1) What is cached?
+2) Where?
+3) Is there any workaround to make this cache part of my ami?
+
+My ~/.nv/ComputeCache is empty.
+
+Maybe it's related to https://github.com/keras-team/keras/issues/11126, not sure.
+
+Thanks in advance!
+I think if the cache can be made persistent is a more nvidia question?
+To make it a part of your AMI, you can rebuild TF with all the compute capabilities that your AMI will potentially need. AWS P2 uses k80 GPUs, which needs compute capability 3.7.
+You may need other compute capabilities based on other GPUs available to you.
+
+I am closing this issue, as this is all known, and documented.
+To sum up: If you see this error, that means your GPU has a Cuda compute capability TF binary you are using does not have packaged in.
+To work through the problem, you will need to first check which compute capability your GPU needs here: https://developer.nvidia.com/cuda-gpus
+Then rebuild TF from sources with that compute capability enabled (which you select during configure)> Sorry about that, I didn't know about that nvprune restriction.
+> 
+> Could you please try to change [these](https://github.com/tensorflow/tensorflow/blob/456e027373d553ad10c15ceaeee1eb78041b79dc/third_party/gpus/crosstool/clang/bin/crosstool_wrapper_driver_is_not_gcc.tpl#L216) lines to:
+> 
+> `nvccopts += r'-gencode=arch=compute_%s,\"code=sm_%s" ' % (capability, capability)`
+> 
+> And try again with just `TF_CUDA_COMPUTE_CAPABILITIES=7.0` (i.e. without 7.5)?
+> 
+> You will need to use nvcc for the compiler for this to work (you can check that .bazelrc.user specifies `--config=cuda` and not `--config=cuda_clang`).
+> 
+> Thanks for you help.
+
+Hi @gunan @chsigg , is the change mentioned in this comment merged into tensorflow?**OS Platform and Distribution**:
+- OS: Ubuntu 18.04.4
+- Docker: 19.03.12, build 48a66213fe
+- CPU: Intel(R) Core(TM) i7-7700 CPU @ 3.60GHz
+- GPU: GeForce RTX 2080 440.100 (compute capability: 7.5)
+- `nvidia-container-runtime` is installed too
+
+**Problem**:
+When using `tensorflow/serving:2.2.0-gpu`, running the image always takes around 5 minutes. However, older `tensorflow/serving` versions run instantly. I have tested `2.1.0-gpu` and `1.15.0-gpu`.
+
+While waiting for the container to run, one CPU core is active and some directories are created in the container's writable layer, most notably `/root/.nv/ComputeCache` (~ 250 MB).
+
+**What I have tried**:
+1. Persist all changes by committing the container as a new image.
+2. Persist changes by using Docker volumes.
+3. Build a new Docker image from source. Not sure if `--build-arg` is the right place to use `TF_CUDA_COMPUTE_CAPABILITIES`.
+
+    ```
+    docker build --pull -t $USER/tensorflow-serving-devel-gpu \
+      --build-arg TF_CUDA_COMPUTE_CAPABILITIES="7.5" \
+      -f tensorflow_serving/tools/docker/Dockerfile.devel-gpu .
+    ```
+
+    ```
+    docker build -t $USER/tensorflow-serving-gpu \
+      --build-arg TF_SERVING_BUILD_IMAGE=$USER/tensorflow-serving-devel-gpu \
+      -f tensorflow_serving/tools/docker/Dockerfile.gpu .
+    ```
+
+No luck, each `docker run` still takes 5 minutes. Do you have any suggestions how to speed up running the container?You are probably seeing the driver JITing PTX code. See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#application-compatibility for details.
+
+You can use `nvidia-smi` to determine what GPUs you have, and you can use `cuobjdump` on `_pywrap_tensorflow_internal.so` to determine what GPUs you built for.@chsigg Should we print a warning if we detect we're running on a GPU we don't have SASS for?> You can use `nvidia-smi` to determine what GPUs you have, and you can use `cuobjdump` on `_pywrap_tensorflow_internal.so` to determine what GPUs you built for.
+
+The output of `nvidia-smi` from running container `$USER/tensorflow-serving-gpu`:
+
+```
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 440.100      Driver Version: 440.100      CUDA Version: 10.2     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  GeForce RTX 2080    Off  | 00000000:01:00.0  On |                  N/A |
+| 27%   39C    P8    13W / 215W |    364MiB /  7981MiB |      4%      Default |
++-------------------------------+----------------------+----------------------+
+```
+
+The output of `cuobjdump -lelf` from running container `$USER/tensorflow-serving-devel-gpu`:
+
+```
+ELF file    1: _pywrap_tensorflow_internal.1.sm_35.cubin
+ELF file    2: _pywrap_tensorflow_internal.2.sm_37.cubin
+ELF file    3: _pywrap_tensorflow_internal.3.sm_52.cubin
+ELF file    4: _pywrap_tensorflow_internal.4.sm_60.cubin
+ELF file    5: _pywrap_tensorflow_internal.5.sm_61.cubin
+ELF file    6: _pywrap_tensorflow_internal.6.sm_70.cubin
+ELF file    7: _pywrap_tensorflow_internal.7.sm_35.cubin
+ELF file    8: _pywrap_tensorflow_internal.8.sm_37.cubin
+ELF file    9: _pywrap_tensorflow_internal.9.sm_52.cubin
+ELF file   10: _pywrap_tensorflow_internal.10.sm_60.cubin
+ELF file   11: _pywrap_tensorflow_internal.11.sm_61.cubin
+ELF file   12: _pywrap_tensorflow_internal.12.sm_70.cubin
+...
+ELF file 1441: _pywrap_tensorflow_internal.1441.sm_35.cubin
+ELF file 1442: _pywrap_tensorflow_internal.1442.sm_37.cubin
+ELF file 1443: _pywrap_tensorflow_internal.1443.sm_52.cubin
+ELF file 1444: _pywrap_tensorflow_internal.1444.sm_60.cubin
+ELF file 1445: _pywrap_tensorflow_internal.1445.sm_61.cubin
+ELF file 1446: _pywrap_tensorflow_internal.1446.sm_70.cubin
+```
+
+It seems that the devel container was not built with compute capability 7.5. Can you advise where should the `TF_CUDA_COMPUTE_CAPABILITIES="7.5"` argument go? I have used it as a `--build-arg` which apparently has no effect:
+
+```
+docker build --pull -t $USER/tensorflow-serving-devel-gpu \
+  --build-arg TF_CUDA_COMPUTE_CAPABILITIES="7.5" \
+  -f tensorflow_serving/tools/docker/Dockerfile.devel-gpu .
+```
+
+@sanjoy I agree that a warning would be a good idea. I was used to run `tensorflow/serving:2.1.0` and immediately be able to make gRPC calls against it. With `2.2.0`, the client was returning `StatusCode.UNAVAILABLE` and I spent a fair amount of time blaming the connection (my `docker-compose.yml` file, to be specific). I completely overlooked the fact that the message `Running gRPC ModelServer at 0.0.0.0:8500 ...` was not printed yet.See https://www.tensorflow.org/install/source#gpu_support_3 for instructions how to build TF inside a docker. Specify `7.5` when asked for the compute capabilities during `./configure`.
+
+I think we have tried before to issue a warning when JITing from PTX but couldn't find a clean way to do so. With the build metadata available this should be possible now, but maybe not until after the kernels have been JITed.add this line to your code:
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+
+this worked for me.@SujanSharma07 worked for what? What is that accomplishing?> @SujanSharma07 worked for what? What is that accomplishing?
+
+AFTER THAT, my tensorflow model starts quickly @SujanSharma07 can you be more specific? You did nothing else, didn't recompile, you just added os.environ['TF_CPP_MIN_LOG_LEVEL']='2'? 
+Note that in my case, my first run was very slow, but subsequent runs were fast. Are you sure you'd get slow startup over and over without your change? 
+If it works, what's the justification? Where did you get the idea?my code stop at the following point:
+```
+2020-08-10 22:16:25.588882: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0, 1, 2, 3
+2020-08-10 22:16:26.719130: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2020-08-10 22:16:26.719170: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988] 0 1 2 3
+2020-08-10 22:16:26.719178: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0: N Y N N
+2020-08-10 22:16:26.719181: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 1: Y N N N
+2020-08-10 22:16:26.719185: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 2: N N N Y
+2020-08-10 22:16:26.719189: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 3: N N Y N
+2020-08-10 22:16:26.719882: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10409 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:02:00.0, compute capability: 6.1)
+2020-08-10 22:16:26.720283: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 10409 MB memory) -> physical GPU (device: 1, name: GeForce GTX 1080 Ti, pci bus id: 0000:04:00.0, compute capability: 6.1)
+2020-08-10 22:16:26.720567: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:2 with 10409 MB memory) -> physical GPU (device: 2, name: GeForce GTX 1080 Ti, pci bus id: 0000:83:00.0, compute capability: 6.1)
+2020-08-10 22:16:26.720884: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:3 with 10409 MB memory) -> physical GPU (device: 3, name: GeForce GTX 1080 Ti, pci bus id: 0000:84:00.0, compute capability: 6.1)
+```
+it stucks for over 20 minutes, could anybody help me solve this or know the reason of this?export CUDA_CACHE_MAXSIZE=2147483648 
+export CUDA_CACHE_DISABLE=0@RayerXie what version of TF are you using?  `tf-nightly` should not need to block for JIT compilation on compute capability 6.1.> my code stop at the following point:
+> 
+> ```
+> 2020-08-10 22:16:25.588882: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0, 1, 2, 3
+> 2020-08-10 22:16:26.719130: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+> 2020-08-10 22:16:26.719170: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988] 0 1 2 3
+> 2020-08-10 22:16:26.719178: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0: N Y N N
+> 2020-08-10 22:16:26.719181: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 1: Y N N N
+> 2020-08-10 22:16:26.719185: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 2: N N N Y
+> 2020-08-10 22:16:26.719189: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 3: N N Y N
+> 2020-08-10 22:16:26.719882: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10409 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:02:00.0, compute capability: 6.1)
+> 2020-08-10 22:16:26.720283: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 10409 MB memory) -> physical GPU (device: 1, name: GeForce GTX 1080 Ti, pci bus id: 0000:04:00.0, compute capability: 6.1)
+> 2020-08-10 22:16:26.720567: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:2 with 10409 MB memory) -> physical GPU (device: 2, name: GeForce GTX 1080 Ti, pci bus id: 0000:83:00.0, compute capability: 6.1)
+> 2020-08-10 22:16:26.720884: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:3 with 10409 MB memory) -> physical GPU (device: 3, name: GeForce GTX 1080 Ti, pci bus id: 0000:84:00.0, compute capability: 6.1)
+> ```
+> 
+> it stucks for over 20 minutes, could anybody help me solve this or know the reason of this?
+
+The same issue. Did you have any effective solution? @RayerXieHi everyone, we found a solution that worked for us.
+Add the following to your code:
+```
+import tensorflow as tf
+
+gpus = tf.config.experimental.list_physical_devices('GPU')
+for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
+tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
+```
+
+We found the solution on this other issue solves this issue as well:
+https://github.com/keras-team/keras/issues/10634#issuecomment-608265288@steel3d Any updates/ workarounds you managed to find? Running into a similar situation as you, with a Tesla T4, Ubuntu 18.04.5 LTS, on AWS.
+Built tensorflow from scratch for `sm 7.5`, which helped, but it still takes more time on the first run compared to the successive ones. If it's any help, the process in question that the time difference is for involves loading some saved model protobufs as well.After upgrading to 2.5.0 I experience this on one of my machines.
+
+All machines on Ubuntu 16.04, which use GeForce 1080 GTX cards, the trainings starts immediately.
+
+However, on Ubuntu 18.04 which uses two Titan RTX cards I have to wait a few minutes after the last line:
+
+```
+...
+2021-06-18 10:54:01.545228: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudart.so.11.0
+2021-06-18 10:54:01.547936: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcublas.so.11
+2021-06-18 10:54:01.548037: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcublasLt.so.11
+2021-06-18 10:54:01.548949: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcufft.so.10
+2021-06-18 10:54:01.549216: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcurand.so.10
+2021-06-18 10:54:01.550131: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcusolver.so.11
+2021-06-18 10:54:01.550900: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcusparse.so.11
+2021-06-18 10:54:01.551052: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudnn.so.8
+2021-06-18 10:54:01.554267: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1871] Adding visible gpu devices: 0, 1
+```
+
+I did not experience this with 2.4.1
+
+### Versions
+
+- Python: 3.9.5
+- Tensorflow: 2.5.0
+- CUDA: 11.2
+- NVIDIA driver: 465.19.01My solution is, build from source, and set the same  compute capabilities as the target GPU devices when you exec ./configure. For me, I set 6.0 for p100 and 7.5 for t4,
+# capabilities >= 3.5 [Default is: 6.1,6.1,6.1,6.1]: 6.0,7.5
+Then use the .so(for c++ infer) or .whl(for py), and you will not stuck at "Adding visible gpu devices: 0".> My solution is, build from source, and set the same compute capabilities as the target GPU devices when you exec ./configure. For me, I set 6.0 for p100 and 7.5 for t4,
+> # capabilities >= 3.5 [Default is: 6.1,6.1,6.1,6.1]: 6.0,7.5
+> 
+> Then use the .so(for c++ infer) or .whl(for py), and you will not stuck at "Adding visible gpu devices: 0".
+
+I recompiled tensorflow 1.14  with 7.5 CUDA compute camabilities for tesla T4, it still can't not work..
+BTW,  I use C++ api for inference.> @steel3d Any updates/ workarounds you managed to find? Running into a similar situation as you, with a Tesla T4, Ubuntu 18.04.5 LTS, on AWS.
+> Built tensorflow from scratch for `sm 7.5`, which helped, but it still takes more time on the first run compared to the successive ones. If it's any help, the process in question that the time difference is for involves loading some saved model protobufs as well.
+
+what's sm means?> @SujanSharma07 can you be more specific? You did nothing else, didn't recompile, you just added os.environ['TF_CPP_MIN_LOG_LEVEL']='2'?
+> Note that in my case, my first run was very slow, but subsequent runs were fast. Are you sure you'd get slow startup over and over without your change?
+> If it works, what's the justification? Where did you get the idea?
+
+Did you solve it? I got the same situation as yours.
+The first computation is very slow, and the subsequent process work fine.

@@ -1,0 +1,556 @@
+I just learned about TensorFlow and I want to install on Windows 7, 64. I have both Python 2.7 and 3.5 on my PC. 
+
+Thanks,
+Did you see the LINKLINK section on the TensorFlow website?
+
+It should be a normal LINKLINK. Though of course there is always Docker for a LINKLINK.
+You can run it inside docker that is what worked for me. Here are the steps: Download and install LINKLINK Run the folowing command to create a docker virtual machine:
+ CODESCODES In a cmd window type the following:
+ CODESCODES 
+ CODESCODES 
+
+After a short while, you will get a linux shell. Type CODESCODES and have fun thumbs up 
+I rather use PIP but when I try:
+
+pip install LINKLINK 
+
+it gives me an error:
+
+tensorflow 0.0 cp27 none linux x86 64. whl is not a supported wheel on this pla
+tform.
+
+ Phil Reither 
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+It gives me an error:
+
+An error occurred trying to connect: Post
+ LINKLINK 
+ create: dial tcp 127.0.2375: ConnectEx tcp: No connection could be
+made bec
+ause the target machine actively refused it.
+
+ Uri Shaked wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ aebk2015 is that with the docker? I forgot another step, you also need to create a docker vm after installing the docker toolbox, the commands are:
+ CODESCODES 
+ CODESCODES 
+Uri, I tried installing docker toolbox following your previous commands
+but still it gives me the same error:
+
+'docker machine' is not recognized as an internal or external command,
+operable program or batch file.
+
+ Uri Shaked wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+conda binary package would be nice in addition to wheels on windows, and build instructions with msvc or mingw compilers
+Merging this discussion with LINKLINK to keep all the good info in one place.
+I installed docker and it fails with an error message when I try a quick start
+ jgharris7 run as admin
+I put up LINKLINK using the commands above if it's helpful for anyone. I was able to get it running on my Windows machine.
+where is the version tensorflow that supporting windows? thank you
+TensorFlow needs a windows compatible version please! 
+Looking forward to a Win version or Conda package; getting Docker working's turning out to be a PIA; errors about bios settings, hosts already existing, vdocker not being running, Missing opening ' ' after keyword 'for' etc.
+I followed all official docs on my win machine and managed to painfully install docker and then to download docker. uhm container? inside oracle VM VirtualBox
+ urish Thanks for your docker install! Total newb here thumbs down 
+
+Ran the following command to create a docker virtual machine:
+docker machine create vdocker d virtualbox
+
+In a cmd window typed the following:
+
+FOR f tokens i IN 'docker machine env shell cmd vdocker' DO i
+docker run it LINKLINK 
+
+The vdocker VM loaded and started, but never got the linux shell. Maybe didn't wait long enough or can it be launched from VM?
+
+Also, any tips for setting up the files from LINKLINK Tensorflow Python implementation so as to run on vdocker via Python commands or better yet ipython notebook commands? Thanks again for the docker install! 
+I got far as getting to the python in cmd but for some weird reason if I try to do the same thing in powershell, I get a TLS connection error saying host is not running or the connection times out. 
+
+Is this due to error in my powershell configuration? I'm not too familiar with powershell but I prefer to work from there as opposed to the default cmd. Any ideas on how to circumvent this issue?
+Got TF to work in an elementary OS ubuntu virtual machine in Windows 10, gave up on running TF in docker. 
+Does anyone know if it is possible to use Conda installations simultaneously with tensorflow running through Docker? I have packages I need to use that can only be installed through Conda. Thanks!
+For prototyping I would suggest stick to vritualbox solution. 
+I installed tensorflow and theano in virtualbox ubuntu with windows host, and made some comparison with purely windows intallation of theano. I found little to no difference in speed between virtual box and pure winodws theano versions; Furthermore, I found that tensorflow in virtualbox is even slightly better 25 faster for cnns compared to windows theano in single threaded mode. Furthermore, both windows and vm theano has some threading problems runs in 1 thread which I did not figure out yet, but which makes tensorflow 2.5 times faster with cnns overall on my system compared to theano for cpu computations.
+ iaroslav ai, thanks for the update!
+As long as you run it on the CPU that's correct. They should be pretty much equally fast. However, the major intention to get Tensorflow natively running on Windows is to be able to use the GPU. That's not possible from within a virtual machine. At least not when using Windows as the host.
+ SeveQ, yes, you are correct. For the case of host other than Windows, do you mean LINKLINK? Would be really cool to have it on Windows. For those who would like to dig further into virtualbox direction, there is LINKLINK, which LINKLINK, and is LINKLINK. But then it might be easier as of now if GPU usage is absolutely necessary for example use ubuntu on usb drive.
+ iaroslav ai Yepp, exactly. More precisely PCI E passthrough which afaik isn't possible in Windows. And I agree, best way to go for the time being is to use Ubuntu. Be it on a USB stick or a second partition. However, as I mentioned in another issue here, dual booting is a pita. Especially if you're a hobbyist and want to do hobby hopping between gaming and Tensowflowing every now and then. For this case and I want to believe for others too it'd be really awesome to have Tensorflow working natively and with GPU support on Windows. 
+
+
+Unable to find image ' LINKLINK ' locally
+
+docker: Error response from daemon: unable to ping registry endpoint LINKLINK 
+ LINKLINK 
+v2 ping attempt failed with error: Get LINKLINK: dial tcp 64.233.188.82:443: i o timeout
+The Linux shell to write python code or jupyter notebook in browser, nothing pops out. I tried to run the the jupyter manually on browser, didn't work. After the commands I'm attaching below, it doesn't do anything. I am using Windows 10.
+ LINKLINK 
+I have the same problem as above, how to fix it?
+You need to punch a tunnel through the docker VM network for the port Notebook runs on. IIRC this is done by adding CODESCODES to the CODESCODES command.
+To add further clarification, the jupyter notebook will be at the DOCKER HOST address. For me this is 192.168.99.101. Opening a browser on the host and loading LINKLINK gives a jupyter session.
+ anj1 Exactly. Thanks. You still need the tunnel, though. Since Docker usually needs to have the same operating system on the Docker host system as it's in the Docker container well, parts that is you need a Linux VM to run a Docker container that is based on Linux under Windows. Docker itself opens port 8888 between the VM and the container. You have to explicitly tell it to forward the port from the outside of the VM to the open Docker container port by using said parameter CODESCODES. 
+Thanks a lot SeveQ and anj1. It worked. Now tensorflow is running on my Windows 10. 
+ sarahharun Hi, would you please share the details about how to make it, I still can not run, 
+ sarahharun You're welcome!
+
+Anyway, it's still running without GPU support only. I feel like I have to mention this again. That's the major purpose of getting it running natively on Windows.
+ luling2010, sure. Run the folowing command to create a docker virtual machine:
+ docker machine create vdocker d virtualbox Check your Oracle VM, whether vdocker is running or not in my case it was shut down. Start it, if its stopped.
+ LINKLINK In a cmd window type the following:
+ FOR f tokens i IN 'docker machine env shell cmd vdocker' DO i
+ docker run it p 8888:8888 LINKLINK Run this url LINKLINK to your browser 
+ sarahharun Thanks a lot, now I can run tensorflow at LINKLINK. But I still can not run at docker terminal or Windows CMD, is that normal?
+You are most welcome luling2010. Yes, I also can not run the docker terminal or windows cmd. But as I can run my python code in the notebook, I think it will work for now.
+I have the same issue, how do I run the terminal to execute. Mine is hung on the server, I can reach jupyter but would like to execute.
+ sarahharun Hi i am having problem with running tensor flow in command prompt, i followed all your four point that u said to luling2010, im still not able to get Linux shell to write python code, and execute tensorflow
+ sarahharun hi supporse if i want to run following code, how do i do it in jupyter
+ python. 
+
+
+
+
+
+
+
+
+
+
+Hi i am able to open a jupyter notebook and want to execute the above code in it. can somebody tel me how to execute the above code in jupyter notebook
+ e3024650 Just paste it into a Notebook cell and execute the cell? We can't tell you anything unless we know what your problem is.
+ SeveQ Thanks for the reply, wrote above code in notebook cell and clicked on run button, button i am not able to see the output. i want to see the output of the above code.
+Do you see any output at all? Is the notebook kernel running and set as a python2 or python3 kernel?
+No i dont see any output when i click on run button, instead i see one more cell getting created at below, 
+
+ LINKLINK 
+Looks like the cell isn't executed. Select the cell and press CTRL+ENTER or SHIFT+ENTER. That's the shortcut for execute respectively execute+select next cell 
+Oh. I've just realised. it seems your Notebook isn't connected to the kernel the disconnection symbol in the upper right corner next to Python 2. You have to check why your Notebook isn't running properly. Any chance that we get to see the console output of your Jupyter session?
+Should look like this: 
+ LINKLINK 
+I tried with the following options,
+ LINKLINK 
+But Soon its getting disconnected, not able to withstand the connection.
+Weird. what does the output of the CODESCODES command at the command line say?
+I dont see the output of the jupyter notebook command at the command line, where we get to see the output if everything runs fine?
+I'll have to install Docker and the container on my machine again to check. will take some time. If anyone else could help in the meantime. 
+ok no problem, i will try fixing it. meantime if anybody know the solution for this problem, it would be great! Thanks you for your time SeveQ 
+This is what my CODESCODES command looks like. Seems something has changed since I don't have to run CODESCODES manually anymore IIRC there was only a command prompt like CODESCODES or something couple of months ago. 
+
+ LINKLINK 
+
+What does your output of CODESCODES say? Are there any error messages?
+This is how my windows command prompt looks like,
+ LINKLINK 
+
+i dont think their is any error in the cmd promt
+Hmm. the restarts and interrupts and closes have all been executed manually by yourself? 
+Yes
+Manually i have executed from the notebook interface, but still i am not able to get my kernel up!
+Due to which i am not able to run any code.
+That's really weird. I'm sorry, I can't help you much more with this as I can't tell why your kernel isn't coming up. I don't see anything in the message log that might point towards where the problem is. 
+
+Someone else maybe?
+ SeveQ, Thanks for this discussion and I finally launched tensorflow on Jupyter. But I failed to launch TensorBoard on Jupyter. I got the message: You can navigate to LINKLINK, But I cannot open the url. Which IP address should I use?
+ LINKLINK 
+ helenahan2015 The IP is the one of your Docker VM which should be shown during the CODESCODES command which should be something like 192.168.99. xxx. The port is important too. You'll also have to forward the Tensorflow Board port through the VM. It should be possible to use multiple CODESCODES parameters for CODESCODES. In this case try adding CODESCODES and CODESCODES to the CODESCODES command to forward both ports. Hope that helps.
+ SeveQ Thank you very much! As you said, use cmd docker run it p 8888:8888 p 6006:6006 LINKLINK and it works now.
+ helenahan2015 Hi Let me know how u r executing tensorflow i, e R u executing tensorflow through windows cmd prompt or Jupyter Notebook which gets hosted at docker host address.
+Hi I have a question: I downloaded tensorflow image from docker pull LINKLINK 
+docker hub, i was able to see the list of docker images by docker images commad. But next time when i issued docker images command in the terminal i was not able to see the tensorflow images in the list of images locally. Any idea why i am not able to see the downloaded image.
+Hi All, Now i am able to run python commands in docker terminal by following these instruction given in this url LINKLINK in windows mcahine, earlier we had some issues were we are not able to run the python commads in docker terminal and istead we are notebook app. with this you guys can run tesorflow commads in docker terminal itself.
+ LINKLINK 
+ e3024650 Sorry for my late reply. Yes, I execute tensorflow in Jupyter Notebook which gets hosted at docker host address. 
+ helenahan2015 Did u try running tensorflow on your docker terminal?
+ e3024650 Yes. I've tried and it works. Thank you!
+ sarahharun Hi, I found a problem, when I try to restart my computer, I can not connect to LINKLINK do you have the same problem and how to fix it.
+I got this working using Docker. I restarted my computer and now it doesn't work. Uninstalled Virtual box and Docker toolbox, restarted, installed again, no luck!
+
+I am using CODESCODES to run it. 
+
+You can see the screenshot of the terminal window.
+ LINKLINK 
+
+The error might be related to Virtual Box cause I can't run the default VM; 3 error windows pop up. I couldn't fix the errors related to VM. My device is Surface Pro 3 with Windows 10. Anyone can help?
+
+ update: 
+Now the VM works and it's running. But I can't open Ipython Notebook in the browser.
+
+ update 
+I got mine working finally using the Kitematic tool that comes with Docker Toolbox. It starts in a random port. There is a direct link to launch the Notebook from Kitematic tool.
+installation windows fails
+tensorflow
+
+Microsoft Windows c 2013 Microsoft Corporation. All rights reserved.
+
+
+Collecting tensorflow
+ Could not find a version that satisfies the requirement tensorflow from versi
+ons: 
+No matching distribution found for tensorflow
+You are using pip version 8.0, however version 8.1 is available.
+You should consider upgrading via the 'python m pip install upgrade pip' comm
+and.
+
+
+ helenahan2015 Hi, I use the command: docker run it p 8888:8888 p 6006:6006 LINKLINK 
+but not work, I don't know how to set docker VM ip, FOR. command
+Could you tell me about this, thank you very much!
+p. s. I want to run tensorboard 
+But now I only can run tensorflow in jupyter
+ iamdrink2009 Sorry for this very late reply. Here is your VM ip. But I'm not very familiar with docker so I don't know how to set either. I suggested you to use Chrome and I failed with IE or Edge to open tensorboard before. 
+ LINKLINK 
+ SeveQ Hii. I use the command: docker run it p 8888:8888 LINKLINK but it says that port 0.0.0:8888 already allocated. what now should I do. plz help
+ LINKLINK 
+ HWiese1980 hii. plz help me 
+ Saleem44 Well, then there's something else running on port 8888 on your host system. Maybe a web server. anyway, you can chose whatever port you like above 1024, rule of thumb for your external forwarding. Just change the number, I think someone correct me, please, if I'm wrong, k, thx! before the colon like CODESCODES and see if you can find a free port. All you've got to do then is call the notebook via another port on your host. So it's not on CODESCODES anymore but as given in the example on CODESCODES. For instance you could use the pretty arbitrarily chosen port 5776 which should be free on most systems. so your start command for docker should be like CODESCODES. 
+
+Hope it's correct and that it helps. 
+ HWiese1980 Thanx for quick reply. I choose that port as you said but now that it give me warning again
+ LINKLINK 
+ Saleem44 you can safely ignore that warning. It just states that the notebook accepts incoming connection on all ports. That could be a security issue in case the host of the notebook session the docker container in this case was connected directly to the internet. That shouldn't be the case under normal circumstances. 
+ HWiese1980 then how can I use tensorflow because I can't be able to import tensorflow 
+ Saleem44 Does your notebook show when you open CODESCODES in your host's browser? 
+ Hwiese1980 no its not open. Firefox can't establish a connection to the server at localhost:5776
+my jupiter notbook run on 8888 as you can see here
+ LINKLINK 
+ helenahan2015 Thank you for your help,
+But I can't start tensorboard. Maybe I will search other way to slove the problem.
+Now I can try to start tensorflow on IPython.
+thank you 
+ Saleem44 Huh. this is a tough one. I can't test it myself here because I'm on a metered connection for the time being and don't have the docker container on my PC anymore due to a complete Windows reinstall. 
+
+So you have a notebook directly running on your host, right? If you do, it is the reason why port 8888 is already in use on your host. That's that notebook server running outside of the docker container. That notebook cannot import tensorflow because it would require it to be installed directly! on your host. For running a tensorflow session you don't need a notebook server running outside of docker! And the tensorflow docker container launches a notebook itself as you can see in your images. 
+
+What you could try: stop the notebook server running directly on your host and start CODESCODES with CODESCODES again. Then access localhost:8888 in your browser and see if it's the notebook server from inside docker that's answering.
+ hwiese1980 I stop notebook and rerun the command. p 8888:8888. now it doesn't say that port is already allocated. But it still not open notebook on LINKLINK or on localhost:8888
+ LINKLINK 
+ HWiese1980 is there any solution
+ Saleem44 Can you give the network settings of your local network? The local IP address of your PC, the subnet mask and the default gateway? It may have something to do with why you cannot reach 192.168.99.101. Could you also try pinging it? 
+
+If you have a subnet mask of 255.255.0 that means that both devices, the one over which you access the internet, and the virtual one of the VM are in the same subnet. Your default route will point to your outgoing connection and thus the packet routing can't reach the VM. This might be the cause. 
+
+Another thing I must admit is that I'm not sure CODESCODES would work at all. I think you have to use the external IP of the VM. 
+
+I would really like to help but I can't reconstruct the situation at the moment, like I already mentioned, due to the metered connection I'm on. 
+I got a problem after restart the PC, Yestoday, all the things were right using the command:
+ docker machine create vdocker d virtualbox
+ In a cmd window type the following:
+ FOR f tokens i IN 'docker machine env shell cmd vdocker' DO i
+ docker run it p 8888:8888 LINKLINK 
+But today, when I run the command 'docker run it p 8888:8888 LINKLINK ', I got this error: docker: An error occurred trying to connect: Post LINKLINK: open. pipe docker engine: The system cannot find the file specified. 
+
+In Docker Quickstart Terminal, I input 'docker machine ls', I got this:
+ LINKLINK 
+Did any one know how to solve this problem?
+thx!
+I know the problem, the machine ip has changed after restart the PC, so input this command 'docker machine regenerate certs ' before input the command 'docker run'. 
+Finally remember to change the ip addr in the url.
+Hi all, espacially HWiese1980 
+nice to see you guys here.
+I want to run tensorflow in Kitematic. 
+I have installed python 3.1 tensorflow: latest
+I run python: click on DOCKER CLI, powerShell opens type this command: docker run it python result: this sign shown in command line: that means we are in python
+
+ Now, let me ask stupid question: where to type this command:
+
+import tensorflow as tf
+matrix1 tf. constant 
+matrix2 tf. constant, 
+
+ product tf. matmul matrix1, matrix2 
+
+when I type import tensorflow as tf in python after 
+it ways: there is no such model
+
+Furthermore, I have installed VIM Installed Sublime Text
+ I guess that maybe I should type in vim. but do not know how to make it appear. also sublime 
+Please instruct me! I think one problem with images in Kitematic is: THERE ARE NO GUI for them.
+always black screen, always command line. i think all windows users dislike this.
+I'm sorry I can't do that much at the moment. Like mentioned earlier my internet connection is very slow and metered, limited to 2 gigabytes a sad joke in my book per day these days. ISP has set the date for switching on my new connection anytime today Thursday. Until then I cannot download the Docker container nor anything else larger than about 50 megabytes in one go. It's annoying but it's the way it is. 
+
+Once I have a good connection again I'll get back to the issues mentioned here, try to reproduce them and see if I can help again. No promises, though! ; 
+Hi HWiese1980, 
+No problem, I wait.
+By then I am struggling by myself.
+
+deep regards 
+Wali
+ filR Don't all of the pip install examples specify Linux or OS X but never Windows?
+Hi guys, 
+
+ CODELCODEL 
+
+docker ps
+ This command list docker machine in execution, you need 3 first character from conteiner ID
+ LINKLINK 
+
+So you can execute docker exec and pass initial 3 chars from conteiner id
+
+docker exec ti 4db bash
+
+ LINKLINK 
+ sarahharun I had the same issue I installed tensorflow on windows via docker, the following was what I tried, and it solved the problem: in docker terminal run:
+ docker run it p 8888:8888 p 6006:6006 LINKLINK 
+ make sure port 8888 is not allocated, otherwise stop container that uses 8888 or give another port check your VM's address, this can be done by:
+ docker machine ls say your VM's address is 192.168.99.101, then on your home machine, open a web browser, type in the following link:
+ 192.168.99.101:8888
+
+NOTE: I just ignored the warnings something like WARNING: The notebook server is listening on all IP addresses and not using authentication. This is highly insecure and not recommended.
+
+
+I installed and everything is running successfully but my Jupyter notebook has just one kernel for example Python 2 by default.
+I want to run a code on Python How to proceed?
+My docker won't start up it said Failed to create VM MobyLinuxVM: Failed to get the disk in. 
+This message occur on a red whale icon after it installed Hyper V and reboot the Windows.
+So I cannot run this command: CODESCODES 
+Here's the output:
+
+ CODELCODEL 
+
+They said this occur because I already have VirtualBox installed, turning on the flag below would help.
+So I try turning on the flag virtualbox no vtx check and here's the result:
+
+ CODESCODES 
+
+ CODELCODEL 
+
+Does anyone here know how to make the docker runs. I've spent a lot of time finding the solution on Google and it's very painful no one have posted the solution.
+ rajmiglani same issue here. Did you ever figure out a solution? Not sure why it's defaulting to Python 2
+ VincentLa no i rather switched to AWS and built over the cloud.
+I try to work out every solution available over the internet but none worked unfortunately.
+Hi, I followed the instructions and yesterday I was able to play with tensorflow on jupyter, but today I opened docker and typed docker run it p 8888:8888 LINKLINK and it downloaded again and in docker machine looks like everything is ok, but when I open the browser it says the server needed too much time to answer and im unable to connect. Could someody please suggest a solution?
+can be a temporary network issue. kindly check the docker machine if its on.
+Hey, it works now. I the docker machine was running so it must have been network problem. I have a stupid question, so this time I run vdocker machine and typed docker run it p 8888:8888 LINKLINK and the files I created the day before were missing. I'm pretty sure thats not the right way to open a new session, cause if it was then I am basically downloading it every time I start a session. Whats the right way to do it?
+in docker terminal: docker machine vdocker restart
+to check if its running: docker machine status vdocker
+in CMD:
+FOR f tokens i IN 'docker machine env shell cmd vdocker' DO i
+docker run p 8888:8888 it LINKLINK 
+hi everyone
+
+after I type the follwoing in cmd
+docker run p 8888:8888 it LINKLINK 
+
+the terminal returned:
+Could not read CA certificate. the system cannot find the path specified.
+
+is there anyway to fix this?
+ rajmiglani thx for previous help, did you by any chance figure out how to set python 3 on jupyter?
+Dear all. I just wanted to make you aware that it is now possible to install and run TensorFlow in the Linux bash shell available in Windows 10 after its Anniversary Update, at least the CPU only version.
+ lunzueta How exactly?
+ off99555 First, you need to install the Linux bash shell like this: LINKLINK 
+Then, just follow the instructions explained here to install TensorFlow in Linux: LINKLINK 
+I've tested the CPU only version for Python 2.7 with the mnist example of the tutorial, because I couldn't install CUDA I guess it isn't possible yet. I've also tried to compile TensorFlow from scratch but I couldn't because there seems to be a problem with Bazel LINKLINK.
+ All you need may be a link. LINKLINK 
+After I followed the link, restarted the system after turning on Linux features. There is still no bash available. Opening cmd and type bash yields 'bash' is not recognized as an internal or external command.
+My Win 10 Build: 14393.51
+ off99555 I heard that Win10 could use ubuntu bash. 
+ LINKLINK 
+ LINKLINK 
+
+I followed the link LINKLINK in Windows7 Ultimate 64bit. And I encountered I o timeout error which caused by China Great Fire Wall. 
+I tried installing docker for tensorflow but it needs windows hyper v which is only available on windows pro not windows home edition.
+When I followed sarahharun 's instruction and came to step 2, I was warned the vdocker was unable to start, so I deleted the it from Oracle VM VirtualBoxI and unstalled the Docker Toolbox version 1.12. Cit version 2.0 and Oracle VM VirtualBox 5.24, because I thought this could clean the installation history and I will be able to install docker again. Then I thought netinstructions 's instruction might be easier to follow. However, it got into trouble.
+ LINKLINK 
+Hi. For Windows you can Follow these steps: Install Docker Toolbox. In your Docker Terminal, write
+ docker pull LINKLINK for light weight tensorflow
+
+docker pull LINKLINK for full version Then check the docker image repository by the command:
+ docker images In your image repository you will find tensorflow and IMAGEID
+ And now issue the command:
+
+winpty docker run it Tensorflow Image Id you Have Noted Down
+
+That’s it. You will be taken to the root prompt and now you can call python from here and start working with tensorflow commands.
+
+ 
+1 get windows 10 anniversary
+2 Install Windows Subsystem for Linux Beta, which enables developers to run native Ubuntu user mode console binaries through the Bash shell in Windows 10.
+3 Follow tensorflow install instruction.
+
+ LINKLINK 
+I've got it working on Windows 10 by installing Docker Toolbox Not the new
+Docker which is advertised as cooler 
+
+ Andre Maciel de Amorim 
+wrote:
+1 get windows 10 anniversary
+2 Install Windows Subsystem for Linux Beta, which enables developers
+to run native Ubuntu user mode console binaries through the Bash shell in
+Windows 10.
+3 Follow tensorflow install instruction.
+
+ 
+You are receiving this because you were mentioned.
+Reply to this email directly, view it on GitHub, or mute the thread.
+
+Sincerely, Chanchana Off 
+Based on my most recent experience today, I wrote an elaborate article that talks about glitches and gotchas on installing Tensorflow on Windows 8 machine.
+ LINKLINK 
+I felt it's pretty easy to use ' Windows Subsystem for Linux WSL ' way of installing TensorFlow on Bash on ubuntu on windows. The procedure is very simple and it's available in masthege blog. 
+Greetings to you all, Now I have also tried the two ways to use Tensorflow on windows. And got errors on both sides. Now the first way I got is from Docker it failed to connect and said error in network missing. second error is from Installing Tensorflow via Anaconda, and I am running Jupyter Notebook python but after installing Tensorflow I can't run the testing code in Tensorflow. 
+
+ File, line 4
+ print sess. run hello 
+ 
+SyntaxError: invalid syntax 
+
+Any help on this errors, highly appreciated! 
+Thanks!Kamatio are you running Python 3. x? If so, you need parenthesis around the argument to print. for example print sess. run hello Thanks dear jerrykur I have even those parenthesis before, but failed. Now I have got another error looks Tensorflow may not installed. This one 
+ 
+ImportError Traceback most recent call last 
+
+ 1 import tensorflow as tf
+ 2 hello tf. constant 'Hello, TensorFlow!' 
+
+ 4 print sess. run hello 
+ 5 Hello, TensorFlow
+
+ImportError: No module named 'tensorflow' 
+
+Still trying possible ways to run Tensorflow on windowsToday we LINKLINK, with packages for Python 3. If you have installed the 64 bit version of Python 3.5 either from Python. org or Anaconda, you can install TensorFlow with a single command:
+
+ CODELCODEL 
+
+For GPU support, if you have CUDA 8.0 installed, you can install the following package instead:
+
+ CODELCODEL 
+
+Please open a new issue if you have problems with these packages, and thanks for your interest in TensorFlow on Windows! Finally! The time has come. So I don't have to use Docker without utilizing GPUs anymore.Thank you! great news.Wooh, Great update. and Last Saturday lost my windows partition files trying to install Ubuntu on Windows machine to use Tensorflow. Thanks to Testdisk software helped me to retrieve some. Now let us try this Tensorflow on windows.Holy mother of god! I didn't sleep very well last night but this is great news to untimely wake up to. Installing CUDA 8 right now had to reinstall my Windows a couple of weeks ago and didn't bother yet to also install CUDA!Oh, and just to inform you: with the corresponding wheels Keras now works with Tensorflow backend on Windows as well. I've just tried it: LINKLINK 
+
+You need the wheels of CODESCODES and CODESCODES for your system 32 or 64 bits from there: LINKLINK and you need to configure your Keras appropriately to use Tensorflow as backend. That should do the job.  HWiese1980 May I write you privately? Thanks!
+ Kamatio Sure! I have to mention that some things regarding Keras still don't seem to work. I can run many of the examples shipping with the Keras git repo but some just respond with several different error messages. 
+
+But this repo here is about Tensorflow, so. just wanted to mention it. Can someone advise me how to run these function imports on recent released tensorflow on windows? 
+ import audioTrainTest as aT
+import audioBasicIO
+import utilities 
+Have tried all ways to correct the errors but it failed. I am using Anaconda, Python 3. 
+Thanks! ry Hi,
+
+I am trying to install Tensorflow in windows machine through Docker. I have also installed iPython. See below image for details.
+ LINKLINK 
+
+If i am running the command docker machine ls, it is giving me below result in docker quick start terminal. I had already created a virtual machine vdocker.
+ LINKLINK 
+
+When i am trying to run below code in cmd. exe, i am getting this.
+ FOR f tokens i IN 'docker machine env shell cmd vdocker' DO i
+docker run it LINKLINK 
+
+ LINKLINK 
+
+Also python window is not opening even if i am trying to open through browser.
+ LINKLINK 
+
+Could you please tell me what is happening?
+
+Thanks in advance!But Tensorflow is now compatible with windows, May be no need to install it via Docker. Just consult LINKLINK and install on windows. I am not familiar with docker, but I agree with Kamatio that running natively is the best option, unless you need the Docker environment. 
+
+I run TensorFlow natively on my Windows 10 system with Juypter was iPython and it works great. The only glitch is that installing Tensorflow into a conda environment, instead of system wide, is not yet supported.it seems that this issue also happens with Docker images. For example, if you try to do 
+
+ CODESCODES 
+ 
+it freaks out with the notebook security warnings and doesn't open a bash shell.Hello I am running Tensorflow examples on my Win 10 machine with Python 3.2 and latest TF 0.12.0 those out of the box and seeing errors on several of them. Seeing several errors. For example, the wide N deep tutorial is throwing the following along with lots of deprecation messages 
+
+Traceback most recent call last:
+
+
+
+ sys. exit main sys. argv + flags passthrough 
+
+
+
+ m. fit input fn lambda: input fn df train, steps FLAGS. train steps 
+
+ max steps max steps 
+
+ return func args, kwargs 
+
+ max steps max steps 
+
+
+
+ m. fit input fn lambda: input fn df train, steps FLAGS. train steps 
+
+ for k in CATEGORICAL COLUMNS 
+
+ for k in CATEGORICAL COLUMNS 
+
+
+Any idea where this could be from? I did a git pull for TF again to ensure I have latest examples.Sadly one nasty part is the integration with Google's Cloud Dataflow like in LINKLINK. You now have the choice of having TensorFlow supporting only Python 3.5 or Apache Beam SDK supporting only Python 2. but not both. 🙈 This below link explain step by step with screenshot to install tensorflow on windows, docker not required.
+ LINKLINK 
+
+Hello everybody.
+
+I was trying to install tensorflow with pip commands and it was not supported. I am using windows system and python 2. The tflearn was possible to install. Do you have any suggestions?  raphaccgil Hi. Tensorflow is not yet supported on Python 2.7 on Windows System. Instead you can do the following: Install Python 3 3.5  Go to python installation folder using CMD cd to Scripts folder. Use command: 
+ pip3. exe install tensorflow
+
+It will install perfectly.
+Check your installation using:
+ import tensorflow as tf
+in IDLE.
+Hope this helps thumbs up  LINKLINK 
+
+Tried installing GPU and CPU versions. 
+Cannot install either and I am getting error as per screenshot above.
+
+Info 
+I have Anaconda 3 installed on my system
+Python 3.6
+Windows 10
+i7 16 gigs ram
+Intel HD Graphics 520
+ NitinMahajan1 Hi. Try to install it as follows:
+ Install Python 3 3.6  Go to python installation folder using CMD cd to Scripts folder. Use command:
+ pip3. exe install tensorflow
+
+It will install perfectly.
+Check your installation using:
+ import tensorflow as tf
+in IDLE.
+Hope this helps thumbs up iget this error:
+tensorflow gpu thumbs down.0 cp35 cp35m win x86 64. whl is not a supported wheel on this platform.
+I have a geforce gtx 970 and windows 10 x64 home edition and anaconde python 3.6 is already installed!
+what is the problem?  ehfo0 It requires Python 3.5 ehfo0: when you want to download the wheel package, pay attention to the CODESCODES section. 
+tensorflow gpu thumbs down.0 cp35 cp35m win x86 64. whl
+cp35 means it needs python 3.  sunsided and Coderx7: Thanks for helping out ehfo0!
+
+This thread is getting a bit long, so I'm going to lock it for new conversation. If you have new questions about Windows support, please try Stack Overflow first, or open a new issue here if there appears to be a bug or you have a new feature request.

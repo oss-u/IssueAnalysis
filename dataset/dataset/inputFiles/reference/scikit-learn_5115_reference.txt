@@ -1,0 +1,21 @@
+I've been intermittently running into this issue in the subject with GridSearchCV over a year now, across python 2. 3. and 3. two jobs, several different mac osx platforms laptops, and many different versions of numpy and scikit learn I keep them updated pretty well.
+
+I've tried all of these suggestions and none of them always work:
+
+ LINKLINK Setting multiprocessing start method to 'forkserver'
+ LINKLINK Having issues ONLY when custom scoring functions are passed I've absolutely had this problem where the same GridSearchCV calls with n jobs! 1 freeze with a custom scorer but do just fine without one 
+ LINKLINK Setting environment variables from MKL thread counts I have tried this when running a numpy sklearn built against mkl from an Anaconda distribution 
+Scaling inputs and making sure there are no errors with n jobs 1 I'm completely sure that the things I'm trying to do on multiple threads run correctly on one thread, and in a small amount of time
+
+It's a very frustrating problem that always seems to pop back up right when I'm confident it's gone, and the ONLY workaround that works 100 of the time for me is going to the source for GridSearchCV in whatever sklearn distribution I'm on an manually changing the backend set in the call to Paralell to 'threading' instead of multiprocessing.
+
+I haven't benchmarked the difference between that hack and setting n jobs 1, but would there be any reason to expect any gains with the threading backend over no parallelization at all? Certainly, it wouldn't be as good as multiprocessing but at least it's more stable.
+
+btw the most recent versions I've had the same problem on are:
+ Mac OS 10.5
+ Python 3.3: Continuum Analytics, Inc.
+ scikit learn 0.16.1
+ scipy 0.16.0
+ numpy 1.2
+ pandas 0.16.2
+ joblib 0.4

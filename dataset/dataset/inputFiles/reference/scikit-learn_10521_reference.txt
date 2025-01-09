@@ -1,0 +1,6 @@
+The idea of reverting CategoricalEncoder makes me quite sad, but I think
+you're right that future users would be less mystified by option My main
+concern is that we have tried implementing this as a change to OHE for a
+long time and it never flew. Perhaps it would be good to attempt the
+modifications to the OneHotEncoder docstring according to that proposed
+change, so we can see if it looks sane.

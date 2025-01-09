@@ -1,0 +1,11 @@
+Hi,
+
+I am new to Python and Anaconda. I installed anaconda and install Scipy. When I try import scipy in the Python in command prompt on the Anaconda prompt, it works fine as below 
+
+ CODELCODEL 
+
+But when I use the same in the Jupyter notebook, I am getting 
+
+ CODELCODEL 
+
+Please let me know how to solve this issue.

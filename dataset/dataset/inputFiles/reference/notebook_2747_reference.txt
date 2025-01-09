@@ -1,0 +1,1 @@
+I've just released rc3, which includes a change to hopefully fix this error I could never reproduce it, so it's hard to tell if it's fixed. Can you try upgrading and see if it works?

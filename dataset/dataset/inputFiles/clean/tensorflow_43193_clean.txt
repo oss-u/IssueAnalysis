@@ -1,0 +1,235 @@
+I got this issue when I run import tensorflow as tf in command line
+
+
+2020 09 thumbs down 3 17:53:34.644899: W tensorflow stream executor platform default dso loader. cc:59 Could not load dynamic library 'cudart64 101. dll'; dlerror: cudart64 101. dll not found
+2020 09 thumbs down 3 17:53:34.649089: I tensorflow stream executor cuda cudart stub. cc:29 Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+
+I use win10 and install the CUDA and cuDNN
+But I don't understand why this still happened.
+ LINKLINK 
+ LINKLINK 
+Please CODESCODES for CUDA 11After I tried pip install tf nightly, it still shows the same error I think
+ LINKLINK 
+Is not the same error cause now it is looking for CODESCODES.
+
+Are you compilant with these steps?
+
+
+
+
+
+
+
+ You will find more on Windows tabs at LINKLINK 
+
+
+
+
+
+
+
+
+
+
+
+I think the problem is solved after I Download and install the Microsoft Visual C++ Redistributable.
+Thank you so much!You need also to rely on CODESCODES for CUDA 11 untill TF 2.4 is released.I tried to use the example given by LINKLINK 
+
+it still shows some errors but evenlty output the 3
+will this be a problem?
+ LINKLINK 
+Check that your software requirements are ok LINKLINK 
+
+I think I have everything it required.
+And after I update my GPU driver, it shows the same error as the beginning.
+ LINKLINK 
+
+Have you double checked the CODESCODES?
+
+I run all four Path in LINKLINK.
+But it still missing for 110Have you changed the documentation PATH strings for your CUDA 11 doc has CUDA 10? 
+Have you checked that these paths exist on your system?
+
+
+
+
+ LINKLINK 
+ LINKLINK 
+At the beginning, I copy the cuDNN's file to bin include and lib respectively, I tried to add a Path directly to cuDNN and it is still having this errorHave you set in PATH
+
+
+Do you have this dir in your system?
+
+Yes, and I already added to the path, but it still shows the errorThis is all the PATH I have, I think I already include all that required
+ LINKLINK 
+ LINKLINK 
+Open CODESCODES.
+What file do you have there?
+Can you see the CODESCODES?I think I only have cudart64 110. dll
+ The one that I highlighted 
+ LINKLINK 
+Yes was a typo It is correct. 
+On the same terminal where you are trying to launch Tensorflow can you verify that you have the new path with CODESCODES?Yes, I believe I have this path in PATH
+ LINKLINK 
+I see a typo there:
+ CODESCODES 
+
+
+Yes, It is the path to cuDNN, After I download the cuDNN, I copy the bin in cuDNN to here. 
+I have both:
+
+
+
+Before I add the 
+
+it still doesn't work, so I tired to add it
+And I delete it from PATH, it still has the same errorDo you meant v11.0 or v11?
+
+I mean v11. I delete the one bin bin
+but it is still not workingIs a python 64bit installation?Yes, I think I install the 64bit version?
+And the version I have is 3.5
+ LINKLINK 
+ CODESCODES  LINKLINK 
+Ok It is 64bit.
+
+So if you have CODESCODES in the PATH and you have CODESCODES there It is strange that It gives you not found on this file.
+
+
+
+yeahhh. very strange, I am not sure what to do in this case.Can you try to close and open the terminal with python and try again?
+
+So I close the old terminal and reopen it, this is what I got after try to import it
+ LINKLINK 
+I think it is still the same errorYes Is the same. 
+If the PATH Is currect I only see this old case that required a reboot LINKLINK 
+
+
+Just come back from the reboot, it still shows not find the 110
+Have you installed python from the Microsoft store?I believe I install it from offcial website, I don't even know they have it in the Microsoft storeMhh. Cause if It was the Microsoft one it Is sandboxed: LINKLINK 
+
+You can try to reinstall tf nightly in a fresh venv LINKLINK Hello, 
+I had the same problem but my tensorflow was asking for the 101 DLL which is found in version 10. Maybe try with version the version advised here: LINKLINK? I have the exact same thing: tf nightly, cudart64 110. dll on the path, yet the message is that it isn't found.
+This is in a venv, if that matters.
+ CODELCODEL 
+
+ CODELCODEL 
+ CODELCODEL 
+
+Can you try to print from python CODESCODES and check that you see the correct cuda paths? CODELCODEL I should mention, I have the cudnn64 8. dll which seems to correspond to the cudart64 110. dll. The docs only mention the cudnn64 7. dll adamx97 It is ok for nightly. CalendulaED,
+Any updates regarding? Is this still an issue? Thanks!
+
+
+I believe I still have the problem of missing 110
+ LINKLINK 
+And I do have 110 in the folder I believe
+ LINKLINK 
+ CalendulaED can you try with a fresh CODESCODES LINKLINK?
+
+I try the venv, but It give me an error about environment error 
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+After I add user to it, I belive it still not workingThe idea was:
+ deactivate   don't exit until you're done using TensorFlow 
+
+so to install and try to use TF inside the venv. LINKLINK 
+I think this is inside the venv, but I still show the same errorsNow yes.
+Can you try to see if you can access to CODESCODES 
+ CODELCODEL I think import is not supported here
+ LINKLINK 
+It is python codeAlso it means you need to manually change it with your real cudart64 path It says false
+ LINKLINK 
+Ok so with false it seems that you have read permission problem with that folder. Are you sure that you have not installed python from the Windows store? Like in LINKLINK I believe I download it from LINKLINK 
+should I download this again?Can you try from command line to run CODESCODES?I am sorry, it said True, it misses a symbol in the line
+ LINKLINK 
+Ok can you run CODESCODES I can't directly type it, so I run it in python, I think it said 2.0
+ LINKLINK 
+Ok. the last thing.
+Inside the venv can you execute:
+ CODELCODEL Yes.
+ LINKLINK 
+The path seems ok to find cudart. Yes you can try to be sure to install and use python 64bit from LINKLINK  LINKLINK 
+I reinstall the python, but I don't think it makes a difference.
+ LINKLINK 
+Can you execute:
+ CODELCODEL Yes,
+ LINKLINK 
+Please re run outside the venv LINKLINK 
+yeh, it saids Microsoft windows apps?
+But I never download it from there, and I just download it from the official web site, why this happens. I understand but we cannot support you at this level cause it is not a Tensorflow bug. 
+You can try to find support for python installation at: LINKLINK 
+
+Or you can use Tensorflow with our Docker images LINKLINK I think I have the correct path now
+ LINKLINK 
+I think it give another different error when I tried to import tensorflow
+ LINKLINK 
+Prepare again venv with this version and install tensorflow with pip inside the venvInside the venv it also shows the same error 
+ LINKLINK 
+You need CODESCODES inside the venvafter install it, it shows missing 101
+ LINKLINK 
+if you are still with CUDA 11 you need nightly CODESCODES O, I think I can import tensorflow, but why do I need to run it in venv? So I can't run it without venv?When I tried to import tensorflow outside the venv, it will missing module, and I tried to upgrade pip, it shows the error
+ LINKLINK 
+
+This are windows permission issues of your shell. Please ask support to stackoverflow or other python support channels
+ LINKLINK 
+
+
+Thank you, I think I can run it without the venv, but what is the difference?Nothing specific is to maintain a clean separate environment.
+
+Ok, thank you so much! really help me a lotsI have to renamed these files in the bin folder to make it work:
+cudart64 101. dll cudart64 110. dll
+cusparse64 10. dll cusparse64 11. dll
+cudnn64 7. dll cudnn64 8. dll
+cublas64 10. dll cublas64 11. dll
+The reality is that each version of Tensorflow uses an specific Cuda and Cudnn. In my case, for TF 2.3 it is Cuda 11. Installing this one solves the problem.
+
+
+
+
+
+also encountered cusolver64 10. dll not found. when I checked the bin folder, it is named as cusolver64 11. dllI was able to solve this by following the software requirements here: LINKLINK 
+
+Here's my system:
+NVIDIA Driver 460.89
+CUDA 11.3
+CuDNN 8.5.39
+Python 3.2
+
+I also made sure that the CUDA was compatible with the CuDNN version by checking it here: LINKLINK 
+
+ LINKLINK 
+
+Finally, don't forget to set the installation directories to the PATH environment variable. LINKLINK 
+The key is to install Python from python. org. All versions from Microsoft App Store don't work. Tried both 3. 3. Once installed the official version 3.7 downloaded from python. org, everything is fine now.
+
+This is my current system:
+
+NVIDIA Driver 460.89
+CUDA 11.3
+CuDNN 8.5.39
+Python 3.7 from python. org 
+
+
+I also tried with CUDA 11.1. It also worked after renaming cusolver64 11. dll to cusolver64 10. dll. It's a known issue tracked in issue 44291.
+ LINKLINK.Hello, 
+Thanks aparico for the tip! It did work with this configuration and CODESCODES. However, the software versions in the software requirements section of the LINKLINK are not correct as they recommand CUDA 10.1 and CuDNN 7.6 and the install works with CUDA 11.0 and CuDNN 8. 
+Maybe this page needs update?  CUDA 11.2
+cuDNN 8.1
+tensorflow 2.5
+python 3.5 
+in virtual env write CODESCODES and get path.
+when taping CODESCODES get:
+ CODESCODES 
+
+Tried to install CODESCODES 
+I have been installing to main enviroment and to virtual enviroment, in both cases have got the same result.
+ VC redist. x64 installed
+
+ Solution:
+ CODELCODEL 
+Before importing tensorflow in virtualenv and still does not work in main env.
+Thank you for posting the os. add dll directory tip. I believe the behavior is by design for newer versions of Python on Windows. The Windows Path environment variable no longer works. That's what I'm guessing is going on.
+
+ LINKLINK 
+

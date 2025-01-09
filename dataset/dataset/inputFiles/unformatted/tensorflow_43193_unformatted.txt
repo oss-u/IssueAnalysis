@@ -1,0 +1,312 @@
+I got this issue when I run import tensorflow as tf in command line
+
+>>> import tensorflow as tf
+2020-09-13 17:53:34.644899: W tensorflow/stream_executor/platform/default/dso_loader.cc:59] Could not load dynamic library 'cudart64_101.dll'; dlerror: cudart64_101.dll not found
+2020-09-13 17:53:34.649089: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+
+I use win10 and install the CUDA and cuDNN
+But I don't understand why this still happened.
+![image](https://user-images.githubusercontent.com/68514251/93029699-06e4d080-f5eb-11ea-9948-a0133f0f8603.png)
+![image](https://user-images.githubusercontent.com/68514251/93029705-19f7a080-f5eb-11ea-9dc2-3087ff1379fe.png)
+Please `pip install tf-nightly` for CUDA 11After I tried pip install tf-nightly, it still shows the same error I think
+![image](https://user-images.githubusercontent.com/68514251/93029816-22041000-f5ec-11ea-82c3-ecbc5dafbe05.png)
+Is not the same error cause now it is looking for `110`.
+
+Are you compilant with these steps?
+> Install the Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017, and 2019. Starting with the TensorFlow 2.1.0 version, the msvcp140_1.dll file is required from this package (which may not be provided from older redistributable packages). The redistributable comes with Visual Studio 2019 but can be installed separately:
+
+> - Go to the Microsoft Visual C++ downloads,
+> - Scroll down the page to the Visual Studio 2015, 2017 and 2019 section.
+> - Download and install the Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019 for your platform.
+> - Make sure long paths are enabled on Windows.
+> - Install the 64-bit Python 3 release for Windows (select pip as an optional feature).
+ You will find more on Windows tabs at https://www.tensorflow.org/install/pip#windows> Is not the same error cause now it is looking for `110`.
+> 
+> Are you compilant with these steps?
+> 
+> > Install the Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017, and 2019. Starting with the TensorFlow 2.1.0 version, the msvcp140_1.dll file is required from this package (which may not be provided from older redistributable packages). The redistributable comes with Visual Studio 2019 but can be installed separately:
+> 
+> > * Go to the Microsoft Visual C++ downloads,
+> > * Scroll down the page to the Visual Studio 2015, 2017 and 2019 section.
+> > * Download and install the Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019 for your platform.
+> > * Make sure long paths are enabled on Windows.
+> > * Install the 64-bit Python 3 release for Windows (select pip as an optional feature).
+
+I think the problem is solved after I Download and install the Microsoft Visual C++ Redistributable.
+Thank you so much !You need also to rely on `tf-nightly` for CUDA 11 untill TF 2.4 is released.I tried to use the example given by https://github.com/tensorflow/tensorflow
+after I run the tf.add(1, 2).numpy()
+it still shows some errors but evenlty output the 3
+will this be a problem?
+![image](https://user-images.githubusercontent.com/68514251/93030111-963fb300-f5ee-11ea-9da7-d99c22056cfc.png)
+Check that your software requirements are ok https://www.tensorflow.org/install/gpu#windows_setup> Check that your software requirements are ok https://www.tensorflow.org/install/gpu#windows_setup
+
+I think I have everything it required.
+And after I update my GPU driver, it shows the same error as the beginning.
+![image](https://user-images.githubusercontent.com/68514251/93030924-de61d400-f5f4-11ea-9b65-5c38f8f99066.png)
+
+Have you double checked the `%PATH%`?> Have you double checked the `%PATH%`?
+
+I run all four Path in https://www.tensorflow.org/install/gpu#windows_setup.
+But it still missing for 110Have you changed the documentation PATH strings for your CUDA 11 (doc has CUDA 10)? 
+Have you checked that these paths exist on your system?> Have you changed the documentation PATH strings for your CUDA 11 (doc has CUDA 10)?
+> Have you checked that these paths exist on your system?
+
+Yes, I manually added it for the first three, but the last one "C:\tools\cuda\bin", I don't think I have this folder
+
+![image](https://user-images.githubusercontent.com/68514251/93032144-ba56c080-f5fd-11ea-8f1d-a22e5f4be87c.png)
+![image](https://user-images.githubusercontent.com/68514251/93032149-bdea4780-f5fd-11ea-9a9b-765b82a64ce9.png)
+At the beginning, I copy the cuDNN's file to bin include and lib respectively, I tried to add a Path directly to cuDNN and it is still having this errorHave you set in PATH
+SET PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11\bin;%PATH%
+
+Do you have this dir in your system?> C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11\bin
+
+Yes, and I already added to the path, but it still shows the errorThis is all the PATH I have, I think I already include all that required
+![image](https://user-images.githubusercontent.com/68514251/93033777-b169ed00-f605-11ea-8bfa-3f6206411067.png)
+![image](https://user-images.githubusercontent.com/68514251/93033781-b62ea100-f605-11ea-90b5-cc4ead6d14f6.png)
+Open `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11\bin`.
+What file do you have there?
+Can you see the `cudart64_100.dll`?I think I only have cudart64_110.dll
+(The one that I highlighted)
+![image](https://user-images.githubusercontent.com/68514251/93034064-d0b54a00-f606-11ea-991e-429bb7713d58.png)
+Yes was a typo It is correct. 
+On the same terminal where you are trying to launch Tensorflow can you verify that you have the new path with `echo %PATH:;=&echo.%`?Yes, I believe I have this path in PATH
+![image](https://user-images.githubusercontent.com/68514251/93034880-84b7d480-f609-11ea-9b45-ca1f04f4dec3.png)
+I see a typo there:
+`C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11\bin\bin`> I see a typo there:
+> `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11\bin\bin`
+
+Yes, It is the path to cuDNN, After I download the cuDNN, I copy the bin in cuDNN to here. 
+I have both:
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11\bin\bin
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11\bin
+
+Before I add the 
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11\bin\bin
+it still doesn't work, so I tired to add it
+And I delete it from PATH, it still has the same errorDo you meant v11.0 or v11?> Do you meant v11.0 or v11?
+
+I mean v11.0, I delete the one ~/bin/bin
+but it is still not workingIs a python 64bit installation?Yes, I think I install the 64bit version?
+And the version I have is 3.8.5
+![image](https://user-images.githubusercontent.com/68514251/93036314-8edbd200-f60d-11ea-91c5-0f1b0081d37f.png)
+`python -c "import sys; print(sys.maxsize > 2**32)"`![image](https://user-images.githubusercontent.com/68514251/93036825-f0507080-f60e-11ea-9250-4f68b0acabf1.png)
+Ok It is 64bit.
+
+So if you have `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.0\bin` in the PATH  and you have `cudart64_110.dll` there It is strange that It gives you not found on this file.> Ok It is 64bit.
+> 
+> So if you have `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.0\bin` in the PATH and you have `cudart64_119.dll` there It is strange that It gives you not found on this file.
+
+yeahhh.....very strange, I am not sure what to do in this case....Can you try to close and open the terminal with python and try again?> Can you try to close and open the terminal with python and try again?
+
+So I close the old terminal and reopen it, this is what I got after try to import it
+![image](https://user-images.githubusercontent.com/68514251/93037684-fd6e5f00-f610-11ea-8c3b-56f7357d0c31.png)
+I think it is still the same errorYes Is the same. 
+If the PATH Is currect I only see this old  case that required a reboot https://stackoverflow.com/questions/51111954/tensorflow-cant-find-cudart64-90-dll-even-though-it-is-installed-with-path-va/51112550#51112550> Yes Is the same.
+> If the PATH Is currect I only see this old case that required a reboot https://stackoverflow.com/questions/51111954/tensorflow-cant-find-cudart64-90-dll-even-though-it-is-installed-with-path-va/51112550#51112550
+
+Just come back from the reboot, it still shows not find the 110
+Have you installed python from the Microsoft store?I believe I install it from offcial website, I don't even know they have it in the Microsoft storeMhh.. Cause if It was the Microsoft one it Is sandboxed: https://github.com/tensorflow/tensorflow/issues/36111#issuecomment-614933000
+
+You can try to reinstall tf-nightly in a fresh venv https://www.tensorflow.org/install/pip#windows_1Hello, 
+I had the same problem but my tensorflow was asking for the 101 DLL which is found in version 10.1. Maybe try with version the version advised here : https://www.tensorflow.org/install/gpu#windows_setup ? I have the exact same thing: tf-nightly, cudart64_110.dll on the path, yet the message is that it isn't found.
+This is in a venv, if that matters.
+```python
+import tensorflow as tf
+2020-09-21 18:02:24.223511: W tensorflow/stream_executor/platform/default/dso_loader.cc:59] Could not load dynamic library 'cudart64_110.dll'; dlerror: cudart64_110.dll not found
+2020-09-21 18:02:24.223673: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+tf.__version__
+'2.4.0-dev20200917'
+```
+Path includes C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.0\bin
+```
+(.venv) C:\>dir "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.0\bin\cudart64_110.dll"
+ Volume in drive C is Windows
+ Volume Serial Number is xxxxxxxxx
+
+ Directory of C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.0\bin
+
+07/23/2020  06:59 AM           401,408 cudart64_110.dll
+```
+```
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.0\extras\demo_suite>deviceQuery
+deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 1 CUDA Capable device(s)
+
+Device 0: "GeForce MX150"
+  CUDA Driver Version / Runtime Version          11.0 / 11.0
+  CUDA Capability Major/Minor version number:    6.1
+  Total amount of global memory:                 2048 MBytes (2147483648 bytes)
+  ( 3) Multiprocessors, (128) CUDA Cores/MP:     384 CUDA Cores
+  GPU Max Clock rate:                            1532 MHz (1.53 GHz)
+  Memory Clock rate:                             3004 Mhz
+  Memory Bus Width:                              64-bit
+  L2 Cache Size:                                 524288 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(131072), 2D=(131072, 65536), 3D=(16384, 16384, 16384)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(32768), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(32768, 32768), 2048 layers
+  Total amount of constant memory:               zu bytes
+  Total amount of shared memory per block:       zu bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          zu bytes
+  Texture alignment:                             zu bytes
+  Concurrent copy and kernel execution:          Yes with 5 copy engine(s)
+  Run time limit on kernels:                     Yes
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  CUDA Device Driver Mode (TCC or WDDM):         WDDM (Windows Display Driver Model)
+  Device supports Unified Addressing (UVA):      Yes
+  Device supports Compute Preemption:            Yes
+  Supports Cooperative Kernel Launch:            Yes
+  Supports MultiDevice Co-op Kernel Launch:      No
+  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 11.0, CUDA Runtime Version = 11.0, NumDevs = 1, Device0 = GeForce MX150
+Result = PASS
+```
+
+Can you try to print from python `os.environ["PATH"]` and check that you see the correct cuda paths?```python
+>>> os.environ["PATH"]
+'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.0\\bin;C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.0\\extras\\CPUTI\\lib64;C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.0\\include;C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.0\\libnvvp;C:\\Program Files (x86)\\RSA SecurID Token Common;C:\\Program Files\\RSA SecurID Token Common;C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\CLI2\\wbin;C:\\ProgramData\\Oracle\\Java\\javapath;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\NVIDIA Corporation\\NVIDIA NvDLISR;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files\\CrashPlan\\jre\\bin\\server\\;C:\\Program Files\\CrashPlan\\jre\\bin\\;C:\\Program Files\\Intel\\WiFi\\bin\\;C:\\Program Files\\Common Files\\Intel\\WirelessCommon\\;C:\\Program Files (x86)\\PuTTY\\;C:\\Program Files\\dotnet\\;C:\\Program Files\\Git\\cmd;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\NVIDIA Corporation\\Nsight Compute 2020.1.2\\;C:\\Program Files\\Microsoft SQL Server\\130\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\170\\Tools\\Binn\\;C:\\Program Files\\RSA SecurID Token Common\\;'
+```I should mention, I have the cudnn64_8.dll which seems to correspond to the cudart64_110.dll.  The docs only mention the cudnn64_7.dll@adamx97 It is ok for nightly.@CalendulaED,
+Any updates regarding? Is this still an issue? Thanks!> @CalendulaED,
+> Any updates regarding? Is this still an issue? Thanks!
+
+I believe I still have the problem of missing 110
+![image](https://user-images.githubusercontent.com/68514251/94458263-b68d7700-0183-11eb-944b-cbf2346bbe84.png)
+And I do have 110 in the folder I believe
+![image](https://user-images.githubusercontent.com/68514251/94458463-fa807c00-0183-11eb-82d9-04d134f7785e.png)
+@CalendulaED can you try with a fresh `venv` https://www.tensorflow.org/install/pip#2.-create-a-virtual-environment-recommended?> @CalendulaED can you try with a fresh `venv` https://www.tensorflow.org/install/pip#2.-create-a-virtual-environment-recommended?
+
+I try the venv, but It give me an error about environment error 
+![image](https://user-images.githubusercontent.com/68514251/94460475-ca86a800-0186-11eb-8cda-af80ee68a6f5.png)
+![image](https://user-images.githubusercontent.com/68514251/94461223-d9ba2580-0187-11eb-8cbe-4a3096697e88.png)
+![image](https://user-images.githubusercontent.com/68514251/94461243-dfb00680-0187-11eb-9349-abf8f146fd41.png)
+![image](https://user-images.githubusercontent.com/68514251/94461251-e3438d80-0187-11eb-877a-44baebfd8224.png)
+After I add --user to it, I belive it still not workingThe idea was:
+ > deactivate  # don't exit until you're done using TensorFlow` 
+
+so to install and try to use TF inside the venv.![image](https://user-images.githubusercontent.com/68514251/94466288-38cf6880-018f-11eb-8c6e-0cf6643ee9cb.png)
+I think this is inside the venv, but I still show the same errorsNow yes.
+Can you try to see if you can access to `cudart64_110.dll`
+```
+import os
+os.access('<fill_with_your_path>cudart64_110.dll', os.R_OK)
+```I think import is not supported here
+![image](https://user-images.githubusercontent.com/68514251/94469065-7209d780-0193-11eb-835d-c1df00635210.png)
+It is python codeAlso <fill_with_your_path> it means "you need to manually change it with your real cudart64 path"It says false
+![image](https://user-images.githubusercontent.com/68514251/94470837-36244180-0196-11eb-8538-86f02538823d.png)
+Ok so with false it seems that you have read permission problem with that folder. Are you sure that you have not installed python from the Windows store? Like in https://installpython3.com/windows/I believe I download it from **https://www.python.org/downloads/**
+should I download this again?Can you try from command line to run `type <fill_with_your_path>cudart64_110.dll`?I am sorry, it said True, it misses a symbol in the line
+![image](https://user-images.githubusercontent.com/68514251/94473414-2ad31500-019a-11eb-848c-96c5877de246.png)
+Ok can you run `python -c 'import tensorflow as tf; print(tf.__version__)'`I can't directly type it, so I run it in python, I think it said 2.4.0
+![image](https://user-images.githubusercontent.com/68514251/94474134-3541de80-019b-11eb-8440-130a06446b94.png)
+Ok.. the last thing.
+Inside the venv can you execute:
+```
+import os
+print(os.environ['PATH'])
+```Yes.
+![image](https://user-images.githubusercontent.com/68514251/94482238-f7e34e00-01a6-11eb-88c9-1e69d3c76dae.png)
+The path seems ok to find cudart. Yes you can try to be sure to install and use python 64bit from https://www.python.org/downloads/![image](https://user-images.githubusercontent.com/68514251/94486076-e309b900-01ac-11eb-94ef-8283962be9fc.png)
+I reinstall the python, but I don't think it makes a difference.
+![image](https://user-images.githubusercontent.com/68514251/94486201-0d5b7680-01ad-11eb-9bec-5a2540b62dda.png)
+Can you execute:
+```python
+import sys
+print(sys.executable)
+```Yes,
+![image](https://user-images.githubusercontent.com/68514251/94487092-65df4380-01ae-11eb-87bb-cf989496b25e.png)
+Please re-run outside the venv![image](https://user-images.githubusercontent.com/68514251/94487722-6f1ce000-01af-11eb-9ede-716ef0417bcd.png)
+yeh, it saids Microsoft windows apps?
+But I never download it from there, and I just download it from the official web site, why this happens...I understand but we cannot support you at this level cause it is not a Tensorflow bug. 
+You can try to find support for python installation at: https://www.python.org/about/help/
+
+Or you can use Tensorflow with our Docker images https://www.tensorflow.org/install/dockerI think I have the correct path now
+![image](https://user-images.githubusercontent.com/68514251/94489999-8fe73480-01b3-11eb-8bfd-18d399dab17a.png)
+I think it give another different error when I tried to import tensorflow
+![image](https://user-images.githubusercontent.com/68514251/94490135-d9378400-01b3-11eb-9de6-b11fda3bac06.png)
+Prepare again venv with this version and install tensorflow with pip inside the venvInside the venv it also shows the same error 
+![image](https://user-images.githubusercontent.com/68514251/94490537-70044080-01b4-11eb-837c-ea479f9bfbe6.png)
+You need  `pip install --upgrade tensorflow` inside the venvafter install it, it shows missing 101
+![image](https://user-images.githubusercontent.com/68514251/94492342-1867d400-01b8-11eb-886c-3daf09578ea0.png)
+if you are still with CUDA 11 you need nightly `pip install tf-nightly`O, I think I can import tensorflow, but why do I need to run it in venv? So I can't run it without venv?When I tried to import tensorflow outside the venv, it will missing module, and I tried to upgrade pip, it shows the error
+![image](https://user-images.githubusercontent.com/68514251/94493564-f0c63b00-01ba-11eb-8099-57549e853145.png)
+
+This are windows permission issues of your shell. Please ask support to stackoverflow or other python support channels
+https://stackoverflow.com/questions/51115744/access-is-denied-when-trying-to-pip-install-a-package-on-windows/55100713> This are windows permission issues of your shell. Please ask support to stackoverflow or other python support channels
+> https://stackoverflow.com/questions/51115744/access-is-denied-when-trying-to-pip-install-a-package-on-windows/55100713
+
+Thank you, I think I can run it without the venv, but what is the difference?Nothing specific is to maintain a clean separate environment.> Nothing specific is to maintain a clean separate environment.
+
+Ok, thank you so much!!!! really help me a lotsI have to renamed these files in the bin folder to make it work:
+cudart64_101.dll -> cudart64_110.dll
+cusparse64_10.dll->cusparse64_11.dll
+cudnn64_7.dll->cudnn64_8.dll
+cublas64_10.dll->cublas64_11.dll
+The reality is that each version of Tensorflow uses an specific Cuda and Cudnn. In my case, for TF 2.3 it is Cuda 11.0. Installing this one solves the problem.> I have to renamed these files in the bin folder to make it work:
+> cudart64_101.dll -> cudart64_110.dll
+> cusparse64_10.dll->cusparse64_11.dll
+> cudnn64_7.dll->cudnn64_8.dll
+> cublas64_10.dll->cublas64_11.dll
+
+also encountered cusolver64_10.dll not found. when I checked the bin folder, it is named as cusolver64_11.dllI was able to solve this by following the software requirements here: https://www.tensorflow.org/install/gpu#software_requirements
+
+Here's my system:
+NVIDIA Driver 460.89
+CUDA 11.0.3
+CuDNN 8.0.5.39
+Python 3.7.2
+
+I also made sure that the CUDA was compatible with the CuDNN version by checking it here: https://developer.nvidia.com/rdp/cudnn-download
+
+![image](https://user-images.githubusercontent.com/47623790/102877187-b30b4280-4489-11eb-9db0-5d5f75667511.png)
+
+Finally, don't forget to set the installation directories to the PATH environment variable. https://www.tensorflow.org/install/gpu#windows_setup
+The key is to install Python from python.org. All versions from Microsoft App Store don't work. Tried both 3.7, 3.8. Once installed the official version 3.8.7 downloaded from python.org, everything is fine now.
+
+This is my current system:
+
+NVIDIA Driver 460.89
+CUDA 11.0.3
+CuDNN 8.0.5.39
+Python 3.8.7 (from python.org)
+
+
+I also tried with CUDA 11.1.1. It also worked after renaming cusolver64_11.dll to cusolver64_10.dll. It's a known issue tracked in issue #44291.I got a way to solve this problem, you can download cudart64_101.dll to C:\Users\hp and C:\Windows\System32  from 
+ https://www.ijinshan.com/filerepair/cudart64_101.dll.shtml.Hello, 
+Thanks @aparico for the tip ! It did work with this configuration and `pip install tensorflow`. However, the software versions in the software requirements section of the https://www.tensorflow.org/install/gpu#software_requirements are not correct as they recommand CUDA 10.1 and CuDNN 7.6 and the install works with CUDA 11.0 and CuDNN 8.0. 
+Maybe this page needs update ? **CUDA 11.2
+cuDNN 8.1
+tensorflow 2.5
+python 3.9.5**
+in virtual env write `"where cudart64_110.dll"` and get path.
+when taping  `"import tensorflow as tf"` get:
+`"W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'cudart64_110.dll'; dlerror: cudart64_110.dll not found"`
+
+Tried to install `tf-nightly, tensorflow`
+I have been installing to main enviroment and to virtual enviroment, in both cases have got the same result.
+**VC_redist.x64** installed
+
+### Solution:
+```
+import os
+os.add_dll_directory("C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/bin") 
+```
+Before importing tensorflow in virtualenv and still does not work in main env.
+Thank you for posting the os.add_dll_directory tip.  I believe the behavior is by design for newer versions of Python on Windows.  The Windows Path environment variable no longer works.  That's what I'm guessing is going on.
+
+https://docs.python.org/3/whatsnew/3.8.html#bpo-36085-whatsnew
+
+>  Specifically, PATH and the current working directory are no longer used, and modifications to these will no longer have any effect on normal DLL resolution.

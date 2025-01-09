@@ -1,0 +1,2028 @@
+I understand TensorFlow only supports CUDA. What would need to be done to add in OpenCL support?
+It's strange that Google ditched open OpenCL for proprietary CUDA.
+ LINKLINK 
+At the very least, the LINKLINK library would have to support OpenCL.
+ thumbs up 
+ thumbs up 
+ thumbs up 
+thumbs up and all that.
+I will be interested in expanding Tensor Flow with OpenCL. As we have already released OpenCL caffe. LINKLINK. Hopefully it can get integrated in light way? Is anyone interested in working together on this?
+ gujunli Nice to see AMD here. cc naibaf7 lunochod
+would be great.
+ thumbs up 
+ cc lukeiwanski for Eigen OpenCL SYCL
+ gujunli Certainly would be interested in contributing. Please let me know when you plan to start. 
+Hi all, 
+
+Here at Codeplay we are looking into Eigen's tensor running on GPU using SYCL a modern C++ layer on top of OpenCL. From what we have gathered so far, GPU tensor design is very closely coupled with CUDA and it will require interface changes for another programming model and particularly a SYCL and OpenCL 1.2 version. 
+
+If anyone is interested in digging deeper helping out, we are most certainly interested in contributing.
+
+Thanks,
+Luke
+ lukeiwanski Thank you for the feedback. I think that benoitsteiner worked at the tensor extension part of eigen.
+ thumbs up I can help code some OpenCL SYCL if someone makes a plan, divides work into tasks etc. I recommend using Boost. Compute as a wrapper for OpenCL it makes running kernels, testing, templating easier.
+ thumbs up 
+ thumbs up 
+Hi all,
+
+Just to keep you posted, we are still investigating how we can change the Eigen interface to better fit the SYCL OpenCL 1.2 programming model. 
+Once we come up with a reasonable approach that targets heterogeneous programming models not only OpenCL SYCL we will create a proposal. 
+
+Thanks,
+Luke
+Pls keep me update. I developed opencl caffe for AMD. I am also looking at
+tensor flow.
+
+Thanks.
+Junlu
+ Luke Iwanski wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ cc ptillet gongzg Is there any interest in this by Intel? I really hope that we don't fragment OPENCL here like in Caffe where we have an AMD fork, Intel unmerged PRs, another semi unofficial AMD PR, and a long staging user PR plus two old abandoned Opencl efforts. If somebody is interested in the history can take a look at LINKLINK comments.
+ bhack We do have interest in this. Thanks for letting me know. If there is a proposal for Eigen's OpenCL SYCL implementation, we will see what we can do from Intel side.
+ thumbs up 
+An interesting initiative at LINKLINK also if here we rely on Eigen tensor extension.
+I also would like to contribute. benoitsteiner can you organize it?
+This was included in the Roadmap but also tagged as contribution so a direction bootstrap could be really useful.
+I can contribute to organize it. who is responsible for OpenCL support in
+Tensor flow now?
+
+Thanks a lot.
+Junli
+
+ bhack wrote:
+
+
+
+
+
+
+
+
+
+ 
+
+ 
+
+Junli Gu 谷俊丽
+Coordinated Science Lab
+University of Illinois at Urbana Champaign
+
+ 
+I just assumed Benoit because he self assigned the feature, but I think you've got it Junli! Maybe start with an email or forum thread of interested parties?
+ benoitsteiner knows more about interested parties that may not have shown
+up in this thread or this issue. I'd wait for him to coordinate to make
+sure we avoid duplicating work.
+
+On Tue, Jan 19, 2016 at 11:42 AM Dan McLaughlin 
+wrote:
+
+
+
+
+
+
+
+
+
+I'm interested. Is there any roadmap?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Is there a list of CUDA dependency libraries that Tensorflow relying on?
+
+This would help to see if we could have immediate OpenCL alternatives.
+ hsaputra 
+There is clFFT, clBLAS alternatively ViennaCL. Random number generator is a bit more tricky no curand, either use a CPU generator and transfer to GPU or use another existing kernel for RNG.
+
+The biggest pitfall will again be efficient convolution implementations something like cuDNN.
+
+There is experience about such issues here:
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+Tensorflow use tensor extension upstreamed to Eigen. So I think that an Opencl Sycl support to Eigen is needed. See LINKLINK 
+Thanks naibaf7. Yeah, I don't think there is a viable alternative for cuDNN for OpenCL right now. 
+The website LINKLINK is created to support open source porting projects just like these! We're currently installing all necessary tools at the website and have space for repositories at LINKLINK later on we're adding build servers to test for several types of hardware and can provide our expertise in how to write code that runs at full speed on numerous hardware.
+
+We're launching a porting initiative for GEGL next week, but we're happy to also support you.
+ bhack from that thread and here it seems like lukeiwanski is looking into it. I think we have enough willing people to work on it, we just need benoitsteiner, lukeiwanski or gujunli to coordinate. Benoit has been quiet, maybe he's on holiday.
+I would love to help contribute with this initiative.
+hi all,
+
+we will coordinate the effort of porting Eigen’s tensor module to SYCL for OpenCL as we already have something mostly working, but it’s not ready for review yet.
+
+We are in favour of this approach as it will introduce less invasion to the code base. SYCL supports the single source C++ templated model that eigen already uses.
+
+Road map design is in progress so it shouldn’t be too long now.
+
+Thanks,
+Luke
+ lukeiwanski Are you working or in contact with upstream? Do you think will be accepted upstream in Eigen?
+ thumbs up 
+Great news lukeiwanski, let us know of any help you need. 
+
+I'll guess you are using your own implementation of SYCL will that be available for developers researchers? On what platforms?
+ lukeiwanski SYCL seems like the right way to go given the amount of template metaprogramming involved with Eigen. I'm an experienced c++ developer with OpenCL experience gained from developing my own LINKLINK. I'd love to help with this effort and get started developing with SYCL.
+ bhack We are in contact with benoitsteiner, but we will discuss our proposal with the upstream maintainers before we invest too much effort.
+
+ DanMcLaughlin, ville k We are developing our implementation of SYCL, ComputeCpp LINKLINK. For more information, can you please contact me off list via the email address on my profile?
+ lukeiwanski is there any update estimate regarding plans?
+ thumbs up.
+I've an AMD GPU and an Intel GPU in the laptop. I think both have OpenCL drivers and AMD's support seems to be much better. I'd have higher performance, because I've 2 OpenCL devices. I hope you make it scale with OpenCL devices.
+Hi all,
+
+Thanks for the interest!
+At this point we are getting our testing infrastructure set up to make sure that nothing that we do introduces regression.
+We are in touch with benoitsteiner to make sure we are in sync with what he's done so far. 
+
+We are still in compiling a road map for the integration process it should be done in couple weeks time, as there is a couple of business details to clarify.
+
+Our goal is to bring the OpenCL to TensorFlow via Eigen by end of this year.
+
+Thanks, 
+interested. would love to contribute.
+Ok so actually seems that it is an effort of Codeplay with some kind of sync to Google internal. What are the role of AMD and Intel subscribers here?
+ cc keryell if you have any interest on this from SYCL FPGA universe
+My apologies for not contributing more to this discussion recently, my plate has been more than full these past 2 weeks.
+
+I'll be coordinating the OpenCL effort on the TensorFlow side. Our current thinking is:
+ TensorFlow relies on c+ thumbs up 1 and has taken a single source approach, so SYCL seems like a great fit.
+ We don't have a lot of OpenCL experience in house, so we're collaborating closely with Codeplay to bridge this gap. In particular, Codeplay is currently leading the effort to add support for SYCL to the Eigen tensor library.
+ TensorFlow relies on the cuDNN library to compute convolutions on NVidia GPUs. If somebody is interested in contributing an OpenCL equivalent, we'd be happy to help.
+
+In order to help structure the effort, I created a mailing list:
+ bhack sure I have some interest for high end C++ on FPGA: 
+TensorFlow sounds like a good validation use case for triSYCL too.
+By the way, if some people here are looking for some internships on this subject, I have some positions. It looks like Codeplay is looking for some people too, if I trust their web site.
+I'm really interested in karlrupp and hughperkins opinions. I hope they want to join in the discussion on the new google group. 
+ benoitsteiner Thank you for the update. It would be wonderful if all involved partners in KhronosGroup Google, Nvidia, Amd, Intel, Codeplay, Xilinx etc. will promote a cudnn like API in a standardized way. A sort of Khronos LINKLINK computer vision standardization effort but for deep learning.
+ bhack Which new Google group?
+
+Other than that, OpenCL and CUDA are too different programming approaches. CUDA works the way it is because one company has full control over everything, so it can embed binary blobs and who knows what in the final executable. This cannot be done with OpenCL, unless one goes down the SyCL path I have my concerns. and the SyCL compiler vendor has full control over all possible target architectures unlikely or impossible in practice. Overall, my opinion is that a good OpenCL enabled library needs more than just a few tweaks here and there. Probably not what you wanted to hear, but you asked for my opinion: 
+ karlrupp See LINKLINK at the end for the google group.
+I asked your opinion cause you have a great experience with ViennaCL interfacing an algebra library with multiple backends CPU, GPU, MIC. Tensorflow rely on Eigein library and its new tensor extension contributed by Google upstream but only with CUDA backend. I think that they don't experienced much all the pitfall you have already encountered with ViennaCL in this years of development.
+ bhack We are currently at the face to face meeting in Seattle this week but of course I cannot say whether we are talking about DNN libraries or not. 
+ keryell Try to push the cause in Seattle thumbs up 
+ karlrupp You are right, OpenCL and CUDA are too different programming approaches. The single source aspect found for example in CUDA and OpenMP 4.5 is extremely powerful from a software engineering perspective. This is why there is this SYCL standard for the real C++ programmers. SYCL can be seen as CUDA on steroids without any language extension and with some OpenMP aspects the tasks. A typical SYCL device compiler is expected to generate SPIR V kernels.
+
+Your concerns about portability are less an issue with the SPIR V standard kind of portable equivalent of nVidia PTX AMDIL. in the Vulkan & OpenCL world which is mandatory to accept in OpenCL 2.1 and Vulkan. So the beauty is that if you have a front end that generates SPIR V, you do not need special knowledge of the very details of the hardware to run on. There is a Khronos open source bidirectional translator between LLVM IR and SPIR V, so it opens quite new territories.
+ keryell I agree that SPIR V is a step forward. However, it does not address all issues of exhaustive jitting.
+
+
+
+Is this a copy&paste from OpenCL 1.0 marketing, which claimed exactly the same? You will always need to go down to the details of the underlying hardware if you aim for maximum performance. This is especially the case in the context of fast tensor contractions.
+. as scott gray demonstrated with LINKLINK 
+ karlrupp
+
+
+
+Haha. 
+
+
+
+Of course, but before playing with the second order optimization, it is useful to have the huge part of the whole templated C++ code running in some accelerated way.
+
+For the optimization, either you stitch your optimized binary kernels à la NervanaSys or, since SYCL is pure C++, you can use asm. in it with a lot of ifdef to test the target architecture. That said, SPIR V is itself extensible and I cannot see why we could not put inline VHDL or Verilog in it at some point. 
+
+But more concretely, the recent introduction of sub group operations should help to achieve good performance in a portable way and using simple built in ad hoc functions may help.
+
+C++ adds interesting metaprogramming features that allows to replace most of the code generators used such as in clBLAS or other frameworks to generate code more adapted to X or Y hardware.
+Also N4355 in c+ thumbs up 7 could enter in the game soon or later
+ karlrupp, bhack The tensorflow approach is to rely on a hardware abstraction the tensor module for the majority of the operations needed in by a typical neural network, while relying on specialized libraries such as cudnn for the few operations that are really critical performance wise. The hardware abstraction enables us to implement most TensorFlow operations once and have them run on an accelerator with more than good enough performance.
+ bhack Yes I love multidimensional arrays. Also in our domain of interest, there is the SG14 in the C++ committee that tries to have all the people interested in these issues to converge into the standard.
+ LINKLINK 
+Of course SYCL is in the discussions. 
+ benoitsteiner Mainly on cudnn for pooling and convolution. I think that if every vendor will produce an API with its own hardware for this operations with its own binary assembly will not be a so scalable approach. That is why I think some performance crucial API calls would be better to be standardized in some way.
+ keryell There are really interesting topics for Matrix Tensor in the new SG14 c++ specially in vector SIMD calls agenda. But seems that nobody talked of convolution, pooling, and others useful stabilized deep learning interfaces. Also seems to me that in this specific standardization subgroups there are people from Nvidia, Intel, Amd, CodePlay etc. but not from Google also if it is in others groups.
+ thumbs up 
+ bhack Yes there is no machine learning style proposal in SG14 yet. But participation is open, so you can send some proposals. But perhaps SG6 numerics topics is more relevant. I do not think they have their own mailing list forum yet.
+ gujunli Does OpenCL Caffe run on Android? Sorry for asking this here but I didn't find anywhere else to ask it thumbs up Would be great with a deep learning library that ran on Android devices and could use the GPU but it seems like there are no at the moment. Correct me if I'm wrong! 
+ krikru 
+The official but experimental OpenCL Caffe branch can be made to run on Android GPUs, however the performance at the moment is far from optimal. See LINKLINK and LINKLINK.
+A real alternative to cudnn could be the extension of LINKLINK with support to Tensor, NdConvolution, NdPooling operators and probably some other operator that could be considered standardizable.
+Also cudnn team need to make some choice on what new API and operators they will introduce in every release. Of course a standard can not move as fast as cudnn releases but I think some operations and objects has enough citations history to be standardized.
+ hughperkins At the moment, I haven't tried any deep learning library; I'm just doing some scouting to see which library I could potentially use. Have you tried cltorch and DeepCL on Android? I just assumed cltorch did work on Android, since there is an implementation of Torch that is dedicated specifically for Android. And why would you have such an implementation if there already was one that both worked on Android and used OpenCL, right? But maybe I should have known better.
+ hughperkins For some reason I imagined that LINKLINK was an official Torch implementation for Android, meaning that no other Torch implementation at least not official was likely to run smoothly on Android, including cltorch. I don't know why I thought that, it of course doesn't make any sense.
+Well. Soumith kind of coordinates torch development. He works at Facebook AI Research. So, since torch android repo belongs to Soumith, I would say it's fairly close to official. But it maybe is not part of core for some reason. I guess you can ask the question as an issue in that repo, or in LINKLINK Actually, since Soumith is kind of the main person that handles the requests in LINKLINK, I reckon you probably want to post your question there.
+
+
+Note that cltorch is not an implementatino of torch. It's a plugin, thta provides OpenCL. You need both.
+
+
+Ah, thanks for the clarification.
+ naibaf7 Do the LINKLINK branch and the LINKLINK implementation by AMD have anything more in common besides the name? Have you compared the two or do you know if there is any difference in performance? You write that the OpenCL branch is far from optimal performance. What does that mean and what would be necessary in order to improve it? It would be interesting to try it on Android.
+We are going off topic
+ bhack Yeah, sorry for hijacking this thread. I just didn't know where to ask the question.
+ krikru 
+please raise an issue about it on the Caffe branch, flag it with Android and OpenCL. Then we can discuss this further. Thanks.
+ keryell Seems that the next f2f SG14 meeting in LINKLINK. Will be any tensorflow internal there?
+ cc jfbastien
+Perhaps benoitsteiner could drop by, since he is local.
+But before this event there is the full C++ F2F at the end of the month in Jacksonville, Florida.
+ LINKLINK 
+Unfortunately I will not be able to attend any of them.
+I don't know if CppCon 2015 talk LINKLINK generated some paper follow up.
+ thumbs up 
+ bhack Thank you for pointing the talk on multi dimensional arrays. It is interesting and address the real issues but looks too ad hoc to be ratified in C++ as is. Personally I use Boost. MultiArray and I am more confident in a polished version of Boost. MultiArray.
+There are also some LINKLINK. As you can see jfbastien at Google has some activity at WG21 and also helped to host the SG14 f2f meeting at Google in March.
+ bhack keryell I think it would be worth taking this discussion to LINKLINK as the details aren't related to OpenCL tensorflow.
+Yes probably it is no more so strictly confined here with all the details. Other than Eigen sycl support Is there a plan for the cudnn calls? 
+ thumbs up very interesting topic. Hope it coming soon.
+This thread is very interesting. I've been trying to get caffe to work on android. The results seem to be surprising: caffe running with Mali gpu seems to be 2 3 slower than cpu, but about 4 5x more energy efficient. The test was run on Galaxy S6 Mali T760, Peak Performance 200 GFlops. 
+
+Since GEMM is the core of convolution in caffe, I decided to profile its performance on Android. It seems that ViennaCL is not as efficient as some simple kernels. Now I am able to get GPU run as fast as CPU for large matrices 2k x 2k. This is still counter intuitive, since normally we expect GPUs to be much faster.
+
+See: 
+ LINKLINK 
+
+The kernel implementations can be found here:
+
+OpenCL kernels for GEMM: LINKLINK 
+
+Any thoughts?
+ strin Have you already followed this thread LINKLINK?
+ bhack thanks for sharing. this thread looks very interesting. i tried to turn of the DVFS as suggested, but no significant performance was seen for sgemm in ViennaCL. 
+ thumbs up 
+ strin Have you tried the last sgemm version in the MALI SDK?
+Tensorflow is latee! ahah
+ LINKLINK 
+This will have an impact on the strategy: LINKLINK?
+EDIT: 
+ StreamExecutor is currently used as the runtime for the vast majority of Google's internal GPGPU applications, and a snapshot of it is included in the open source TensorFlow project, where it serves as the GPGPU runtime. 
+ thumbs up 
+
+Hope people working on it manage to overcome the CUDNN alternative problem by the time tensorflow gets close to 1.0
+ martinwicke why is this issues closed?
+
+I don't think your commit fixes this.
+You can't always use the same commit comments in different repository thumbs up LINKLINK 
+Oh GitHub
+ vrv Now that you have hyper notified us can you give some feedback on stream executor strategy? thumbs up 
+I'm just going to blame GitHub for everything, including lack of OpenCL support. thumbs up 
+
+ benoitsteiner might be able to comment more though. I don't really know what you mean by 'stream executor' strategy. We currently use a version of stream executor and CuDNN and Eigen and they all play well together, so I'm not sure how any plans have changed for the OpenCL side of things
+I mean:
+ What is StreamExecutor?
+ 
+ StreamExecutor is a unified wrapper around the CUDA and OpenCL host side programming models runtimes. It lets host code target either CUDA or OpenCL devices with identically functioning data parallel kernels. 
+Canned operations
+ 
+StreamExecutor provides several predefined kernels for common data parallel operations. 
+The supported classes of operations are:
+ BLAS: basic linear algebra subprograms, 
+ DNN: deep neural networks, 
+ FFT: fast Fourier transforms, and 
+ RNG: random number generation.
+ keryell Hi, I also have interest in implementing TensorFlow on FPGA, using high level programming languages like Xilinx C++ or OpenCL. I am with pleasure to contribute if you have some plan.
+ henline Can you explain what will be the role of StreamExecutor on Opencl and of relevant Canned
+ operations for Tensorflow. I still cannot see how this will integrate with SyCL plans on Eigen and cudnn replacement? 
+ thumbs up I would like to contribute to this, too.
+ bhack StreamExecutor provides functionality equivalent to that of the CUDA runtime and some of the CUDA libraries such as cublas or cudnn. However you still need to write your GPU kernels, which is what we use Eigen for.
+ benoitsteiner So is it still needed to write two kernels, one for CUDA and one for Opencl?
+ benoitsteiner So don't you still have a tensorflow tensorflow stream executor opencl counterpart internally? What about Canned operators?
+ bhack Eigen enables you to write an expression that describes the computation you want to perform once, and automatically generate a kernel which we call the evaluator to evaluate that expression on CPU and another kernel to evaluate the expression on a CUDA device. Once we have support for OpenCL in Eigen we're getting close, it will be possible to also generate the OpenCL kernel automatically.
+For a few TensorFlow operations that are performance critical such as convolution, we use hand optimized kernels and or third party libraries. In these cases, we'll need a good OpenCL implementation of these operations.
+ thumbs up 
+Is there a plan to push more code in LINKLINK? What about sycl compiler? Seems that there are no opensource GPU target implementatons released.
+ bhack benoitsteiner 
+I'm soon releasing a cuDNN replacement only the convolution part, as it is the most performance and memory critical to have this done for OpenCL on Caffe. Maybe it will also be to some use for the Tensorflow port.
+ bhack: Codeplay has made a lot of progress on the opencl front. Stay tuned for a big push to LINKLINK in the next few weeks.
+ naibaf7: A fast implementation of the convolution operation would be extremely helpful in TensorFlow. Looking forward to it. 
+ benoitsteiner LINKLINK 
+ benoitsteiner How Can I simply remove cuda implementation? because ' ifdef GOOGLE CUDA' is so complicated. It sometimes means CUDA, sometimes means GPU. 
+Since this issue has made its way to the LINKLINK see Platforms: do we roughly have an idea of when OpenCL support will hit TensorFlow? Like version 0.9 1. Q3 4 2016? Or is 2017 more realistic?
+ benoitsteiner Is the eigen opencl LINKLINK ready enough to support an opencl tensor flow development?
+
+Does tensorflow depend only on Eigen tensors or are there any other dependencies of Eigen? 
+ NEELMCW Codeplay has just released partial support for OpenCL to Eigen Tensors. The code is available in this LINKLINK. For the most part, TensorFlow depends on Eigen tensors. There are additional dependencies on Eigen for the linear algebra operations, but we don't have to provide an OpenCL compatible implementation of these operations at least not initially. Therefore we're in a very good position to start supporting OpenCL in TensorFlow.
+
+If you are interested in contributing, I have started to track what needs to be done in LINKLINK 
+ benoitsteiner I am the author of a C+ thumbs up 1 OpenCL BLAS library LINKLINK and am currently implementing half precision support there. I am happy to contribute on the BLAS GEMM part of this project and or modify CLBlast to fit your needs better.
+ CNugteren 
+CLBlast is now also available in OpenCL Caffe, have you seen that? thumbs up 
+Did you also have a chance to look at the libDNN convolutions?
+ naibaf7 I saw it, yes! thumbs up I haven't looked at libDNN at all so far, but I am not sure what you mean exactly. I assume convolution is implemented using GEMM?
+ CNugteren 
+Yes, I just thought it would be nice if you could look over it and maybe give some improvement or tuning tips on libdnn.
+ LINKLINK.
+It is using GEMM, but implicit not through a BLAS, only small GEMM's on a workgroup level so that a higher level of parallelism is possible, as well as no intermediate buffer are necessary to unroll the data into a GEMM scheme.
+Hey all,
+
+ benoitsteiner thanks for mentioning our push! Hope it will be useful! 
+
+To compile this code, you need a SYCL compiler. Currently, the only supported compiler is Codeplay's ComputeCpp, which is available via a Codeplay's evaluation program. ComputeCpp will be made available for free as a public open beta, later in 2016 and then released with a free version the ComputeCpp Community Edition in 2017. This will let anyone compile and develop TensorFlow on OpenCL devices, such as AMD or Intel GPUs and CPUs. 
+
+btw. shouldn't this issue have OpenCL label? thumbs up 
+
+Thanks,
+Luke
+I really hope that could be compiled also with an opensource tool. keryell how it is going with your new LINKLINK 
+ bhack It would be nice to see if it can work with triSYCL in CPU OpenMP host device mode first. But I do not have the bandwidth to enter the TensorFlow Eigen build system rnow. If someone wants to try, feel free to do so. 
+
+ LINKLINK should allow to run OpenCL kernels soon in OpenCL interoperability mode, but not in the SYCL single source mode we all dream about because we do not have the Clang LLVM outliner yet to extract the kernels from SYCL. But Khronos open sourced recently the components from AMD & Intel to support OpenCL C++ 2.2 & SPIR V that would be the basis of it. So it is just a question of time. 
+Could someone provide estimates for when Tensorflow might be able to run with OpenCL AMD GPUs? And what the curve of performance usability looks like over time? It's difficult to parse all the past information into actionable hardware buying information. thumbs up 
+
+Thanks in advance!
+ djan92 
+I'd say give it a year until it's usable, unfortunately. It looks like it's going to be built on quite cutting edge libraries and technologies, most of them not quite ready yet.
+I'm also only going to jump onboard as soon as the complete tool stack is available as OpenSource and not before.
+ naibaf7 
+
+
+
+
+Why not implement a CL version first while waiting for the SYCL port to be ready? I assume there are quite a few folks here willing to help out. One year just sounds too long.
+ djan92 
+Yes, you are right, 22 is almost 8 months old and has over 100 posts! The information can get swamped!
+
+
+
+TensorFlow uses the Eigen library for tensor computation in the Tensor module. We have committed a partial implementation for OpenCL 1.2 using SYCL LINKLINK branch Codeplay. The reason we used SYCL for this work is that this section of TensorFlow uses C++ expression trees, which is possible with SYCL for OpenCL, but not possible with OpenCL C directly. Other components of TensorFlow, such as convolutions or BLAS, could use OpenCL C directly.
+
+Currently, I am working on integrating ComputeCpp Codeplay's SYCL compiler into the bazel build system. This should be ready soon follow this repo: LINKLINK. After that is done, TensorFlow should be accelerated on systems that support OpenCL SPIR such as AMD or Intel with ComputeCpp. Further work will continue on accelerating more of TensorFlow, as well as supporting more OpenCL implementations and the triSYCL open source SYCL. SYCL and OpenCL are multi vendor, royalty free open standards, so there are lots of platforms and devices that can be supported using this approach not just AMD GPUs.
+
+The ComputeCpp Community Edition compiler will be available for free later in 2016 in beta form: full conformance will be released for free early 2017.
+
+The work on accelerating the non C++ parts of TensorFlow for example BLAS and convolutions could be done without SYCL and implemented separately. Different hardware vendors may have their own optimized libraries for these features which could aid acceleration. Or, we could use Eigen with C++ for these features. 
+
+
+
+We believe the performance will improve steadily. To accelerate on a wide variety of devices, we need to manage the data more efficiently, which is why there is a managed tensor item of work, so that data movement can be more efficiently managed between host and multiple devices. It is hard to predict how the performance will vary over a wide range of devices, right now. Currently, very little is accelerated, but we are putting the infrastructure is in place to allow open standard acceleration in TensorFlow.
+ naibaf7
+
+
+
+The basic operations should be here very soon. We are putting the basic infrastructure in place within the code to support open standards based acceleration. We believe that with community support, an accelerated and usable version will be ready in much less than a year.
+
+
+
+ComputeCpp will be available publicly, for free, in 2016. The open source triSYCL support should follow behind. Open source OpenCL is already supported with pocl, Shamrock, Clover, Beignet. 
+ robertwgh 
+The C++ tensor code in Eigen would not easily be portable to OpenCL C without SYCL, but there are other features that would work well on OpenCL Have a look at this spreadsheet: LINKLINK and fill free put your name down on the features that should use normal OpenCL C such as BLAS and convolutions.
+
+We are giving evaluation version for ComputeCpp before the public release. If you would like one, please drop me an email thumbs up 
+ lukeiwanski Great, thanks for the update. I hope you are right about getting it done fully featured in less than a year.
+ LINKLINK of Streamexecutor in LLVM
+any chance of getting acceleration on the rx 480?
+ benoitsteiner 
+LibDNN standalone would be available for integration:
+ LINKLINK 
+Great to read this is being worked on. It would help if Beignet 2.0 were polished. Lots of potential with Skylake and Iris right now.
+A recent pull request was added at LINKLINK if somebody want to take a look.
+The Imagination GPU 's OpenCL SDK needs NDA to get accessible, we only have the shared library. Is it possible to run tensorflow based on this libs?
+ alephman
+You don't need vendor specific header files to build any OpenCL program. Try cl. hpp from LINKLINK and opencl. h cl. h from any other SDK. For example I have at least 3 OpenCL platform and all it works with one shared usr include CL cl. h
+We don't yet support TensorFlow running on OpenCL. It is a work in progress. Currently we are working on AMD GPUs. PowerVR support should follow. If you want to contribute to the development you should contact us Codeplay directly. If you want to run TensorFlow on PowerVR you should wait for a little more progress.
+ inferrna thanks, it looks similar the OpenGL that hides the implementation of vendor specific.
+
+ andrewrichards I love to contribute the development, how to contact with you? 
+The easiest is if you click on register your interest on our page here: LINKLINK 
+That will get you into our developer program and we can work together on this alephman
+If you want you can cotribute also to let to compile with an opensource alternative. See LINKLINK 
+Hi everyone!
+Very happy to hear Tensorflow support is being extended outside Nvidia Cuda. I wonder if you also consider making it work on APUs like this: LINKLINK?
+ kgocheva 
+APUs do support OpenCL for both the CPU and GPU part.
+This should work pretty much out of the box when the OpenCL support is ready.
+Meanwhile, if you already have an APU and want to try out another ML framework, BVLC OpenCL Caffe already works.
+ naibaf7 Thanks for the clarification. I'm looking at cost effective hardware software combinations to locally run Tensorflow and will definitely follow the OpenCL development progress.
+ hughperkins 
+Yes can be an issue, but I think parts such as im2col col2im and other convolution implementations could also be plugged in as external APIs if it's really an issue with the GCLA. This may also be better for the original authors of such work.
+ hughperkins We are working on bringing the OpenCL to the TensorFlow via the SYCL for OpenCL 1. 
+Please have a look at LINKLINK for todos and progress.
+Recently we released a compiler for SYCL LINKLINK called ComputeCpp Comunity Edition. People can try it out!
+As well, we are focusing on the Eigen library LINKLINK getting it to the stage required by TensorFlow's MNIST there are a couple things remaining.
+As for constraints, the current ComputeCpp CE release has been tested for Intel CPU, GPU and AMD CPU, GPU as for the platforms we support Ubuntu 14.04 64bit and CentOS 64bit.
+ComptueCpp is downloadable for free and can be used in commercial and open source projects.
+Because we 3 open communities thumbs up 
+ lukeiwanski Sorry for discussing asking this here in the thread, but I think it may be of interest to others as well: I understand that Codeplay is highly interested in the SYCL for OpenCL implementation and I already heard others being interested in this work of you, too. I read some post by a Movidius official for example. However, I would like to ask what Google's contribution to this really is? Since Movidius, besides AMD and others, are listed as Codeplay's partners I can understand that they encourage or even support SYCL for OpenCL, but as far as I am aware of it, Google is not your partner and has not contributed so far?
+
+Do not get me wrong, I really like your work, but wouldn't it be a good idea to consolidate your efforts, pool the resources and try to work together with Google? To me it looks like many different parties are interested in OpenCL for TensorFlow, but a huge potential is not used, because these parties do not develop together?
+
+I may be wrong and please apologize myself if this has been discussed sufficiently, but I am still unaware of any major attempts by Google or other parties to work together on this and, as a result, I am still unaware of how the community could help or support like single individuals, either via direct contributions, testing or other things.
+ ascenator We at Google have been working closely with Luke and his Codeplay colleagues on this project for almost 12 months now. Codeplay's contribution to this effort has been tremendous, so we felt that we should let them take the lead when it comes down to communicating updates related to OpenCL. This is why you haven't heard much from us on the topic thumbs up 
+
+Now that the ComputeCpp compiler is broadly available, we are planning to merge the work that has been done so far. But first we want to put together a comprehensive test infrastructure to make sure that we don't destabilize the exiting codebase.
+
+We welcome all contributions to this effort, so feel free to contact me if you want to help. We're especially interested in high performance OpenCL kernels for matrix multiplication and convolutions. Several candidates have been suggested, but we haven't started looking into the pros and cons of each one or how to integrate them.
+ benoitsteiner thank you very much for the clarification & sorry for my misinformation! This sounds very good & promising! I will definitely have a look at ComputeCpp then. I am really looking forward to OpenCL support for TensorFlow, because this offers a lot of new possiblities for robotics which is the field where I am researching and using TensorFlow for deep learning applications. I will at least have a look at early releases and try to test debug. We have some Intel Chips plus a number of ARM CPUs that are waiting for tests thumbs up 
+ hughperkins. sorry but isn't this completely off topic here? I don't see how this is relevant in OpenCL TF?
+I'm more interested here to know if will be taken a tuning approach to matrix multiplication and convolution kernels and if will be a valid LINKLINK to CompiteCpp that will produce SPIR V.
+ LINKLINK 
+Two new Kronos Group standards are released at LINKLINK 
+If it helps, a better version of isaac is out: LINKLINK, and provides significant speed ups over clBLAS and cuBLAS on Maxwell, Pascal and Fiji. Also provides faster input aware kernels than Tensorflow for 1D and 2D reductions.
+ hughperkins seems you have more chances to write CUDA compiler for any OpenCL device, rather than CUDA OpenCL translator.
+ hughperkins Maybe OpenCL 2.0's SVM feature could solve the pointer issue? Since everyone besides Nvidia AMD, Intel, ARM, Qualcomm is starting to support OpenCL 2. Maybe it's a good solution?
+ hughperkins it's a blas implementation itself. It implements some of the symbols in clblas and cublas headers so no recompilation and code modification. is necessary. I could also implement some of the symbols for clblast. h, since it uses a different header. Some advantages of Isaac are:
+ Entirely dynamic, so that it can use either both CUDA or OpenCL without recompilation.
+ Input aware, it doesn't tune kernels for large square matrices. It should perform well on all shapes you can think of without retuning.
+ C++ API similar to numpy arrayfire. Some fusion for combining elementwise operation with reductions
+ marty1885 
+Not really. AMD went back to 1.2 support on the AMDGPU PRO drivers. Might be a while until full 2.0 support is widespread. Definitely not a short term solution there.
+ Yes
+ I could hack compatibility for a bunch of operations if needed for example, forward MV to GEMV. Complex support will be tricky. Double support is already here but no architecture is tuned for it.
+ hughperkins
+
+
+
+Yes, plainly passing any global structure like array or struct containing pointers is incorrect just because those pointers can point to memory of another device OpenCL supports multi device paradigm where one device can't access memory of another. But it seems to be possible to overcome on IR level, w o intermediate translation to OpenCL code that's what I assumed thumbs up 
+ benoitsteiner, henline, from the LINKLINK, it suggests the streamexecutor has supported the CL version canned operation like DNN, BLAS out of box. Does it suggest google has already has the clDNN, clBLAS implementation ready for Tensorflow, but just not open source it yet?
+Otherwise OpenCL 2.0+ and SYCL 2.2 support SVM, if you want to keep the same software architecture.
+OpenCL 2.0+ is supported by AMD and Intel GPU for example. In the embedded world, it is often supported by side effect even with OpenCL 1. x, since the host and device memories are often the same for cost reasons.
+ keryell 
+But the most notable platforms, Linux + the new AMD GPUs RX 480, upcoming Vega do only support OpenCL 1.2 for now. and who knows when that's gonna change my bet is on in a year. Beignet opensource Linux Intel for OpenCL 2.0 is also still a buggy mess; the stable version has 1.
+Also considering all the smaller companies that make OpenCL compatible chips are barely pulling 1.2 support. So I guess anything relying on OpenCL 2.0 will see very bad adaption rates in practice.
+I think. any hardware vedor has the urgency of consuming SPIR V? I think that Graphic Shaders pressure on Vulkan could help Opencl side.
+ naibaf7 to go back to the discussion on OpenCL 2 or not, at some point real things have to be delivered. Otherwise there is already nVidia GPU and CUDA with TensorFlow running. 
+But of course, a version of TensorFlow without SVM has some interest.
+ keryell How much of the Vulkan SPIR V work on drivers that has already a good devices coverage do you think will push modern Opencl versions?
+ naibaf7 Khronos meeting is next week in Seoul with both OpenCL and Vulkan people, but discussions are not public. But that sounds like a good idea to have each world to improve the other, and at some point benefits to TensorFlow. 
+ keryell 
+Yes, I hope they discuss some DeepLearning beneficial stuff thumbs up 
+Congrats! Be sure to check the HIP project, as they tried to solve the same problem. They chose to create a new language called HIP, which defines what manually needs to be converted like checking double precision support by checking compute level. While the project advances, the amound of manual translations would go down. See: LINKLINK 
+
+My suggestion for you is to use HIP and fix some bugs that are blocking for advancing Tensorflow or your own goals, as you now have the understanding of LLVM to do it. This way you don't have to solve the problems they already fixed.
+ hughperkins 
+can't build python module with your fork following this LINKLINK 
+
+ CODELCODEL 
+
+I'm on ubuntu 16.04, dirname is from coreutils 8.25 2ubuntu2
+ hughperkins I think that tweaking the TF dockerfile on your repository with this istructions could easy the setup for others.
+Yes, when there will be something more functional. Basically it is quite a copy and past of this istructions you have posted.
+I'm experimenting building this on MacOS 10.10.5 on a MacBook late 2015 with ATI 6770M OpenCL 1.
+
+I've installed Xcode 8, Anaconda Python 3. and MacPorts equivalents of clang+llvm:
+ instead of apt get lines, do:
+sudo port install clang 3.8 llvm 3.8
+ Instead of using proc cpuinfo, do:
+NUM PROCS system profiler SPHardwareDataType grep Total Number of Cores cut d: f 2 
+ Then modify Makefile to use macports and run make
+perl pi. bak e 's CLANG.+ 1 opt local libexec llvm 3.8 bin clag++ ' Makefile
+perl pi e 's LLVM CONFIG.+ 1 opt local bin llvm config mp 3.8 ' Makefile
+perl pi e 's LLVM INCLUDE.+ 1 opt local libexec llvm 3.8 include ' Makefile
+ update to Macos OpenCL dirs; future: use System Library Frameworks OpenCL. framework Versions Current Headers cl. h ' ifdef APPLE ' conditional
+
+make j NUM PROCS 
+
+This is as far as I get:
+
+ make j NUM PROCS 
+mkdir p build
+mkdir p build
+mkdir p build
+ opt local libexec llvm 3.8 bin clang++ c o build hostside opencl funcs. o std c+ thumbs up 1 fPIC g O2 I CODESCODES include I CODESCODES src EasyCL src hostside opencl funcs. cpp
+ opt local libexec llvm 3.8 bin clang++ I usr lib llvm 3.8 include fPIC fvisibility inlines hidden ffunction sections fdata sections g D GNU SOURCE D STDC CONSTANT MACROS D STDC FORMAT MACROS D STDC LIMIT MACROS std c+ thumbs up 1 fcxx exceptions c o build mutations. o g I opt local libexec llvm 3.8 include src mutations. cpp
+ opt local libexec llvm 3.8 bin clang++ I usr lib llvm 3.8 include fPIC fvisibility inlines hidden ffunction sections fdata sections g D GNU SOURCE D STDC CONSTANT MACROS D STDC FORMAT MACROS D STDC LIMIT MACROS std c+ thumbs up 1 fcxx exceptions c o build struct clone. o g I opt local libexec llvm 3.8 include src struct clone. cpp
+ opt local libexec llvm 3.8 bin clang++ I usr lib llvm 3.8 include fPIC fvisibility inlines hidden ffunction sections fdata sections g D GNU SOURCE D STDC CONSTANT MACROS D STDC FORMAT MACROS D STDC LIMIT MACROS std c+ thumbs up 1 fcxx exceptions c o build readIR. o g I opt local libexec llvm 3.8 include src readIR. cpp
+In file included from src hostside opencl funcs. cpp:17:
+ Users erybski git tensorflow cl third party cuda on cl include cocl cocl. h:91:16: warning: 'host' attribute ignored 
+ attribute host inline unsigned long long atomicExch volatile unsigned long long p, unsigned long long val 
+ 
+src hostside opencl funcs. cpp:194:33: error: call to member function 'in' is ambiguous
+ launchConfiguration. kernel in offset ;
+ 
+ Users erybski git tensorflow cl third party cuda on cl src EasyCL CLKernel. h:101:15: note: candidate function
+ CLKernel in float value ;
+ 
+ Users erybski git tensorflow cl third party cuda on cl src EasyCL CLKernel. h:104:15: note: candidate function
+ CLKernel in int32 t value ;
+ 
+ Users erybski git tensorflow cl third party cuda on cl src EasyCL CLKernel. h:106:15: note: candidate function
+ CLKernel in int64 t value ;
+ 
+ Users erybski git tensorflow cl third party cuda on cl src EasyCL CLKernel. h:108:15: note: candidate function
+ CLKernel in uint64 t value ;
+ 
+ Users erybski git tensorflow cl third party cuda on cl src EasyCL CLKernel. h:110:15: note: candidate function
+ CLKernel in uint32 t value ;
+ 
+ Users erybski git tensorflow cl third party cuda on cl src EasyCL CLKernel. h:73:15: note: candidate function not viable: no known conversion from 'size t' aka 'unsigned long' to 'easycl: CLArray '
+ for 1st argument
+ CLKernel in CLArray clarray1d return input clarray1d ; 
+ 
+ Users erybski git tensorflow cl third party cuda on cl src EasyCL CLKernel. h:83:15: note: candidate function not viable: no known conversion from 'size t' aka 'unsigned long' to
+ 'easycl: CLWrapper ' for 1st argument
+ CLKernel in CLWrapper wrapper return input wrapper ; 
+ 
+ Users erybski git tensorflow cl third party cuda on cl src EasyCL CLKernel. h:91:36: note: candidate function template not viable: requires 2 arguments, but 1 was provided
+ template CLKernel in int N, const T data ;
+ 
+1 warning and 1 error generated.
+
+
+src struct clone. cpp:245:12: warning: 11 enumeration values not handled in switch: 'HalfTyID', 'X86 FP80TyID', 'FP128TyID'. 
+ switch typeID 
+ 
+1 warning generated.
+
+
+This patch worked. Thank you.
+
+After applying this, continuing the build resulted in size t namespace errors:
+
+ make j NUM PROCS 
+mkdir p build
+mkdir p build
+ opt local libexec llvm 3.8 bin clang++ c o build hostside opencl funcs. o std c+ thumbs up 1 fPIC g O2 I CODESCODES include I CODESCODES src EasyCL src hostside opencl funcs. cpp
+ opt local libexec llvm 3.8 bin clang++ I usr lib llvm 3.8 include fPIC fvisibility inlines hidden ffunction sections fdata sections g D GNU SOURCE D STDC CONSTANT MACROS D STDC FORMAT MACROS D STDC LIMIT MACROS std c+ thumbs up 1 fcxx exceptions o build ir to opencl g I opt local libexec llvm 3.8 include src ir to opencl. cpp build struct clone. o build readIR. o src ir to opencl common. cpp build mutations. o CODESCODES 
+ opt local libexec llvm 3.8 bin clang++ c o build cocl events. o std c+ thumbs up 1 fPIC g O2 I CODESCODES src CLBlast include I CODESCODES include I CODESCODES src EasyCL src cocl events. cpp
+ opt local libexec llvm 3.8 bin clang++ I usr lib llvm 3.8 include fPIC fvisibility inlines hidden ffunction sections fdata sections g D GNU SOURCE D STDC CONSTANT MACROS D STDC FORMAT MACROS D STDC LIMIT MACROS std c+ thumbs up 1 fcxx exceptions o build patch hostside g I opt local libexec llvm 3.8 include src patch hostside. cpp build readIR. o build mutations. o build struct clone. o src ir to opencl common. cpp CODESCODES 
+In file included from src hostside opencl funcs. cpp:17:
+ Users erybski git tensorflow cl third party cuda on cl include cocl cocl. h:91:16: warning: 'host' attribute ignored 
+ attribute host inline unsigned long long atomicExch volatile unsigned long long p, unsigned long long val 
+ 
+ opt local libexec llvm 3.8 bin clang++ c o build cocl blas. o std c+ thumbs up 1 fPIC g O2 I CODESCODES src CLBlast include I CODESCODES include I CODESCODES src EasyCL src cocl blas. cpp
+1 warning generated.
+ opt local libexec llvm 3.8 bin clang++ c o build cocl error. o std c+ thumbs up 1 fPIC g O2 I CODESCODES src CLBlast include I CODESCODES include I CODESCODES src EasyCL src cocl error. cpp
+In file included from src cocl blas. cpp:15:
+ Users erybski git tensorflow cl third party cuda on cl include cocl cocl blas. h:9: error: no type named 'size t' in namespace 'std'; did you mean simply 'size t'?
+typedef std: size t cublasStatus t;
+ 
+ size t
+ opt local libexec llvm 3.8 bin. lib clang 3.1 include stddef. h:62:23: note: 'size t' declared here
+typedef SIZE TYPE size t;
+ 
+In file included from src cocl blas. cpp:15:
+ Users erybski git tensorflow cl third party cuda on cl include cocl cocl blas. h:17: error: no type named 'size t' in namespace 'std'; did you mean simply 'size t'?
+ std: size t cublasCreate cublasHandle t phandle ;
+ 
+ size t
+ opt local libexec llvm 3.8 bin. lib clang 3.1 include stddef. h:62:23: note: 'size t' declared here
+typedef SIZE TYPE size t;
+ 
+In file included from src cocl blas. cpp:15:
+ Users erybski git tensorflow cl third party cuda on cl include cocl cocl blas. h:18: error: no type named 'size t' in namespace 'std'; did you mean simply 'size t'?
+ std: size t cublasDestroy cublasHandle t handle ;
+ 
+ size t
+ opt local libexec llvm 3.8 bin. lib clang 3.1 include stddef. h:62:23: note: 'size t' declared here
+typedef SIZE TYPE size t;
+ 
+In file included from src cocl blas. cpp:15:
+ Users erybski git tensorflow cl third party cuda on cl include cocl cocl blas. h:19: error: no type named 'size t' in namespace 'std'; did you mean simply 'size t'?
+ std: size t cublasSgemm cublasHandle t blas, int transA, int transB, int M, int N, int K,
+ 
+ size t
+ opt local libexec llvm 3.8 bin. lib clang 3.1 include stddef. h:62:23: note: 'size t' declared here
+typedef SIZE TYPE size t;
+ 
+In file included from src cocl blas. cpp:15:
+ Users erybski git tensorflow cl third party cuda on cl include cocl cocl blas. h:21: error: no type named 'size t' in namespace 'std'; did you mean simply 'size t'?
+ std: size t cublasSetPointerMode cublasHandle t handle, cublasPointerMode t mode ;
+ 
+ size t
+ opt local libexec llvm 3.8 bin. lib clang 3.1 include stddef. h:62:23: note: 'size t' declared here
+typedef SIZE TYPE size t;
+ 
+In file included from src cocl blas. cpp:15:
+ Users erybski git tensorflow cl third party cuda on cl include cocl cocl blas. h:22: error: no type named 'size t' in namespace 'std'; did you mean simply 'size t'?
+ std: size t cublasGetPointerMode cublasHandle t handle, cublasPointerMode t mode ;
+ 
+ size t
+ opt local libexec llvm 3.8 bin. lib clang 3.1 include stddef. h:62:23: note: 'size t' declared here
+typedef SIZE TYPE size t;
+ 
+In file included from src cocl blas. cpp:15:
+ Users erybski git tensorflow cl third party cuda on cl include cocl cocl blas. h:23: error: no type named 'size t' in namespace 'std'; did you mean simply 'size t'?
+ std: size t cublasSetStream cublasHandle t handle, cudaStream t streamId ;
+ 
+ size t
+ opt local libexec llvm 3.8 bin. lib clang 3.1 include stddef. h:62:23: note: 'size t' declared here
+typedef SIZE TYPE size t;
+ 
+ opt local libexec llvm 3.8 bin clang++ c o build cocl memory. o std c+ thumbs up 1 fPIC g O2 I CODESCODES src CLBlast include I CODESCODES include I CODESCODES src EasyCL src cocl memory. cpp
+ opt local libexec llvm 3.8 bin clang++ c o build cocl device. o std c+ thumbs up 1 fPIC g O2 I CODESCODES src CLBlast include I CODESCODES include I CODESCODES src EasyCL src cocl device. cpp
+7 errors generated.
+
+
+Can we push long log on gist to let the thread to be still readable?
+
+
+ hughperkins The SYCL specs describe in section 5.8 Address space deduction 
+how an implementation needs to deal with different memory types. This
+is similar to previous work done for PlayStation 3 and described in
+this paper: Offload – Automating Code Migration to Heterogeneous
+Multicore Systems LINKLINK or LINKLINK 
+
+hope that helps.
+ hughperkins Can I compile your tensorflow opencl repo code to apply my ARM board? My ARM board has Imagination GPU which support opencl 1.
+I stumbled on this thread while searching for tf intel support.
+
+I have an intel MacBook Pro, how can I help? I don't know c c++, but I can follow build compile test instructions and pass back pastebin results. 
+
+derek system profiler SPDisplaysDataType
+Graphics Displays:
+
+ CODELCODEL 
+ hughperkins Thanks for your instructions! 
+ I try to compile your cuda on cl on arm platform. Following your cuda on cl's guide:
+My ARM board info:
+arm64, gcc 4. clang and llvm 3. openCL 1.2
+
+
+git clone recursive LINKLINK 
+ make
+error:
+clang++ 3. Command not found 
+I edit the Makefile like this: CLANG clang++ LLVM CONFIG llvm config LLVM INCLUDE usr include llvm
+then make again:
+error:
+src mutations. h:10: fatal error: 'llvm IR Module. h' file not found
+
+try run make run test cocl cuda sample:
+make: cocl: Command not found
+ hughperkins let me give it a try. 
+Got error while testing keras with tensorflow
+
+ CODELCODEL 
+
+Output errors:
+
+ CODELCODEL 
+
+Code:
+
+ CODELCODEL 
+hi everyone, my name is ricardo, i am a C++ programmer with many years in C++ experience, and little on Cuda, i will be glade in contribute to this effort. How can i contribute to this job? 
+Ok, i have an Odroid Xu3 with a Mali T628 MP6 OpenGL ES 3.0 2.0 1.1 and OpenCL 1.1 Full profile 
+running on OS: LUbuntu 1404 64 bits
+I will make a complete installation and post the result on this platform.
+About bugs, there is a list of bugs something like Bugzilla? or an spreadsheet with a list of bugs?
+Cheers!
+What about using HIP?
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+ Your wish is being granted, Eigen is being ported over AMD GPU via HIP. The second part of your request is can we bring standardized tool supporting FLOAT16 that ships with all our GFX8 GPU's, wish granted. 
+Our development branch of AMDGPU compiler now support's both Float16 and Int16 native instruction, instead of emulating FP16 Int16 with up convert & down convert instructions to convert from FP16 Int16 to Float and back.
+
+This is f16 tests on Fiji hardware successfully executing a matrix multiplication with half types with conversion and with Native instructions. 
+
+Also, not related but you should use syCL openCL 2.0 instead of 1. because nvidia is already supported via CUDA. And openCL 2.0 is supported on both AMD and Intel Windows drivers. Also AMD has said that they will soon opensource un openCL 2.0 driver for Linux which could be used by Intel, opensource magic and Intel already has a Linux openCL 2.0 implementation which Just need maturation. if you ask Intel and AMD, maybe they could speed up the work, because tensorflow is important for their economic interests. And they already have said in this comment section that they wanted to help. Also all the major ARM makers support openCL 2. This could open a lot of opportunitys for Android which is in the economic interest of Google, raspberry like, smart TVs, etc 
+
+And in mid term we could eventually develop an opencl 1.2 fallback layer for non supported hardware. 
+And the implementation should use also openVX which is now supoorted by all major hardware makers, and AMD has an opensource implementation and with LINKLINK 
+And the all with Spir V which can be use simultaneously by Vulkan and openGL. 
+You could say that I'm making a duplicate of what was already said, but synthetizing is important. 
+And finally, could tensorflow use HSA? 
+
+ LINKLINK 
+HSA would be awesome on Android. 
+I don't know if HIP would be useful or not. It is only supported on some AMD cards so that we need an OpenCL implementation anyway if we want to support all devices. It might still be worth it if the HIP implementation is notably faster. This might be the case but I haven't seen many benchmarks HIP vs. OpenCL yet. Another reason might be MLOpen which is written in HC as an replacement for cudnn but again I have no idea how fast that is or which features it supports.
+
+TensorFlow would not use HSA directly because it is quite low level. But HC and HIP is implemented on top of it and you can also implement OpenCL on top of if pocl does that.
+Would the relooper algorithm be helpful here? LINKLINK 
+ hughperkins Nice to see you have some progress with your compiler, but I think it becomes off topic for TensorFlow. You should start many smaller discussion threads on the GitHub page of your compiler project instead. It would be more focused and productive I guess.
+See LINKLINK 
+There's also LINKLINK 
+
+Here's the associated paper: LINKLINK 
+Initial OpenCL SyCL support was merged in master with LINKLINK 
+Congratulations!
+
+ keryell Btw, what happened to the triSYCL repository? It seems to be gone and I can only find a reference to Khronos' Gitlab which is not publicly accessible.
+
+EDIT: I found your private clone, only the one from amd is gone.
+ bhack, does the opencl docker support in mac platform? 
+ alephman I don't have an OSX platform but I think that adapting a little bit the launching command could works.
+ bhack alephman: see my comment about mac above, if you point me to the build instructions I'll have a go
+ olesalscheider: yes, triSYCL moved from AMD to Xilinx LINKLINK but you are right, the version on my GitHub workspace works too at LINKLINK 
+
+We have not tried triSYCL on TensorFlow yet. There is already a big build config work to do just to try. 
+ keryell What is the triSYCL status?
+Intel beignet opencl 2.0 support is almost done!
+ LINKLINK 
+ bhack triSYCL is mainly developed at Xilinx now. Still adding more and more features. The Clang LLVM based outlining compiler is still in development to have a full single source experience on a device. But the OpenCL compatibility mode, already implemented, has some value too, by simplifying the communications between host and kernels with the SYCL runtime doing the lazy transfers according to the dependencies expressed by the accessors.
+My mac is OpenCL compatible, so how can I run my tensorflow with openCL? I just found that opencl had been supported in tensorflow, when I configure the new codes.
+ hughperkins there is no CODESCODES instruction in my mac, what can I do for it? But I can compile the test code LINKLINK for opencl with clang and result the following info:
+ clang framework OpenCL dumpcl. c o dumpcl &&. dumpcl
+Device Intel R Core TM i5 5257U CPU 2.70GHz supports OpenCL 1.2 
+Device Intel R Iris TM Graphics 6100 supports OpenCL 1.2 
+Thank you hughperkins, but I think I had tried the computecpp yesterday, and it's seem that the macbook system is still not supported with computecpp. So, maybe keep waiting for new updates is the only thing I can do T. T. BTW, my Iris 6100 is eight generation, which is good for OpenCL 1. 
+ hughperkins yes SYCL 1.2 is a priori for OpenCL 1.2 and SYCL 2.2 is a priori for OpenCL 2.
+I said a priori since, if you do not use anything requiring the OpenCL compatibility mode of SYCL, SYCL does not really require OpenCL at all. Actually SYCL is a very generic model for heterogeneous computing and can run on top of anything. But of course a real implementation may require OpenCL too.
+Hello,
+
+I am learning working with TensorFlow and Keras for the time being and I would be interested to get the OpenCL support working under macOS. Is there some news on the work done around macOS? 
+
+I succeeded to compile TensorFlow but if I try to configure for OpenCL it ask me for the computeCpp 1.2 location, and there is no ComputeCpp for macOS it seems to me.
+Hello. By no means an expert in ML Tensorflow or even OpenCL, but I'm an experienced Mac graphics dev who desperately wants faster performance of Tensorflow on systems with integrated and AMD GPU's using built in libraries and simple dependencies thumbs up 
+
+How can I help? 
+Looking at the last compile failure on OS X in the travis log hughperkins it looks like running 'xcode select install' might a solve? It should re link the usr include directory. I had this issue myself when updating Xcode beta to release and had issues compiling some C++ code.
+It seems like the XLA compiler LINKLINK will provide LLVM code generation from dataflow graphs. This means very easy access to spir v and therefore Vulkan's compute API. With code generation sorted out, I can't imagine Google not providing Vulkan compatibility given the high number of unused integrated GPUs running on Android.
+ hughperkins 
+
+Quickly: Right now I am running Inception v3 on a custom C++ Object C codebase and passing in decoded video frames to the network. I don't know enough about TF to know low level needs, but high level: load models, run session, expect stuff to work. I think that means 100 compatibility to be really honest. I know thats of no help in prioritizing. Basically the C++ Image Recognition using TF InceptionV3 was my starting point.
+
+cuda on cl running on Mac: I've checked out the repo and can help debug and run builds on my systems and verify results on a variety of hardware: I have access to AMD Mac Pros with Dual D700s, Nvidia Mac Laptops and Desktop systems.
+
+Thanks for your detailed feedback. I'll monitor the repo, try to follow along, and try to help best I can.
+Hugh, you might want to look at LINKLINK to learn how some functions are mapped.
+At my company StreamComputing we have various GPUs for build testing and benchmarking, which we use for our customer projects. I could hook your Github into our Jenkins to do a weekly run.
+Thank you for the answer, I will go back on the subject at work this week, with specific scripts.
+
+My use cases are around text syntaxic matching analysis, using Gensim and Keras tensorflow in my experiments.
+I am wiling to help you for testing
+
+I hava a Windows PC with an AMD card
+A MBP with an AMD card
+An MB with an Intel integrated GPUHey hughperkins I am going through the test set above, this evening, on an AMD R9 390 8GB. So far I've already got one different result; CODESCODES trains and doesn't return CODESCODES. So, good! It segfaults at the end, so I'll investigate whether the script or the cl code is at fault.
+
+Where should I push my results, where they can be most useful to you?
+Perhaps we could get a standard test script that generates a standard set of results that volunteers can push to you or set up on local CIs or whatever? CODESCODES is as good a solution as any; it's just a CODESCODES away and that's part of the process for installing CODESCODES anyway.
+
+I've discovered a few interesting things since starting my tests, and they may not be debuggable using Python output alone, however:
+
+ Different calls to the same script may crash early, or may hang no output, no progress, no response to CODESCODES, process needs to be CODESCODES 'd, or may crash late either at the validation part or after the script completes successfully. Crashes segfaults may take down Xorg.
+ The results vary for seemingly no reason: I may call a script and have it segfault, then call it again and it will work.
+ Hangs can occur in portions of code that were working literally moments ago, I've had one hang occur within or after a training batch, after several hundred batches just happened successfully.
+
+So, it might be that there's unresolved stuff on the GPU side, and that a good segfault is needed to clear it out? I don't know much about the GPU model or OpenCL yet, so I can't contribute much here. But, it might be that GPU debugging output is needed to properly explore what's happening.Also, I thought you were with AMD from your github, but it seems you're a rogue agent doing this whole CUDA on CL thing on your own time. Thanks sincerely for spearheading this! Is there some way that I and others can contribute for your efforts, perhaps by crowdfunding you a GPU? Or you could set up a Patreon, I'm happy to sign up for a monthly contribution to the project?Concerning AMD GPUs, we're a partner of AMD. See my message of 8 days ago, which you might have missed:
+
+
+No problem. I probably need write access to the project, so Jenkins can write the log file into a build log directory. I just spammend you, so we can discuss.Hi all, 
+
+As you probably see already, a bunch of SYCL stuff has been pushed to TensorFlow. We are not complete yet, and there is plenty to do. But we are progressing to get there.
+
+If you are interested in contributing or just curious on the current state, check the breakdown below.
+
+ Infrastructure 
+Google kindly donated two machines that are set up to test benoitsteiner's fork of TensorFlow LINKLINK periodically
+
+Both have AMD GPUs:
+
+CL DEVICE NAME: Hawaii
+CL DRIVER VERSION: 1912.5 VM 
+
+and 
+
+CL DEVICE NAME: Fiji
+CL DRIVER VERSION: 1912.5 VM 
+
+We at Codeplay are looking to dedicate machine s next year too. To improve the OpenCL device diversity coverage.
+
+We are looking for contributors on that front if anyone is interested in providing a test build server for relevant platforms that we support.
+Currently, the requirements are:
+ Ubuntu 14.04
+ OpenCL drivers that support SPIR Intel CPU GPU or AMD GPU 
+
+ VincentSC perhaps you could help out with that?
+
+ Tests 
+On the Fiji machine LINKLINK we are facing 164 fails.
+
+On the Hawaii machine LINKLINK we are down to 56 fails.
+
+We are looking into fixing the failing gradient tests and investigating the origins of the additional fails on the Fiji machine.
+
+ Eigen 
+For the past few months we have been actively implementing features needed by TensorFlow including: Reshaping, Slicing, Basic Reduction etc. Currently we are implementing Contraction. A detailed breakdown can be found in the Eigen Tensor tab of LINKLINK.
+
+ TensorFlow 
+A lot of Coefficient wise operations have been implemented including Abs, Floor, IsFinite, Log, Pow, Mul, etc. as well as Tensor Manipulations like Reshape, Shape, Identity, Fill etc. 
+A detailed breakdown can be found in the TensorFlow Kernels tab of LINKLINK 
+
+ Organisation 
+The above spreadsheed has several tabs that categorise the efforts of the project like: Overall Plan, Eigen Tensor, TensorFlow Kernels, Models.
+
+If you would like to get involved, please put your name next to the item you are working on or add anything important that is missing.
+Thanks,
+LukeIs this roadmap active? lukeiwanski Yes, no problem. Contact us via After reading through all this I'm guessing there's no solid solution yet for using OpenCL on macOS OS X? I tried to compile Tensorflow C++ with OpenCL support which I assume requires ComputeCpp for SYCL 1.2 as someone pointed out. 
+
+I looked around and couldn't seem to locate where to download, compile or build the SYCL library. Is it here LINKLINK? I'm unsure really how to proceed, thanks.  dylib As far as I know that there is still not a ComputeCpp for macOS. So that means OpenCL for macOS is not ready. Still can't make it working on Ubuntu 16.04 with AMD card and catalyst driver LINKLINK. Is there any howto? I had to look at usr local computecpp bin computecpp info output before trying to use TF compiled with OpenCL support. In my case it showing
+ CODELCODEL 
+now there is 2 choices for running TF on GPU:
+good working on limited by vendor number of devices, but proprietary CUDA
+bad working on limited by computecpp developers number of devices and also proprietary computecpp
+Still no OpenCL support. inferrna There in an LINKLINK in the overall TensorFlow documentation. This will be published on the tensorflow. org site soon. benoitsteiner What is the current state on opencl convolutions support? Are you planning on leveraging the exiting kernels directly? What about matrix multiplications?
+
+Any ETA?
+How about using HIP to port CUDA code to platform agnostic one? LINKLINK It seems AMD is working on that: LINKLINK Can XLA backends LLVM IR be converted to SPIR V with LINKLINK?How about this? I think this package can work on Radeon GPU. 
+
+ LINKLINK  bhack From LINKLINK 
+
+
+
+XLA and SYCL solutions are complementary for different situations: SYCL is designed to provide full programmability and customizability. XLA is for optimizing well defined patterns in graphs.
+
+My understanding of XLA is that it optimizes some existing TensorFlow graphs at runtime using the LLVM compiler. It requires optimization passes to be implemented in the compiler for each algorithm used in the graph.
+The SYCL approach is the only approach that will deliver a CUDA level of programming which is what developers need.
+
+With SYCL we are aiming to provide support for all the TensorFlow Ops and ease development of new operations.
+
+This means SYCL lets you write new high performance operations very easily, while XLA can optimize whole graphs if it supports all the ops in the graph.
+
+
+
+I don't see any reason why that wouldn't be possible.
+ lukeiwanski Thanks, I was looking specifically to LINKLINK  k hashimoto: we are discussing here about porting TensorFlow to OpenCL, a standard from Khronos Group, and actually more OpenCL SYCL, the post modern C++ single source standard from Khronos Group.
+ROCm looks like yet another non standard solution from some vendor.
+If you are interested in proprietary solutions, there is already a CUDA version of TensorFlow which looks working well. Agreed: keep conversation efforts on OpenCL, and let vendors implement their whatevers atop that open standard.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sent from my Android device with K 9 Mail. Please excuse my brevity. thumbs up  thumbs up  thumbs up This message was created automatically by mail delivery software.
+
+A message that you sent could not be delivered to one or more of its
+recipients. This is a temporary error. The following address es deferred:
+
+ 
+ Domain biomassiv. es has exceeded the max emails per hour 111 100 111 allowed. Message will be reattempted later
+
+ This is a copy of the message, including all the headers. 
+Received: from github smtp2 ext6. iad. github. net:48606 helo github smtp2b ext cp1 prd. iad. github. net 
+	by chi server32. websitehostserver. net with esmtps TLSv1. ECDHE RSA AES256 GCM SHA384:256 
+	 Exim 4.87 
+	 envelope from 
+	id 1cWmiQ 0032as W9
+	for ; Thu, 26 Jan 2017 10:16:03 0600
+Date: Wed, 25 Jan 2017 04:09:21 0800
+DKIM Signature: v 1; a rsa sha256; c relaxed relaxed; d github. com;
+	s pf2014; t 1485346161;
+	bh N1Pjga2Q9PtEE8ncEMXBtSJzd3kd6HAkJRnj6H2dDEg ;
+	h From: Reply To: To: Cc: In Reply To: References: Subject: List ID:
+	 List Archive: List Post: List Unsubscribe: From;
+	b e5r+VKm UtpLYj0OCnfEPSYlL6a7xCOd9bN+jS3gify2mRv g4kofW7ZrEeDyeJT+
+	 GvddVV w5htZFUbHy9+92pYUHGEYEn2XrmFqc6ZFVoPqBsPW5Cxk31O3Kvi1cwuSPI
+	 g8J4X qvl1DT+yKrh1es7CeXkr23c8mFNgWkG5qk 
+
+Reply To: tensorflow tensorflow 
+To: tensorflow tensorflow 
+Cc: Subscribed 
+Message ID: 
+In Reply To: 
+References: 
+Subject: Re: OpenCL support 22 
+Mime Version: 1.0
+Content Type: multipart alternative;
+ boundary mimepart 5888957158d12 78b73ff902fe113c148134 ;
+ charset UTF 8
+Content Transfer Encoding: 7bit
+Precedence: list
+X GitHub Sender: migpradel
+X GitHub Recipient: biomassives
+X GitHub Reason: subscribed
+List ID: tensorflow tensorflow 
+List Archive: LINKLINK 
+List Post: 
+List Unsubscribe:
+ 
+X Auto Response Suppress: All
+X GitHub Recipient Address: 
+
+
+ mimepart 5888957158d12 78b73ff902fe113c148134
+Content Type: text plain;
+ charset UTF 8
+Content Transfer Encoding: 7bit
+
+ LINKLINK 
+
+
+ 
+You are receiving this because you are subscribed to this thread.
+Reply to this email directly or view it on GitHub:
+ LINKLINK 
+ mimepart 5888957158d12 78b73ff902fe113c148134
+Content Type: text html;
+ charset UTF 8
+Content Transfer Encoding: 7bit
+
+ 
+
+ &mdash; You are receiving this because you are subscribed to this thread. Reply to this email directly, view it on GitHub, or mute the thread. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+ mimepart 5888957158d12 78b73ff902fe113c148134 
+New here. Wanted to ask if there will be OpenCL support in tensorflow in the future, would that mean there will be support to run tensorflow on FPGA?
+Thank you atinzad: yes if the OpenCL or SYCL version & source code is supported by the FPGA environment. But since TensorFlow is perhaps the most ported framework with various means, it might already have some part running on an FPGA already somewhere. OMG. LINKLINK What are the differences between the sycl development effort and XLA targetting SPIR V other than PTX in the middle term vision?What a great question. Probably the number of people involved? Would be very interesting to know!
+
+
+
+
+
+
+
+
+
+
+
+ bhack That would be a great discussion to be had at yesterday's TensorFlow Dev Summit
+
+Do you ask about the resources available type of programmers needed to contribute?
+
+If so, in OpenCL SYCL approach C++ programmers OpenCL C programmers can quickly be brought up to speed and be able to contribute. XLA approach requires a compiler llvm experience.
+
+XLA is Google's internal project by extension they have more resouces associated with it. But, on the other hand their task is way bigger too. Writing a compiler is not an easy task.
+
+Otherwise, if you are asking about the model:
+ 
+As I mentioned earlier in LINKLINK we are seeing both efforts as complementary approches and both having different use cases. I still stand with that statement.
+
+For instance tatatodd in his presentation mentioned that some of the Ops will never have XLA as a target. I believe that we are possible to fill that gap.
+
+Other things to consider are new platforms. I will use mobile and embedded enviroment for this argument's sake as a new chips tend to pop out more frequently than GPUs the principle is the same.
+
+If the semiconductor support SYCL OpenCL you get TF support out of the box some performance tweaks might be required. 
+
+If the architecture is exotic and there is no LLVM backend for it yet XLA needs to add it that might not happen too often but still. What happens more often is the architecture changes a bit and then new optimisation passes need to be added or existing one must be modified to gain the benefit. Tweaking kernel code is easier.
+
+I haven't looked very deep to XLA but I assume that XLA has to call into the CUDA API somehow to run the PTX kernel code, so would have to be ported to OpenCL or Vulkan to run SPIR V kernels instead that I assume would go through StreamExecutor another framework to get familliar with probably quite a big effort.
+
+In short, we are providing an unified stable platform in very fragmented diverted ecosystem that both semiconductor companies and developers can target. Where as XLA would have to commit to support.
+
+ benoitsteiner or drpngx might be able to give more inside knowledge of XLA as I am working with a lot of assumptions conclusions based on conversations.
+
+Oh, as well I have created slack channel to eas up communication LINKLINK 
+
+Eidt:
+Slack link is no longer valid. Please ping me if you'd like to join.I think that is correct and partially will depend in which direction the semiconductors producers will be oriented. 
+ These backends emit the LLVM IR necessary to represent the XLA HLO computation in an efficient manner, and then invoke LLVM to emit native code from this LLVM IR. So LINKLINK. But Opencl SPIRV dialect it is LINKLINK. Streamexecutor is being pushed in LLVM LINKLINK and in the original henline LINKLINK the original plan seems to cover opencl. cc dneto0 LINKLINK 
+Nvidia should soon support opencl 2.0 on both Linux and Windows, this is YUGE! Performance wise it's likely to be slower than CUDA though.Remember also that Noveau guys are working independently on LINKLINK. The status is a little bit outdated but there are fresh commits.Opencl isn't inherently slower than Cuda, it's Just nvidia virtually locking the market by crippling his opencl driver. 
+But nvidia leading is finally coming to an end and even their ammoral anticompetitives practices will not save them. With the impressive Cuda autotranslator HIP LINKLINK 
+The upcoming vega apus and dgpus and ARM coming to Windows, Nvidia has no future, this is why the industry NEED to support opencl syCL HIP HSA very soon and massively. What about slide 40 of LINKLINK?Hello, that I planning that tensorflow will support the new AMD Radeon Instinct? LINKLINK Hi, is there any progress in the TF OpenCL support for FPGAs? alexivia LINKLINK was removed some months ago and Streamexecutor roadmap it is not clear.  bhack thanks for the quick response
+So, does this mean that there is no support, or that correct operation is not guaranteed?
+Also, from what I read on this thread I see that the testings are mainly on AMD GPUs. is anyone training nets on Nvidia GPUs with this OpenCL port?Streamexecutor was renamed in LLVM parallel libs and now is LINKLINK Can any Google member explain the difference and roadmaps between streamexecutor and LINKLINK?CC zheng xq  henline and jlebar are the experts to answer the difference between streamexecutor and LINKLINK?Axcell and StreamExecutor are separate projects. There are no current plans to merge them. I leave it up to the TensorFlow folks to say whether or not they plan to switch.So also StreamExecutor and StreamExecutor llvm was not the same projects?Correct, they are not the same project.
+
+
+
+
+
+
+
+
+
+
+
+
+
+ jlebar Next time a creative unit for naming thumbs up but probably was not a lack of creativity motivation but just an upstreaming effort of an internal tool that diverged to the one maintained in TF. bhack, we did change the name, precisely when we realized that we did
+not think it made sense to move StreamExecutor into LLVM wholesale. It's
+now called Acxxel.
+
+I'm sorry for the confusion and I appreciate the feedback. It was a
+learning process for sure.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Yes I have still a bit of confusion between StreamExecutor, SyCL in eigen, XLA that actually has only a CUDA backend, other than CPU and opencl in some slides BumpHas anyone in Google spoken to Apple or AMD to ease this? I guess LINKLINK is so lost they don't even know the problem is there and they are still wondering why Nvidia has such a huge market share. I guess too Apple AI team would be more than happy to help in here. LINKLINK and, even worse, their bosses wouldn't mad at Google.What's the latest on this?According to LINKLINK Mac GPU Nvidia only support has been deprecated. Let's hope this will help to improve OpenCL approach not very confident on this.You can follow also the status of the PR LINKLINK Thanks! I'm following this issue during last months. I'm not confident about the Apple OpenCL commitment, given they're stuck onto OpenCL 1.2 since 2013 Apple is not providing SPIR 1.2 support yet.If TensorFlow on OpenCL would help you in your work let me know, to the extent I can help advance research and practice of deep learning I'd like to help. My company has built an OpenCL back end for TensorFlow tuned for a variety of GPUs as part of our work in on device inference. We have tested on the major mobile & desktop GPU families including common configurations on Windows & Mac. If there's enough interest we may do some kind of public distribution. We also have Metal Apple GPU and LLVM CPU, along with a way to do zero dependency deployment. The idea here being to give every device great support for deep learning. choongng all of that sounds incredibly useful and helpful. My personal project LINKLINK would greatly benefit from OpenCL on OS X, as well as Metal for iOS and Desktop deployment. If its possible for this to be introduced to Tensorflow proper I think it would be a tremendous boon for tons of developers. 
+
+Thank you. choongng
+
+If your company publish an OpenCL version, or more interesting a Metal version of TensorFlow, I think that this is going to be a great news for a lot of people, I am in the process to build an eGPU with an NVidia card to get TensorFlow Keras running on my MBP for my job. 
+
+For people interested. go to eGPU. io community choongng
+
+I would be very interested in seeing this, so I'd be very grateful of you could pursue it! Especially if it doesn't require the sketchy closed source compilers TF have chosen for CL support.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sent from my Android device with K 9 Mail. Please excuse my brevity.I think that it would be revolutionary thumbs up 
+
+ choongng Maybe it would help if you join forces with these guys
+ LINKLINK  cathalgarvey what is the open source compiler you propose to use then? It is difficult to find an open source OpenCL compliant solution to address a lot of devices in the wild. 
+We need to bootstrap a solution at some point somehow. I didn't say it was an easy fix. But, OpenCL isn't the problem, there. After all, CUDA is entirely proprietary, much worse than even the OpenCL option TensorFlow chose.
+
+That all said, there are options for a CL or cuda system if you're starting from scratch, including portable middleware runtimes or arrayfire, etc. Tensorflow is too tied to CUDA though.
+
+I find it frustrating that people are willing to write kernels in CUDA but balk at doing it for CL, even though it would reach more users and seriously grow the market ecosystem. There are direct and indirect benefits to an open platform for everyone, possibly leading to big cost savings for everyone in the long run.
+
+If SYSCL is how that eventually happens, great: so why aren't some big names putting money on an open SYSCL distribution instead of buying into fringey proprietary options, which kind of defeat the purpose of an open standard?
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sent from my Android device with K 9 Mail. Please excuse my brevity.What I want to ask in this context is this:
+
+So some deep learning frameworks like Tensorflow are somewhat tepidly exploring the use of opencl as an alternative to CUDA. Of course CUDA is just the language that cuDNN was developped on, and that's if my understanding is correct is what most deep learning languages are actually using. In this context, I am not sure what the opencl version of cuDNN is.
+
+Also AMD has been talking about open source alternatives to CUDA which they are continuously developing and are calling rocM. They are also talking about miOpen to be the cuDNN equivalent handcrafted assembler libraries for common deep learning functions, which however has not been released yet. The AMD approach is somewhat more holistic: We are not just exporting heavy compute to the GPU.
+
+In this context, I am genuinely confused. How do opencl efforts like the ones listed above fit together? For NVIDIA GPUs, it's easy. there is CUDA, and there is cuDNN written in CUDA. For non NVIDIA or in this case AMD, it seems so much less clear. When is HIP preferred? When is using the HCC preferred? When is using opencl preferred? Any insights would truly be appreciated!  cathalgarvey there is a lot of politics behind all these huge software hardware infrastructures. 
+Even if we can dream of a clean slate solution based on pure scientific criteria, I think we have to be pragmatic.
+Google does not want to change too much of the TensorFlow architecture. This is why the OpenCL based architecture has to be very similar, requiring single source C++ like CUDA runtime instead of the lower level non single source OpenCL C solution. In the Khronos realm, the single source C++ version of OpenCL is called SYCL.
+Let's discuss this when you drop by Dublin, for example, since you look to be based in Ireland too. 
+In the meantime, feel free to contribute to LINKLINK and the TensorFlow & Eigen branches dealing with SYCL.  keryell Do you know if also XLA: GPU: OpenCL is planned on SyCL?Hi benoitsteiner, regarding:
+
+
+I did a LINKLINK and didn't seem to be able to find anything significant, it to all seems to point right back here. By soon, do you mean before? insert funny sarcasm here.
+
+I was able to compile your repo yay! although I'm guessing that it needs something else to create a working CODESCODES for Mac; I tried building the CODESCODES compiler mentioned but sadly failed.
+ bhack SInce I do not work for Google, I have no idea about XLA details.  dylib unfortunately all this is a work in progress.  keryell Yes I know. I was just curious if was discussed in some meetings.OpenCL is radically different from CUDA. I would however definitively see this ported to HIP instead.
+So thumbs up For all of you that suggested it.
+ LINKLINK 
+
+
+
+Not many people know about HIP. 
+You can find more information about tensorflow and HIP here:
+ LINKLINK 
+and
+ LINKLINK 
+
+ Side note: 
+I don't think we should fight brag about Nvidia vs AMD. Those are respectable companies that make amazing hardware and software period. We should instead focus on delivering tensorflow to a larger user base.
+Targeting many languages through bindings is already a good starting point, but we also need to target as many hardware as possible. Even if cloud solutions are amazing, they aren't always the answer We have experience with HIP, here at Stream. Let me take a look.
+
+Agree on the my company is better arguing. I would like to know which GPUs TensorFlow should be targeting. It has to be pragmatic and useful. For instance Intel GPUs or embedded GPUs Qualcomm, ARM, Imagination, RaspBerry Pi yes or no?  LINKLINK 
+They've already released Caffe, would be very interested to hear others on this thread sharing their experiences with building testing:
+
+ LINKLINK 
+
+I've started installing but hit a roadblock where anything requiring CL just freezes, even CODESCODES. Not sure if this is because of some software issue, or if my card R9 390 simply isn't supported by ROCm.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sent from my Android device with K 9 Mail. Please excuse my brevity. cathalgarvey I have been using Caffe OpenCL branch on AMD's GPUs and it works just fine. CODESCODES passed all tests except oneGood to hear; may I ask about your HW SW setup? E. g. what card you're 
+using, what distro version of Linux, etc?
+
+I previously had AMDGPU pro, but uninstalled it when installing ROCm. 
+It's possible there's some legacy thing interfering with me.
+
+ 
+ onetruecathal 
+
+
+
+wrote:
+
+
+
+
+
+
+
+
+ cathalgarvey 
+ Caffe OpenCL branch tested commit LINKLINK 
+ OS: Ubuntu 16.04.2 LTS
+ Tested on Polaris RX460, Fiji Fury X and Tonga W7100 
+ Driver: AMDGPU Pro driver for Linux 16.40 or above
+ LINKLINK 
+ General dependencies: CODESCODES 
+ cmake: CODESCODES 
+Yes in addition to the OpenCL branch above, naibaf7 will be publishing a book very soon on using it for real time inference on commodity hardware using amd and hd graphics.Ah; I was talking about hipCaffe, not the OpenCL branch:
+
+ LINKLINK 
+
+Installing ROCm to build test hipCaffe required me to uninstall 
+AMDGPU pro, perhaps I'll try the vanilla branch again. It's poorly 
+documented, unfortunately. I suppose I'll try a blind make and see.
+
+So, I'm still interested to hear others' experiences with the AMD 
+ROCm HIP stack; if they're working on a Tensorflow fork it'd be great, 
+provided it actually works on more than 3 4 models of AMD card in the 
+wild.
+
+ 
+ onetruecathal 
+
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ cathalgarvey I do hope they are working on a hip backend, not a full fork. That would be sad and only split the working effort.
+There is enough tooling already:  YvanDaSilva AMD's efforts are a bit poorly coordinated at the moment yes, all forks. Also it doesn't seem to work that well on a large variety of devices yet, unlike the OpenCL branch of Caffe, for example.  naibaf7 I absolutely agree. 
+To be honest, they really seem to lack human resources, they are working on all the fronts.
+By the way: Didn't know ETH had a Neuroinformatics thumbs up nice! cathalgarvey Can you elaborate on the ROCm HIP stack for a layman like myself. I've been playing AMGPU pro and AMDGPU with my Sea Islands cards so I'm sure I could post some useful results. YvanDaSilva 
+They sponsored my original Caffe OpenCL project, and unfortunately didn't coordinate well, so AMD research and an independent guy at AMD also worked on OpenCL ports in parallel the former AMD research team is now disfunct and most of them actually work for Tesla self driving car project now. so an unfortunate chain of events.
+I'm still in collaboration & contact with them though. Vega is going to be interesting thumbs up  naibaf7 Nice, lucky you! Wish there was such studies when I was at the Heig vd would have continued to a MSc certainly.
+
+Yeah. That's what I figured. So much work, so little human resources available in these fields.All that stuff sounds great, but let's refocus the discussion on having TensorFlow working with OpenCL SYCL and not only vendor specific solutions. 
+I hope RoC and other HiP have their own GitHub to discuss their own issues. 
+ naibaf7: at least i am still in the OpenCL realm. Join the club again!  keryell I think the discussion on HIP is valid, if there's a HIP port for Tensorflow in the works. After all, the official Tensorflow on CL solution is to use a proprietary SYCL framework with sharply limited platform and kernel support, so it's not really any better than the vendor specific HIP solutions that offer a new way out of CUDA.
+
+HIP may be mostly AMD's doing right now, but AFAIK it's an open standard? Perhaps I'm mistaken. If it is though, and if AMD can deliver a tensorflow on HIP port, it would immediately be more open than the official tensorflow on SYCL one.HIP is a subset of CUDA, so it's as open as CUDA.OK, fine; HIP the API is a subset of CUDA the API, but unless NVidia is craven enough to start channeling Oracle I doubt that will be an issue. I was referring to the runtime compilers for HIP, of which I think AMDs are open.
+
+ edit: Sorry if the above came out sounding rude; just trying to clarify my position above!Will Vulkan and LINKLINK? LINKLINK  cathalgarvey the discussion is clearly valid, but not here. 
+You are on GitHub here, on the track discussing the port of TensorFlow & Eigen using Khronos Group standards.
+This is not Twitter or your Facebook wall. 
+So please contribute with some commits on these projects! There's a new version of the setup guide for compiling TensorFlow with ComputeCpp, Codeplay's implementation of SYCL, so that OpenCL devices can be used. We would appreciate any feedback you can give us on it. LINKLINK do you have any idea what the success rate is for getting this working on untested AMD gpus? I'm specifically interested if it has been tested for AMD Radeon Pro 460 rodburns. I would be happy to spend a few hours getting ubuntu running on my Macbook laptop if there is any hope with an untested GPU samhains we have not tested this but you could give it a try. You will need to use some older AMD drivers with Ubuntu that support the SPIR extension. I haven't yet been able to figure out what drivers those are yet. samhains If the codeplay route fails to deliver, don't miss out on LINKLINK, which is finally at a state of practical usage on Ubuntu Mac.
+
+I'm currently testing it on convnets, bidirectional rnns, etcetera and everything seems to be working great. It runs on vanilla OpenCL 1.2 so that should enable Tensorflow on a huge range of relatively old hardware.
+
+The rub is, for now, that it's based on Tensorflow 0.11. rodburns. I tried following the steps listed on the link LINKLINK 
+I get the following error:
+ERROR: home sayantan. cache bazel bazel sayantan 6f05f78a1e215999d72e42c1e87a8c1d external protobuf BUILD:609: undeclared inclusion s in rule ':
+Actually I am getting the same error if I try to compile tensorflow from source. I have compiled it earlier, not sure what has changed though.
+ rahasayantan what is that gets included? As well do you get it when compiling without config sycl? lukeiwanski: The issue as I understand is Bazel is trying to compile Protobuf and its not finding or downloading the sub directories. I did a pull with recursive submodule still it has the same issues. And it has the same issue without config sycl. In fact I am facing the same issue when I do a git pull from tensorflow main project. I dont think this is linked with openCL, its some issues with the way I am doing the pull. When I manually download the project zip from your repo without git and compile, it compiles properly, but then I get a segmentation fault. I have already raised this issue on your GIT project and we are talking there, I will give the updates related to the segmentation fault on that thread no point duplicating things. Thanks for your response.Opensource triSYCL is arriving. See LINKLINK I'm new here. Very interested in seeing TF support OpenCL. How do I get updates from this thread?emmm. Interesting, but why? I mean why Tensorflow choose cuda but opencl at the beginning? Some commercial reason I guess? Hi tensorflower gardener,
+
+ hughperkins has created LINKLINK that could run NVIDIA® CUDA™ code on OpenCL 1.2 devices. You might want to take a look if that suits your need to connect TF to OpenCL 1.2 devices. Kindly attribute his name and his contribution in case if you plan to use his work.It seems hopes of ever seeing CODESCODES support for Mac have gone from little to CODESCODES. I just read that TensorFlow Mac will no longer have ANY GPU support apparently 1.2+:
+ CODELCODEL 
+ LINKLINK 
+
+ LINKLINK TF Coriander is tested on Mac, so if when it reaches version parity you should be able to use that.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sent from my Android device with K 9 Mail. Please excuse my brevity.Sad because now with an eGPU and n Nvidia 980 Ti inside we get driver working and Cuda working 
+
+I didn't have the time for now to try Tensor Flow in my configuration yet.
+
+webdriver and Cuda toolkit installed on my computer and the Cuda samples work well
+
+ LINKLINK 
+ cathalgarvey you said that you test convnets on tf coriander, but it doesn't seem like convnets are working yet. Can you please clarify if you managed to get convnets to run on the GPU using tf coriander?FYI,
+ LINKLINK 
+Why does tensorflow no longer support GPUs on OS X? I was planning on using Tensorflow with an eGPU setup I have on order. justinrmiller they claim they can't test it anymore on mac os, and therefore decided to stop the support. however, I'm having a hard time believing that. Going forward with the advert of egpus on high sierra and with new nvidia drivers, this will no longer be the case. tscholak yeah exactly. I was going to use my new egpu enclosure to ditch my windows box for good.Keeping in mind that although Nvidia cards work in eGPU enclosures, Apple will only officially support the RX580 in their dev kit, so the need for OpenCL will not go away.OpenCL on Mac is 1.2 which means that there seems to be no active driver
+development. I think adding Metal support to TF is a painstaking process
+ enabling Eigen and stream executor but doable.
+
+
+
+wrote:
+
+
+
+
+
+
+
+
+
+
+
+
+
+I'm very sad about the abandon of GPU support for macOS. 
+
+Still looking for OpenCL support for GPU on macOS because Apple will, obviously, not change to Nvidia GPUs any time soon.
+
+Tensorflow is my my engine of choice. Using GPU acceleration locally on my MacBook Pro or future iMac Pro would be awesome. 
+For Microsoft it would make sense to sabotage Apple, but since Google has no desktop OS they are only hurting themselves.Honestly someone smarter than I should look into integrating Mac OS 10.13's MPS Metal Performance Shaders which have support for a large set of neural network primitives out of the box. This would allow up to date, high performance GPU for mobile and Desktop iOS and macOS Tensorflow inference deployment. 
+
+You can't train with Apples primitives as I understand it they don't provide anything, but with Tensorflow support maybe you could? I imagine it for folks on the Apple platform that would be a boon. 
+
+I don't think Google would provide this internally, and I don't have nearly the requisite skills to attempt it myself. Posting this idea so folks more talented than I might take it on.
+
+ thumbs up Apple is solely aimed to sell Apple devices. Google is aimed to hire Google massive services. 
+
+If you're willing to do AI learning with one single device, like one Apple Laptop, you'll do Superficial Learning instead of Deep Learning, so you'd better give up doing anything but tutorials. Inference results in a trained model for one single user, in a single device even in a not too many multicore phone, could be neat to be done through GPUs, but is perfectly doable only with CPUs.
+
+On the other side, GPUs are absolutely needed if you're gonna feed extremely large datasets for learning or you're gonna serve trained inference to extremely large concurrent customer groups.
+
+Even though, doing it in such scale, is not that easy due to the network issues. Just have a look to the TPU Pods physical architecture. It's in the antipode of a laptop several GPUs per memory overloaded multi core server, with dedicated optical fiber for inter server communications.
+
+I have a MacBook Pro. It's a nice terminal to get to the cloud: DI see TF on Metal can extend to iOS too. If anyone interested in picking it up, I recommend adding Metal support to Eigen first can use OpenCL as reference. rogerpasky For school I had to use Tensorflow for training models, not just for evaluating a model. And I will have to repeat this again in near future. For students like me, having training on GPU is a must, saving a lot of time. It not just a matter to serve multiple concurrent user. 
+ rogerpasky it's about the ability to develop models and solutions locally on a mac rogerpasky respectfully disagree. While cloud based multi GPU solutions work great for internet services, I'm targeting professional video production pipelines where inference is being run on hours and hours of pro res and uncompressed HD, 2K, 4K footage, which a no production house is going to upload to a cloud, b they don't want google or whomever to have their data, c they have rooms full of multi GPU capable systems Mac and Windows locally which they would like to leverage, and d while inference on a single image is fine on CPU, running entire movies for inference through multiple graphs 100 sees an increase in perf using something like MPS vs CPU. Because the community has declined to support embrace standards and instead uses Nvidia only code, real world use cases get pigeon holed and its really a shame.
+
+This isn't an idle request from someone who is a hobbyist running tutorials GPU inference is important as is supporting diverse GPU CPU families for diverse workloads on real world hardware. I really hope Google takes this seriously, because it would be great to be able to stick with a single library like TF, which is awesome.
+
+Thank you for hearing me, I'm not trying to rant, but to provide an alternate point of view to the community.  pldelisle, tscholak, vade please don't get me wrong. I'd love to have it, and if you search in this thread I joined as a supporter, but as far as I've been following it I reached to the conclusion I wrote, not just because I think it so I guess a MacBook would melt down if trained with thousands of videos: D, but with the actual industry facts. Don't wait to have it solved in a short timeframe IMHO, it won't be solved ever because Apple and Google hate each other since iPhone Android issue. rogerpasky There already was support for nvidia GPUs on Mac OS. It was just removed in 1. 
+
+ CODELCODEL 
+
+I've cancelled my order for an eGPU Sonnet's and will just dual boot Linux on my gaming rig, but this it's kind of bad to just stop supporting something that people were using. Was really hoping to do this on my mac with an eGPU model training, but I guess that won't happen now: LINKLINK  rogerpasky Er, you know CoreML supports importing tensor flow models by way of Keras? Apple doesnt 'hate' Google, business is business, One of Apples suppliers is Samsung. Read into that for a moment. Google, Apple, Samsung are businesses and will do what makes money. As a side note. My MacBook Pro hasn't melted from running inference on thousands of movies by the way. I suspect CUDA was super convenient to adopt and continued support from Nvidia and missed opportunities from AMD got us to where we are. I don't think its nefarious, just cost of making a change vs performance deltas vs cost of staying the course.
+
+I suspect some genius will come along to help solve the issue.I've created a Google Group for a collaborative discussion about bringing deep learning to new places like OpenCL, Mac, iOS, CoreML, Vulkan, etc. If you'd like to help make these happen please join and post a note with your use case or what part of the problem you're working on. There already are people working really hard on efforts to bring TF to more platforms including MIOpen, Codeplay's work, TF Coriander, and an internal project at my company Vertex. AI. It would be great to get developers & users all in one place as these efforts are all closely related.
+
+ LINKLINK 
+
+ benoitsteiner hughperkins cathalgarvey 
+ rogerpasky vade tscholak pldelisle adityaatluri chocol4te justinrmiller justinrmiller I have a eGPU on Sierra Titan Xp in a Sonnet enclosure running Tensorflow 1.1 CUDA 8, cuDNN 6 which wasnt too much trouble if you dont mind building from scratch. If you have any trouble let me know.
+
+ CODELCODEL  danbarnes333 That's awesome! Thanks for the info! danbarnes333 how did you get tf 1.2 to build with cuDNN 6? Did you use LLVM? GCC? I only managed to get it to build with cuDNN 5. FYI, LINKLINK  tscholak I wont post it here to keep this on OpenCL but ill summarise the steps LINKLINK. choongng I joined the Google Group but it seems to be quiet. So I'll rant here ; 
+ Machine learning high performance GPU computing is a fiercely competitive market. NVidia, like it or not, dominates the market and keeps their cards and software close to the vest. If you've got a budget and a deadline, you're more or less stuck with NVidia for now.
+ I've got an old ish AMD card Bonaire and zero budget hobbyist. I've got CODESCODES running with the proprietary AMD OpenCL 2 implementation on Arch Linux as of yesterday, and I just got AMD's open source CODESCODES running the same way this morning. That'll let me train some models; the Bonaire peaks around 1800 GFLOPS single precision. So if TensorFlow won't run with OpenCL on the Bonaire I won't be using TensorFlow.
+ If a budget should magically appear I would buy an Intel CPU and an NVidia card and run vendor supported proprietary software. I'm done doing unpaid QA for vendors like Google, Red Hat, Canonical and AMD. 
+
+ It's taken me three months and three distros Fedora 25, Ubuntu 16.04 LTS and Arch to get something out of a GPU I've had for three years. There are unfixed bugs in Fedora's bug tracker with my name on them. Same goes for Ubuntu and Freedesktop. org. Most of the people who'd be fixing them aren't getting paid either, or they're getting paid to do something else.
+
+ Yes, AMD's new CPUs are impressive, and yes, most of their software is open source, but budgets and deadlines change things. Support is key. Support is everything! znmeb I did not even knew you could use pre GCN hardware for TF.
+With my Tahiti I only have support threw one distro ubuntu 14.01. x as AMD proprietary drivers only work with older linux kernels for GCN1. I get TF + openCL via SYCL untested on 7970 
+
+Where I work the entire R&D department runs green team. They all have PHDs and all but none wrote a single line of cuda nor OCL. But the tooling is here to accelerate their CODESCODES workload. I'm kind of an oddball with my recycled mining GPUs trying to squeeze a second life out of them.
+
+tl;dr other than green team support will only show up if the AMD GPU market share shows up. 
+It's a chicken and egg problem. I have hopes for vega … but yeah … aint no 1080Ti killer. acoye FWIW here's the GitHub post that got me going this weekend after thrashing and Googling since April: See also. That was my original issue trying to use my Bonaire to accelerate linear algebra on R. acoye 
+You can move on to the latest Linux distros & use a recent custom compiled kernel like 4.11 4.12 with AMDGPU drivers enabled, RADEON disabled and with CODESCODES and or CODESCODES set in the kernel configuration, plus AMD firmware for 7970 Tahiti in the initramfs newest AMDGPU PRO OpenCL will work on any GCN cards. Forget about FGLRX on older Linux distros and Clover via RADEON drivers, both are sub par.
+Forget about pre GCN cards also. I tested them using OpenCL on Windows for Caffe, the performance is not worth making an effort for such old cards. As all AMD cards post 2012 should be GCN anyways. naibaf7 I spent a few hours yesterday trying to get AMD's open source stack working. I got CODESCODES and its dependencies but CODESCODES is still missing some bits. I may need to do a custom kernel build to get everything. I don't much care about porting CUDA code or running compiled C++ on the GPU I want to do number crunching on it. ; 
+
+I also saw something on their website about programming it in assembler that I might be interested in, because it's easy to go from assembler to FORTH. ;  znmeb Yeah I am also trying to get some MIOpen and TensorFlow stuff working on my RX 480, but I don't want to destroy my main development rig, so instead I use IOMMU virtualization and use an Ubuntu 16.04 virtual machine that can use the RX 480. The AMD drivers are very friendly to virtualization unlike nVidia drivers made for the gaming cards only the Quadro drivers do. znmeb All you gotta do is CODESCODES  adityaatluri It's in the Arch User Repository but it doesn't install it doesn't install from GitHub source either. It looks like something simple it can't find a few dependencies. znmeb Can you create an issue here LINKLINK so that we can discuss there? Thanks! adityaatluri Sure I'm heading to dinner but I'll file it when I get back ebrevdo Any way to use tensorflow GPU in Mac with AMD processor?
+ gautam1858 LINKLINK My company has been working on OpenCL deep learning for a while and we have some early results to show. We are focusing on Keras in the near term however we also have built very experimental TensorFlow support and will revisit that after our initial release. More details here including initial throughput numbers on AMD: LINKLINK Cool!
+
+Tiny nitpick: AFAIK, MIOpen is not AMD specific, as it can link to OpenCL as well as to ROCm. The latter is probably faster, but still; MIOpen is a huge step forward for the Open Source Neural Networks On GPU shtick, and AMD deserve huge cred for it if it works well on OpenCL.
+
+August 14, 2017 5:19 PM, Choong Ng wrote:
+	My company has been working on OpenCL deep learning for a while and we have some early results to show. We are focusing on Keras in the near term however we also have built very experimental TensorFlow support and will revisit that after our initial release. More details here including initial throughput numbers on AMD: LINKLINK LINKLINK 
+
+	 
+You are receiving this because you were mentioned.
+Reply to this email directly, view it on GitHub LINKLINK, or mute the thread LINKLINK.
+ cathalgarvey Thanks for the correction, I based my comment off of the system requirements in the MIOpen documentation LINKLINK but happy to update if there's a better link.Wait, I'v been reading this thread issue for 10 mins now. I got halfway through and I skipped through the rest. Are AMD GPUs supported yet?Using a finicky closed source thing that only works on one very old combination of Kernel OS codeplay: yes
+
+Using an old version of tensorflow and without support for some nonlinearities yet tf coriander: yes.
+
+Really: not officially. Though AMD are porting to HIP, so I'd expect progress within 3 months or so. Other frameworks already work well due to their efforts.
+
+
+
+
+
+
+
+
+
+
+ 
+Sent from my Android device with K 9 Mail. Please excuse my brevity.FWIW I believe the recent versions of PyGpu can use either CUDA or OpenCL. I have all of the software installed on my Arch box but I haven't tested it yet.  abrad1212 yes, this issue has been around on for a while now. The effort is massive and a lot of people are trying to get it working as cathalgarvey mentioned.
+
+A bit of an update from our side. You should be able to use ComputeCpp 0.0 on the AMDGPU pro driver stack for Ubuntu 16.04 the instructions can be found here: LINKLINK 
+
+As well, we are focusing now on performance improvements for different models there is a lot to do but we are getting there.  lukeiwanski What's your approach to benchmarking? We time the models included with Keras and normalize against TF+cuDNN+K80 because that is a common and well optimized configuration. Our methodology is similar to Max Woolf LINKLINK, it's not much code but we'd be happy to share it. We have some throughput numbers on our web site LINKLINK, our code is very slightly faster than TF 1.2 on Xception inference and it would be interesting to compare more approaches side by side.Are there any Windows solutions? I would install Ubuntu on my PC but I currently don't have enough space to do it.ubuntu 14.04
+tensorflow master branch
+build opencl support, and only opencl intel cpu runtime installed.
+python2.7
+follow LINKLINK guide
+execute python classify image. py
+it seems didn't call opencl driver. I added my opencl icd wrapper, didn't see anything 
+Is there any config need add in python code?
+Like sess. graph. device ' cpu0' 
+
+But if I use Eigen skcl guide can run on cpu with OpenCL support. Also this guide code is a little out of date, need some modify 
+ LINKLINK 
+
+Any people can help to check how tensorflow python interface can also run with OpenCL support.
+
+And build tensorflow with this opt set will not really generate tensorflow binary. config sycl
+Just build tensorflow in this command:
+bazel build c opt tensorflow tools pip package: build pip package
+
+Maybe I build forget config sycl
+I will try build command and verify whether it can call OpenCL library. After get result, I will post here.
+bazel build c opt tensorflow tools pip package: build pip package joe8086 If you modify the tf. Session creation with the below it will show a log in the terminal, is this mentioning SYCL anywhere? 
+tf. Session config tf. ConfigProto log device placement True 
+
+For the Eigen guide do you have any specific feedback where it is out of date? rodburns Thanks.
+My err is build tensorflow miss config option config sycl
+After add this option with this branch code LINKLINK 
+I can see tensorflow run with OpenCL backend.
+
+For Eigen guide, the main error is at:
+1, not give correct include file.
+2, for array, Tensor, TensorMap not give correct templet parameter.
+3, for static cast not give data type.
+
+add more information which maybe give this discuss topic some help.
+1, Main tensorflow can't build tensorflow with config sycl correct.
+2, With CPU OpenCL, the speed is about 4x 8x times spend than normal CPU implement in my environment. 
+
+
+time python classify image. py 
+2017 09 07 16:56:29.076054: I tensorflow core platform cpu feature guard. cc:137 Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX
+2017 09 07 16:56:29.077967: W. tensorflow core common runtime sycl sycl device. h:49 No OpenCL GPU found that is supported by ComputeCpp, trying OpenCL CPU
+2017 09 07 16:56:29.159775: I. tensorflow core common runtime sycl sycl device. h:66 Found following OpenCL devices:
+2017 09 07 16:56:29.159825: I. tensorflow core common runtime sycl sycl device. h:68 id: 0, type: CPU, name: Intel R Core TM i7 6700HQ CPU 2.60GHz, vendor: Intel R Corporation, profile: FULL PROFILE
+
+giant panda, panda, panda bear, coon bear, Ailuropoda melanoleuca score 0.89107 
+indri, indris, Indri indri, Indri brevicaudatus score 0.00779 
+lesser panda, red panda, panda, bear cat, cat bear, Ailurus fulgens score 0.00296 
+custard apple score 0.00147 
+earthstar score 0.00117 
+
+real	1m44.473s
+user	2m8.980s
+sys	1m20.024s
+Guys, I'm not going to read this entire thread, but if someone could answer my question that'd be great! Can I use Tensorflow with an AMD GPU yet. If so in what operating system, and can I do it with RX Vega? Thanks!  M3L0NM4N Hmmm. I haven't been following the thread but it looks like there's possibly testable OpenCL code now, at least on CPU OpenCL. I have an older AMD GPU Bonaire and I have OpenCL running on both the GPU and CPU, so I can test this. I might take a shot at it over the weekend; I really want OpenCL TensorFlow on my GPU.tf coriander works LINKLINK Any tensorflow 1.3 gpu opencl support out there on macos?Latest news: I have successfully built TensorFlow 1.1 with OpenCL from the GitHub source. There are quite a few missing pieces in the documentation, and I haven't tried to run anything in the GPU yet, but it is at least working for non OpenCL CPU. BTW, I do not have CPU OpenCL installed, just GPU OpenCL.
+
+Does anyone have any test cases for TensorFlow with an OpenCL GPU? I'll have to build one for myself eventually but I was hoping for a quick check. znmeb Yeah, there is test app in issue that I reported. LINKLINK 
+
+Could you please let me know if it works in your case? unoexperto Yeah it works doesn't crash but there's no indication whether or not it found OpenCL.
+
+ CODELCODEL 
+
+I think the best course of action here is to file a separate issue to request documentation, since it's clear when you run CODESCODES building from source that there is code for OpenCL. That's how I found it, anyhow. znmeb I'm doubtful it found GPU device in your case because in mine it printed debug info in the beginning about selecting GPU device. Perhaps you can recompile with added CODESCODES to console somewhere in CODESCODES. unoexperto I joined the discussion Google Group and posted a request for documentation. I'm going to wait to see if anyone responds before I put more effort into this. znmeb What instructions are you following? Have you run clinfo? Have you run computecpp info? Does that indicate that your OpenCL drivers are installed as expected? The instructions for Ubuntu 14.04 are here LINKLINK and if you are using 16.04 there are some experimental instructions here LINKLINK  rodburns clinfo and clpeak both run. I haven't done this recently, but when I build caffe from source and run the tests it definitely hits the GPU. So I'm pretty sure the OpenCL GPU drivers libraries are working.
+
+I'm on Arch Linux kernel is their LTS linux lts 4.52 thumbs down. If it matters, the Bonaire peaks about 1.7 TFLOPS in 32 bit mode and is in the Sea Island family of AMD GPUs.
+
+ CODELCODEL 
+
+Is somebody collect test logs? It says my device is untested so I'll be testing it. ; 
+Impossible for me to build TensorFlow for Sycl OpenCL!
+
+ Config: 
+Ubuntu 16.04
+Tensorflow r1.3
+OpenCL 2.0
+ComputeCpp CE 0.2 computecpp info OK 
+Intel HD Graphics 620
+Bazel 0.4
+
+ Install instruction OpenCL Intel ComputeCpp build: 
+ LINKLINK 
+ LINKLINK 
+
+ Error: 
+ CODELCODEL 
+
+Training models on my CPU takes ages, I really need OpenCL GPU acceleration.  ErwanGalline We are in process of upsreaming changes to Eigen LINKLINK that will fix issue you are seeing. 
+
+As well we are preparing to upstream performance improvements to Eigen this is bit tricky and needs coordination with benoitsteiner to avoid stream of merge conflicts but we are getting there.
+
+For AMD users I would suggest trying out my fork: LINKLINK 
+Set Up instructions for Ubuntu 16.04 can be found here: LINKLINK 
+All the changes will be upstream to tensorflow after mentioned earlier Eigen changes are in place.
+
+Hope that helps. lukeiwanski Does your fork only support AMD R9 Nano AMD FirePro GPU?  lukeiwanski Is there a test case I can use to verify that I'm using the GPU? I can monitor it with CODESCODES but I'd like something that uses TensorFlow itself. ZixuanLiang no, not only. 
+We currently test on AMD R9 380, R9 Nano, FirePro. We know Intel GPU exposes some driver bugs, but there are fixes coming. And we have announced Renesas R Car and expect more to follow.
+ 
+I believe that Xilinx is upstreaming support for triSYCL LINKLINK so FPG's? keryell should know more about that 
+
+ znmeb CODESCODES should be a fair verification. output should looks something like this:
+ CODELCODEL 
+ lukeiwanski Thank you I will try it on AMD GPU lukeiwanski The build and test seem to be working on my Bonaire. I am using Python 3. though, and the instructions use Python 2. Do I need to use 2.7 or will 3.6 work?  znmeb Following LINKLINK it seems Python 3.6 should be working I haven not tried it though lukeiwanski Is that a ComputeCpp version that can build TF at the moment?
+I tried various versions between 0.2 and 0.4 and none worked. They all ended up with the multiple overloads of 'global ptr' instantiate to the same signature error.
+Btw, I cannot find the TensorDeviceSycl. h file in TF sources, is that a renamed one? Is it possible to apply the patch to current sources?
+
+Thanks in advance. eLvErDe ComputeCpp 0.2 can build: LINKLINK 
+
+Upstream is missing a patch to Eigen that fixes it. see LINKLINK Any idea how to inject this Eigen patch during bazel build? Maybe we should bump somewhere Eigen tgz version to get the fixed one?
+
+Thanks, Adam. LINKLINK 
+
+This commit would be enough to get it built?yes, you should be able to cherry pick thatWell sadly, that's clearly not sufficient, here're some of the next build failures:
+
+ CODELCODEL 
+
+ CODELCODEL  eLvErDe there are few commits that you have to apply to get it compiling.
+I would suggest using tip of dev amd gpu or if you don't want to change your current branch. you can merge dev amd gpu to it.Actually I m working on my unofficial Debian Ubuntu package so I'm trying to keep close to official 1.1 release. I can live without OpenCL support but I'd to be ready to enable it as soon as it's correctly supported. Maybe I'll update packages against your branch for testing purposes, but that's enough for today thumbs up I have around ten different varieties of AMD GPUs in my mining rigs. from 7970 to RX 480 running ubuntu 16.04 and amdgpu pro. Let me know if I can contribute by testing anything.
+How about LINKLINK 
+ LINKLINK 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ lukeiwanski Will your fork support AMD GPUs on macOS as well?Hi, 
+ I was building tensorflow APIs on Ubuntu16.04 x64 for my Android device with GPU Mali T720 enabled, 
+
+My OS info:
+Ubuntu 16.04 x64
+Computer GPU: NVIDIA 1080Ti
+CUDA 8.0
+CUDNN 5.1 though I do not use cuda or cudnn for building 
+bazel 0.2
+ComputeCpp CE 0.2
+
+my build. sh is:
+'
+ bazel build c opt config sycl tensorflow contrib android: libtensorflow cc. so cxxopt 
+ std c+ thumbs up 1 cxxopt DTENSORFLOW DISABLE META verbose failures 
+ crosstool top external: android crosstool host crosstool top bazel tools tools cpp: toolchain 
+ cpu armeabi v7a 
+'
+ before build. I export LD LIBRARY PATH my sycl lib path LD LIBRARY PATH, build without ' config sycl ' is fine and I got the correct libtensorflow cc. so, but with ' config sycl ', the final result turned out missing lComputeCpp without any other compile errors
+
+ Full log like this:
+
+ERROR: home e0024 workspace tensorflow tensorflow contrib android BUILD:102: Linking of rule ' tensorflow contrib android: libtensorflow. so' failed: link dynamic library. sh failed: error executing command 
+
+
+
+
+
+
+
+
+
+
+
+
+ external bazel tools tools cpp link dynamic library. sh no ignored ignored ignored external androidndk ndk toolchains arm linux androideabi 4.9 prebuilt linux x86 64 bin arm linux androideabi gcc shared o bazel out arm linux androideabi 4.9 v7a gnu libstdcpp opt bin tensorflow contrib android libtensorflow. so Wl, no whole archive Wl, whole archive bazel out arm linux androideabi 4.9 v7a gnu libstdcpp opt bin tensorflow core kernels libandroid tensorflow kernels. lo Wl, no whole archive Wl, whole archive bazel out arm linux androideabi 4.9 v7a gnu libstdcpp opt bin tensorflow core libandroid tensorflow lib lite. lo Wl, no whole archive Wl, whole archive bazel out arm linux androideabi 4.9 v7a gnu libstdcpp opt bin tensorflow core libprotos all cc. a Wl, no whole archive Wl, whole archive bazel out arm linux androideabi 4.9 v7a gnu libstdcpp opt bin external protobuf libprotobuf. a Wl, no whole archive Wl, whole archive bazel out arm linux androideabi 4.9 v7a gnu libstdcpp opt bin external protobuf libprotobuf lite. a Wl, no whole archive lComputeCpp external androidndk ndk sources cxx stl gnu libstdc++ 4.9 libs armeabi v7a libgnustl static. a external androidndk ndk sources cxx stl gnu libstdc++ 4.9 libs armeabi v7a libsupc++. a landroid llog lm z defs s Wl, gc sections ' Wl, soname libtensorflow. so' Wl, version script tensorflow c version script. lds lz static libgcc no canonical prefixes ' march armv7 a' Wl, fix cortex a8 ' sysroot external androidndk ndk platforms android thumbs down 4 arch arm': com. google. devtools. build. lib. shell. BadExitStatusException: Process exited with status 
+external androidndk ndk toolchains arm linux androideabi 4.9 prebuilt linux x86 64 bin. lib gcc arm linux androideabi 4. arm linux androideabi bin ld: warning: skipping incompatible while searching for ComputeCpp
+external androidndk ndk toolchains arm linux androideabi 4.9 prebuilt linux x86 64 bin. lib gcc arm linux androideabi 4. arm linux androideabi bin ld: error: cannot find lComputeCpp
+collect2: error: ld returned 1 exit status
+Target tensorflow contrib android: libtensorflow. so failed to build
+
+
+ uhm. I wanna build tensorflow APIs in the arch of arm with GPU Mali T720 enabled, 
+Appreciated if someone could leave some experiences or suggestions here. Thx a looooot.
+
+
+
+
+Come to my talk next week at Arm TechCon, laMia482! LINKLINK 
+
+You will need Mali drivers with SPIR V support, which is probably not easily available, yet. And you will need a ComputeCpp runtime for Android with Arm CPU support and SPIR V support, which is also not available yet. So, you will have to be just a little bit patient.We Vertex. AI have just open sourced PlaidML, our deep learning stack with support for running Keras on OpenCL. TensorFlow support is coming, help there would be welcome. And yes, Mac support is on the way also Windows. LINKLINK ggaabe  choongng I wanted to give it a try but failed. 
+ CODESCODES pip search plaidml CODESCODES returns
+ CODELCODEL 
+But CODESCODES pip install plaidml CODESCODES or CODESCODES pip install plaidml 0.0rc3 CODESCODES 
+returns
+ CODELCODEL  hy9be I think it would be more appropriate to make an issue at LINKLINK instead of here, since this issue is about supporting OpenCL in tensorflow. Additionally by looking at the installation instructions there your pip install command may be incorrect. Thank you andrewrichards fo your attention and your session speech.
+
+ But for now for me a graduate student, to build an app using Tensorflow on Android device and want GPU Mali T720 activated, what are required to abtain Mali driver with SPIP V support and ComputeCpp runtime for Android with Arm CPU support and SPIR V support.
+
+ Since I've downloaded ComputeCpp Ubuntu16.04 x64 with bin doc include lib on CodePlay homepage, yesterday I run:
+ 
+bazel build c opt config sycl tensorflow contrib android: libtensorflow cc. so cxxopt std c+ thumbs up 1 cxxopt DTENSORFLOW DISABLE META verbose failures crosstool top external: android crosstool host crosstool top bazel tools tools cpp: toolchain cpu armeabi v7a
+ 
+ errors said CODESCODES, so I consider maybe I need ComputeCpp for Android with Arm CPU support and SPIR V support, but I could not find any source code to build an Android ComputeCpp, there are only samples at github. 
+
+ And you've said ComputeCpp for Android is now not available, so is there any plan to support Android device or how can I get it if supported.
+
+For AMD gpu and linux users, AMD recently released HIP port of tensorflow LINKLINK. You might be interested.
+
+I haven't tested it, though.I can test it stay tuned. Looks like it's failing CI though.Indeed it's failing. Still at an early stage, I guess.I tested it, got segfault in MNIST example immediately.
+Don't know what I am doing wrong here.
+
+ CODELCODEL  masahi make sure you have rocm 1.4 base installed.
+ bensander Thanks, I'll upgrade. bensander Anything else I need from the AMD stack? All I have now is the AMD proprietary opencl library that uses the open source amdgpu driver. masahi if you install the rocm and rocm libs for example apt get install rocm rocm libs that should be all your need. The rocm docs at the repot has full instructions including expected results. bensander how do I know if I am running rocm 1.4 correctly and not 1.3? masahi just a guess: you should ask the question on a more related place for your issue, such as AMD or RoCM project rather than here.  keryell right, I'm getting off topic. I stop here.
+Anyway, I couldn't get hiptensorflow working on my system. I will try later with clean Ubuntu install. masahi just open an issue over there and we'll get you set up. Hi, I just want to mention that I was able to get hiptensorflow working, thanks to bensander and other folks at AMD. I can run all examples in their quickstart guide.
+
+ThanksFor those who want to try TensorFlow on AMD hardware using ROCm, I wrote a blog describing how to run Fast. ai notebooks using AMD Fury Nano. 
+ LINKLINK  thumbs up can't wait for this!ROCm 1.7 is on the way, with what sounds like proper Tensorflow support!
+
+ LINKLINK Tensorflow port to AMD GPU:
+ LINKLINK 
+
+It works great for me. My hardware setting:
+GPU: AMD Radeon RX 480
+CPU: Intel Xeon 2603 v3
+MB: supermicro x10srl f
+
+The key is mother board and CPU have to support PCIe v3
+
+Its performance is similar to Nvidia 980Ti
+I can't even get the supported AMD drivers to work on my supported Ubuntu 16.04 LTS install. Planned obsolescence?znmeb, what is your AMD GPU? If you have dual GPUs, disable the unsupported one from BIOS.Couldn't read the whole thread. what's the present status for tensorflow on OpenCL on MacOS sierra +? Specifically, I have an Intell Iris GPU and was hoping if I could build from source Tf+Open CL support for it.
+Also, tf corrainder seems to run fine, at version 1. varun19299 FWIW there's an Intel SDK for OpenCL I've got it on my ancient Sandy Bridge laptop but I'm sure it'll work on your machine. LINKLINK Is this currently in a usable state on non ubuntu linux systems? The roadmap page simply links here. pfc Is what currently usable on non Ubuntu Linux? TensorFlow using OpenCL in general? Or TensorFlow using OpenCL on an AMD GPU? I'll assume the latter, since it's the only reason you'd want to run TensorFlow using OpenCL. For an NVidia GPU you'd use the NVidia drivers libraries and for CPU only there's nothing to gain from OpenCL.
+
+I had this working a few weeks ago on Arch Linux, using the proprietary ComputeCpp SYCL library and an AMD Bonaire Sea Islands architecture GPU. There's a new ComputeCpp release that I need to test but I'm guessing it will work. 
+
+It turns out that the AMDGPU Pro proprietary libraries you need to make this work don't run on Ubuntu 16.04. The upgrade from 16.04.2 brought in a newer Linux kernel and X Server, and AMD has yet to ship something that works on it. See for the details. I have been unable to make AMD OpenCL work on Ubuntu.
+
+There's an experimental AMD version of TensorFlow that uses a compiler to translate CUDA code to OpenCL code but I haven't tested that either. In the absence of a supported driver it's useless. LINKLINK is the officially supported way to run tensor flow on AMD hardware. bensander Does the ROCm runtime work on Ubuntu 16.04. I haven't been able to get it working.
+
+P. S. Do you have any insight if when the AMDGPU Pro setup will work on Ubuntu 16.04. I need that for another project.Hmm, I don’t and wouldn’t fun Ubuntu anywhere but I do have a CentOS 7 w repos and a GTX1080TI in it, running kernel 4.14. x and the latest Nvidia beta driver, so I could help test it out on there at some point today if it helps?
+
+ 
+Sam McLeod
+
+
+
+
+
+
+
+
+
+ sammcj Why would you run an NVidia GPU with OpenCL when there are perfectly good CUDA libraries for it?Just to help test it for you!
+
+No worries if you don’t need a hand testing, just thought I’d offer. I haven’t even tried that machine with cuda TBH, I’ve only tried it on MacOS where I can’t use OpenCL through Docker at the moment.
+
+ 
+Sam McLeod
+
+
+
+
+
+
+
+
+
+ znmeb I was going to try ComputeCpp SYCL however they only provide the ubuntu installer I am also on arch and the aur install script is broken. It is good to hear that it can work. If I get desperate enough I may try it out.
+ bensander That looks like exactly what I need to get ADM support however I am worried by the fact that this code has not been back ported to TF and that its code was last updated over 2 months ago given that my code targets TF 1.0
+It seems like at the moment tensorflow basically ties you to Nvidia, at least for us mortal programmers. Lack of documentation updated roadmap doesn't help. I wouldn't mind helping out in any way I could however I've had little success getting things working so far. pfc I got the ComputeCpp SYCL working on Arch there was a binary tarball on their website when I did it.In this news about the release of SYCL 1.1
+ LINKLINK 
+it says: 
+ The new specification incorporates significant experience gained from three separate implementations and feedback from developers of machine learning frameworks such as TensorFlow, which now supports SYCL alongside the original CUDA accelerator back end. 
+
+Does that mean it is now possible to easily run TensorFlow on AMD GPU that support OpenCL 1.2 on which SYCL is built?
+ Easily in the sense that some low level software drivers libraries for the AMD hardware are where most of the broken stuff is, not in the hardware or TensorFlow or the OpenCL standards or SYCL. ; If you've got working AMD GPU drivers and working OpenCL libraries you've got TensorFlow on AMD GPUs.
+
+My working setup for an AMD Bonaire Sea Islands architecture:
+
+Arch Linux with the CODESCODES kernel module loaded and the CODESCODES kernel module blacklisted
+The Arch User Repository package CODESCODES 
+The ComputeCpp library
+TensorFlow built from source on my workstation using lukeiwanski's fork: 
+
+ 
+I am a bit surprise by what you said If you've got working AMD GPU drivers and working OpenCL libraries you've got TensorFlow on AMD GPUs. I had understood that TensorFlow Official version was not running on OpenCL CUDA only. Seems I got confused.
+I was quite happy to find the PlaidML project that at least allow for some Keras code to run on my iMac with AMD Redeon HD 6970. LINKLINK AFAIK you have also tried that Framework.
+I will give a go running TensorFlow on the Ubuntu VirtualBox were Tensorflow is already running CPU only. PALYGAP I don't think VirtualBox exports OpenCL from a Mac host into a Linux guest, and Ubuntu 16.04.3 doesn't work right now. I don't have a Mac so I don't have any way of testing things.Did anyone successfully try out working TensorFlow on AMD via OpenCL and succeed?  mohnkhan I have the lukeiwanski fork working Arch Linux see. I'm waiting on some more AMDGPU Pro work before I publish a blog post see. znmeb Thank you for the inputs mohnkhan BTW, AMD are building an alternative path that's fully open source translating the CUDA code to OpenCL code with a compiler toolchain. I'm not sure what the status of that is for the older cards like mine though.If you are going to write an article, I guess it wouldn't hurt to also explain took 3 hours to get the whole picture: 
+
+
+ in turn, you have two LINKLINK of the standard trisycl LINKLINK cool, but it's LINKLINK atm 
+ In the end, ComputeCpp 'hooks' LINKLINK SPIR V in addition to PTX, but this is really LINKLINK 
+
+And this is what eventually gets you straight to your bloody yearned OpenCL 1.2 w cl khr spir ext 
+
+HIP instead is yet another backend, sits LINKLINK to SYCL, and targets only and exclusively ROCm or well, lol, even in turn cuda if you have an nvidia gpu. but this is again another story 
+
+
+
+Nope. You are talking about HIP, and. that's actually it, what you eventually convert your code to. Which is LINKLINK OpenCL. 
+HIP then runs on ROCm as I was saying. 
+ROCm which is also what runs OpenCL for you LINKLINK, but please I'd stress everybody to notice how the relations is only forward from ROCm, never intra sub layers 
+
+What you are perhaps thinking about could be LINKLINK. 
+
+
+
+Summed up LINKLINK: fully fledged AMDGPU PRO, amdgpu pro opencl only driver as you are doing now. Or continuing to wait until the end of the decade for somebody to finally make clover usable. 
+
+Also, fglrx. But if that's hard to recommend for pre gcn cards, I guess it's just better to draw a veil over.  mirh  I'm not concerned with pre GCN cards. Mine's a Sea Islands and I'm not planning on acquiring anything older. Then again, I'm not planning on acquiring another AMD GPU either. ;  I don't know whether ROCm will run on my workstation there's no open source hardware tester that can give me a yes or no answer. I've opened an issue for that and received no response. SPIR V is a compiler target I took a look at it and threw my hands up, not having a budget to hire a compiler writer.
+
+So that leaves SYCL. or throwing up my other two hands and doing everything with Keras, which has TensorFlow, Theano which is getting frozen, CNTK or PlaidML back ends. From a purely engineering economics point of view, Keras PlaidML is a big winner provided I get TensorBoard somehow. mirh thanks for the good summary with all the links. I think you have not wasted your 3 hours. 
+
+As I told you quite LINKLINK, no it won't work. 
+Pre GCN 3rd gen gpus simply lack the hardware for ROCm to either perform or even work at all. 
+
+SPIR V. I'm not sure what you are talking about. It's not your job to care about that. Computecpp makes it from SYCL commands, and then it's all opencl driver business. 
+
+You have what I'm tentatively calling amdgpu pro opencl only, and I'm not sure what's the problem then. 
+EDIT: would be also cool to have some sort of ETA for Luke's code to land znmeb and everyone
+
+I have L Ubuntu 17.10 incl. kernel 4.14. x and the OpenCL library parts from the AMDGPU Pro 17.40 driver running and can run OpenCL applications like clinfo or Boinc for example Engima Home, Milkyway Home without issue on my AMD A12 9800E APU.
+
+I can also successfull compile and use the tensorflow currently version 1.1 CPU version. But i fail to successfully compile the OpenCL version of tensorflow. I use computecpp 0.5 the current one i can download without need to registering together with vanilla tensorflow 1.1 and with the dev amd gpu branch from lukeiwanski's fork.
+
+So could please someone who successfully compiled the OpenCL version of tensorflow provide some information which version of the computecpp library and which branch of which tensorflow git he she is using?
+
+Thank you AlphasCodes I don't have anything running on Ubuntu all my working things are on Arch. I do have the machine dual booted with Ubuntu 16.04.3 but the AMD proprietary libraries don't work there yet. As far as I know they're not supported on 17.10, but if you've got the OpenCL piece working on 17.10 I might add a third boot I have plenty of disk space. ; 
+
+What kind of errors are you getting? If they're build errors, you might have a Bazel incompatibility. Bazel is constatnly moving forward like TensorFlow is and sometimes one will get ahead of the other. What you mean, not supported? LINKLINK. 
+As for ubuntu, only 16.04.3 is said to be supported at least officially then, considering even arch can get it to work after some script magic 
+EDIT: 'complete' AMDGPU PRO driver requires kernel 4. that was likely the problemIf anyone cares, the port of AMDGPU Pro Driver 17.40 to Arch is ongoing and is very active on GitHub at,
+
+We really should close this issue, since, as mirh pointed out, TensorFlow uses SYCL, not OpenCL. Maybe we should open another one, TensorFlow on AMD cards?No, it's totally legit. 
+You want tensorflow to run eventually on opencl devices, that's the aim. Legit and end. 
+Saying it was actually using SYCL was only a technical nitpick I made, because all these acronyms of magically random technologies were making me mad. 
+EDIT: I'd also like to thank all codeplay guys for their egregious work
+
+If you want something all that specifically crafted for amd, I'd recommend to check their LINKLINK. ROCm only though. And please, let's leave behind this argument. OK i don't know if i have enough time to do the build again and provide the compile errors until the weekend. But i added my existing documentation to my new github repo.
+
+See LINKLINK for details my hardware software setup + AMD OpenCL setup + Tensorflow setup. mirh to clarify the acronyms of magically random technologies making mad:
+
+In the Khronos Group realm, OpenCL is the low level non single source API and SYCL is the high level single source C++ domain specific embedded language DSeL. SYCL is expected to be built on top of OpenCL, so by transitivity when you use SYCL, often you use OpenCL.
+
+Since TensorFlow uses Eigen which uses a single source C++ approach with single source CUDA, when it was later ported to OpenCL, SYCL was chosen because it is the Khronos Group standard way to have single source C++.
+
+But if you think about CUDA, it is even more subtle.
+
+Almost everybody uses the high level single source version of CUDA which is actually named CUDA Runtime API. This is somehow similar to SYCL.
+But there is actually a less known low level non single source version of CUDA which is called CUDA Driver API, similar to OpenCL, and used for example by the CUDA Runtime API implementation itself.
+
+Since it is a kind of FAQ, I clarified a little bit LINKLINK and LINKLINK ComputeCpp which is the SYCL implementation you are using with TensorFlow does not yet support Ubuntu 17.10. You would need to stick to Ubuntu 16.04 which is the current LTS. Instructions and pre requisites are here LINKLINK 
+
+As an aside, OpenCL support for TensorFlow does not mean just AMD device support. The SYCL integration is also enabling other OpenCL devices. As part of the work we are doing with TensorFlow, support for ARM and Intel GPUs will be available when the latest drivers from these companies are available. We are also working to enable support for Renesas accelerator processors too for the R Car platform. rodburns Thanks! I have this working on Arch Linux 4.14.4 kernel with the opencl amd library from the Arch User Repository. The card is a Bonaire GCN 2. I'll run the tests on that page to verify that it's doing what it should.GCN 2nd gen aka 1.1 if any, 2.0 doesn't exist. 
+ should stoop to be so pedantic SUCCESS!
+
+The latest dev amd gpu branch commits in lukeiwanski fork fixed my Tensorflow OpenCL compile issue. I assume it was the SysCL 1.1 related commits.
+
+I successfully compiled a Tensorflow OpenCL version and can use it. See my LINKLINK for details.
+
+I also added a benchmarks page where you can find some benchmarks of my setup under different Tensorflow setups non CPU optimized, CPU optimized, OpenCL in the future.
+
+The AMDGPU Pro driver version 17.50 is also working for me. I updated the related LINKLINK document.
+
+Thank you to all contributors.I did some benchmarks and it seems the iGPU is slower than the 4 available CPU threads except of the LINKLINK benchmark.
+
+The initialization of a OpenCL Tensorflow run is also much slower than a CPU only OpenCL Tensorflow run. Something like 5 seconds for CPU vs 1 2 minutes for OpenCL.
+
+Can anybody confirm such results?OK i did some more troubleshooting.
+
+ i used the Tensorflow MNIST example, see the LINKLINK document
+ i used sudo cat sys kernel debug dri 0 amdgpu pm info to check watch the iGPU clock load and top to check the CPU load
+ the intialization phase until Step 0 took about 6 minutes, the iGPU load was about 0, the iGPU clock at 300 MHz the minimal available clock and the python process CPU usage was about 200 2 threads 
+ starting with Step 0 the iGPU load was about 90, the iGPU clock switched always from 654 MHz 720 MHz 800 MHz 900 MHz max available clock and back, the python process CPU usage was about 100 1 CPU thread 
+
+ LINKLINK. 
+After 14 hours yes, my potato is very slow I got LINKLINK, if you want to try. I have tried figuring out whats happening but unfortunately i wasn't able to. I'd appreciate if someone who knows about the following can help me come up to speed!
+
+Most of the above discussion pertained to getting Tensorflow running with OpenCL acceleration on AMD chips. Am I correct in saying this? If I want to get gpu accelerated tensorflow using my integrated graphics card intel HD 5000 which supports opencl, what should be my approach?
+
+Thanks in advance! znmeb Hi Ed, thanks for replying. I have gotten OpenCL downloaded and running on my system. But my question was how can I compile tensorflow to actually use the OpenCL libraries? LINKLINK 
+And most importantly for intel LINKLINK  AlphaCodes Thanks for publishing your results. With regard to the initialisation time, the way OpenCL works is that the code is compiled before execution, so the startup time is the compilation process.
+
+ brainwave For Intel devices, there is a thread with mirh LINKLINK that explains how to remove the restrictions around running devices. We have seen issues with Intel drivers which is why these device types are restricted, but we are hoping that updated drivers will be available soon for Intel devices that improve the support. In the meantime you can re compile TensorFlow with the change to test your own Intel hardware. We are looking at removing the device restrictions in the codebase. AlphasCodes Guys, I apologize for perhaps naive question but why is this build AMD GPU only? Isn't OpenCL supposed to be standard? Do I understand it correctly that it won't work on my Intel Carbon X1 with installed OpenCL 2.0 drivers?If you read the issue that was linked twice, you'd see there's nothing about amd gpu. 
+Intel's is currently excluded, but it has nothing to do with wanting to force users, and there is a temporary workaround discuss there if really any. When i use the amd gpu branch with a jupyter notebook, there seems to be a left over thread. python still uses 100 of one cpu, even after the computation has finished. Restarting the kernel finishes the stray thread. Does anybody else experience this? brainwave unoexperto 
+Sorry I cannot help with Intel OpenCL because i have only AMD OpenCL hardware.
+
+ desperadoduck 
+I don't use jupyter yet. I use a plain bash shell and a virtual Python 3 environment LINKLINK. But i cannot reproduce the issue. There is no CPU usage by a python process after the compute has been completed.
+
+ rodburns 
+Thank you for the information. Is it possible to speed up the initial compile time? for example using all available CPU threads instead of only 50.
+
+ brainwave rodburns 
+For Intel GPU Gen9 under Linux we have seen significantly better DNN performance with Intel's open source Beignet implementation vs the closed source one when benchmarking with common vision nets on PlaidML. Beignet is also easier to install which is nice.Does it support intel graphics hd615 7th gen cpu on ubuntu17.10?
+
+The opencl dirver SRB5.0 for linux64 is running well on ubuntu17.10.
+
+And It has not been updated for a long time:
+ LINKLINK For the love of god, can't you read just 2 two! posts above?
+Discuss the lack of intel gpu or amd cpu support here LINKLINK  znmeb it is a goal to make full use of various computing resources for example cpu, gpu, DSP, any other coprocessor.
+In fact, it depends on the support of hardware vendors: dirver and OS. 
+As i know, you may can't enable both intel GPU and nvida GPU for video during the same time, due to the limitation from vedio driver. You might be able to switch between them.
+However, opencl can use them at the same time. They are both devices in it. choongng That's interesting to know, we did some work to help enable Beignet but the activity on this project seems to have gone a bit quiet.
+
+ znmeb Yes any GPU will probably not perform much better on a small problem, glad you are making some progress though!
+
+ unoexperto ComputeCpp with TensorFlow is able to be used by any hardware that supports SPIR OpenCL intermediate instructions which includes Intel GPUs however as in the thread LINKLINK, we had intentionally prevented it running because we didn't think the current drivers were working at the moment. You can remove that restriction since it sounds like some users have got it working with different Intel drivers. We are also working on enabling this for LINKLINK and LINKLINK processors that have OpenCL drivers. sxpc722 That should work then. By the way, the new machine is Windows 10 and I am not planning to dual boot it with Linux until I absolutely have to do so! I'm sick of chasing down driver and library bugs for vendors looking at you, AMD. In fact, I may put a Windows partition on my workstation for the same AMD reason. ; It has been 14 days with no activity and this issue has an assignee. Please update the label and or status accordingly.The Tensorflow AMD OpenCL performance is very slow according to my tests. So i did some basic tests with an other Deep Learning framework. You will find my setup and benchmarks on my GitHub page LINKLINK.
+
+Long story short. The other Deep Learning framework is about 10 times faster than Tensorflow AMD OpenCL currently. AlphasCodes znmeb I know the TF team prefer to keep the thread TF only, we're happy to host the PlaidML specific conversation over on the PlaidML project. That said, we do hope to eventually support TensorFlow itself as well as non OpenCL platforms for example Apple's Metal for iOS which currently exists in prototype form.
+
+ LINKLINK  choongng Thanks for the information i edited my message accordingly.
+
+ znmeb The AMD A12 9800E iGPU should be GCN v3.
+
+The main and only reason for me to do the benchmarks tests is to find an answer on my question Stay with AMD or switch to Nvidia for my Deep Learning adventure.
+
+And the answer is. I really like the opensource approach of AMD but i will likely switch to Nvidia due to 2 factors. First the Deep Learning software stack for example Tensorflow is much more mature for Nvidia. Second the graphic card offers for my very specific needs must fit into a Dan A4 SFX Case and must be very very silent almost noiseless under full load for hours is very limited or even non existing on AMD side.Is Intel GPUs supported? I think my Iris Pro can speed up the age long training for a bit.
+
+ LINKLINK Just trying to get a sense of the state of this issue. Am I right to say that this repo:
+
+ LINKLINK 
+. built with ComputeCpp, is the current best option for building Tensorflow with general AMD GPU support? And if so, is there any benchmark evidence that this build provides a speedup over CPU?Depends on what you mean by general AMD GPU support. If you mean really old dGPU or APUs, I don't know. But if you have newer 2nd Gen GCN or newer, hipTensorFlow v1.1 running on ROCm was working pretty well. briansp2020 Ah yes I have seen AMD's work on ROCm. Unfortunately they only support Linux though, and it doesn't even seem like support for any other OS is on their roadmap. I'm hoping for something that supports Windows. mjmax Is there any GPU accelerated tensorflow package available for Windows? I thought, if you want GPU accelerated deeplearning, Linux was only choice. If TensorFlow was ported to OpenCL, would that make it easier to port to Windows? I'm not sure why TensorFlow is not available on windows with GPU acceleration when CUDA is supported there. 
+
+I guess this is now off topic, but if anyone know of TensorFlow and or PyTorch for windows that is GPU accelerated, I'd like to know about it as well.  briansp2020 As far as I know, Tensorflow already supports Nvidia GPU acceleration on Windows. CL tensofrflow is already a mess on linux, don't expect anything any soon. 
+If you want to accelerate stuff there, there's only plaidML. 
+ and please, we are already at 500 comments. let's try to only post if really, really necessary  mirh OpenCL Caffe does work on Windows. Sure it's not TensorFlow in terms of features, but pretty solid for Software that has to be deployed everywhere.What about replacing the openCL port with the HIP port backed by AMD? 
+
+ LINKLINK Haha! LifeIsStrange Life is very strange actually. Are you working for the HiP marketing team of AMD? 
+Please look at the subject of this issue: OpenCL support.
+
+This means it is about the Khronos standard LINKLINK and the other SYCL standard from the OpenCL Khronos working group appears at the end of the Overview section.
+
+Of course there is a world outside of this issue, but it is. outside! 
+
+Please try not to increase inconsiderately the entropy of the universe by posting some random posts on this already too lengthy discussion. 
+This comment applies to some other posters here, not only you, by the way.
+This is a GitHub issue to solve a technical problem: having TensorFlow running on devices supporting the OpenCL standard, not a FaceBook page about how people like or dislike tool A or: 
+But please feel free to send some git commits related to this issue we can look at. There is a fork of TensorFlow supporting OpenCL LINKLINK 
+
+And of course benoitsteiner 's work LINKLINK 
+
+IMHO, it is ridiculous that mainstream TF still didn't merged their work.Is the focus here on getting it to run as lomg as it is OpenCL, or making it actually run faster? I'd prefer there not a holy war, but focusing on getting it to run fast on several GPUs. LifeIsStrange's focus is on getting it to work on AMD GPUs and then HIP makes good sense. For others the focus is to make it work on Intel GPUs or Android, and then OpenCL makes much more sense. GPU languages are a mess, so please keep practical, 
+
+If I read some of the comments here, performance is an issue with the OpenCL ports. But unfortunately I cannot see many benchmarks around. Are there more benchmarks than this one? LINKLINK As I understand it, benchmarking is hard if you compare CUDA to OpenCL, because you have to use different hardware. Allegedly, nVidia deliberately made allowed their OpenCL implementation to be somewhat broken, so benchmarking on the same hardware will always result in CUDA looking great.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Sent from my Android device with K 9 Mail. Please excuse my brevity.Comparing only 2 numbers is no information who cares if OpenCL on NVidia runs at half speed if it runs at 4x speed on other GPUs?
+
+I think we'd need these benchmarks: CUDA on NV GPUs reference benchmarks  LINKLINK on AMD, Nvidia and Intel GPUs LINKLINK on AMD, Nvidia and Intel GPUs LINKLINK on AMD, Nvidia and Intel GPUs
+
+The reference benchmarks are easy to be found. We have some high end GPUs here, so only need a place to put the numbers in with links to building docs.OpenCL support It must become true. 
+
+cuda too limited, and nvidia dont want to share it.
+cuda only work for Nv gpus.
+that is dead end for TensorFlow,
+if another TensorFlow come out but more support than TensorFlow.
+if TensorFlow still only support cuda in windows.
+you have to realize TensorFlow not the only choose.
+Why is OpenCL better than HIP? I think OpenCL has failed to gain traction and supporting OpenCL at this point in time probably is counter productive and waist of resources for the whole comunity industry. I'd rather see TensorFlow support HIP directly and let the compiler tool library to take care of the portability.
+
+Isn't it better for software to support 1 language programming model?Software has to support what it has to support to cover every use case. 
+HIP is all bells and whistles at least on the paper if you have supported hardware. But there aren't just newer amd and nvidia cards to this world. 
+
+Now please, for the love of god, complain LINKLINK for any problem with that. 
+And LINKLINK for everybody else interested to the continuation of this issue. I thought, that SPIR V would directly replace CUDA as a cross hardware alternative:
+ LINKLINK 
+
+Why does Google still rely on CUDA?Can these help?
+
+OpenCL random number generation Thomas Wang's:
+
+ CODELCODEL 
+
+OpenCL SHA3hashing forgot who wrote this 
+
+ LINKLINK Please remove the assignee, as this issue is inviting external contributions. Otherwise, remove the CODESCODES label. Thank you.Please remove the assignee, as this issue is inviting external contributions. Otherwise, remove the CODESCODES label. Thank you.It is in Google's interest to support OpenCL, 
+by having a specific company brand vendor 's specific hardware as a dependency for your software, you enforce yourself to pay more for hardware, market competition lowers costs.
+Google has always been about commodity hardware since the very beginning which was and still crucial for Google's success market dominance, having lower data center operating costs, enabled the revolutionary generous essentially free services offerings like Gmail storage space and Google Photos storage space and auto tagging.
+ wesamco No, it isn't necessarily in Google's interest. They make their own hardware something called a TensorBoard, IIRC. They can bypass OpenCL and CUDA CUDnn and make the board run raw TensorFlow code.
+
+There is no such thing it's not like unprocessed food. TPUs need their own DNN library that handles the different types of calls.
+
+It seems it's time for compressing the above discussion into one list again:
+ CodePlay is working on a SYCL backend
+ Hugh Perkins is working on tf coriander
+ AMD is working on a HIP backend
+ PlaidML only supports CPUs at the moment.
+ Status of support for Intel GPUs is unclear.
+
+So choose a project you like and start supporting them. Maybe each of the groups can give a status update on their project?
+
+Do understand that OpenCL has been transformed from a full language to a language definition hardware specification that is represented in SPIRV kernels, which then can be run on top of a platform like OpenCL drivers and later also on Vulkan drivers platforms. So by supporting SYCL, you also support OpenCL.Perfect sum up, but plaidml does run on gpus too. 
+It's just that at the moment they are a backend for keras, not tensorflow. So it's kinda OT there. Hi all, 
+ VincentSC thanks for great sum up of the different efforts! 
+
+
+
+The SYCL approach supports a variety of platforms devices now. The ones I can mention are:
+
+ AMD GPUs FirePro W8100, R9 Nano and R9 380 Series Instructions available LINKLINK or LINKLINK 
+ ARM Mali HiKey 960 Instructions available LINKLINK 
+ Intel GPU SkyLake series with Intel NEO OpenCL driver
+
+When it comes to AMD, at the moment the GPUs mentioned above are using the AMDGPU Pro drivers 17.40 xxx with legacy OpenCL enabled. 
+I don’t see any obvious reason why other series would not work with the assumption that SPIR SPIR V is supported that is 
+
+The main platform we are focusing on is Linux however, we have ongoing efforts to enable Windows in the future. We have no plans to support OSX in near future. I know sad face.
+
+Our focus is on improving performance for CNNs. Current performance is unoptimized and nowhere near where we see it ending up. That said, we are already beating CPU performance for most models on different targets.
+
+In order to speed up the development cycle and reduce overall compilation time of TensorFlow as well as improve portability we are working on Eigen, BLAS and DNN libraries.
+These libraries aim to solve the performance issue as well as building up an ecosystem of portable libraries that can be easily integrated with complex projects like TensorFlow.
+
+Below, see graphs for performance that we can share at present. They are taken from my fork LINKLINK at 271093b21cc5ca38e8699e154b5cada96bd7ac0d.
+The benchmark used is LINKLINK 
+
+ LINKLINK 
+Graph is normalised to Intel i7 4790K results.
+
+We are slowly upstreaming changes to Eigen once that happens we will follow with TensorFlow.
+
+Hope that helps,
+Luke
+For deep learning inference on mobile devices with GPU OpenCL support, you can checkout LINKLINK, which is optimized for Adreno, Mali and PowerVR GPUs. Here are some LINKLINK. keryell benoitsteiner, which version of tensorflow and trisycl are required for integration. I am having trouble building tensorflow 1.9 with latest trisycl release.Unfortunately the latest TensorFlow is using more advanced features than the current triSYCL can cope with, so you have to use ComputeCpp, currently the only fully compliant SYCL implementation. Tensorflow is supported by Google Brain, and Google has partnership with nVidia, I guess that we shall not expect from Tensorflow to support OpenCL
+Big OpenCL community effort is neededOpenCL support please!OpenCL is more suitable for us too. Makhaon Me too. I can't afford to buy a machine with NVIDIA graphic card.Besides the above 2 posts, I'd like to add that now AMD's Vega GPUs including the ones inside Raven Ridge APUs can do FP16 at twice the FLOPS, so if TF could support them through OpenCL it would really help people with less budget. Also a lot of these people would be students, and if we get them to use TF as the starting point of their DNN journey, they would probably stick with TF down the road, and even tell others about TF; it's a great way to help expand this project.I think this thread is mostly meaningless for developers too much noise and I'll add some more ; but I think many comments are missing the point:
+ If you want to run Tensorflow with AMD cards OpenCL IS NOT what you are looking for please head over to LINKLINK and install the ROCm stack. AFAIK AMD's current strategy is based on ROCm instead of OpenCL for Tensorflow pytorch.
+
+Generic OpenCL was too much maintenance did not give enough performance benefits to be worthwhile for AMD. Therefore this ticket is only interesting if you are running for example an ARM platform which uses OpenCL only.
+
+ Disclaimer: just an outsider, no real inside into Tensorflow development so maybe the information above completely wrong and misleading. Feel free to bash me if you know better. Just a thought, what about llvm with the new GPU offload? That would put a great level of abstraction between tensorflow and cuda specific code. What about all of you reading just 10 posts above and noticing there already is a fork by lukeiwanski codeplaysoftware you can try?
+ also my hats off to xiaomi for, once, contributing some serious kind of open source effort  FelixSchwarz Just so you are aware ROCm uses OpenCL, it is AMD's userspace OpenCL driver on Linux that is why is why it doesn't support windows, so if you are not aware of how AMD's driver ecosystem on linux works, they have their kernel side drivers AMDGPU and AMDKFD which is now getting merged into AMDGPU then there is the userspace drivers RadeonSI for OpenGL RadV AMDVLK for Vulkan and ROCm for OpenCL. Judging by the dynamics of this bug and other forks Google has zero interest in this and will never implement this in the official repository. I would vote for closing this issue or locking it at all to not give any false hopes for everyone.The issue should be here to at least point here all the folks who will
+inevitably open it again.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+There is a TensorRT that supports Movidius Pi Hat. And that Movidius Pi Hat is Google’s 45 “AIY Vision Kit”. Google links to Target to buy it.
+
+This doesn't have any ties to CUDA or Nvidia? Says it uses an Intel chip. At its heart, maybe the chip is a FPGA? Anyone know anything more about it? I know quite a bit about the big Movidius unit it's inference only and it runs either TensorFlow or Caffe pre compiled models. IIRC they're all in 16 bit mode.
+
+The Movidius chip itself is much more powerful but you have to be a qualified partner to get the SDK.Have some link for other that try to have tensor opencl:
+
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+ LINKLINK repository is out of date 
+ LINKLINK 
+Maybe worth to check also:
+
+ LINKLINK 
+ LINKLINK 
+ LINKLINK 
+
+Feel free add working projects. Is there any update? This issue is over 3 years old.YES THERE IS JUST LOOK AT THE LAST HANDFUL OF POSTS.  filips123 no, there are no updates and will never be in any foreseeable future probability of that is lower than of alien invasion and finding a way to travel back in time.This intel initiative PlaidML works reasonably well, worth checking it out. 
+ LINKLINK 
+It runs on opencl OR metal on mac. It works with Macbook Pro AMD gpus, which is what I was looking for.
+Meanwhile, could you guys help vote for Pytorch support in PlaidML? LINKLINK PlaidML is certainly all nice and dandy I, for one, somehow could get more performance on an nvidia gpu on opencl than with tf's cuda itself.
+But it's a backend for keras? In complete replacement to tensorflow, which you know, it's the repo we are discussing this in?
+ for as much as I seem to understand latest tf versions can export models directly to keras? so there's that. 
+
+Anyway, for the fourth damn time, if you want a recent solution on opencl and something still being actively developed and also the thing with the actual chances to be merged here for real one day, there's just codeplay stack. 
+Again: 
+ LINKLINK 
+ LINKLINK 
+
+
+
+
+
+
+
+
+My apologies, I had not realised there was no tensorflow support. My assuming brain thought that keras gpu support tensorflow support. plaidML is super cool. Works on keras.
+Of course I had to transfer some tf code to pure keras in order to work on plaidML backend for example tf. image. ssim 
+But result my code works on NVIDIA and AMD cards.
+
+Also plaidML is heaven for researchers. It automatically generates gradient for any function you will write on Tile language and it will work on your GPU with 80 speed of tensorflow.
+
+So I cannot understand why ML researchers still using PyTorch? Let's boost ML science with Intel's plaidML? iperov Care to know why practically no one uses PlaidML? 
+ It runs pitifully slow on AMD's OpenCL implementations compared to Tensorflow's CUDA backend so there goes at least half the reason to use it. Performance so bad that using Tensorflow with CPUs is competitive or even outright beats their hardware using PlaidML? 
+ Nobody is interested in maintaining their specialized Tile programming language in which only someone like a pure maths professor would concoct so PlaidML's code quality just goes down the drain and no serious programmers in their right mind would want to deal with overly clever code. 
+ This pretty much ties into 2 but ever since Intel bought out Vertex. AI, they don't care about PlaidML anymore. Intel's solution for GPU compute accelerated machine learning is introducing a new compiler specifically for deep learning now known as LINKLINK to target Tensorflow, PyTorch or other deep learning frameworks as a backend for them. No reason for them to keep developing PlaidML anymore as their intermediary when they have nGraph. 
+
+People use PyTorch for other reasons such as maintainability or other features so to sum it up PlaidML is Intel's tool and they probably don't intend for it to play in any role of the final parts of their plans. nGraph's current Intel GPU backend is based off of OpenCL 2.1 of which only Intel has a conformant implementation so Intel only exists to look out for themselves rather than purely for the betterment of machine learning. When Intel goes on to further developing nGraph, I can't see them continue basing off their GPU backend on OpenCL 2.1 alone since many deep learning frameworks have templated kernels which are not compatible with OpenCL, Metal or Vulkan's separate source programming models so it's probably only for experimentation purposes. Intel's final GPU backend is probably going to either be based off of SYCL 2.2 or something else entirely different like OpenMP and maybe they'll even bring a vendor specific solution. 
+
+As for AMD, who cares? OpenCL is irrelevant to them and they're finally showing some results with their work on HIP. 
+
+
+
+
+
+
+
+
+
+What about all GPU inside arm machine like mobile phones and raspberry pi odroid and etc? 
+They don't support opencl? 
+Google should care about insert tensorflow on gpu on android. 
+The biggest libraries of neural network training run only on Nvidia gpu, it just make Nvidia gpu more and more expensive because it people and companies only buy it for professional neural network training, then google will lose more money that way. 
+ Degerz from which planet you are came from?
+How you can compare tf CPU and AMD GPU?
+AMD GPU on plaidML x30 faster than tf CPU 
+
+
+
+in my deepfakes tests OpenCL slower only by 20, but in some mini networks OpenCL is 20 FASTER.
+
+My project DeepFaceLab has many users that have been waiting for the support of AMD. How many people were delighted when deepfakes can finally be trained on AMD cards.
+Also plaidML is the only backend for keras that supports AMD IntelHD out of the box.
+If a new AMD backend for keras appears, of course my project will switch to it.
+PyTorch has no future. 
+
+What to maintain in plaidML? Ops are auto differentiable, there is nothing to maintain.
+
+
+
+Machine learning is invented by professors of mathematics, isn't it?
+ talregev What about ARM or Broadcom? The former probably has subpar OpenCL implementation and the latter doesn't even officially provide OpenCL drivers! It's not Google's responsibility to create and maintain a competent compute stack for hardware vendors. 
+
+ iperov You realize that training neural nets with embedding layers on PlaidML is painful, right? PlaidML also has a bunch of other limitations as well such as not being all that well suited for DenseNets or the fact that it's computation graphs are static and does PlaidML even work well with RNNs?
+
+As for your project, don't worry about it. You'll move on to something better like Tensorflow since AMD will soon offer a native GPU backend for it once MIOpen gets upstreamed which is their GPU accelerated library of primitives for deep neural networks similar to their competitor's cuDNN library both of which will leave PlaidML in the dust in terms of performance. Who cares about Intel iGPUs anyway? If Intel is truly committed to delivering high performance deep learning on their future discrete graphics hardware then they'll offer a single source option just like the others AMD HIP and Nvidia CUDA did before them. 
+
+
+
+Envy much? PyTorch is 10x more popular than PlaidML, newest techniques in DL are implemented easily on PyTorch, tons of different contributors and is actively developed by Facebook all the while Intel hasn't contributed to PlaidML in nearly a month?
+
+
+
+So I take it from you that PlaidML shouldn't receive any new fixes or new features in the future going forward? If you don't see the value in improving code then there's no point in convincing you to acknowledge PlaidML's glaring flaws. 
+
+
+
+Doesn't mean we have to take up whatever programming language they make up especially in the case of Tile where elegance is clearly favoured over readability. It's no wonder why so many potential contributors are scared away from contributing. Jesus, I wish you guys STFU and get back to work instead. I'll have to unsubscribe from the ticket because it's unbearable to get emails with flame wars. Too bad maintainers do not mute the thread.
+
+ gunan caisq sanjoy Could you please do something about it?Closing the issue, please refer here LINKLINK 

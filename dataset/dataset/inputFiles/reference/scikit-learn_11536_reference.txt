@@ -1,0 +1,2 @@
+Recently we made liblinear report convergence failures.
+Now this is reported in lots of places. I expect our users will start to see it everywhere. Should we change something? It's weird if most uses of LinearSVC result in a failure now.

@@ -1,0 +1,9 @@
+I have been searching hours on this problem and can consistently replicate it:
+
+ CODELCODEL 
+
+This snippet crashes because of scoring metrics. make scorer metrics. scorer. f1 score, average macro where metrics refers to sklearn. metrics module. If I cancel out the scoring. line, the parallel execution works. If I want to use the f1 score as evaluation method, I have to cancel out the parallel execution by setting n jobs 
+
+Is there a way I can define another score method without losing the parallel execution possibility?
+
+Thanks
