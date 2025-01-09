@@ -12,7 +12,6 @@ The code is divided into three branches: extension, backend and engine.
 `engine` should be installed first, followed by `backend` and then `extension`.
 
 ## Prototyping
-### Extension Workflows and Prototyping
  - Low Fidelity Prototype - [Framer](https://framer.com/projects/Workflows--uaQXHkOrhF2AM8bJUV5G-dw8tf?node=CyT28blr2)
  
  - Workflow Description - [Google Docs](https://docs.google.com/document/d/1woU-rZdAkzUoJN3JxoqpijYXmlQweyoaSTOqeqH54HU/edit#heading=h.g7m8uvm3vuuu)
